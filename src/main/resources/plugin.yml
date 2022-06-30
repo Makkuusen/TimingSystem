@@ -1,0 +1,75 @@
+name: Race
+main: me.makkuusen.timing.system.Race
+version: ${project.version}
+authors: [Markus Hellquist (Makkuusen)]
+depend: [WorldEdit]
+softdepend: [HolographicDisplays]
+api-version: 1.18
+commands:
+   track:
+      description: Command for managing tracks.
+      aliases: [t]
+   race:
+      description: Command for running tracks.
+      aliases: []
+
+permissions:
+   race.command.race:
+      description: Player can open race menu
+      default: false
+
+   race.command.start:
+      description: Player can start time on tracks
+      default: false
+
+   race.command.cancel:
+      description: Player can cancel runs
+      default: false
+
+   race.command.list:
+      description: Player can list tracks
+      default: false
+
+   race.command.info:
+      description: Player can see info on track
+      default: false
+
+   race.command.help:
+      description: Player can see all commands
+      default: false
+
+   track.command.help:
+      description: Player can see all commands
+      default: false
+
+   track.command.create:
+      description: Player can create track
+      default: false
+
+   track.command.delete:
+      description: Player can delete track
+      default: false
+
+   track.command.info:
+      description: Player can see info on track
+      default: false
+
+   track.command.set:
+      description: Player can change track
+      default: false
+
+   track.command.toggle:
+      description: Player can change track
+      default: false
+
+   track.command.updateleaderboards:
+      description: Player can force update leaderboards
+      default: false
+
+   track.command.deletebesttime:
+      description: Player can delete times
+      default: false
+
+   track.command.override:
+      description: Player can toggle override
+      default: false

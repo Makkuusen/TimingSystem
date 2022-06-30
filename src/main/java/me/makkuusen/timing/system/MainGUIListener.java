@@ -1,0 +1,66 @@
+package me.makkuusen.timing.system;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+
+public class MainGUIListener implements Listener
+{
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent e)
+    {
+        if (e.getInventory() != null) {
+
+            if (e.getView().getTitle() != null)
+            {
+                if (e.getView().getTitle().startsWith(RaceUtilities.color("&3&lStatliga")) || e.getView().getTitle().startsWith(RaceUtilities.color("&2&lPersonliga")))
+                {
+                    e.setCancelled(true);
+                    Player player = (Player) e.getWhoClicked();
+
+                    if ((!(e.getClickedInventory() == player.getInventory())) && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR)
+                    {
+
+                        ItemStack item = e.getCurrentItem();
+
+                        if (item.getItemMeta() == null || item.getType().equals(Material.BLACK_STAINED_GLASS_PANE) || item.getType().equals(Material.GRAY_STAINED_GLASS_PANE))
+                        {
+                            return;
+                        }
+
+                        if (e.getClick() == ClickType.LEFT || e.getClick() == ClickType.SHIFT_LEFT)
+                        {
+
+                            if (item.getItemMeta().getDisplayName().contains("Personliga"))
+                            {
+                                GUIManager.openMainGUI(player, 1);
+                                return;
+                            }
+                            else if (item.getItemMeta().getDisplayName().contains("Statliga"))
+                            {
+                                GUIManager.openMainGUI(player, 0);
+                                return;
+                            }
+
+                            PlayerTimer.playerLeavingMap((Player) e.getWhoClicked());
+                            String mapName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
+                            var maybeTrack = RaceDatabase.getRaceTrack(mapName);
+                            if (maybeTrack.isPresent())
+                            {
+                                var raceTrack = maybeTrack.get();
+                                raceTrack.startRace(((Player) e.getWhoClicked()).getPlayer());
+                                e.getInventory().close();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

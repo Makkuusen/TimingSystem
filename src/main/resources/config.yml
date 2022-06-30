@@ -1,0 +1,21 @@
+leaderboards:
+   updateticks: 6000
+   fastesttime:
+      lines:
+         - '§6§lTopplista för §e§l{mapname}'
+         - '§f{name1} §7- §e{time1}'
+         - '§f{name2} §7- §e{time2}'
+         - '§f{name3} §7- §e{time3}'
+         - '§f{name4} §7- §e{time4}'
+         - '§f{name5} §7- §e{time5}'
+         - '§f{name6} §7- §e{time6}'
+         - '§f{name7} §7- §e{time7}'
+         - '§f{name8} §7- §e{time8}'
+         - '§f{name9} §7- §e{time9}'
+         - '§f{name10} §7- §e{time10}'
+sql:
+   host: '127.0.0.1'
+   port: 3306
+   database: ''
+   username: ''
+   password: ''
