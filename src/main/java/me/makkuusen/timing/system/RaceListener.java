@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import com.destroystokyo.paper.event.server.ServerTickStartEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -22,10 +23,17 @@ import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 
+import java.time.Instant;
 import java.util.Iterator;
 
 public class RaceListener implements Listener
 {
+
+    static Race plugin;
+    @EventHandler
+    public void onTick(ServerTickStartEvent e) {
+        Race.getPlugin().currentTime = Instant.now();
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event)
@@ -116,7 +124,7 @@ public class RaceListener implements Listener
                 RaceTrack track = PlayerTimer.getTrackPlayerIsIn(player);
                 if (track.hasOption('b'))
                 {
-                    player.sendMessage("§cDu lämnade båten och tiden avbröts.");
+                    plugin.sendMessage(player,"messages.error.leftBoat");
                     PlayerTimer.playerLeavingMap(player);
                 }
             }
@@ -273,6 +281,5 @@ public class RaceListener implements Listener
         RPlayer rPlayer = ApiDatabase.getPlayer(event.getPlayer());
         // Set to offline
         rPlayer.setPlayer(null);
-
     }
 }

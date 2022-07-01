@@ -15,6 +15,7 @@ public class PlayerTimer
 {
 
     private static HashMap<UUID, PlayerRunData> playersInMaps = new HashMap<>();
+    static Race plugin;
 
     public static void init()
     {
@@ -82,7 +83,7 @@ public class PlayerTimer
 			return;
 		}
         RPlayer rPlayer = ApiDatabase.getPlayer(p.getUniqueId());
-        playersInMaps.put(rPlayer.getUniqueId(), new PlayerRunData(raceTrack, rPlayer));
+        playersInMaps.put(rPlayer.getUniqueId(), new PlayerRunData(raceTrack, rPlayer, Race.getPlugin().currentTime));
         RaceUtilities.msgConsole(rPlayer.getName() + " started on " + raceTrack.getName());
     }
 
@@ -110,7 +111,7 @@ public class PlayerTimer
         long timeSinceStart = prd.getTimeSinceStart(Instant.now());
         if (Race.getPlugin().verbose.contains(p.getUniqueId()))
         {
-            p.sendMessage("§2Du passerade §akontrollpunkt " + checkpoint + "§2 på §a" + RaceUtilities.formatAsTime(timeSinceStart) + "§2.");
+            plugin.sendMessage(p,"messages.timer.checkpoint", "%checkpoint%", String.valueOf(checkpoint), "%time%", RaceUtilities.formatAsTime(timeSinceStart));
         }
         RaceUtilities.msgConsole(p.getName() + " passed checkpoint " + checkpoint + " on " + m.getName() + " with a time of " + RaceUtilities.formatAsTime(timeSinceStart));
     }
@@ -155,7 +156,7 @@ public class PlayerTimer
 
     public static void playerEndedMap(Player p, RaceTrack raceTrack)
     {
-        Instant endTime = Instant.now();
+        Instant endTime = Race.getPlugin().currentTime;
 
         RPlayer rPlayer = ApiDatabase.getPlayer(p.getUniqueId());
 
@@ -171,30 +172,31 @@ public class PlayerTimer
 
         if (!playersInMaps.get(p.getUniqueId()).hasPassedAllCheckpoints())
         {
-            p.sendMessage("§cDu passerade inte alla kontrollpunkter och tiden var ogiltig!");
+            plugin.sendMessage(p, "messages.error.timer.missedCheckpoints");
             playersInMaps.remove(p.getUniqueId());
             return;
         }
 
         long mapTime = playersInMaps.get(p.getUniqueId()).getTimeSinceStart(endTime);
+        mapTime = Math.round(mapTime/50) * 50;
 
         if (raceTrack.getBestFinish(rPlayer) == null)
         {
-            p.sendMessage("§eNytt rekord!§6 Du klarade §e" + raceTrack.getName() + "§6 på §e" + RaceUtilities.formatAsTime(mapTime) + "§6");
+            plugin.sendMessage(p, "messages.timer.firstFinish", "%map%", raceTrack.getName(), "%time%", RaceUtilities.formatAsTime(mapTime));
             raceTrack.newRaceFinish(mapTime, p.getUniqueId());
             p.playSound(p.getLocation(),Sound.UI_TOAST_CHALLENGE_COMPLETE,SoundCategory.MASTER,1,1);
             LeaderboardManager.updateFastestTimeLeaderboard(raceTrack.getId());
         }
         else if (mapTime < raceTrack.getBestFinish(rPlayer).getTime())
         {
-            p.sendMessage("§eNytt rekord!§6 Du klarade §e" + raceTrack.getName() + "§6 på §e" + RaceUtilities.formatAsTime(mapTime) + "§6. Tidigare rekord var §e" + RaceUtilities.formatAsTime(raceTrack.getBestFinish(rPlayer).getTime()) + "§6.");
+            plugin.sendMessage(p, "messages.timer.newRecord", "%map%", raceTrack.getName(), "%time%", RaceUtilities.formatAsTime(mapTime), "%oldTime%", RaceUtilities.formatAsTime(raceTrack.getBestFinish(rPlayer).getTime()));
             raceTrack.newRaceFinish(mapTime, p.getUniqueId());
             p.playSound(p.getLocation(),Sound.UI_TOAST_CHALLENGE_COMPLETE,SoundCategory.MASTER,1,1);
             LeaderboardManager.updateFastestTimeLeaderboard(raceTrack.getId());
         }
         else
         {
-            p.sendMessage("§2Du klarade §a" + raceTrack.getName() + "§2 på §a" + RaceUtilities.formatAsTime(mapTime) + "§2. " + "Ditt rekord är §a" + RaceUtilities.formatAsTime(raceTrack.getBestFinish(rPlayer).getTime()) + "§2.");
+            plugin.sendMessage(p, "messages.timer.finish", "%map%", raceTrack.getName(), "%time%", RaceUtilities.formatAsTime(mapTime), "%oldTime%", RaceUtilities.formatAsTime(raceTrack.getBestFinish(rPlayer).getTime()));
             raceTrack.newRaceFinish(mapTime, p.getUniqueId());
         }
 

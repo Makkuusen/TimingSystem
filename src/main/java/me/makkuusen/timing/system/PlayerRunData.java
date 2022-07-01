@@ -11,10 +11,10 @@ public class PlayerRunData
     private final boolean[] checkpoints;
     private final long bestFinish;
 
-    public PlayerRunData(RaceTrack track, RPlayer player)
+    public PlayerRunData(RaceTrack track, RPlayer player, Instant startTime)
     {
         this.track = track;
-        this.startTime = Instant.now();
+        this.startTime = startTime;
         this.checkpoints = new boolean[track.getCheckpoints().size()];
         this.bestFinish = getBestFinish(track.getBestFinish(player));
     }

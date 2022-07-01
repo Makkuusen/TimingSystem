@@ -21,6 +21,7 @@ import java.util.List;
 
 public class RaceCommandTrack implements CommandExecutor
 {
+    static Race plugin;
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] arguments)
@@ -28,14 +29,14 @@ public class RaceCommandTrack implements CommandExecutor
 
         if (!(sender instanceof Player player))
         {
-            RaceUtilities.msgConsole("§cKommandot kan enbart användas av spelare");
+            RaceUtilities.msgConsole("§cCommand can only be used by players");
             return false;
         }
         if (arguments.length == 0)
         {
             if (!player.hasPermission("track.command.help") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             else
@@ -49,13 +50,13 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("track.command.create") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
 
             if (arguments.length < 3)
             {
-                sender.sendMessage("§7Syntax: /track create §ntyp§r§7 §nnamn §r§7");
+                sender.sendMessage("§7Syntax: /track create §ntype§r§7 §nname §r§7");
                 return true;
             }
             cmdCreate(player, arguments);
@@ -64,12 +65,12 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("track.command.info") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if (arguments.length < 2)
             {
-                sender.sendMessage("§7Syntax: /track info §nnamn§r§7");
+                sender.sendMessage("§7Syntax: /track info §nname§r§7");
                 return true;
             }
             cmdInfo(player, arguments);
@@ -78,7 +79,7 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("track.command.list"))
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if (arguments.length > 2)
@@ -92,7 +93,7 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("track.command.delete") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
 
@@ -103,23 +104,23 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("track.command.set") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if (arguments.length < 3)
             {
-                player.sendMessage("§7Syntax /track set name §nid§r§7 §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set owner §nspelare§r§7 §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set spawn §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set leaderboard §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set gui §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set type §ntyp§r§7 §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set startregion §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set endregion §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set checkpoint +§nnummer§r§7 §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set checkpoint -§nnummer§r§7 §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set resetregion +§nnummer§r§7 §nnamn§r§7");
-                player.sendMessage("§7Syntax /track set resetregion -§nnummer§r§7 §nnamn§r§7");
+                player.sendMessage("§7Syntax /track set name §nid§r§7 §nname§r§7");
+                player.sendMessage("§7Syntax /track set owner §nplayer§r§7 §nname§r§7");
+                player.sendMessage("§7Syntax /track set spawn §nname§r§7");
+                player.sendMessage("§7Syntax /track set leaderboard §nname§r§7");
+                player.sendMessage("§7Syntax /track set gui §nname§r§7");
+                player.sendMessage("§7Syntax /track set type §ntype§r§7 §nname§r§7");
+                player.sendMessage("§7Syntax /track set startregion §nname§r§7");
+                player.sendMessage("§7Syntax /track set endregion §nname§r§7");
+                player.sendMessage("§7Syntax /track set checkpoint +§nnumber§r§7 §nname§r§7");
+                player.sendMessage("§7Syntax /track set checkpoint -§nnumber§r§7 §nname§r§7");
+                player.sendMessage("§7Syntax /track set resetregion +§nnumber§r§7 §nname§r§7");
+                player.sendMessage("§7Syntax /track set resetregion -§nnumber§r§7 §nname§r§7");
                 return true;
             }
             cmdSet(player, arguments);
@@ -128,12 +129,12 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("track.command.toggle") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if (arguments.length < 3)
             {
-                player.sendMessage("§7Syntax /track toggle open §nnamn§r§7");
+                player.sendMessage("§7Syntax /track toggle open §nname§r§7");
                 return true;
             }
             cmdToggle(player, arguments);
@@ -142,12 +143,12 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("track.command.options") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if (arguments.length < 3)
             {
-                player.sendMessage("§7Syntax /track options §nändring§r§7 §nbana");
+                player.sendMessage("§7Syntax /track options §nchange§r§7 §ntrack");
                 return true;
             }
             cmdOptions(player, arguments);
@@ -156,7 +157,7 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (!player.hasPermission("track.command.help") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             cmdHelp(player);
@@ -166,7 +167,7 @@ public class RaceCommandTrack implements CommandExecutor
 
             if (!player.hasPermission("track.command.updateleaderboards") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if (arguments.length != 1)
@@ -175,27 +176,26 @@ public class RaceCommandTrack implements CommandExecutor
                 return true;
             }
             Bukkit.getScheduler().runTaskAsynchronously(Race.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(sender));
-            sender.sendMessage("§aFörsöker uppdatera topplistorna.");
+            plugin.sendMessage(sender, "messages.update.leaderboards");
         }
         else if (arguments[0].equalsIgnoreCase("deletebesttime"))
         {
             if (!player.hasPermission("track.command.deletebesttime") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
-            // ISSUE #1
-            // /parkouradmin resetbesttime <playerUuid> <map>
+
             if (arguments.length < 3)
             {
-                sender.sendMessage("§7Syntax: /track deletebesttime §nspelare§r§7 §nnamn§r§7");
+                sender.sendMessage("§7Syntax: /track deletebesttime §nplayer§r§7 §nname§r§7");
                 return true;
             }
 
             RPlayer rPlayer = ApiDatabase.getPlayer(arguments[1]);
             if (rPlayer == null)
             {
-                player.sendMessage("§cSpelaren kunde inte hittas.");
+                plugin.sendMessage(player,"messages.error.missing.player");
                 return true;
             }
 
@@ -203,18 +203,18 @@ public class RaceCommandTrack implements CommandExecutor
             var maybeTrack = RaceDatabase.getRaceTrack(potentialMapName);
             if (maybeTrack.isEmpty())
             {
-                sender.sendMessage("§cKan inte hitta banan");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return true;
             }
             RaceTrack track = maybeTrack.get();
             RaceFinish bestFinish = track.getBestFinish(rPlayer);
             if (bestFinish == null)
             {
-                sender.sendMessage("§cBästatiden kunde inte hittas");
+                plugin.sendMessage(player,"messages.error.missing.bestTime");
                 return true;
             }
             track.deleteBestFinish(rPlayer, bestFinish);
-            sender.sendMessage("§aÅterställde bästa varvtid för " + rPlayer.getName() + " på " + potentialMapName + ".");
+            plugin.sendMessage(player, "messages.remove.bestTime", "%player%", rPlayer.getName(), "%map%", potentialMapName);
             LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
             return true;
         }
@@ -222,26 +222,26 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("track.command.override"))
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
 
             if (Race.getPlugin().override.contains(player.getUniqueId()))
             {
                 Race.getPlugin().override.remove(player.getUniqueId());
-                player.sendMessage("§aÖverskridningsläget har stängts av.");
+                plugin.sendMessage(player, "messages.remove.override");
             }
 
             else
             {
                 Race.getPlugin().override.add(player.getUniqueId());
-                player.sendMessage("§aÖverskridningsläget har aktiverats.");
+                plugin.sendMessage(player, "messages.create.override");
             }
             return true;
         }
         else
         {
-            sender.sendMessage("§7Okänt kommando. Skriv §n/track help§r§7 för en lista på kommandon.");
+            plugin.sendMessage(player,"messages.errror.unknownCommand", "%command%", "track");
         }
         return false;
     }
@@ -249,46 +249,47 @@ public class RaceCommandTrack implements CommandExecutor
     static void cmdHelp(Player player)
     {
         player.sendMessage("");
-        player.sendMessage("§2---§a Hjälp: /track §2---");
+        plugin.sendMessage(player, "messages.help", "%command%" , "track");
+
         if (player.isOp() || player.hasPermission("track.command.create"))
         {
-            player.sendMessage("§2/track create §atyp namn");
+            player.sendMessage("§2/track create §atype name");
         }
         if (player.isOp() || player.hasPermission("track.command.delete"))
         {
-            player.sendMessage("§2/track delete §anamn");
+            player.sendMessage("§2/track delete §aname");
         }
         if (player.isOp() || player.hasPermission("track.command.info"))
         {
-            player.sendMessage("§2/track info §anamn");
+            player.sendMessage("§2/track info §aname");
         }
         if (player.isOp() || player.hasPermission("track.command.list"))
         {
-            player.sendMessage("§2/track list [§asida§2]");
+            player.sendMessage("§2/track list [§apage§2]");
         }
         if (player.isOp() || player.hasPermission("track.command.set"))
         {
-            player.sendMessage("§2/track set name §aid §anamn");
-            player.sendMessage("§2/track set owner §aspelare namn");
-            player.sendMessage("§2/track set spawn §anamn");
-            player.sendMessage("§2/track set leaderboard §anamn");
-            player.sendMessage("§2/track set gui §anamn");
-            player.sendMessage("§2/track set type §atyp namn");
-            player.sendMessage("§2/track set startregion §anamn");
-            player.sendMessage("§2/track set endregion §anamn");
-            player.sendMessage("§2/track set checkpoint +§anummer §anamn");
-            player.sendMessage("§2/track set checkpoint -§anummer §anamn");
-            player.sendMessage("§2/track set resetregion +§anummer §anamn");
-            player.sendMessage("§2/track set resetregion -§anummer §anamn");
+            player.sendMessage("§2/track set name §aid §aname");
+            player.sendMessage("§2/track set owner §aplayer §aname");
+            player.sendMessage("§2/track set spawn §aname");
+            player.sendMessage("§2/track set leaderboard §aname");
+            player.sendMessage("§2/track set gui §aname");
+            player.sendMessage("§2/track set type §atype §aname");
+            player.sendMessage("§2/track set startregion §aname");
+            player.sendMessage("§2/track set endregion §aname");
+            player.sendMessage("§2/track set checkpoint +§anumber §aname");
+            player.sendMessage("§2/track set checkpoint -§anumber §aname");
+            player.sendMessage("§2/track set resetregion +§anumber §aname");
+            player.sendMessage("§2/track set resetregion -§anumber §aname");
         }
         if (player.isOp() || player.hasPermission("track.command.toggle"))
         {
-            player.sendMessage("§2/track toggle open §anamn");
-            player.sendMessage("§2/track toggle government §anamn");
+            player.sendMessage("§2/track toggle open §aname");
+            player.sendMessage("§2/track toggle government §aname");
         }
         if (player.isOp() || player.hasPermission("track.command.options"))
         {
-            player.sendMessage("§2/track options §aändring §anamn");
+            player.sendMessage("§2/track options §achange §aname");
         }
         if (player.isOp() || player.hasPermission("track.command.updateleaderboards"))
         {
@@ -296,7 +297,7 @@ public class RaceCommandTrack implements CommandExecutor
         }
         if (player.isOp() || player.hasPermission("track.command.deletebesttime"))
         {
-            player.sendMessage("§2/track deletebesttime §aspelare namn");
+            player.sendMessage("§2/track deletebesttime §aplayer namn");
         }
         if (player.isOp() || player.hasPermission("track.command.override"))
         {
@@ -309,27 +310,28 @@ public class RaceCommandTrack implements CommandExecutor
 
         String name = ApiUtilities.concat(arguments, 2);
 
-        if (name.length() > 25)
+        int maxLength = 25;
+        if (name.length() > maxLength)
         {
-            player.sendMessage("§cNamnets längd får inte överstiga 25 tecken.");
+            plugin.sendMessage(player, "messages.error.nametoLong", "%length%", String.valueOf(maxLength));
             return;
         }
 
         if (!name.matches("[A-Za-zÅÄÖåäöØÆøæ0-9 ]+"))
         {
-            player.sendMessage("§cNamnet kan endast innehålla alfabetiska tecken, mellanslag och siffror.");
+            plugin.sendMessage(player, "messages.error.nameRegexException");
             return;
         }
 
         if (!RaceDatabase.trackNameAvailable(name))
         {
-            player.sendMessage("§cDet finns redan en bana med det givna namnet.");
+            plugin.sendMessage(player, "messages.error.trackExists");
             return;
         }
 
         if(player.getInventory().getItemInMainHand().getItemMeta() == null)
         {
-            player.sendMessage("§cDu behöver hålla ett föremål i handen.");
+            plugin.sendMessage(player, "messages.error.missing.item");
             return;
         }
 
@@ -347,11 +349,11 @@ public class RaceCommandTrack implements CommandExecutor
         RaceTrack track = RaceDatabase.trackNew(name, player.getUniqueId(), player.getLocation(), t, player.getInventory().getItemInMainHand());
         if (track == null)
         {
-            player.sendMessage("§cNågot gick fel.");
+            plugin.sendMessage(player, "messages.error.generic");
             return;
         }
 
-        player.sendMessage("§aDu skapade " + name + ".");
+        plugin.sendMessage(player, "messages.create.name", "%name%", name);
         LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
     }
 
@@ -361,20 +363,20 @@ public class RaceCommandTrack implements CommandExecutor
         var maybeTrack = RaceDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
-            player.sendMessage("§cDet finns ingen bana med det namnet.");
+            plugin.sendMessage(player,"messages.error.missing.track");
             return;
         }
         var track = maybeTrack.get();
-        player.sendMessage("");
-        player.sendMessage("§2--- §aBana: " + track.getName() + " (" + track.getId() + ") §2---");
-        player.sendMessage("§2Öppen: §a" + (track.isOpen() ? "Ja" : "Nej") + "    §2Bantyp:§a " + track.getTypeAsString());
-        player.sendMessage("§2Skapad:§a " + ApiUtilities.niceDate(track.getDateCreated()) + "§2 ägs av §a" + track.getOwner().getName());
-        player.sendMessage("§2Alternativ: §a+" + RaceUtilities.formatPermissions(track.getOptions()));
-        player.sendMessage("§2Checkpoint teleportering:§a " + (track.hasOption('c') ? "Ja" : "Nej"));
-        player.sendMessage("§2Antal checkpoints:§a " + track.getCheckpoints().size());
-        player.sendMessage("§2Antal resetregioner:§a " + track.getResetRegions().size());
-        player.sendMessage("§2Startpunkt:§a " + ApiUtilities.niceLocation(track.getSpawnLocation()));
-        player.sendMessage("§2Topplista:§a " + ApiUtilities.niceLocation(track.getLeaderboardLocation()));
+        player.sendMessage(" ");
+        plugin.sendMessage(player, "messages.info.track.name", "%name%", track.getName(), "%id%", String.valueOf(track.getId()));
+        plugin.sendMessage(player, "messages.info.track.type", "%open%", track.isOpen() ? "Ja" : "Nej", "%type%", track.getTypeAsString());
+        plugin.sendMessage(player, "messages.info.track.created", "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
+        plugin.sendMessage(player, "messages.info.track.options", "%options%", RaceUtilities.formatPermissions(track.getOptions()));
+        plugin.sendMessage(player, "messages.info.track.checkpointTeleport", "%teleport%", track.hasOption('c') ? "Ja" : "Nej");
+        plugin.sendMessage(player, "messages.info.track.checkpoints", "%size%", String.valueOf(track.getCheckpoints().size()));
+        plugin.sendMessage(player, "messages.info.track.resets", "%size%", String.valueOf(track.getResetRegions().size()));
+        plugin.sendMessage(player, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
+        plugin.sendMessage(player, "messages.info.track.leaderboard", "%location%", ApiUtilities.niceLocation(track.getLeaderboardLocation()));
     }
 
     static void cmdList(Player player, String[] arguments)
@@ -398,7 +400,7 @@ public class RaceCommandTrack implements CommandExecutor
 
         if (RaceDatabase.getRaceTracks().size() == 0)
         {
-            player.sendMessage("§cDet finns inga banor.");
+            plugin.sendMessage(player, "messages.error.missing.tracks");
             return;
         }
 
@@ -410,7 +412,7 @@ public class RaceCommandTrack implements CommandExecutor
 
         if (start >= RaceDatabase.getRaceTracks().size())
         {
-            player.sendMessage("§cDet finns inte så många sidor att visa.");
+            plugin.sendMessage(player, "messages.error.missing.page");
             return;
         }
 
@@ -427,7 +429,7 @@ public class RaceCommandTrack implements CommandExecutor
 
         }
 
-        player.sendMessage("§2--- §aBanor (sida §l" + pageStart + " §r§aav §l" + ((int) Math.ceil(((double) RaceDatabase.getRaceTracks().size()) / ((double) itemsPerPage))) + "§r§a) §2---");
+        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) RaceDatabase.getRaceTracks().size()) / ((double) itemsPerPage))));
         player.sendMessage("§2" + tmpMessage.substring(0, tmpMessage.length() - 2));
     }
 
@@ -437,11 +439,11 @@ public class RaceCommandTrack implements CommandExecutor
         var maybeTrack = RaceDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
-            player.sendMessage("§cDet finns ingen bana med det namnet.");
+            plugin.sendMessage(player,"messages.error.missing.track");
             return;
         }
         RaceDatabase.removeRaceTrack(maybeTrack.get());
-        player.sendMessage("§aBanan har tagits bort.");
+        plugin.sendMessage(player,"messages.remove.track");
 
     }
 
@@ -452,25 +454,40 @@ public class RaceCommandTrack implements CommandExecutor
         var maybeTrack = RaceDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
-            player.sendMessage("§cDet finns ingen bana med det namnet.");
+            plugin.sendMessage(player,"messages.error.missing.track");
             return;
         }
         RaceTrack raceTrack = maybeTrack.get();
         if (command.equalsIgnoreCase("open"))
         {
             raceTrack.setToggleOpen(!raceTrack.isOpen());
-            player.sendMessage("§aBanan är nu " + (raceTrack.isOpen() ? "öppen." : "stängd."));
+
+            if (raceTrack.isOpen())
+            {
+                plugin.sendMessage(player, "messages.toggle.track.open");
+            }
+            else
+            {
+                plugin.sendMessage(player, "messages.toggle.track.closed");
+            }
         }
         else if (command.equalsIgnoreCase("government"))
         {
             raceTrack.setToggleGovernment(!raceTrack.isGovernment());
-            player.sendMessage("§aBanan är nu " + (raceTrack.isGovernment() ? "statlig." : "privat."));
+            if (raceTrack.isGovernment())
+            {
+                plugin.sendMessage(player, "messages.toggle.track.government");
+            }
+            else
+            {
+                plugin.sendMessage(player, "messages.toggle.track.private");
+            }
 
         }
         else
         {
-            player.sendMessage("§7Syntax /track toggle open §nnamn§r§7");
-            player.sendMessage("§7Syntax /track toggle government §nnamn§r§7");
+            player.sendMessage("§7Syntax /track toggle open §nname§r§7");
+            player.sendMessage("§7Syntax /track toggle government §nname§r§7");
         }
     }
 
@@ -482,7 +499,7 @@ public class RaceCommandTrack implements CommandExecutor
         var maybeTrack = RaceDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
-            player.sendMessage("§cDet finns ingen bana med det namnet.");
+            plugin.sendMessage(player,"messages.error.missing.track");
             return;
         }
         RaceTrack track = maybeTrack.get();
@@ -490,17 +507,17 @@ public class RaceCommandTrack implements CommandExecutor
         String newOptions = RaceUtilities.parseFlagChange(track.getOptions(), options);
         if (newOptions == null)
         {
-            player.sendMessage("§cInga rättighetsflaggor ändrades.");
+            plugin.sendMessage(player, "messages.save.generic");
             return;
         }
 
         if (newOptions.length() == 0)
         {
-            player.sendMessage("§aAlla alternativen har tagits bort.");
+            plugin.sendMessage(player, "messages.options.allRemoved");
         }
         else
         {
-            player.sendMessage("§aAlternativen är nu: " + RaceUtilities.formatPermissions(newOptions.toCharArray()));
+            plugin.sendMessage(player, "messages.options.list", "%options%", RaceUtilities.formatPermissions(newOptions.toCharArray()));
         }
         track.setOptions(newOptions);
     }
@@ -515,7 +532,8 @@ public class RaceCommandTrack implements CommandExecutor
             var maybeTrack = RaceDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
-                player.sendMessage("§cDet finns ingen bana med det namnet.");
+                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
             cmdSetStartRegion(player, maybeTrack.get());
@@ -527,7 +545,7 @@ public class RaceCommandTrack implements CommandExecutor
             var maybeTrack = RaceDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
-                player.sendMessage("§cDet finns ingen bana med det namnet.");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
             cmdSetEndRegion(player, maybeTrack.get());
@@ -539,11 +557,11 @@ public class RaceCommandTrack implements CommandExecutor
             var maybeTrack = RaceDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
-                player.sendMessage("§cDet finns ingen bana med det namnet.");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
             maybeTrack.get().setSpawnLocation(player.getLocation());
-            player.sendMessage("§aStartpunkten har sparats ner.");
+            plugin.sendMessage(player,"messages.save.generic");
 
         }
         else if (command.equalsIgnoreCase("leaderboard"))
@@ -552,7 +570,7 @@ public class RaceCommandTrack implements CommandExecutor
             var maybeTrack = RaceDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
-                player.sendMessage("§cDet finns ingen bana med det namnet.");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
             RaceTrack track = maybeTrack.get();
@@ -560,21 +578,21 @@ public class RaceCommandTrack implements CommandExecutor
             loc.setY(loc.getY() + 3);
             track.setLeaderboardLocation(loc);
             LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
-            player.sendMessage("§aKoordinater för topplistan har sparats ner.");
+            plugin.sendMessage(player,"messages.save.generic");
 
         }
         else if (command.equalsIgnoreCase("gui"))
         {
             if (arguments.length < 3)
             {
-                player.sendMessage("§7Syntax /track set gui §nnamn§r§7");
+                player.sendMessage("§7Syntax /track set gui §nname§r§7");
                 return;
             }
             String name = ApiUtilities.concat(arguments, 2);
             var maybeTrack = RaceDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
-                player.sendMessage("§cDet finns ingen bana med det namnet.");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
 
@@ -582,25 +600,25 @@ public class RaceCommandTrack implements CommandExecutor
 
             if(item.getItemMeta() == null)
             {
-                player.sendMessage("§cDu behöver ha ett föremål i handen.");
+                plugin.sendMessage(player,"messages.error.missing.item");
                 return;
             }
             maybeTrack.get().setGuiItem(item);
-            player.sendMessage("§aFöremålet har sparats.");
+            plugin.sendMessage(player,"messages.save.generic");
 
         }
         else if (command.equalsIgnoreCase("type"))
         {
             if (arguments.length < 4)
             {
-                player.sendMessage("§7Syntax /track set type §ntyp§r§7 §nnamn§r§7");
+                player.sendMessage("§7Syntax /track set type §ntype§r§7 §nname§r§7");
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
             var maybeTrack = RaceDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
-                player.sendMessage("§cDet finns ingen bana med det namnet.");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
             cmdSetType(player, maybeTrack.get(), arguments[2]);
@@ -610,7 +628,7 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (arguments.length < 4)
             {
-                player.sendMessage("§7Syntax /track set name §nid§r§7 §nnamn§r§7");
+                player.sendMessage("§7Syntax /track set name §nid§r§7 §nname§r§7");
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
@@ -621,14 +639,14 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (arguments.length < 4)
             {
-                player.sendMessage("§7Syntax /track set owner §nspelare§r§7 §nnamn§r§7");
+                player.sendMessage("§7Syntax /track set owner §nplayer§r§7 §nname§r§7");
                 return;
             }
 
             RPlayer rPlayer = ApiDatabase.getPlayer(arguments[2]);
             if (rPlayer == null)
             {
-                player.sendMessage("§cSpelaren kunde inte hittas.");
+                plugin.sendMessage(player,"messages.error.missing.player");
                 return;
             }
 
@@ -636,24 +654,24 @@ public class RaceCommandTrack implements CommandExecutor
             var maybeTrack = RaceDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
-                player.sendMessage("§cDet finns ingen bana med det namnet.");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
             maybeTrack.get().setOwner(rPlayer);
-            player.sendMessage("§aTypen har sparats ner.");
+            plugin.sendMessage(player,"messages.save.generic");
         }
         else if (command.equalsIgnoreCase("checkpoint"))
         {
             if (arguments.length < 4)
             {
-                player.sendMessage("§7Syntax /track set checkpoint §nnummer§r§7 §nnamn§r§7");
+                player.sendMessage("§7Syntax /track set checkpoint §nnumber§r§7 §nname§r§7");
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
             var maybeTrack = RaceDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
-                player.sendMessage("§cDet finns ingen bana med det namnet.");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
             cmdSetCheckpoint(player, maybeTrack.get(), arguments[2]);
@@ -663,32 +681,32 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (arguments.length < 4)
             {
-                player.sendMessage("§7Syntax /track set resetregion §nnummer§r§7 §nnamn§r§7");
+                player.sendMessage("§7Syntax /track set resetregion §nnumber§r§7 §nname§r§7");
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
             var maybeTrack = RaceDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
-                player.sendMessage("§cDet finns ingen bana med det namnet.");
+                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
             cmdSetResetRegion(player, maybeTrack.get(), arguments[2]);
         }
         else
         {
-            player.sendMessage("§2/track set name §aid anamn");
-            player.sendMessage("§2/track set owner §aspelare namn");
-            player.sendMessage("§2/track set spawn §anamn");
-            player.sendMessage("§2/track set leaderboard §anamn");
-            player.sendMessage("§2/track set gui §anamn");
-            player.sendMessage("§2/track set type §atyp namn");
-            player.sendMessage("§2/track set startregion §anamn");
-            player.sendMessage("§2/track set endregion §anamn");
-            player.sendMessage("§2/track set checkpoint +§anummer §anamn");
-            player.sendMessage("§2/track set checkpoint -§anummer §anamn");
-            player.sendMessage("§2/track set resetregion +§anummer §anamn");
-            player.sendMessage("§2/track set resetregion -§anummer §anamn");
+            player.sendMessage("§2/track set name §aid §aname");
+            player.sendMessage("§2/track set owner §aplayer §aname");
+            player.sendMessage("§2/track set spawn §aname");
+            player.sendMessage("§2/track set leaderboard §aname");
+            player.sendMessage("§2/track set gui §aname");
+            player.sendMessage("§2/track set type §atype §aname");
+            player.sendMessage("§2/track set startregion §aname");
+            player.sendMessage("§2/track set endregion §aname");
+            player.sendMessage("§2/track set checkpoint +§anumber §aname");
+            player.sendMessage("§2/track set checkpoint -§anumber §aname");
+            player.sendMessage("§2/track set resetregion +§anumber §aname");
+            player.sendMessage("§2/track set resetregion -§anumber §aname");
         }
     }
 
@@ -698,45 +716,46 @@ public class RaceCommandTrack implements CommandExecutor
 
         if (trackType == null)
         {
-            player.sendMessage("§cFelaktig bantyp.");
+            plugin.sendMessage(player, "messages.error.trackTypeException");
             return;
         }
         track.setTrackType(trackType);
-        player.sendMessage("§aTypen har sparats.");
+        plugin.sendMessage(player,"messages.save.generic");
     }
 
     static void cmdSetName(Player player, String id, String name)
     {
-        int trackId;
-        try
-        {
-            trackId = Integer.parseInt(id);
-        } catch (NumberFormatException e)
-        {
-            player.sendMessage("§cID måste vara en siffror.");
-            return;
-        }
-        var maybeTrack = RaceDatabase.getTrackById(trackId);
-        if (maybeTrack.isEmpty())
-        {
-            player.sendMessage("§cDet finns ingen bana med det id:t");
-            return;
-        }
+            int trackId;
+            try
+            {
+                trackId = Integer.parseInt(id);
+            } catch (NumberFormatException e)
+            {
+                plugin.sendMessage(player, "messages.error.numberException");
+                return;
+            }
+            var maybeTrack = RaceDatabase.getTrackById(trackId);
+            if (maybeTrack.isEmpty())
+            {
+                plugin.sendMessage(player, "messages.error.missing.track.id");
+                return;
+            }
 
-        if (name.length() > 25)
-        {
-            player.sendMessage("§cNamnets längd får inte överstiga 25 tecken.");
-            return;
-        }
+            int maxLength = 25;
+            if (name.length() > maxLength)
+            {
+                plugin.sendMessage(player, "messages.error.nametoLong", "%length%", String.valueOf(maxLength));
+                return;
+            }
 
-        if (!name.matches("[A-Za-zÅÄÖåäöØÆøæ0-9 ]+"))
-        {
-            player.sendMessage("§cNamnet kan endast innehålla alfabetiska tecken, mellanslag och siffror.");
-            return;
-        }
-        maybeTrack.get().setName(name);
-        player.sendMessage("§aDet nya namnet är sparat.");
-        LeaderboardManager.updateFastestTimeLeaderboard(trackId);
+            if (!name.matches("[A-Za-zÅÄÖåäöØÆøæ0-9 ]+"))
+            {
+                plugin.sendMessage(player, "messages.error.nameRegexException");
+                return;
+            }
+            maybeTrack.get().setName(name);
+            plugin.sendMessage(player,"messages.save.generic");
+            LeaderboardManager.updateFastestTimeLeaderboard(trackId);
     }
 
     static void cmdSetStartRegion(Player player, RaceTrack track)
@@ -747,7 +766,7 @@ public class RaceCommandTrack implements CommandExecutor
             return;
         }
         track.setStartRegion(positions.get(0), positions.get(1));
-        player.sendMessage("§aDen nya startregionen har skapats.");
+        plugin.sendMessage(player, "messages.create.region");
     }
 
     static void cmdSetEndRegion(Player player, RaceTrack track)
@@ -758,7 +777,7 @@ public class RaceCommandTrack implements CommandExecutor
             return;
         }
         track.setEndRegion(positions.get(0), positions.get(1));
-        player.sendMessage("§aDen nya slutregionen har skapats.");
+        plugin.sendMessage(player, "messages.create.region");
     }
 
     static void cmdSetResetRegion(Player player, RaceTrack track, String index)
@@ -780,18 +799,19 @@ public class RaceCommandTrack implements CommandExecutor
             regionIndex = Integer.parseInt(index);
         } catch (NumberFormatException exception)
         {
-            player.sendMessage("§cIndex kunde inte processas. Är det en siffra?.");
+            plugin.sendMessage(player, "messages.error.numberException");
+            plugin.sendMessage(player, "messages.error.numberException");
             return;
         }
         if (remove)
         {
             if (track.removeResetRegion(regionIndex))
             {
-                player.sendMessage("§aResetregionen har tagits bort.");
+                plugin.sendMessage(player, "messages.remove.region");
             }
             else
             {
-                player.sendMessage("§aResetregionen kunde inte tas bort.");
+                plugin.sendMessage(player, "messages.error.remove.region");
             }
         }
         else
@@ -802,7 +822,7 @@ public class RaceCommandTrack implements CommandExecutor
                 return;
             }
             track.setResetRegion(positions.get(0), positions.get(1), player.getLocation(), regionIndex);
-            player.sendMessage("§aDen nya resetregionen har skapats.");
+            plugin.sendMessage(player, "messages.create.region");
         }
     }
 
@@ -825,7 +845,7 @@ public class RaceCommandTrack implements CommandExecutor
             regionIndex = Integer.parseInt(index);
         } catch (NumberFormatException exception)
         {
-            player.sendMessage("§cIndex kunde inte processas. Är det en siffra?.");
+            plugin.sendMessage(player, "messages.error.numberException");
             return;
         }
 
@@ -833,11 +853,11 @@ public class RaceCommandTrack implements CommandExecutor
         {
             if (track.removeCheckpoint(regionIndex))
             {
-                player.sendMessage("§aCheckpointen har tagits bort.");
+                plugin.sendMessage(player, "messages.remove.checkpoint");
             }
             else
             {
-                player.sendMessage("§aCheckpointen kunde inte tas bort.");
+                plugin.sendMessage(player, "messages.error.remove.checkpoint");
             }
         }
         else
@@ -848,7 +868,7 @@ public class RaceCommandTrack implements CommandExecutor
                 return;
             }
             track.setCheckpoint(positions.get(0), positions.get(1), player.getLocation(), regionIndex);
-            player.sendMessage("§aDen nya checkpointen har skapats.");
+            plugin.sendMessage(player,"messages.create.checkpoint");
         }
     }
 
@@ -863,7 +883,7 @@ public class RaceCommandTrack implements CommandExecutor
             selection = session.getSelection(bPlayer.getWorld());
         } catch (IncompleteRegionException e)
         {
-            player.sendMessage("§cDu måste först göra en markering.");
+            plugin.sendMessage(player, "messages.error.missing.selection");
             return null;
         }
 
@@ -878,7 +898,7 @@ public class RaceCommandTrack implements CommandExecutor
         }
         else
         {
-            player.sendMessage("§cDin markering kunde inte användas.");
+            plugin.sendMessage(player, "messages.error.selectionException");
             return null;
         }
     }

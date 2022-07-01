@@ -21,6 +21,17 @@ public class RaceDatabase
 
     static void connect()
     {
+        if (!ApiDatabase.initialize(plugin))
+        {
+            plugin.getLogger().warning("Failed to initialize database, disabling plugin.");
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
+        }
+
+        if (!ApiDatabase.synchronize())
+        {
+            plugin.getLogger().warning("Failed to synchronize database, disabling plugin.");
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
+        }
         initDatabaseSynchronize();
     }
 

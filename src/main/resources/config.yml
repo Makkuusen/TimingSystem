@@ -2,7 +2,7 @@ leaderboards:
    updateticks: 6000
    fastesttime:
       lines:
-         - '§6§lTopplista för §e§l{mapname}'
+         - '§6§lLeaderboard for §e§l{mapname}'
          - '§f{name1} §7- §e{time1}'
          - '§f{name2} §7- §e{time2}'
          - '§f{name3} §7- §e{time3}'

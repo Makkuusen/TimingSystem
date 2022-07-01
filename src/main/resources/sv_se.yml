@@ -1,0 +1,85 @@
+messages:
+  error:
+    generic: '&cNågot gick fel.'
+    unknownCommand: '&7Okänt kommando. Skriv &n/%command% help&r&7 för en lista på kommandon.'
+    consoleUnsupported: 'You cannot use this command from console.'
+    permissionDenied: '&cÅtkomst nekad.'
+    missing:
+      track:
+        name: '&cDet finns ingen bana med det namnet.'
+        id: '&cDet finns ingen bana med det id:t'
+      tracks: '&cDet finns inga banor.'
+      player: '&cSpelaren kunde inte hittas.'
+      item: '&cDu behöver ha ett föremål i handen.'
+      bestTime: '&cBästatiden kunde inte hittas.'
+      page: '&cSidan finns inte att visa.'
+      selection: '&cDu måste först göra en markering.'
+    remove:
+      region: '&aRegionen kunde inte tas bort.'
+      checkpoint: '&aCheckpointen kunde inte tas bort.'
+    numberException: '&cVärdet kunde inte processas. Är det en siffra?'
+    trackTypeException: '&cFelaktig bantyp.'
+    trackIsLocked: '&cBanan med det namnet är låst.'
+    trackIsClosed: '&cBanan är stängd.'
+    nameToLong: '&cNamnets längd får inte överstiga %length% tecken.'
+    nameRegexException: '&cNamnet kan endast innehålla alfabetiska tecken, mellanslag och siffror.'
+    selectionException: '&cDin markering kunde inte användas.'
+    trackExists: '&cDet finns redan en bana med det givna namnet.'
+    runNotStarted: '&cDu har inte påbörjat en bana.'
+    timer:
+      missedCheckpoints: '&cDu passerade inte alla kontrollpunkter och tiden var ogiltig!'
+      leftBoat: '&cDu lämnade båten och tiden avbröts.'
+  save:
+    generic: '&aVärdet har sparats.'
+  create:
+    name: '&aDu skapade %name%.'
+    generic: '&aNågot har skapats.'
+    region: '&aDen nya regionen har skapats.'
+    checkpoint: '&aDen nya checkpointen har skapats.'
+    override: '&aÖverskridningsläget har aktiverats.'
+  remove:
+    generic: '&aNågot har tagits bort.'
+    track: '&aBanan har tagits bort.'
+    region: '&aRegionen har tagits bort.'
+    checkpoint: '&aCheckpointen har tagits bort.'
+    override: '&aÖverskridningsläget har stängts av.'
+    bestTime: '&aTog bort bästa varvtid för %player% på %map%.'
+  update:
+    leaderboards: '&aUppdaterar topplistorna.'
+  info:
+    track:
+      name: '&2--- &aBana: %name% (%id%) &2---'
+      type: '&2Öppen: &a%open%    &2Bantyp:&a %type%'
+      created: '&2Skapad:&a %date%&2 ägs av &a%owner%'
+      options: '&2Alternativ: &a+%options%'
+      checkpointTeleport: '&2Checkpoint teleportering:&a %teleport%'
+      checkpoints: '&2Antal checkpoints:&a %size%'
+      resets: '&2Antal resetregioner:&a %size%'
+      spawn: '&2Startpunkt:&a %location%'
+      leaderboard: '&2Topplista:&a %location%'
+    race:
+      name: '&2--- &aBana: %name% &2---'
+      type: '&2Bantyp:&a %type%'
+      bestTime: '&2Ditt bästa varv:&a %time%'
+  list:
+    tracks: '&2--- &aBanor (sida &l%startPage% &r&aav &l%totalPages%&r&a) &2---'
+  toggle:
+    track:
+      open: '&aBanan är nu öppen.'
+      closed: '&aBanan är nu stängd.'
+      government: '&aBanan är nu statlig'
+      private: '&aBanan är nu privat'
+    race:
+      checkpoints:
+        on: '&aKontrollpunktsannonseringar är nu påslagna.'
+        off: '&aKontrollpunktsannonseringar är nu avstängda.'
+  options:
+    allRemoved: '&aAlla alternativen har tagits bort.'
+    list: '&aAlternativen är nu: %options%'
+  help: '&2---&a Hjälp: /%command% &2---'
+  cancel: '&aAvbröt tidtagningen.'
+  timer:
+    firstFinish: '&eNytt rekord!&6 Du klarade &e%map%&6 på &e%time%&6.'
+    newRecord: '&eNytt rekord!&6 Du klarade &e%map%&6 på &e%time%&6. Tidigare rekord var &e%oldTime%&6.'
+    finish: '&2Du klarade &a%map%&2 på &a%time%&2. Ditt rekord är &a%oldTime%&2.'
+    checkpoint: '&2Du passerade &akontrollpunkt %checkpoint%&2 på &a%time%&2.'

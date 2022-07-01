@@ -8,20 +8,21 @@ import org.jetbrains.annotations.NotNull;
 
 public class RaceCommandRace implements CommandExecutor
 {
+    static Race plugin;
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] arguments)
     {
         if (!(sender instanceof Player player))
         {
-            RaceUtilities.msgConsole("§cKommandot kan enbart användas av spelare");
+            RaceUtilities.msgConsole("§cCommand can only be used by players");
             return true;
         }
         if (arguments.length == 0)
         {
             if (!player.hasPermission("race.command.race") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             GUIManager.openMainGUI(player);
@@ -32,22 +33,22 @@ public class RaceCommandRace implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("race.command.cancel") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if(!PlayerTimer.isPlayerInMap(player)){
-                player.sendMessage("§cDu har inte påbörjat en bana.");
+                plugin.sendMessage(player, "messages.error.runNotStarted");
                 return true;
             }
             PlayerTimer.playerCancelMap(player);
-            player.sendMessage("§aAvbröt tidtagningen.");
+            plugin.sendMessage(player, "messages.cancel");
             return true;
         }
         else if (arguments[0].equalsIgnoreCase("help"))
         {
             if (!player.isOp() && !player.hasPermission("race.command.help") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             cmdHelp(player);
@@ -57,12 +58,12 @@ public class RaceCommandRace implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("race.command.list") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if (arguments.length > 2)
             {
-                player.sendMessage("§7Syntax: /race list [§nsida§r§7]");
+                player.sendMessage("§7Syntax: /race list [§npage§r§7]");
                 return true;
             }
             cmdList(player, arguments);
@@ -72,12 +73,12 @@ public class RaceCommandRace implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("race.command.info") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if (arguments.length < 2)
             {
-                player.sendMessage("§7Syntax: /race info §nnamn§r§7");
+                player.sendMessage("§7Syntax: /race info §nname§r§7");
                 return true;
             }
             cmdInfo(player, arguments);
@@ -87,7 +88,7 @@ public class RaceCommandRace implements CommandExecutor
         {
             if (!player.isOp() && !player.hasPermission("race.command.toggle") && !player.isOp())
             {
-                player.sendMessage("§cÅtkomst nekad.");
+                plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
             if (arguments.length < 2)
@@ -103,19 +104,19 @@ public class RaceCommandRace implements CommandExecutor
         var maybeTrack = RaceDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
-            sender.sendMessage("§7Okänt kommando. Skriv §n/race help§r§7 för en lista på kommandon.");
+            plugin.sendMessage(player,"messages.errror.unknownCommand", "%command%", "race");
             return true;
         }
         var track = maybeTrack.get();
 
         if (!player.hasPermission("race.command.start") && !player.hasPermission("track.admin") && !player.isOp())
         {
-            player.sendMessage("§cÅtkomst nekad.");
+            plugin.sendMessage(player, "messages.error.permissionDenied");
             return true;
         }
 
         if(!track.isOpen() && !player.hasPermission("race.override")){
-            player.sendMessage("§cBanan är stängd.");
+            plugin.sendMessage(player, "messages.error.trackIsClosed");
             return true;
         }
 
@@ -127,10 +128,10 @@ public class RaceCommandRace implements CommandExecutor
     static void cmdHelp(Player player)
     {
         player.sendMessage("");
-        player.sendMessage("§2---§a Hjälp: /race §2---");
+        plugin.sendMessage(player, "messages.help", "%command%", "race");
         if (player.isOp() || player.hasPermission("race.command.start"))
         {
-            player.sendMessage("§2/race §anamn");
+            player.sendMessage("§2/race §aname");
         }
         if (player.isOp() || player.hasPermission("race.command.cancel"))
         {
@@ -138,11 +139,11 @@ public class RaceCommandRace implements CommandExecutor
         }
         if (player.isOp() || player.hasPermission("race.command.list"))
         {
-            player.sendMessage("§2/race list [§asida§2]");
+            player.sendMessage("§2/race list [§apage§2]");
         }
         if (player.isOp() || player.hasPermission("race.command.info"))
         {
-            player.sendMessage("§2/race info §anamn");
+            player.sendMessage("§2/race info §aname");
         }
         if (player.isOp() || player.hasPermission("race.command.toggle"))
         {
@@ -166,18 +167,18 @@ public class RaceCommandRace implements CommandExecutor
         {
             pageStart = pageStartRaw == null ? 1 : Integer.parseInt(pageStartRaw);
             if (pageStart < 1){
-                player.sendMessage("§cFelaktigt sidnummer.");
+                plugin.sendMessage(player, "messages.error.missing.page");
                 return;
             }
         } catch (Exception exception)
         {
-            player.sendMessage("§cFelaktigt sidnummer.");
+            plugin.sendMessage(player, "messages.error.missing.page");
             return;
         }
         var publicTracks = RaceDatabase.getAvailableRaceTracks(player);
         if (publicTracks.size() == 0)
         {
-            player.sendMessage("§cDet finns inga banor.");
+            plugin.sendMessage(player,"messages.error.missing.tracks");
             return;
         }
 
@@ -189,7 +190,7 @@ public class RaceCommandRace implements CommandExecutor
 
         if (start >= publicTracks.size())
         {
-            player.sendMessage("§cDet finns inte så många sidor att visa.");
+            plugin.sendMessage(player, "messages.error.missing.page");
             return;
         }
 
@@ -205,7 +206,7 @@ public class RaceCommandRace implements CommandExecutor
 
         }
 
-        player.sendMessage("§2--- §aBanor (sida §l" + pageStart + " §r§aav §l" + ((int) Math.ceil(((double) RaceDatabase.getAvailableRaceTracks(player).size()) / ((double) itemsPerPage))) + "§r§a) §2---");
+        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) RaceDatabase.getRaceTracks().size()) / ((double) itemsPerPage))));
         player.sendMessage("§2" + tmpMessage.substring(0, tmpMessage.length() - 2));
     }
 
@@ -215,27 +216,28 @@ public class RaceCommandRace implements CommandExecutor
         var maybeTrack = RaceDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
-            player.sendMessage("§cDet finns ingen bana med det namnet.");
+            plugin.sendMessage(player,"messages.error.missing.track.name");
             return;
         }
         var track = maybeTrack.get();
 
         if (!RaceDatabase.getAvailableRaceTracks(player).contains(track))
         {
-            player.sendMessage("§cBanan med det namnet är låst.");
+            plugin.sendMessage(player, "messages.error.trackIsLocked");
             return;
         }
         RPlayer rPlayer = ApiDatabase.getPlayer(player.getUniqueId());
         var bestFinish = track.getBestFinish(rPlayer);
 
         player.sendMessage("");
-        player.sendMessage("§2--- §aBana: " + track.getName() + " §2---");
-        player.sendMessage("§2Bantyp:§a " + track.getTypeAsString());
-        player.sendMessage("§2Skapad:§a " + ApiUtilities.niceDate(track.getDateCreated()) + "§2 ägs av §a" + (track.isGovernment() ? "staten" : track.getOwner().getName()));
-        player.sendMessage("§2Antal checkpoints:§a " + track.getCheckpoints().size());
+        plugin.sendMessage(player, "messages.info.race.name", "%name%", track.getName());
+        plugin.sendMessage(player, "messages.info.race.type",  "%type%", track.getTypeAsString());
+        plugin.sendMessage(player, "messages.info.track.created", "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
+        plugin.sendMessage(player, "messages.info.track.checkpoints", "%size%", String.valueOf(track.getCheckpoints().size()));
+
         if (bestFinish != null)
         {
-            player.sendMessage("§2Ditt bästa varv:§a " + RaceUtilities.formatAsTime(bestFinish.getTime()));
+            plugin.sendMessage(player, "messages.info.race.bestTime", "%time%", RaceUtilities.formatAsTime(bestFinish.getTime()));
         }
 
     }
@@ -249,7 +251,14 @@ public class RaceCommandRace implements CommandExecutor
         {
             Race.getPlugin().verbose.add(player.getUniqueId());
         }
-        player.sendMessage("§aKontrollpunktsannonseringar är nu " + (Race.getPlugin().verbose.contains(player.getUniqueId()) ? "påslagna." : "avstängda."));
 
+        if (Race.getPlugin().verbose.contains(player.getUniqueId()) )
+        {
+            plugin.sendMessage(player, "messages.toggle.race.checkpoints.on");
+        }
+        else
+        {
+            plugin.sendMessage(player, "messages.toggle.race.checkpoints.off");
+        }
     }
 }
