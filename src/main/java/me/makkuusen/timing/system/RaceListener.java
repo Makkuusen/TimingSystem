@@ -67,7 +67,7 @@ public class RaceListener implements Listener
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e)
     {
-        RaceController.playerLeavingMap(e.getEntity().getUniqueId());
+        TimeTrialsController.playerLeavingMap(e.getEntity().getUniqueId());
     }
 
     @EventHandler
@@ -87,14 +87,14 @@ public class RaceListener implements Listener
 
         if (!event.getCause().equals(PlayerTeleportEvent.TeleportCause.UNKNOWN))
         {
-            RaceController.playerLeavingMap(event.getPlayer().getUniqueId());
+            TimeTrialsController.playerLeavingMap(event.getPlayer().getUniqueId());
         }
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e)
     {
-        RaceController.playerLeavingMap(e.getPlayer().getUniqueId());
+        TimeTrialsController.playerLeavingMap(e.getPlayer().getUniqueId());
     }
 
     @EventHandler
@@ -105,7 +105,7 @@ public class RaceListener implements Listener
             var passenger = e.getVehicle().getPassengers().get(0);
             if (passenger instanceof Player player)
             {
-                if (RaceController.timeTrials.containsKey(player.getUniqueId()))
+                if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
                 {
                     e.setCancelled(true);
                     return;
@@ -125,13 +125,13 @@ public class RaceListener implements Listener
         if (event.getExited() instanceof Player player)
         {
 
-            if (RaceController.timeTrials.containsKey(player.getUniqueId()))
+            if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
             {
-                RaceTrack track = RaceController.timeTrials.get(player.getUniqueId()).getTrack();
+                RaceTrack track = TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack();
                 if (track.hasOption('b'))
                 {
                     plugin.sendMessage(player,"messages.error.leftBoat");
-                    RaceController.playerLeavingMap(player.getUniqueId());
+                    TimeTrialsController.playerLeavingMap(player.getUniqueId());
                 }
             }
 
@@ -169,7 +169,7 @@ public class RaceListener implements Listener
     {
         if (e.getHook().getHookedEntity() instanceof Player hooked)
         {
-            if (RaceController.timeTrials.containsKey(hooked.getUniqueId()))
+            if (TimeTrialsController.timeTrials.containsKey(hooked.getUniqueId()))
             {
                 e.getPlayer().sendMessage("§cDu får inte kroka någon annan");
                 e.setCancelled(true);
@@ -179,7 +179,7 @@ public class RaceListener implements Listener
 
         if (e.getCaught() instanceof Player player)
         {
-            if (RaceController.timeTrials.containsKey(player.getUniqueId()))
+            if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
             {
                 e.getPlayer().sendMessage("§cDu får inte fiska någon annan");
                 e.setCancelled(true);
@@ -192,31 +192,31 @@ public class RaceListener implements Listener
     public void onPlayerMoveEvent(PlayerMoveEvent e)
     {
         Player player = e.getPlayer();
-        if (RaceController.timeTrials.containsKey(player.getUniqueId()))
+        if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
         {
-            RaceTrack track = RaceController.timeTrials.get(player.getUniqueId()).getTrack();
+            RaceTrack track = TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack();
             if (player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType().equals(Material.ELYTRA) && track.hasOption('e'))
             {
                 player.sendMessage("§cDu får inte ha elytra på den här banan.");
-                RaceController.playerLeavingMap(player.getUniqueId());
+                TimeTrialsController.playerLeavingMap(player.getUniqueId());
             }
             else if (!player.isGliding() && track.hasOption('g'))
             {
                 player.sendMessage("§cDu slutade flyga och tiden avbröts.");
-                RaceController.playerLeavingMap(player.getUniqueId());
+                TimeTrialsController.playerLeavingMap(player.getUniqueId());
             }
             else if (player.getActivePotionEffects().size() > 0 && track.hasOption('p'))
             {
                 player.sendMessage("§cDu får inte ha effekter på den här banan.");
-                RaceController.playerLeavingMap(player.getUniqueId());
+                TimeTrialsController.playerLeavingMap(player.getUniqueId());
             }
             else if (player.isRiptiding() && track.hasOption('t')){
                 player.sendMessage("§cDu får inte använda trident på den här banan.");
-                RaceController.playerLeavingMap(player.getUniqueId());
+                TimeTrialsController.playerLeavingMap(player.getUniqueId());
             }
             else if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.SOUL_SPEED) && track.hasOption('s')){
                 player.sendMessage("§cDu får inte ha själhastighet på dina skor.");
-                RaceController.playerLeavingMap(player.getUniqueId());
+                TimeTrialsController.playerLeavingMap(player.getUniqueId());
             }
 
         }
@@ -228,51 +228,18 @@ public class RaceListener implements Listener
         Player player = e.getPlayer();
         RPlayer rPlayer = ApiDatabase.getPlayer(player.getUniqueId());
 
-        if (RaceController.timeTrials.containsKey(player.getUniqueId())) {
-            TimeTrial timeTrial = RaceController.timeTrials.get(player.getUniqueId());
-            // Check for ending current map.
-            var track = timeTrial.getTrack();
-
-            if (track.getStartRegion().contains(player.getLocation()) && track.getEndRegion().contains(player.getLocation())) {
-                if (timeTrial.getLatestCheckpoint() != 0) {
-                    timeTrial.playerRestartMap();
-                    return;
-                }
-            }
-            else if (track.getEndRegion().contains(player.getLocation())) {
-                timeTrial.playerEndedMap();
-                return;
-            }
-            // Check for next checkpoint in current map
-            int nextCheckpoint = timeTrial.getNextCheckpoint();
-            if (nextCheckpoint == timeTrial.getLatestCheckpoint())
-            {
-                return;
-            }
-            var checkpoint = track.getCheckpoints().get(nextCheckpoint);
-            if (checkpoint.contains(player.getLocation()))
-            {
-                timeTrial.playerPassingCheckpoint(nextCheckpoint);
-            }
-
-            // Check reset regions
-            for (RaceRegion r : track.getResetRegions().values()) {
-                if (r.contains(player.getLocation())) {
-                    timeTrial.playerResetMap();
-                }
-            }
-
-            // don't need to check for starting new map
+        if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId())) {
+            handleTimeTrials(player);
+            // don't need to check for starting new track
             return;
         }
 
-        // Check for starting new maps
+        // Check for starting new tracks
         Iterator regions = RaceDatabase.getRaceStartRegions().iterator();
         while (true)
         {
             Integer regionId;
             RaceRegion region;
-            RaceRegion.RegionType type;
             do
             {
                 label:
@@ -315,5 +282,41 @@ public class RaceListener implements Listener
         RPlayer rPlayer = ApiDatabase.getPlayer(event.getPlayer());
         // Set to offline
         rPlayer.setPlayer(null);
+    }
+
+    void handleTimeTrials(Player player)
+    {
+        TimeTrial timeTrial = TimeTrialsController.timeTrials.get(player.getUniqueId());
+        // Check for ending current map.
+        var track = timeTrial.getTrack();
+
+        if (track.getStartRegion().contains(player.getLocation()) && track.getEndRegion().contains(player.getLocation())) {
+            if (timeTrial.getLatestCheckpoint() != 0) {
+                timeTrial.playerRestartMap();
+                return;
+            }
+        }
+        else if (track.getEndRegion().contains(player.getLocation())) {
+            timeTrial.playerEndedMap();
+            return;
+        }
+        // Check for next checkpoint in current map
+        int nextCheckpoint = timeTrial.getNextCheckpoint();
+        if (nextCheckpoint == timeTrial.getLatestCheckpoint())
+        {
+            return;
+        }
+        var checkpoint = track.getCheckpoints().get(nextCheckpoint);
+        if (checkpoint.contains(player.getLocation()))
+        {
+            timeTrial.playerPassingCheckpoint(nextCheckpoint);
+        }
+
+        // Check reset regions
+        for (RaceRegion r : track.getResetRegions().values()) {
+            if (r.contains(player.getLocation())) {
+                timeTrial.playerResetMap();
+            }
+        }
     }
 }

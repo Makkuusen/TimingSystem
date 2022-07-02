@@ -34,15 +34,12 @@ public class RaceCommandTrack implements CommandExecutor
         }
         if (arguments.length == 0)
         {
-            if (!player.hasPermission("track.command.help") && !player.isOp())
+            if (!player.hasPermission("track.command.race") && !player.isOp())
             {
                 plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
-            else
-            {
-                cmdHelp(player);
-            }
+            GUIManager.openMainGUI(player);
             return true;
         }
 
@@ -239,17 +236,46 @@ public class RaceCommandTrack implements CommandExecutor
             }
             return true;
         }
-        else
+
+        String name = ApiUtilities.concat(arguments, 0);
+        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        if (maybeTrack.isEmpty())
         {
-            plugin.sendMessage(player,"messages.errror.unknownCommand", "%command%", "track");
+            plugin.sendMessage(player,"messages.errror.unknownCommand", "%command%", "race");
+            return true;
         }
-        return false;
+        var track = maybeTrack.get();
+
+        if (!player.hasPermission("track.command.teleport") && !player.hasPermission("track.admin") && !player.isOp())
+        {
+            plugin.sendMessage(player, "messages.error.permissionDenied");
+            return true;
+        }
+
+        if(!track.isOpen() && !player.hasPermission("race.override")){
+            plugin.sendMessage(player, "messages.error.trackIsClosed");
+            return true;
+        }
+
+        track.teleportPlayer(player);
+
+        return true;
     }
 
     static void cmdHelp(Player player)
     {
         player.sendMessage("");
         plugin.sendMessage(player, "messages.help", "%command%" , "track");
+
+        if (player.isOp() || player.hasPermission("track.command.teleport"))
+        {
+            player.sendMessage("§2/track §aname");
+        }
+
+        if (player.isOp() || player.hasPermission("track.command.create"))
+        {
+            player.sendMessage("§2/track create §atype name");
+        }
 
         if (player.isOp() || player.hasPermission("track.command.create"))
         {

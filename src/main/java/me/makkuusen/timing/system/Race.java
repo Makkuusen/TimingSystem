@@ -49,7 +49,7 @@ public class Race extends JavaPlugin
         pm.registerEvents(new RaceListener(), plugin);
 
         GUIManager.init();
-        RaceController.initTimeTrials();
+        TimeTrialsController.initTimeTrials();
 
         getCommand("track").setExecutor(new RaceCommandTrack());
         getCommand("race").setExecutor(new RaceCommandRace());

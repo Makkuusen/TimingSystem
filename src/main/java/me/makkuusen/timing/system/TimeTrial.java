@@ -1,6 +1,5 @@
 package me.makkuusen.timing.system;
 
-import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
@@ -205,7 +204,7 @@ public class TimeTrial{
             }
         }
         rPlayer.getPlayer().teleport(track.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-        RaceController.timeTrials.remove(rPlayer.getUniqueId());
+        TimeTrialsController.timeTrials.remove(rPlayer.getUniqueId());
         RaceUtilities.msgConsole(rPlayer.getName() + " has been reset on " + track.getName());
     }
 
@@ -222,7 +221,7 @@ public class TimeTrial{
         {
             return;
         }
-        RaceController.timeTrials.put(rPlayer.getUniqueId(), this);
+        TimeTrialsController.timeTrials.put(rPlayer.getUniqueId(), this);
         RaceUtilities.msgConsole(rPlayer.getName() + " started on " + track.getName());
     }
 
@@ -234,7 +233,7 @@ public class TimeTrial{
         if (!hasPassedAllCheckpoints())
         {
             plugin.sendMessage(p, "messages.error.timer.missedCheckpoints");
-            RaceController.timeTrials.remove(p.getUniqueId());
+            TimeTrialsController.timeTrials.remove(p.getUniqueId());
             return;
         }
 
@@ -261,7 +260,7 @@ public class TimeTrial{
             track.newRaceFinish(mapTime, p.getUniqueId());
         }
 
-        RaceController.timeTrials.remove(p.getUniqueId());
+        TimeTrialsController.timeTrials.remove(p.getUniqueId());
         RaceUtilities.msgConsole(p.getName() + " finished " + track.getName() + " with a time of " + RaceUtilities.formatAsTime(mapTime));
     }
 

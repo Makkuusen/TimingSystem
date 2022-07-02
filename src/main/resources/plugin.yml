@@ -14,13 +14,6 @@ commands:
       aliases: []
 
 permissions:
-   race.command.race:
-      description: Player can open race menu
-      default: false
-
-   race.command.start:
-      description: Player can start time on tracks
-      default: false
 
    race.command.cancel:
       description: Player can cancel runs
@@ -38,11 +31,19 @@ permissions:
       description: Player can see all commands
       default: false
 
+   track.command.race:
+      description: Player can open track menu
+      default: false
+
    track.command.help:
       description: Player can see all commands
       default: false
 
    track.command.create:
+      description: Player can create track
+      default: false
+
+   track.command.teleport:
       description: Player can create track
       default: false
 

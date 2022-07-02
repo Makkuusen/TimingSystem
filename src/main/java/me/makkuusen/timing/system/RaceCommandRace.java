@@ -36,11 +36,11 @@ public class RaceCommandRace implements CommandExecutor
                 plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
-            if(!RaceController.timeTrials.containsKey(player.getUniqueId())){
+            if(!TimeTrialsController.timeTrials.containsKey(player.getUniqueId())){
                 plugin.sendMessage(player, "messages.error.runNotStarted");
                 return true;
             }
-            RaceController.playerCancelMap(player);
+            TimeTrialsController.playerCancelMap(player);
             plugin.sendMessage(player, "messages.cancel");
             return true;
         }
@@ -99,29 +99,6 @@ public class RaceCommandRace implements CommandExecutor
             cmdToggle(player, arguments);
             return true;
         }
-
-        String name = ApiUtilities.concat(arguments, 0);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
-        if (maybeTrack.isEmpty())
-        {
-            plugin.sendMessage(player,"messages.errror.unknownCommand", "%command%", "race");
-            return true;
-        }
-        var track = maybeTrack.get();
-
-        if (!player.hasPermission("race.command.start") && !player.hasPermission("track.admin") && !player.isOp())
-        {
-            plugin.sendMessage(player, "messages.error.permissionDenied");
-            return true;
-        }
-
-        if(!track.isOpen() && !player.hasPermission("race.override")){
-            plugin.sendMessage(player, "messages.error.trackIsClosed");
-            return true;
-        }
-
-        track.startRace(player);
-
         return true;
     }
 
@@ -129,10 +106,7 @@ public class RaceCommandRace implements CommandExecutor
     {
         player.sendMessage("");
         plugin.sendMessage(player, "messages.help", "%command%", "race");
-        if (player.isOp() || player.hasPermission("race.command.start"))
-        {
-            player.sendMessage("§2/race §aname");
-        }
+
         if (player.isOp() || player.hasPermission("race.command.cancel"))
         {
             player.sendMessage("§2/race cancel");

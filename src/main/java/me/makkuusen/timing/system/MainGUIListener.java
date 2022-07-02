@@ -48,13 +48,13 @@ public class MainGUIListener implements Listener
                                 return;
                             }
 
-                            RaceController.playerLeavingMap(e.getWhoClicked().getUniqueId());
+                            TimeTrialsController.playerLeavingMap(e.getWhoClicked().getUniqueId());
                             String mapName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
                             var maybeTrack = RaceDatabase.getRaceTrack(mapName);
                             if (maybeTrack.isPresent())
                             {
                                 var raceTrack = maybeTrack.get();
-                                raceTrack.startRace(((Player) e.getWhoClicked()).getPlayer());
+                                raceTrack.teleportPlayer(((Player) e.getWhoClicked()).getPlayer());
                                 e.getInventory().close();
                             }
                         }

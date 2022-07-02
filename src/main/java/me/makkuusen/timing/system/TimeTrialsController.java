@@ -6,10 +6,9 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class RaceController {
+public class TimeTrialsController {
 
     static HashMap<UUID, TimeTrial> timeTrials = new HashMap<>();
-
 
     public static void initTimeTrials()
     {
@@ -43,20 +42,20 @@ public class RaceController {
 
     public static void playerLeavingMap(UUID uuid)
     {
-        if (!RaceController.timeTrials.containsKey(uuid))
+        if (!TimeTrialsController.timeTrials.containsKey(uuid))
         {
             return;
         }
-        RaceController.timeTrials.remove(uuid);
+        TimeTrialsController.timeTrials.remove(uuid);
     }
 
     public static void playerCancelMap(Player player)
     {
-        if (!RaceController.timeTrials.containsKey(player.getUniqueId()))
+        if (!TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
         {
             return;
         }
-        RaceUtilities.msgConsole(player.getName() + " has cancelled run on " + RaceController.timeTrials.get(player.getUniqueId()).getTrack().getName());
-        RaceController.timeTrials.remove(player.getUniqueId());
+        RaceUtilities.msgConsole(player.getName() + " has cancelled run on " + TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack().getName());
+        TimeTrialsController.timeTrials.remove(player.getUniqueId());
     }
 }

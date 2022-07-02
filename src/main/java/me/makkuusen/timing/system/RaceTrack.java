@@ -493,7 +493,7 @@ public class RaceTrack
         return bestTimes.stream().limit(limit).collect(Collectors.toList());
     }
 
-    public void startRace(Player player)
+    public void teleportPlayer(Player player)
     {
         player.teleport(spawnLocation);
     }
