@@ -1,5 +1,5 @@
-# Race
+# Timing System
 
-Plugin skapat av Makkuusen baserat på NetherCubeParkour av JustBru00.
+Plugin forked from NetherCubeParkour.
 
 
