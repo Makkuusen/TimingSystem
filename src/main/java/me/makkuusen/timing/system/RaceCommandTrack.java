@@ -297,7 +297,7 @@ public class RaceCommandTrack implements CommandExecutor
         }
         if (player.isOp() || player.hasPermission("track.command.deletebesttime"))
         {
-            player.sendMessage("§2/track deletebesttime §aplayer namn");
+            player.sendMessage("§2/track deletebesttime §aplayer name");
         }
         if (player.isOp() || player.hasPermission("track.command.override"))
         {

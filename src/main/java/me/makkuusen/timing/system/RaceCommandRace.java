@@ -36,11 +36,11 @@ public class RaceCommandRace implements CommandExecutor
                 plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
-            if(!PlayerTimer.isPlayerInMap(player)){
+            if(!RaceController.timeTrials.containsKey(player.getUniqueId())){
                 plugin.sendMessage(player, "messages.error.runNotStarted");
                 return true;
             }
-            PlayerTimer.playerCancelMap(player);
+            RaceController.playerCancelMap(player);
             plugin.sendMessage(player, "messages.cancel");
             return true;
         }
@@ -246,19 +246,12 @@ public class RaceCommandRace implements CommandExecutor
         if(Race.getPlugin().verbose.contains(player.getUniqueId()))
         {
             Race.getPlugin().verbose.remove(player.getUniqueId());
+            plugin.sendMessage(player, "messages.toggle.race.checkpointsOff");
         }
         else
         {
             Race.getPlugin().verbose.add(player.getUniqueId());
-        }
-
-        if (Race.getPlugin().verbose.contains(player.getUniqueId()) )
-        {
-            plugin.sendMessage(player, "messages.toggle.race.checkpoints.on");
-        }
-        else
-        {
-            plugin.sendMessage(player, "messages.toggle.race.checkpoints.off");
+            plugin.sendMessage(player, "messages.toggle.race.checkpointsOn");
         }
     }
 }

@@ -32,6 +32,7 @@ public class RaceTrack
     private Location spawnLocation;
     private Location leaderboardLocation;
     private TrackType type;
+    private TrackMode mode;
     private char[] options;
     private boolean toggleOpen;
     private boolean toggleGovernment;
@@ -44,6 +45,10 @@ public class RaceTrack
     public enum TrackType
     {
         BOAT, ELYTRA, PARKOUR
+    }
+    public enum TrackMode
+    {
+        TIMETRIAL, PRACTICE, QUALIFICATION, RACE
     }
 
     public RaceTrack(ResultSet data) throws SQLException
@@ -59,6 +64,7 @@ public class RaceTrack
         toggleOpen = data.getBoolean("toggleOpen");
         toggleGovernment = data.getBoolean("toggleGovernment");
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
+        mode = TrackMode.TIMETRIAL;
     }
 
     public int getId()
@@ -69,6 +75,16 @@ public class RaceTrack
     public String getName()
     {
         return name;
+    }
+
+    public RaceRegion getEndRegion()
+    {
+        return endRegion;
+    }
+
+    public RaceRegion getStartRegion()
+    {
+        return startRegion;
     }
 
     public ItemStack getGuiItem(UUID uuid)
@@ -140,9 +156,19 @@ public class RaceTrack
         return type;
     }
 
+    public TrackMode getMode()
+    {
+        return mode;
+    }
+
     public boolean isOpen()
     {
         return toggleOpen;
+    }
+
+    public void setMode(TrackMode mode)
+    {
+        this.mode = mode;
     }
 
     public void setName(String name)

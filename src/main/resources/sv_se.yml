@@ -72,9 +72,8 @@ messages:
       government: '&aBanan är nu statlig.'
       private: '&aBanan är nu privat.'
     race:
-      checkpoints:
-        on: '&aKontrollpunktsannonseringar är nu påslagna.'
-        off: '&aKontrollpunktsannonseringar är nu avstängda.'
+      checkpointsOn: '&aKontrollpunktsannonseringar är nu påslagna.'
+      checkpointsOff: '&aKontrollpunktsannonseringar är nu avstängda.'
   options:
     allRemoved: '&aAlla alternativen har tagits bort.'
     list: '&aAlternativen är nu: %options%'

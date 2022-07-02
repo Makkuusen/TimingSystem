@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class RaceDatabase
 {
@@ -199,6 +200,10 @@ public class RaceDatabase
     static public List<RaceRegion> getRaceRegions()
     {
         return regions;
+    }
+    static public List<RaceRegion> getRaceStartRegions()
+    {
+        return regions.stream().filter(r -> r.getRegionType().equals(RaceRegion.RegionType.START)).collect(Collectors.toList());
     }
 
     static boolean trackNameAvailable(String name)

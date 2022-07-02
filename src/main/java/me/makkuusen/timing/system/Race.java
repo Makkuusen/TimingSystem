@@ -40,8 +40,8 @@ public class Race extends JavaPlugin
         RaceDatabase.plugin = this;
         RaceCommandRace.plugin = this;
         RaceCommandTrack.plugin = this;
-        PlayerTimer.plugin = this;
         RaceListener.plugin = this;
+        TimeTrial.plugin = this;
         this.languageManager = new LanguageManager(this, "en_us");
 
         PluginManager pm = Bukkit.getPluginManager();
@@ -49,7 +49,7 @@ public class Race extends JavaPlugin
         pm.registerEvents(new RaceListener(), plugin);
 
         GUIManager.init();
-        PlayerTimer.init();
+        RaceController.initTimeTrials();
 
         getCommand("track").setExecutor(new RaceCommandTrack());
         getCommand("race").setExecutor(new RaceCommandRace());
@@ -78,8 +78,8 @@ public class Race extends JavaPlugin
         RaceDatabase.plugin = null;
         RaceCommandRace.plugin = null;
         RaceCommandTrack.plugin = null;
-        PlayerTimer.plugin = null;
         RaceListener.plugin = null;
+        TimeTrial.plugin = null;
         logger = null;
         plugin = null;
     }

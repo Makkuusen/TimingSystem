@@ -72,9 +72,8 @@ messages:
       government: '&aTrack is now public.'
       private: '&aTrack is now private.'
     race:
-      checkpoints:
-        on: '&aCheckpoint announcements are now active.'
-        off: '&aCheckpoint announcements are now disabled.'
+      checkpointsOn: '&aCheckpoint announcements are now active.'
+      checkpointsOff: '&aCheckpoint announcements are now disabled.'
   options:
     allRemoved: '&aAll options are now cleared.'
     list: '&aOptions are now: %options%'

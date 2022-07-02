@@ -48,7 +48,7 @@ public class MainGUIListener implements Listener
                                 return;
                             }
 
-                            PlayerTimer.playerLeavingMap((Player) e.getWhoClicked());
+                            RaceController.playerLeavingMap(e.getWhoClicked().getUniqueId());
                             String mapName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
                             var maybeTrack = RaceDatabase.getRaceTrack(mapName);
                             if (maybeTrack.isPresent())
