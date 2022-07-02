@@ -49,10 +49,12 @@ messages:
   info:
     track:
       name: '&2--- &aBana: %name% (%id%) &2---'
-      type: '&2Öppen: &a%open%    &2Bantyp:&a %type%'
+      open: '&2Öppen: &aJa   &2Bantyp:&a %type%'
+      closed: '&2Öppen: &aNej   &2Bantyp:&a %type%'
       created: '&2Skapad:&a %date%&2 ägs av &a%owner%'
       options: '&2Alternativ: &a+%options%'
-      checkpointTeleport: '&2Checkpoint teleportering:&a %teleport%'
+      checkpointTeleportOn: '&2Checkpoint teleportering:&a Ja'
+      checkpointTeleportOff: '&2Checkpoint teleportering:&a Nej'
       checkpoints: '&2Antal checkpoints:&a %size%'
       resets: '&2Antal resetregioner:&a %size%'
       spawn: '&2Startpunkt:&a %location%'
@@ -67,8 +69,8 @@ messages:
     track:
       open: '&aBanan är nu öppen.'
       closed: '&aBanan är nu stängd.'
-      government: '&aBanan är nu statlig'
-      private: '&aBanan är nu privat'
+      government: '&aBanan är nu statlig.'
+      private: '&aBanan är nu privat.'
     race:
       checkpoints:
         on: '&aKontrollpunktsannonseringar är nu påslagna.'

@@ -105,17 +105,17 @@ public class RaceTrack
 
         if (getBestFinish(rPlayer) == null)
         {
-            bestTime = "§7Din bästa tid: §e(ingen)";
+            bestTime = "§7Your best time: §e(none)";
         }
         else
         {
-            bestTime = "§7Din bästa tid: §e" + RaceUtilities.formatAsTime(getBestFinish(rPlayer).getTime());
+            bestTime = "§7Your best time: §e" + RaceUtilities.formatAsTime(getBestFinish(rPlayer).getTime());
         }
 
-        loreToSet.add(Component.text("§7Din position: §e" + (getPlayerTopListPosition(rPlayer) == -1 ? "(ingen)" : getPlayerTopListPosition(rPlayer))));
+        loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(rPlayer) == -1 ? "(none)" : getPlayerTopListPosition(rPlayer))));
         loreToSet.add(Component.text(bestTime));
-        loreToSet.add(Component.text("§7Ägs av: §e" + (isGovernment() ? "staten" : getOwner().getName())));
-        loreToSet.add(Component.text("§7Bantyp: §e" + getTypeAsString()));
+        loreToSet.add(Component.text("§7Created by: §e" + getOwner().getName()));
+        loreToSet.add(Component.text("§7Type: §e" + getTypeAsString()));
 
         ItemMeta im = toReturn.getItemMeta();
         im.displayName(Component.text(getName()).color(TextColor.color(255,255,85)));
@@ -552,7 +552,7 @@ public class RaceTrack
     {
         if (isBoatTrack())
         {
-            return "Båt";
+            return "Boat";
         }
         else if (isParkourTrack())
         {
@@ -563,7 +563,7 @@ public class RaceTrack
             return "Elytra";
         }
 
-        return "Okänd";
+        return "Unknown";
     }
 
     public void setTrackType(TrackType type)

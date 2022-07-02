@@ -29,7 +29,6 @@ messages:
     timer:
       missedCheckpoints: '&cTime is invalid, not all checkpoints were passed!'
       leftBoat: '&cYou left the boat and cancelled your time.'
-
   save:
     generic: '&aValue has been saved.'
   create:
@@ -50,10 +49,12 @@ messages:
   info:
     track:
       name: '&2--- &aTrack: %name% (%id%) &2---'
-      type: '&2Open: &a%open%    &2Type:&a %type%'
+      open: '&2Open: &aYes   &2Type:&a %type%'
+      closed: '&2Open: &aNo   &2Type:&a %type%'
       created: '&2Created:&a %date%&2 owned by &a%owner%'
       options: '&2Options: &a+%options%'
-      checkpointTeleport: '&2Checkpoint teleports:&a %teleport%'
+      checkpointTeleportOn: '&2Checkpoint teleports:&a Yes'
+      checkpointTeleportOff: '&2Checkpoint teleports:&a No'
       checkpoints: '&2Checkpoints:&a %size%'
       resets: '&2Reset regions:&a %size%'
       spawn: '&2Spawn:&a %location%'
@@ -68,8 +69,8 @@ messages:
     track:
       open: '&aTrack is now open.'
       closed: '&aTrack is now closed.'
-      government: '&aTrack is now public'
-      private: '&aTrack is now private'
+      government: '&aTrack is now public.'
+      private: '&aTrack is now private.'
     race:
       checkpoints:
         on: '&aCheckpoint announcements are now active.'

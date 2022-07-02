@@ -19,7 +19,7 @@ public class MainGUIListener implements Listener
 
             if (e.getView().getTitle() != null)
             {
-                if (e.getView().getTitle().startsWith(RaceUtilities.color("&3&lStatliga")) || e.getView().getTitle().startsWith(RaceUtilities.color("&2&lPersonliga")))
+                if (e.getView().getTitle().startsWith(RaceUtilities.color("&3&lPublic")) || e.getView().getTitle().startsWith(RaceUtilities.color("&2&lPrivate")))
                 {
                     e.setCancelled(true);
                     Player player = (Player) e.getWhoClicked();
@@ -37,12 +37,12 @@ public class MainGUIListener implements Listener
                         if (e.getClick() == ClickType.LEFT || e.getClick() == ClickType.SHIFT_LEFT)
                         {
 
-                            if (item.getItemMeta().getDisplayName().contains("Personliga"))
+                            if (item.getItemMeta().getDisplayName().contains("Private"))
                             {
                                 GUIManager.openMainGUI(player, 1);
                                 return;
                             }
-                            else if (item.getItemMeta().getDisplayName().contains("Statliga"))
+                            else if (item.getItemMeta().getDisplayName().contains("Public"))
                             {
                                 GUIManager.openMainGUI(player, 0);
                                 return;

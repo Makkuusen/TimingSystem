@@ -1,13 +1,23 @@
 package me.makkuusen.timing.system;
 
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,7 +27,7 @@ public class RPlayer implements Comparable<RPlayer> {
 	private Player player;
 	private UUID uuid;
 	private String name;
-	private Map<String, Boolean> toggles = new HashMap<>();
+	private long dateJoin, dateNameChange, dateNameCheck, dateSeen;
 
 
 	@Override
@@ -31,6 +41,10 @@ public class RPlayer implements Comparable<RPlayer> {
 
 		uuid = UUID.fromString(data.getString("uuid"));
 		name = data.getString("name");
+		dateJoin = data.getLong("dateJoin");
+		dateNameChange = data.getLong("dateNameChange");
+		dateNameCheck = data.getLong("dateNameCheck");
+		dateSeen = data.getLong("dateSeen");
 	}
 
 	public UUID getUniqueId() {
@@ -92,5 +106,96 @@ public class RPlayer implements Comparable<RPlayer> {
 		{
 			this.player = null;
 		}
+	}
+
+	public long getDateJoin()
+	{
+		return dateJoin;
+	}
+
+	public long getDateSeen()
+	{
+		return dateSeen;
+	}
+
+	void updateNameChanges()
+	{
+		// We're not bothering with checking the history if the last name change occurred less than 29 days ago
+		if ((long) (ApiUtilities.getTimestamp() - dateNameChange) < 2506000) { return; }
+
+		final RPlayer rPlayer = this;
+
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					URLConnection connection = new URL("https://api.mojang.com/user/profiles/" + uuid.toString().replace("-", "") + "/names").openConnection();
+
+					InputStream response = connection.getInputStream();
+					JSONParser parser = new JSONParser();
+					Object obj = parser.parse(new BufferedReader(new InputStreamReader(response, "UTF-8")));
+					JSONArray jsonObject = (JSONArray) obj;
+
+					String nameCurrent = null;
+					long dateNameChange = 0;
+
+					int newChanges = 0;
+
+					for (@SuppressWarnings("unchecked") Iterator<JSONObject> iterator = jsonObject.iterator(); iterator.hasNext();)
+					{
+						JSONObject nameChange = iterator.next();
+
+						nameCurrent = (String) nameChange.get("name");
+
+						if (nameCurrent == null)
+						{
+							plugin.getLogger().warning("Failed to fetch name changes for " + uuid + " (" + name + "): Couldn't parse response from Mojang.");
+							return;
+						}
+
+						Long dateNameChangeRaw = (Long) nameChange.get("changedToAt");
+						dateNameChange = dateNameChangeRaw == null ? 0 : (dateNameChangeRaw / 1000);
+
+						if (dateNameChange > rPlayer.dateNameChange)
+						{
+							newChanges++;
+						}
+					}
+
+					if (nameCurrent == null)
+					{
+						plugin.getLogger().warning("Failed to fetch name changes for " + uuid + " (" + name + "): No name history found.");
+						return;
+					}
+
+					rPlayer.dateNameChange = dateNameChange;
+					rPlayer.dateNameCheck = ApiUtilities.getTimestamp();
+
+					if (newChanges == 0)
+					{
+						ApiDatabase.asynchronousQuery(new String[] { "UPDATE `players` SET `dateNameCheck` = " + rPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';" });
+					}
+
+					else
+					{
+						ApiDatabase.asynchronousQuery(new String[] { "UPDATE `players` SET `dateNameChange` = " + rPlayer.dateNameChange + ", `dateNameCheck` = " + rPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';"});
+
+						plugin.getLogger().info("Cached " + newChanges + " new name " + (newChanges == 1 ? "change" : "changes") + " for " + uuid + " (" + nameCurrent + ").");
+
+						// Only update the cache if the player is offline
+						if (!name.equals(nameCurrent) && player == null) { setName(nameCurrent); }
+					}
+				}
+
+				catch (Exception exception)
+				{
+					plugin.getLogger().warning("Failed to fetch name changes for " + uuid + " (" + name + "): " + exception.getMessage());
+					return;
+				}
+			}
+		});
 	}
 }

@@ -1,4 +1,4 @@
-name: Race
+name: TimingSystem
 main: me.makkuusen.timing.system.Race
 version: ${project.version}
 authors: [Markus Hellquist (Makkuusen)]

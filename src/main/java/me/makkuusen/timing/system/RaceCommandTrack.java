@@ -369,10 +369,24 @@ public class RaceCommandTrack implements CommandExecutor
         var track = maybeTrack.get();
         player.sendMessage(" ");
         plugin.sendMessage(player, "messages.info.track.name", "%name%", track.getName(), "%id%", String.valueOf(track.getId()));
-        plugin.sendMessage(player, "messages.info.track.type", "%open%", track.isOpen() ? "Ja" : "Nej", "%type%", track.getTypeAsString());
+        if (track.isOpen())
+        {
+            plugin.sendMessage(player, "messages.info.track.open", "%type%", track.getTypeAsString());
+        }
+        else
+        {
+            plugin.sendMessage(player, "messages.info.track.closed", "%type%", track.getTypeAsString());
+        }
         plugin.sendMessage(player, "messages.info.track.created", "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
         plugin.sendMessage(player, "messages.info.track.options", "%options%", RaceUtilities.formatPermissions(track.getOptions()));
-        plugin.sendMessage(player, "messages.info.track.checkpointTeleport", "%teleport%", track.hasOption('c') ? "Ja" : "Nej");
+        if (track.hasOption('c'))
+        {
+            plugin.sendMessage(player, "messages.info.track.checkpointTeleportOn");
+        }
+        else
+        {
+            plugin.sendMessage(player, "messages.info.track.checkpointTeleportOff");
+        }
         plugin.sendMessage(player, "messages.info.track.checkpoints", "%size%", String.valueOf(track.getCheckpoints().size()));
         plugin.sendMessage(player, "messages.info.track.resets", "%size%", String.valueOf(track.getResetRegions().size()));
         plugin.sendMessage(player, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));

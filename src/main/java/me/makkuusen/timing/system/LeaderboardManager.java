@@ -52,8 +52,8 @@ public class LeaderboardManager
                     time = RaceUtilities.formatAsTime(topTen.get(i - 1).getTime());
                 } catch (IndexOutOfBoundsException e)
                 {
-                    playerName = "Tom";
-                    time = "ingen";
+                    playerName = "Empty";
+                    time = "None";
                 }
                 line = line.replace("{name" + i + "}", playerName);
                 line = line.replace("{time" + i + "}", time);

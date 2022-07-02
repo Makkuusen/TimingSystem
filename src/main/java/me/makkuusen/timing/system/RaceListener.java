@@ -56,6 +56,12 @@ public class RaceListener implements Listener
         RPlayer rPlayer = ApiDatabase.getPlayer(event.getPlayer().getUniqueId());
 
         rPlayer.setPlayer(event.getPlayer());
+
+        if (!rPlayer.getName().equals(event.getPlayer().getName())) {
+            // Update name
+            rPlayer.setName(event.getPlayer().getName());
+            rPlayer.updateNameChanges();
+        }
     }
 
     @EventHandler

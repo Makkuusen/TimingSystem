@@ -37,10 +37,10 @@ public class GUIManager
 
         borderGlass = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName("§r").build();
         lightBorderGlass = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName("§r").build();
-        governmentPage = new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lStatliga banor").build();
-        personalPage = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§a§lPersonliga banor").build();
-        elytra = new ItemBuilder(Material.ELYTRA).setName("§e§lElytrabanor").build();
-        boat = new ItemBuilder(Material.OAK_BOAT).setName("§e§lBåtbanor").build();
+        governmentPage = new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lPublic tracks").build();
+        personalPage = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§a§lPrivate tracks").build();
+        elytra = new ItemBuilder(Material.ELYTRA).setName("§e§lElytra").build();
+        boat = new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat").build();
         parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkours").build();
     }
 
@@ -56,7 +56,7 @@ public class GUIManager
     public static void openMainGUI(Player p, int page)
     {
         playersPages.put(p.getUniqueId(), page);
-        Inventory inv = Bukkit.createInventory(null, 54, (RaceUtilities.color(page == GOVERNMENTPAGE ? "&3&lStatliga" : "&2&lPersonliga") + " banor"));
+        Inventory inv = Bukkit.createInventory(null, 54, (RaceUtilities.color(page == GOVERNMENTPAGE ? "&3&lPublic" : "&2&lPrivate") + " tracks"));
 
         Integer[] borderSlots = {0, 2, 3, 5, 6, 8, 45, 46, 47, 51, 52, 53};
         for (Integer slot : borderSlots)
