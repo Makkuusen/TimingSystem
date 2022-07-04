@@ -7,7 +7,7 @@ public class RaceConfiguration
     private final int leaderboardsUpdateTick;
     private final List<String> leaderboardsFastestTimeLines;
 
-    RaceConfiguration(Race plugin)
+    RaceConfiguration(TimingSystem plugin)
     {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();

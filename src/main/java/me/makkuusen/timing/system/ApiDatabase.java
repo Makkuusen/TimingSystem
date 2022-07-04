@@ -13,10 +13,10 @@ import java.util.UUID;
 
 public class ApiDatabase {
 
-    private static Race plugin;
+    private static TimingSystem plugin;
     private static HikariDataSource dataSource;
 
-    static boolean initialize(Race plugin) {
+    static boolean initialize(TimingSystem plugin) {
         ApiDatabase.plugin = plugin;
 
         HikariDataSource dataSource = new HikariDataSource();

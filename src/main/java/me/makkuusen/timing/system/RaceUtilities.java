@@ -100,7 +100,7 @@ public class RaceUtilities
             return yamlConfig.getItemStack("item");
         } catch (Exception exception)
         {
-            Race.getPlugin().getLogger().warning("Failed to translate from String to ItemStack: " + string);
+            TimingSystem.getPlugin().getLogger().warning("Failed to translate from String to ItemStack: " + string);
             return null;
         }
     }
@@ -120,7 +120,7 @@ public class RaceUtilities
 
     public static void msgConsole(String msg)
     {
-        Race.getPlugin().logger.info(msg);
+        TimingSystem.getPlugin().logger.info(msg);
     }
 
     public static String color(String uncolored)

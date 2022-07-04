@@ -64,7 +64,7 @@ public class RaceTrack
         toggleOpen = data.getBoolean("toggleOpen");
         toggleGovernment = data.getBoolean("toggleGovernment");
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
-        mode = TrackMode.TIMETRIAL;
+        mode = TrackMode.RACE;
     }
 
     public int getId()
@@ -506,7 +506,7 @@ public class RaceTrack
             if (nearest)
             {
                 Boat boat = spawnLocation.getWorld().spawn(spawnLocation, Boat.class);
-                boat.setMetadata("spawned", new FixedMetadataValue(Race.getPlugin(), null));
+                boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
                 if (player.getName().equalsIgnoreCase("Hogge72"))
                 {
                     boat.setWoodType(TreeSpecies.ACACIA);
@@ -574,6 +574,20 @@ public class RaceTrack
         return null;
     }
 
+    public TrackMode getModeFromString(String mode)
+    {
+        if (mode.equalsIgnoreCase("race"))
+        {
+            return TrackMode.RACE;
+        }
+        else if (mode.equalsIgnoreCase("timetrial"))
+        {
+            return TrackMode.TIMETRIAL;
+        }
+        else
+        return null;
+    }
+
     public String getTypeAsString()
     {
         if (isBoatTrack())
@@ -587,6 +601,28 @@ public class RaceTrack
         else if (isElytraTrack())
         {
             return "Elytra";
+        }
+
+        return "Unknown";
+    }
+
+    public String getModeAsString()
+    {
+        if (mode.equals(TrackMode.RACE))
+        {
+            return "Race";
+        }
+        else if (mode.equals(TrackMode.TIMETRIAL))
+        {
+            return "Timetrial";
+        }
+        else if (mode.equals(TrackMode.QUALIFICATION))
+        {
+            return "Qualification";
+        }
+        else if (mode.equals(TrackMode.PRACTICE))
+        {
+            return "Practice";
         }
 
         return "Unknown";

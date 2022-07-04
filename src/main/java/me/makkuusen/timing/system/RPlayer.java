@@ -16,13 +16,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.UUID;
 
 public class RPlayer implements Comparable<RPlayer> {
-	private Race plugin;
+	private TimingSystem plugin;
 
 	private Player player;
 	private UUID uuid;
@@ -36,7 +34,7 @@ public class RPlayer implements Comparable<RPlayer> {
 	}
 
 	// From database
-	public RPlayer(Race plugin, ResultSet data) throws SQLException {
+	public RPlayer(TimingSystem plugin, ResultSet data) throws SQLException {
 		this.plugin = plugin;
 
 		uuid = UUID.fromString(data.getString("uuid"));

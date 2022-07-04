@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class ApiUtilities {
 
-    static Race plugin;
+    static TimingSystem plugin;
     private static String[] months = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
     private static Pattern niceLocation = Pattern.compile("^\\(\\[([A-Za-z0-9_]+)\\]([\\-]{0,1}[0-9]+),[ ]{0,1}([\\-]{0,1}[0-9]+),[ ]{0,1}([\\-]{0,1}[0-9]+)\\)$");
 

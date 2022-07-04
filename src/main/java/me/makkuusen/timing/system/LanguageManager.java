@@ -18,11 +18,11 @@ import java.util.logging.Level;
 
 public class LanguageManager {
 
-        private final Race plugin;
+        private final TimingSystem plugin;
         private final String defaultLocale;
         private final Map<String, YamlConfiguration> locales;
 
-        public LanguageManager(@NotNull Race plugin, @NotNull String defaultLocale) {
+        public LanguageManager(@NotNull TimingSystem plugin, @NotNull String defaultLocale) {
             this.plugin = plugin;
             this.defaultLocale = defaultLocale;
             this.locales = new HashMap<>();

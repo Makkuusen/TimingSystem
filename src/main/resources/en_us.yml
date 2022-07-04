@@ -5,6 +5,7 @@ messages:
     consoleUnsupported: 'You cannot use this command from console.'
     permissionDenied: '&cPermission denied.'
     missing:
+      race: '&cThere is no race on that track.'
       track:
         name: '&cThere is no track with that name.'
         id: '&cThere is no track with that id'
@@ -19,12 +20,14 @@ messages:
       checkpoint: '&aCheckpoint could not be removed.'
     numberException: '&cValue could not parse. Is it a number?'
     trackTypeException: '&cFaulty track type.'
+    trackModeException: '&cFaulty track mode.'
     trackIsLocked: '&cTrack is locked.'
     trackIsClosed: '&cTrack is closed.'
     nameToLong: '&cName can not exceed %length% characters.'
     nameRegexException: '&cName can only contain letters, space och numbers.'
     selectionException: '&cYour selection could not be used.'
     trackExists: '&cTrack already exists.'
+    raceExists: '&cRace already exists.'
     runNotStarted: '&cYou have no timer running.'
     timer:
       missedCheckpoints: '&cTime is invalid, not all checkpoints were passed!'
@@ -53,6 +56,7 @@ messages:
       closed: '&2Open: &aNo   &2Type:&a %type%'
       created: '&2Created:&a %date%&2 owned by &a%owner%'
       options: '&2Options: &a+%options%'
+      mode: '&2Mode: &a%mode%'
       checkpointTeleportOn: '&2Checkpoint teleports:&a Yes'
       checkpointTeleportOff: '&2Checkpoint teleports:&a No'
       checkpoints: '&2Checkpoints:&a %size%'
@@ -60,9 +64,11 @@ messages:
       spawn: '&2Spawn:&a %location%'
       leaderboard: '&2Leaderboard:&a %location%'
     race:
-      name: '&2--- &aTrack: %name% &2---'
+      name: '&2--- &aRace: %name% &2---'
       type: '&2Type:&a %type%'
-      bestTime: '&2Your best time:&a %time%'
+      laps: '&2Laps:&a %laps%'
+      pits: '&2Pits:&a %pits%'
+      drivers: '&2Drivers:&a %drivers%'
   list:
     tracks: '&2--- &aTracks (page &l%startPage% &r&aof &l%totalPages%&r&a) &2---'
   toggle:

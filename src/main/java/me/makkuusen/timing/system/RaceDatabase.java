@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class RaceDatabase
 {
-    public static Race plugin;
+    public static TimingSystem plugin;
     private static final List<RaceTrack> tracks = new ArrayList<>();
     private static final List<RaceRegion> regions = new ArrayList<>();
 

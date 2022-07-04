@@ -21,7 +21,7 @@ import java.util.List;
 
 public class RaceCommandTrack implements CommandExecutor
 {
-    static Race plugin;
+    static TimingSystem plugin;
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] arguments)
@@ -112,6 +112,7 @@ public class RaceCommandTrack implements CommandExecutor
                 player.sendMessage("§7Syntax /track set leaderboard §nname§r§7");
                 player.sendMessage("§7Syntax /track set gui §nname§r§7");
                 player.sendMessage("§7Syntax /track set type §ntype§r§7 §nname§r§7");
+                player.sendMessage("§7Syntax /track set mode §nmode§r§7 §nname§r§7");
                 player.sendMessage("§7Syntax /track set startregion §nname§r§7");
                 player.sendMessage("§7Syntax /track set endregion §nname§r§7");
                 player.sendMessage("§7Syntax /track set checkpoint +§nnumber§r§7 §nname§r§7");
@@ -172,7 +173,7 @@ public class RaceCommandTrack implements CommandExecutor
                 sender.sendMessage("§7Syntax: /track updateleaderboards");
                 return true;
             }
-            Bukkit.getScheduler().runTaskAsynchronously(Race.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(sender));
+            Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(sender));
             plugin.sendMessage(sender, "messages.update.leaderboards");
         }
         else if (arguments[0].equalsIgnoreCase("deletebesttime"))
@@ -223,15 +224,15 @@ public class RaceCommandTrack implements CommandExecutor
                 return true;
             }
 
-            if (Race.getPlugin().override.contains(player.getUniqueId()))
+            if (TimingSystem.getPlugin().override.contains(player.getUniqueId()))
             {
-                Race.getPlugin().override.remove(player.getUniqueId());
+                TimingSystem.getPlugin().override.remove(player.getUniqueId());
                 plugin.sendMessage(player, "messages.remove.override");
             }
 
             else
             {
-                Race.getPlugin().override.add(player.getUniqueId());
+                TimingSystem.getPlugin().override.add(player.getUniqueId());
                 plugin.sendMessage(player, "messages.create.override");
             }
             return true;
@@ -301,6 +302,7 @@ public class RaceCommandTrack implements CommandExecutor
             player.sendMessage("§2/track set leaderboard §aname");
             player.sendMessage("§2/track set gui §aname");
             player.sendMessage("§2/track set type §atype §aname");
+            player.sendMessage("§2/track set mode §amode §aname");
             player.sendMessage("§2/track set startregion §aname");
             player.sendMessage("§2/track set endregion §aname");
             player.sendMessage("§2/track set checkpoint +§anumber §aname");
@@ -405,14 +407,7 @@ public class RaceCommandTrack implements CommandExecutor
         }
         plugin.sendMessage(player, "messages.info.track.created", "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
         plugin.sendMessage(player, "messages.info.track.options", "%options%", RaceUtilities.formatPermissions(track.getOptions()));
-        if (track.hasOption('c'))
-        {
-            plugin.sendMessage(player, "messages.info.track.checkpointTeleportOn");
-        }
-        else
-        {
-            plugin.sendMessage(player, "messages.info.track.checkpointTeleportOff");
-        }
+        plugin.sendMessage(player, "messages.info.track.mode", "%mode%", track.getModeAsString());
         plugin.sendMessage(player, "messages.info.track.checkpoints", "%size%", String.valueOf(track.getCheckpoints().size()));
         plugin.sendMessage(player, "messages.info.track.resets", "%size%", String.valueOf(track.getResetRegions().size()));
         plugin.sendMessage(player, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
@@ -573,7 +568,6 @@ public class RaceCommandTrack implements CommandExecutor
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
-                plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
             cmdSetStartRegion(player, maybeTrack.get());
@@ -664,6 +658,23 @@ public class RaceCommandTrack implements CommandExecutor
             cmdSetType(player, maybeTrack.get(), arguments[2]);
 
         }
+        else if (command.equalsIgnoreCase("mode"))
+        {
+            if (arguments.length < 4)
+            {
+                player.sendMessage("§7Syntax /track set mode §nmode§r§7 §nname§r§7");
+                return;
+            }
+            String name = ApiUtilities.concat(arguments, 3);
+            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            if (maybeTrack.isEmpty())
+            {
+                plugin.sendMessage(player,"messages.error.missing.track");
+                return;
+            }
+            cmdSetMode(player, maybeTrack.get(), arguments[2]);
+
+        }
         else if (command.equalsIgnoreCase("name"))
         {
             if (arguments.length < 4)
@@ -741,6 +752,7 @@ public class RaceCommandTrack implements CommandExecutor
             player.sendMessage("§2/track set leaderboard §aname");
             player.sendMessage("§2/track set gui §aname");
             player.sendMessage("§2/track set type §atype §aname");
+            player.sendMessage("§2/track set mode §amode §aname");
             player.sendMessage("§2/track set startregion §aname");
             player.sendMessage("§2/track set endregion §aname");
             player.sendMessage("§2/track set checkpoint +§anumber §aname");
@@ -765,37 +777,51 @@ public class RaceCommandTrack implements CommandExecutor
 
     static void cmdSetName(Player player, String id, String name)
     {
-            int trackId;
-            try
-            {
-                trackId = Integer.parseInt(id);
-            } catch (NumberFormatException e)
-            {
-                plugin.sendMessage(player, "messages.error.numberException");
-                return;
-            }
-            var maybeTrack = RaceDatabase.getTrackById(trackId);
-            if (maybeTrack.isEmpty())
-            {
-                plugin.sendMessage(player, "messages.error.missing.track.id");
-                return;
-            }
+        int trackId;
+        try
+        {
+            trackId = Integer.parseInt(id);
+        } catch (NumberFormatException e)
+        {
+            plugin.sendMessage(player, "messages.error.numberException");
+            return;
+        }
+        var maybeTrack = RaceDatabase.getTrackById(trackId);
+        if (maybeTrack.isEmpty())
+        {
+            plugin.sendMessage(player, "messages.error.missing.track.id");
+            return;
+        }
 
-            int maxLength = 25;
-            if (name.length() > maxLength)
-            {
-                plugin.sendMessage(player, "messages.error.nametoLong", "%length%", String.valueOf(maxLength));
-                return;
-            }
+        int maxLength = 25;
+        if (name.length() > maxLength)
+        {
+            plugin.sendMessage(player, "messages.error.nametoLong", "%length%", String.valueOf(maxLength));
+            return;
+        }
 
-            if (!name.matches("[A-Za-zÅÄÖåäöØÆøæ0-9 ]+"))
-            {
-                plugin.sendMessage(player, "messages.error.nameRegexException");
-                return;
-            }
-            maybeTrack.get().setName(name);
-            plugin.sendMessage(player,"messages.save.generic");
-            LeaderboardManager.updateFastestTimeLeaderboard(trackId);
+        if (!name.matches("[A-Za-zÅÄÖåäöØÆøæ0-9 ]+"))
+        {
+            plugin.sendMessage(player, "messages.error.nameRegexException");
+            return;
+        }
+        maybeTrack.get().setName(name);
+        plugin.sendMessage(player,"messages.save.generic");
+        LeaderboardManager.updateFastestTimeLeaderboard(trackId);
+    }
+
+    static void cmdSetMode(Player player, RaceTrack track, String mode)
+    {
+        RaceTrack.TrackMode trackMode = track.getModeFromString(mode);
+
+        if (mode == null)
+        {
+            plugin.sendMessage(player, "messages.error.trackTypeException");
+            return;
+        }
+        track.setMode(trackMode);
+        plugin.sendMessage(player,"messages.save.generic");
+
     }
 
     static void cmdSetStartRegion(Player player, RaceTrack track)
@@ -839,7 +865,6 @@ public class RaceCommandTrack implements CommandExecutor
             regionIndex = Integer.parseInt(index);
         } catch (NumberFormatException exception)
         {
-            plugin.sendMessage(player, "messages.error.numberException");
             plugin.sendMessage(player, "messages.error.numberException");
             return;
         }

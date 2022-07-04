@@ -10,7 +10,7 @@ import java.time.Instant;
 
 public class TimeTrial{
 
-    static Race plugin;
+    static TimingSystem plugin;
     private RPlayer rPlayer;
     private RaceTrack track;
     private Instant startTime;
@@ -138,7 +138,7 @@ public class TimeTrial{
 
     public void playerRestartMap()
     {
-        Instant endTime = Race.getPlugin().currentTime;
+        Instant endTime = TimingSystem.getPlugin().currentTime;
         Player p = rPlayer.getPlayer();
 
         if (!hasPassedAllCheckpoints())
@@ -176,7 +176,7 @@ public class TimeTrial{
 
         Player player = rPlayer.getPlayer();
 
-        if (!track.isOpen() && !Race.getPlugin().override.contains(rPlayer.getUniqueId()))
+        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(rPlayer.getUniqueId()))
         {
             return;
         }
@@ -212,7 +212,7 @@ public class TimeTrial{
     {
         Player player = rPlayer.getPlayer();
 
-        if (!track.isOpen() && !Race.getPlugin().override.contains(rPlayer.getUniqueId()))
+        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(rPlayer.getUniqueId()))
         {
             return;
         }
@@ -227,7 +227,7 @@ public class TimeTrial{
 
     public void playerEndedMap()
     {
-        Instant endTime = Race.getPlugin().currentTime;
+        Instant endTime = TimingSystem.getPlugin().currentTime;
         Player p = rPlayer.getPlayer();
 
         if (!hasPassedAllCheckpoints())
@@ -268,7 +268,7 @@ public class TimeTrial{
     {
         passCheckpoint(checkpoint);
         long timeSinceStart = getTimeSinceStart(Instant.now());
-        if (Race.getPlugin().verbose.contains(rPlayer.getUniqueId()))
+        if (TimingSystem.getPlugin().verbose.contains(rPlayer.getUniqueId()))
         {
             plugin.sendMessage(rPlayer.getPlayer(),"messages.timer.checkpoint", "%checkpoint%", String.valueOf(checkpoint), "%time%", RaceUtilities.formatAsTime(timeSinceStart));
         }

@@ -1,5 +1,5 @@
 name: TimingSystem
-main: me.makkuusen.timing.system.Race
+main: me.makkuusen.timing.system.TimingSystem
 version: ${project.version}
 authors: [Markus Hellquist (Makkuusen)]
 depend: [WorldEdit]

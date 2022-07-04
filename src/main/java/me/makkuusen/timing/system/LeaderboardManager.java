@@ -20,7 +20,7 @@ public class LeaderboardManager
 
     public static void updateFastestTimeLeaderboard(int id)
     {
-        if (!Race.enableLeaderboards)
+        if (!TimingSystem.enableLeaderboards)
         {
             return;
         }
@@ -35,7 +35,7 @@ public class LeaderboardManager
         var topTen = raceTrack.getTopList(10);
         List<String> textLines = new ArrayList<>();
 
-        for (String line : Race.configuration.leaderboardsFastestTimeLines())
+        for (String line : TimingSystem.configuration.leaderboardsFastestTimeLines())
         {
 
             line = line.replace("{mapname}", raceTrack.getName());
@@ -60,19 +60,19 @@ public class LeaderboardManager
             }
             textLines.add(line);
         }
-        Bukkit.getScheduler().runTask(Race.getPlugin(), () -> {
+        Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
 			Hologram holo;
 			Location leaderBoardLocation = raceTrack.getLeaderboardLocation();
 
 			if (fastestHolograms.get(id) == null)
 			{
-				holo = HolographicDisplaysAPI.get(Race.getPlugin()).createHologram(leaderBoardLocation);
+				holo = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(leaderBoardLocation);
 				fastestHolograms.put(id, holo);
 			}
 			else if (fastestHolograms.get(id).getPosition().distance(leaderBoardLocation) > 1)
 			{
 				fastestHolograms.get(id).delete();
-				holo = HolographicDisplaysAPI.get(Race.getPlugin()).createHologram(leaderBoardLocation);
+				holo = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(leaderBoardLocation);
 				fastestHolograms.put(id, holo);
 			}
 			else
@@ -93,7 +93,7 @@ public class LeaderboardManager
 
     public static void updateAllFastestTimeLeaderboard()
     {
-        if (!Race.enableLeaderboards)
+        if (!TimingSystem.enableLeaderboards)
         {
             return;
         }
@@ -105,7 +105,7 @@ public class LeaderboardManager
 
     public static void updateAllFastestTimeLeaderboard(CommandSender toNotify)
     {
-        if (!Race.enableLeaderboards)
+        if (!TimingSystem.enableLeaderboards)
         {
             return;
         }
@@ -118,11 +118,11 @@ public class LeaderboardManager
 
     public static void removeLeaderboard(int id)
     {
-        if (!Race.enableLeaderboards)
+        if (!TimingSystem.enableLeaderboards)
         {
             return;
         }
-        Bukkit.getScheduler().runTask(Race.getPlugin(), () -> {
+        Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
 			fastestHolograms.get(id).delete();
 			fastestHolograms.remove(id);
 		});
@@ -130,6 +130,6 @@ public class LeaderboardManager
 
     public static void startUpdateTask()
     {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(Race.getPlugin(), (@NotNull Runnable) LeaderboardManager::updateAllFastestTimeLeaderboard, 30 * 20, Race.configuration.leaderboardsUpdateTick());
+        Bukkit.getScheduler().runTaskTimerAsynchronously(TimingSystem.getPlugin(), (@NotNull Runnable) LeaderboardManager::updateAllFastestTimeLeaderboard, 30 * 20, TimingSystem.configuration.leaderboardsUpdateTick());
     }
 }

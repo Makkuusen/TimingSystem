@@ -10,36 +10,6 @@ public class TimeTrialsController {
 
     static HashMap<UUID, TimeTrial> timeTrials = new HashMap<>();
 
-    public static void initTimeTrials()
-    {
-        timeTrials = new HashMap<>();
-
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(Race.getPlugin(), () -> {
-
-            for (Player p : Bukkit.getOnlinePlayers())
-            {
-                if (timeTrials.containsKey(p.getUniqueId()))
-                {
-                    TimeTrial timeTrial = timeTrials.get(p.getUniqueId());
-                    long mapTime = timeTrial.getCurrentTime();
-                    if (timeTrial.getBestFinish() == -1)
-                    {
-                        RaceUtilities.sendActionBar("§a" + RaceUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
-                    }
-                    else if (mapTime < timeTrial.getBestFinish())
-                    {
-                        RaceUtilities.sendActionBar("§a" + RaceUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
-                    }
-                    else
-                    {
-                        RaceUtilities.sendActionBar("§c" + RaceUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
-                    }
-                }
-            }
-
-        }, 5, 5);
-    }
-
     public static void playerLeavingMap(UUID uuid)
     {
         if (!TimeTrialsController.timeTrials.containsKey(uuid))

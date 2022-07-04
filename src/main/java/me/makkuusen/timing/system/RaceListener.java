@@ -29,10 +29,10 @@ import java.util.Iterator;
 public class RaceListener implements Listener
 {
 
-    static Race plugin;
+    static TimingSystem plugin;
     @EventHandler
     public void onTick(ServerTickStartEvent e) {
-        Race.getPlugin().currentTime = Instant.now();
+        TimingSystem.getPlugin().currentTime = Instant.now();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -78,9 +78,9 @@ public class RaceListener implements Listener
         {
             if (raceTrack.getSpawnLocation().getWorld() == event.getTo().getWorld())
             {
-                if (raceTrack.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() == GameMode.SURVIVAL)
+                if (raceTrack.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR)
                 {
-                    Bukkit.getScheduler().runTaskLater(Race.getPlugin(), () -> raceTrack.spawnBoat(event.getPlayer()), 1);
+                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> raceTrack.spawnBoat(event.getPlayer()), 1);
                 }
             }
         }
@@ -119,7 +119,7 @@ public class RaceListener implements Listener
     {
         if (event.getVehicle() instanceof Boat && event.getVehicle().hasMetadata("spawned") && event.getVehicle().getPassengers().size() < 2)
         {
-            Bukkit.getScheduler().runTaskLater(Race.getPlugin(), () -> event.getVehicle().remove(), 10);
+            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> event.getVehicle().remove(), 10);
         }
 
         if (event.getExited() instanceof Player player)
@@ -228,6 +228,12 @@ public class RaceListener implements Listener
         Player player = e.getPlayer();
         RPlayer rPlayer = ApiDatabase.getPlayer(player.getUniqueId());
 
+        var maybeRaceDriver = RaceController.getDriverFromRace(rPlayer);
+        if (maybeRaceDriver.isPresent()) {
+            var race = maybeRaceDriver.get();
+            handleRace(race, player);
+
+        }
         if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId())) {
             handleTimeTrials(player);
             // don't need to check for starting new track
@@ -318,5 +324,47 @@ public class RaceListener implements Listener
                 timeTrial.playerResetMap();
             }
         }
+    }
+
+    private void handleRace(Race race, Player player) {
+        var track = race.getTrack();
+        if (track.getMode() != RaceTrack.TrackMode.RACE) {
+            return;
+        }
+
+        if(!race.isRunning){
+            return;
+        }
+        var raceDriver = race.raceDrivers.get(player.getUniqueId());
+        if (raceDriver.isFinished()) {
+            return;
+        }
+        if (track.getStartRegion().contains(player.getLocation()))
+        {
+            if (raceDriver.getLatestCheckpoint() != 0) {
+                long laptime = race.passLap(player.getUniqueId());
+                if(laptime != 0)
+                {
+                    player.sendMessage("§aYou finished the lap in: " + RaceUtilities.formatAsTime(laptime));
+                }
+            } else if (!raceDriver.isRunning())
+            {
+                raceDriver.start();
+            }
+
+        }
+
+        // Check for next checkpoint in current map
+        int nextCheckpoint = raceDriver.getNextCheckpoint();
+        if (nextCheckpoint == raceDriver.getLatestCheckpoint())
+        {
+            return;
+        }
+        var checkpoint = track.getCheckpoints().get(nextCheckpoint);
+        if (checkpoint.contains(player.getLocation()))
+        {
+            raceDriver.passCheckpoint(nextCheckpoint);
+        }
+
     }
 }

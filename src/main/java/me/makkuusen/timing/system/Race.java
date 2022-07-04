@@ -1,136 +1,136 @@
 package me.makkuusen.timing.system;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
-public class Race extends JavaPlugin
-{
+public class Race {
 
-    public Logger logger = null;
-    static RaceConfiguration configuration;
-    private static Race plugin;
-    public static boolean enableLeaderboards = true;
-    Set<UUID> override = new HashSet<>();
-    Set<UUID> verbose = new HashSet<>();
-    public static Map<UUID, RPlayer> players = new HashMap<UUID, RPlayer>();
-    private LanguageManager languageManager;
-    public Instant currentTime = Instant.now();
+    static TimingSystem plugin;
+    private int totalLaps = 5;
+    private int totalPitstops = 2;
+    private Instant startTime;
+    boolean isRunning = false;
+    RaceTrack track;
+    HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();;
+    List<RaceSplits> positions = new ArrayList<>();
 
-    public void onEnable()
+    public Race(int totalLaps, int totalPitstops, RaceTrack track){
+        this.totalLaps = totalLaps;
+        this.totalPitstops = totalPitstops;
+        this.track = track;
+    }
+
+    public void addRaceDriver(RPlayer rPlayer)
     {
+        RaceDriver raceDriver = new RaceDriver(rPlayer, this);
+        raceDrivers.put(rPlayer.getUniqueId(), raceDriver);
+    }
 
-        plugin = this;
-        this.logger = getLogger();
-        configuration = new RaceConfiguration(this);
-        RaceDatabase.plugin = this;
-        RaceCommandRace.plugin = this;
-        RaceCommandTrack.plugin = this;
-        RaceListener.plugin = this;
-        TimeTrial.plugin = this;
-        this.languageManager = new LanguageManager(this, "en_us");
-
-        PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new MainGUIListener(), plugin);
-        pm.registerEvents(new RaceListener(), plugin);
-
-        GUIManager.init();
-        TimeTrialsController.initTimeTrials();
-
-        getCommand("track").setExecutor(new RaceCommandTrack());
-        getCommand("race").setExecutor(new RaceCommandRace());
-
-        RaceDatabase.connect();
-
-        if (!Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays"))
+    public void startRace() {
+        startTime = plugin.currentTime;
+        List<RaceSplits> pos = new ArrayList<>();
+        for (RaceDriver rd : raceDrivers.values())
         {
-            RaceUtilities.msgConsole("&cWARNING HOLOGRAPHICDISPLAYS NOT INSTALLED OR ENABLED");
-            RaceUtilities.msgConsole("&cDISABLING LEADERBOARDS.");
-            enableLeaderboards = false;
+            rd.resetRaceSplits();
+            pos.add(rd.getRaceSplits());
+        }
+        positions = pos;
+        isRunning = true;
+    }
+
+    public void updatePositions() {
+
+        Collections.sort(positions);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.sendMessage("§2Positions right now: ");
+            int count = 1;
+            for (RaceSplits rs : positions) {
+                player.sendMessage("§2" + count + ": §a" + rs.getRaceDriver().getRPlayer().getName());
+                count++;
+            }
+        }
+
+    }
+
+    public long getCurrentTime()
+    {
+        return Duration.between(startTime, Instant.now()).toMillis();
+    }
+
+    public long getEndTime(RaceDriver raceDriver)
+    {
+        return Duration.between(startTime, raceDriver.getEndTime()).toMillis();
+    }
+
+    public void finishRaceDriver(UUID uuid) {
+        RaceDriver raceDriver = raceDrivers.get(uuid);
+        raceDriver.setFinished();
+    }
+
+    public void resetRace()
+    {
+        for (RaceDriver rd : raceDrivers.values())
+        {
+            rd.reset();
+        }
+        isRunning = false;
+    }
+
+    public int getTotalLaps() {
+        return totalLaps;
+    }
+
+    public List<RaceDriver> getDrivers() {
+        return raceDrivers.values().stream().toList();
+    }
+
+    public RaceTrack getTrack() {
+        return track;
+    }
+
+    public long passLap(UUID uuid) {
+        var raceDriver = raceDrivers.get(uuid);
+        if(totalLaps == raceDriver.getLaps())
+        {
+            raceDriver.setFinished();
         }
         else
         {
-            LeaderboardManager.startUpdateTask();
+            raceDriver.passLap();
+            if(raceDriver.getLaps() > 0) {
+                return raceDriver.getLaptime(raceDriver.getLaps());
+            }
+        }
+        return 0;
+    }
+
+    public void setTotalLaps(int totalLaps) {
+        this.totalLaps = totalLaps;
+    }
+
+    public void setTotalPitstops(int totalPitstops) {
+        this.totalPitstops = totalPitstops;
+    }
+
+    public int getTotalPitstops() {
+        return totalPitstops;
+    }
+
+    public String getDriversAsString() {
+        List<String> names = new ArrayList<>();
+        for (RaceDriver rd : raceDrivers.values())
+        {
+           names.add(rd.getRPlayer().getName());
         }
 
-        logger.info("Version " + getDescription().getVersion() + " enabled.");
-
+        return String.join(", ", names);
     }
-
-    @Override
-    public void onDisable()
-    {
-        logger.info("Version " + getDescription().getVersion() + " disabled.");
-        RaceDatabase.plugin = null;
-        RaceCommandRace.plugin = null;
-        RaceCommandTrack.plugin = null;
-        RaceListener.plugin = null;
-        TimeTrial.plugin = null;
-        logger = null;
-        plugin = null;
-    }
-
-    public static Race getPlugin()
-    {
-        return plugin;
-    }
-
-    public void sendMessage(@NotNull CommandSender sender, @NotNull String key, String... replacements) {
-        String message = this.languageManager.getValue(key, getLocale(sender), replacements);
-
-        if (message != null && !message.isEmpty()) {
-            sender.sendMessage(message);
-        }
-    }
-
-    public void sendSystemMessage(@NotNull Player player, @NotNull String key) {
-        String message = this.languageManager.getValue(key, getLocale(player));
-
-        if (message == null) {
-            return;
-        }
-
-        int newline = message.indexOf('\n');
-        if (newline != -1) {
-            // No newlines in action bar chat.
-            message = message.substring(0, newline);
-        }
-
-        if (message.isEmpty()) {
-            return;
-        }
-
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
-    }
-
-    public @Nullable String getLocalizedMessage(@NotNull CommandSender sender, @NotNull String key) {
-        return this.languageManager.getValue(key, getLocale(sender));
-    }
-
-    public @Nullable String getLocalizedMessage(@NotNull CommandSender sender, @NotNull String key, String... replacements) {
-        return this.languageManager.getValue(key, getLocale(sender), replacements);
-    }
-
-    private @NotNull String getLocale(@NotNull CommandSender sender) {
-        if (sender instanceof Player) {
-            return ((Player) sender).getLocale();
-        } else {
-            return this.getConfig().getString("settings.locale", "en_us");
-        }
-    }
-
 }
