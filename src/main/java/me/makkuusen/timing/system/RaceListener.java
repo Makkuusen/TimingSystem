@@ -347,7 +347,8 @@ public class RaceListener implements Listener
                 {
                     player.sendMessage("§aYou finished the lap in: " + RaceUtilities.formatAsTime(laptime));
                 }
-            } else if (!raceDriver.isRunning())
+            }
+            else if (!raceDriver.isRunning())
             {
                 raceDriver.start();
             }

@@ -2,6 +2,7 @@ package me.makkuusen.timing.system;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -14,8 +15,8 @@ import java.util.UUID;
 public class Race {
 
     static TimingSystem plugin;
-    private int totalLaps = 5;
-    private int totalPitstops = 2;
+    private int totalLaps;
+    private int totalPitstops;
     private Instant startTime;
     boolean isRunning = false;
     RaceTrack track;
@@ -44,25 +45,22 @@ public class Race {
         }
         positions = pos;
         isRunning = true;
+        updatePositions();
     }
 
     public void updatePositions() {
 
         Collections.sort(positions);
+        Scoreboard board = getScoreboard();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage("§2Positions right now: ");
-            int count = 1;
-            for (RaceSplits rs : positions) {
-                player.sendMessage("§2" + count + ": §a" + rs.getRaceDriver().getRPlayer().getName());
-                count++;
-            }
+            player.setScoreboard(board);
         }
 
     }
 
     public long getCurrentTime()
     {
-        return Duration.between(startTime, Instant.now()).toMillis();
+        return Duration.between(startTime, plugin.currentTime).toMillis();
     }
 
     public long getEndTime(RaceDriver raceDriver)
@@ -82,6 +80,9 @@ public class Race {
             rd.reset();
         }
         isRunning = false;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+        }
     }
 
     public int getTotalLaps() {
@@ -132,5 +133,36 @@ public class Race {
         }
 
         return String.join(", ", names);
+    }
+
+    public Scoreboard getScoreboard()
+    {
+        SimpleScoreboard scoreboard = new SimpleScoreboard("§e§l" + getScoreboardName());
+
+        int count = 0;
+        int score = -1;
+        for(RaceSplits rs : positions){
+            if(score == -9){
+                break;
+            }
+            scoreboard.add("§f" + positions.get(count++).getRaceDriver().getRPlayer().getName(), score--);
+        }
+        scoreboard.build();
+
+        return scoreboard.getScoreboard();
+    }
+
+    String getScoreboardName()
+    {
+        int spacesCount = ((20 - track.getName().length()) / 2) - 1;
+
+        StringBuilder spaces = new StringBuilder();
+
+        for (int i = 0; i < spacesCount; i++)
+        {
+            spaces.append(" ");
+        }
+
+        return spaces + track.getName() + spaces;
     }
 }

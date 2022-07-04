@@ -1,6 +1,5 @@
 package me.makkuusen.timing.system;
 
-import java.time.Duration;
 import java.time.Instant;
 
 public class RaceDriver {
