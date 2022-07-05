@@ -1,14 +1,17 @@
 package me.makkuusen.timing.system;
 
-import java.time.Instant;
+import org.jetbrains.annotations.NotNull;
 
-public class RaceDriver extends RaceParticipant{
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver>{
 
     public static TimingSystem plugin;
     private int laps;
     private int pits;
-    private RaceSplits raceSplits;
-    private boolean[] checkpoints;
+    private List<RaceLap> raceLaps = new ArrayList<>();
     private boolean finished;
     private boolean isRunning;
     private Instant endTime;
@@ -18,17 +21,11 @@ public class RaceDriver extends RaceParticipant{
         this.laps = 0;
         this.pits = 0;
         this.finished = false;
-        this.checkpoints = new boolean[race.getTrack().getCheckpoints().size()];
-        this.raceSplits = new RaceSplits(this, race.getTotalLaps(), race.getTrack().getCheckpoints().size());
         this.isRunning = false;
     }
 
     public int getLaps() {
         return laps;
-    }
-
-    public void setLaps(int laps) {
-        this.laps = laps;
     }
 
     public int getPits() {
@@ -46,17 +43,9 @@ public class RaceDriver extends RaceParticipant{
     public void setFinished() {
         finished = true;
         isRunning = false;
-        raceSplits.setLapTimeStamp(laps + 1, plugin.currentTime);
+        getCurrentLap().setLapEnd(plugin.currentTime);
+        getTSPlayer().getPlayer().sendMessage("§aYou finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLaptime()));
         endTime = plugin.currentTime;
-        race.updatePositions();
-    }
-
-    public Instant getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Instant endTime) {
-        this.endTime = endTime;
     }
 
     public String getLapsString(int totalLaps){
@@ -70,90 +59,35 @@ public class RaceDriver extends RaceParticipant{
         laps = 0;
         pits = 0;
         finished = false;
-        checkpoints = new boolean[race.getTrack().getCheckpoints().size()];
     }
 
     public void passLap() {
+        if (laps != 0) {
+            getCurrentLap().setLapEnd(plugin.currentTime);
+            getTSPlayer().getPlayer().sendMessage("§aYou finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLaptime()));
+        }
         laps++;
-        checkpoints = new boolean[race.getTrack().getCheckpoints().size()];
-        raceSplits.setLapTimeStamp(laps, plugin.currentTime);
-        race.updatePositions();
+        RaceLap lap = new RaceLap(this);
+        lap.setLapStart(plugin.currentTime);
+        raceLaps.add(lap);
     }
 
-    public void passCheckpoint(int checkpoint)
-    {
-        raceSplits.setCheckpointTimeStamp(laps, checkpoint, plugin.currentTime);
-        checkpoint -= 1;
-        try
-        {
-            for (int i = 0; i < checkpoints.length; i++)
-            {
-                if (i == checkpoint)
-                {
-                    this.checkpoints[i] = true;
-                }
-                else if (!this.checkpoints[i])
-                {
-                    race.updatePositions();
-                    return;
-                }
-            }
-        } catch (NullPointerException e) { }
-        race.updatePositions();
-    }
 
-    public boolean hasPassedAllCheckpoints()
-    {
-        for (boolean b : checkpoints)
-        {
-            if (!b)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public int getPassedCheckpoints()
-    {
-        int count = 0;
-        for (int i = 0; i < checkpoints.length; i++)
-        {
-            if (this.checkpoints[i])
-            {
-                count++;
-            }
-        }
-
-        return count;
+    public boolean hasPassedAllCheckpoints() {
+        return getCurrentLap().hasPassedAllCheckpoints();
     }
 
     public int getLatestCheckpoint()
     {
-        for (int i = 0; i < checkpoints.length; i++)
-        {
-            if (!this.checkpoints[i])
-            {
-                return i;
-            }
+        if (raceLaps.size() == 0){
+            return 0;
         }
-        return checkpoints.length;
+        return getCurrentLap().getLatestCheckpoint();
     }
 
-    public int getNextCheckpoint()
+    public RaceLap getCurrentLap()
     {
-        for (int i = 0; i < checkpoints.length; i++)
-        {
-            if (!this.checkpoints[i])
-            {
-                return i+1;
-            }
-        }
-        return checkpoints.length;
-    }
-
-    public long getLaptime(int lap){
-        return raceSplits.getLaptime(lap);
+        return raceLaps.get(laps - 1);
     }
 
     public void start()
@@ -167,12 +101,32 @@ public class RaceDriver extends RaceParticipant{
         return isRunning;
     }
 
-    public RaceSplits getRaceSplits(){
-        return raceSplits;
+    public void resetLaps(){
+        this.raceLaps = new ArrayList<>();
     }
 
-    public void resetRaceSplits(){
-        this.raceSplits = new RaceSplits(this, race.getTotalLaps(), race.getTrack().getCheckpoints().size());
+    @Override
+    public int compareTo(@NotNull RaceDriver o) {
+        if (finished && !o.finished) { return -1; }
+        else if (!finished && o.finished) { return 1; }
+        else if (finished && o.finished) { return endTime.compareTo(o.endTime); }
+
+        if (laps > o.laps) { return -1; }
+        else if (laps < o.laps) { return 1; }
+
+        if (getLatestCheckpoint() > o.getLatestCheckpoint()) { return -1; }
+        else if (getLatestCheckpoint() < o.getLatestCheckpoint()) { return 1;}
+
+        if (laps == 0 && getLatestCheckpoint() == 0){
+            return 0;
+        }
+        else if (getLatestCheckpoint() == 0){
+            return getCurrentLap().getLapStart().compareTo(o.getCurrentLap().getLapStart());
+        }
+
+        Instant last = getCurrentLap().getPassedCheckpointTime(getLatestCheckpoint());
+        Instant oLast = o.getCurrentLap().getPassedCheckpointTime(getLatestCheckpoint());
+        return last.compareTo(oLast);
     }
 
 }

@@ -341,19 +341,20 @@ public class TSListener implements Listener
         }
         if (track.getStartRegion().contains(player.getLocation()))
         {
-            if (raceDriver.getLatestCheckpoint() != 0) {
-                Long laptime = race.passLap(player.getUniqueId());
-                if (laptime != null){
-                    player.sendMessage("§aYou finished the lap in: " + ApiUtilities.formatAsTime(laptime));
-                } else {
+            if (!raceDriver.isRunning()) {
+                raceDriver.start();
+            }
+            else if (raceDriver.getLatestCheckpoint() != 0) {
+
+
+                if (!raceDriver.hasPassedAllCheckpoints())
+                {
                     int checkpoint = raceDriver.getLatestCheckpoint();
                     player.teleport(race.getTrack().getCheckpoints().get(checkpoint).getSpawnLocation());
+                    plugin.sendMessage(raceDriver.getTSPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
+                    return;
                 }
-
-            }
-            else if (!raceDriver.isRunning())
-            {
-                raceDriver.start();
+                race.passLap(player.getUniqueId());
             }
 
         }
@@ -361,13 +362,13 @@ public class TSListener implements Listener
         if(raceDriver.isRunning()) {
 
             // Check for next checkpoint in current map
-            int nextCheckpoint = raceDriver.getNextCheckpoint();
-            if (nextCheckpoint == raceDriver.getLatestCheckpoint()) {
+            RaceLap lap = raceDriver.getCurrentLap();
+            if (lap.hasPassedAllCheckpoints()){
                 return;
             }
-            var checkpoint = track.getCheckpoints().get(nextCheckpoint);
+            var checkpoint = track.getCheckpoints().get(lap.getNextCheckpoint());
             if (checkpoint.contains(player.getLocation())) {
-                raceDriver.passCheckpoint(nextCheckpoint);
+                race.passNextCheckpoint(raceDriver);
             }
         }
 
