@@ -24,7 +24,7 @@ public class Race {
     Track track;
     HashMap<UUID, RaceSpectator> raceSpectators = new HashMap<>();
     HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();
-    List<RaceSplits> livePositioning = new ArrayList<>();
+    List<RaceDriver> livePositioning = new ArrayList<>();
 
     public Race(int totalLaps, int totalPitstops, Track track){
         this.totalLaps = totalLaps;
@@ -39,21 +39,20 @@ public class Race {
     }
 
     public void startRace() {
+        isRunning = true;
         startTime = plugin.currentTime;
-        List<RaceSplits> pos = new ArrayList<>();
         for (RaceDriver rd : raceDrivers.values())
         {
-            rd.resetRaceSplits();
-            pos.add(rd.getRaceSplits());
+            rd.resetLaps();
             Player player = rd.getTSPlayer().getPlayer();
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER,1,1);
         }
-        livePositioning = pos;
-        isRunning = true;
+        livePositioning = new ArrayList<>();
+        livePositioning.addAll(raceDrivers.values());
         updatePositions();
     }
 
-    public void updatePositions() {
+    private void updatePositions() {
 
         Collections.sort(livePositioning);
         Scoreboard board = getScoreboard();
@@ -66,11 +65,6 @@ public class Race {
     public long getCurrentTime()
     {
         return Duration.between(startTime, plugin.currentTime).toMillis();
-    }
-
-    public long getEndTime(RaceDriver raceDriver)
-    {
-        return Duration.between(startTime, raceDriver.getEndTime()).toMillis();
     }
 
     public void resetRace()
@@ -97,31 +91,29 @@ public class Race {
         return track;
     }
 
-    public Long passLap(UUID uuid) {
+    public void passLap(UUID uuid) {
         var raceDriver = raceDrivers.get(uuid);
 
-        if (!raceDriver.hasPassedAllCheckpoints())
-        {
-            plugin.sendMessage(raceDriver.getTSPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
-            return null;
-        }
-
-        if(totalLaps == raceDriver.getLaps())
+        if (totalLaps == raceDriver.getLaps())
         {
             raceDriver.setFinished();
+            updatePositions();
             Player player = raceDriver.getTSPlayer().getPlayer();
-
             int pos = getPosition(raceDriver);
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER,1,1);
             Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§6-- §eP" + pos + " §6--\"}");
 
-            return raceDriver.getLaptime(raceDriver.getLaps() + 1);
         }
         else
         {
             raceDriver.passLap();
-            return raceDriver.getLaptime(raceDriver.getLaps());
+            updatePositions();
         }
+    }
+
+    public void passNextCheckpoint(RaceDriver raceDriver){
+        raceDriver.getCurrentLap().passNextCheckpoint(plugin.currentTime);
+        updatePositions();
     }
 
     public void setTotalLaps(int totalLaps) {
@@ -152,11 +144,11 @@ public class Race {
 
         int count = 0;
         int score = -1;
-        for(RaceSplits rs : livePositioning){
+        for(RaceDriver rd : livePositioning){
             if(score == -9){
                 break;
             }
-            scoreboard.add("§f" + livePositioning.get(count++).getRaceDriver().getTSPlayer().getName(), score--);
+            scoreboard.add("§f" + livePositioning.get(count++).getTSPlayer().getName(), score--);
         }
         scoreboard.build();
 
@@ -216,7 +208,7 @@ public class Race {
     private int getPosition(RaceDriver raceDriver) {
         for (int i = 0; i < livePositioning.size(); i++) {
 
-            if (livePositioning.get(i).getRaceDriver().equals(raceDriver)) {
+            if (livePositioning.get(i).equals(raceDriver)) {
                 return i + 1;
             }
         }
