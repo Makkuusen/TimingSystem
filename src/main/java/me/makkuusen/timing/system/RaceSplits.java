@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 public class RaceSplits implements Comparable<RaceSplits>{
-    public Instant[][] splits;
+    private Instant[][] splits;
     private RaceDriver raceDriver;
 
     public RaceSplits(RaceDriver rd, int laps, int checkpoints)
@@ -21,6 +21,15 @@ public class RaceSplits implements Comparable<RaceSplits>{
             return 0;
         }
         return Duration.between(splits[lap - 1][0], splits[lap][0]).toMillis();
+    }
+
+    public void setLapTimeStamp(int lap, Instant timeStamp){
+        splits[lap][0] = timeStamp;
+    }
+
+    public void setCheckpointTimeStamp(int lap, int checkpoint, Instant timeStamp)
+    {
+        splits[lap][checkpoint] = timeStamp;
     }
 
     @Override

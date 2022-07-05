@@ -97,20 +97,25 @@ public class Race {
         return track;
     }
 
-    public long passLap(UUID uuid) {
+    public Long passLap(UUID uuid) {
         var raceDriver = raceDrivers.get(uuid);
+
+        if (!raceDriver.hasPassedAllCheckpoints())
+        {
+            plugin.sendMessage(raceDriver.getRPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
+            return null;
+        }
+
         if(totalLaps == raceDriver.getLaps())
         {
             raceDriver.setFinished();
+            return raceDriver.getLaptime(raceDriver.getLaps() + 1);
         }
         else
         {
             raceDriver.passLap();
-            if(raceDriver.getLaps() > 0) {
-                return raceDriver.getLaptime(raceDriver.getLaps());
-            }
+            return raceDriver.getLaptime(raceDriver.getLaps());
         }
-        return 0;
     }
 
     public void setTotalLaps(int totalLaps) {

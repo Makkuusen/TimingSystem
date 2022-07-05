@@ -342,11 +342,14 @@ public class RaceListener implements Listener
         if (track.getStartRegion().contains(player.getLocation()))
         {
             if (raceDriver.getLatestCheckpoint() != 0) {
-                long laptime = race.passLap(player.getUniqueId());
-                if(laptime != 0)
-                {
+                Long laptime = race.passLap(player.getUniqueId());
+                if (laptime != null){
                     player.sendMessage("§aYou finished the lap in: " + RaceUtilities.formatAsTime(laptime));
+                } else {
+                    int checkpoint = raceDriver.getLatestCheckpoint();
+                    player.teleport(race.getTrack().getCheckpoints().get(checkpoint).getSpawnLocation());
                 }
+
             }
             else if (!raceDriver.isRunning())
             {
@@ -355,16 +358,17 @@ public class RaceListener implements Listener
 
         }
 
-        // Check for next checkpoint in current map
-        int nextCheckpoint = raceDriver.getNextCheckpoint();
-        if (nextCheckpoint == raceDriver.getLatestCheckpoint())
-        {
-            return;
-        }
-        var checkpoint = track.getCheckpoints().get(nextCheckpoint);
-        if (checkpoint.contains(player.getLocation()))
-        {
-            raceDriver.passCheckpoint(nextCheckpoint);
+        if(raceDriver.isRunning()) {
+
+            // Check for next checkpoint in current map
+            int nextCheckpoint = raceDriver.getNextCheckpoint();
+            if (nextCheckpoint == raceDriver.getLatestCheckpoint()) {
+                return;
+            }
+            var checkpoint = track.getCheckpoints().get(nextCheckpoint);
+            if (checkpoint.contains(player.getLocation())) {
+                raceDriver.passCheckpoint(nextCheckpoint);
+            }
         }
 
     }

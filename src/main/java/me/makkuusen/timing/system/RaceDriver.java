@@ -56,8 +56,10 @@ public class RaceDriver {
 
     public void setFinished() {
         finished = true;
-        raceSplits.splits[laps + 1][0] = plugin.currentTime;
+        isRunning = false;
+        raceSplits.setLapTimeStamp(laps + 1, plugin.currentTime);
         endTime = plugin.currentTime;
+        race.updatePositions();
     }
 
     public Instant getEndTime() {
@@ -74,6 +76,7 @@ public class RaceDriver {
     }
 
     public void reset() {
+        isRunning = false;
         endTime = null;
         laps = 0;
         pits = 0;
@@ -84,14 +87,13 @@ public class RaceDriver {
     public void passLap() {
         laps++;
         checkpoints = new boolean[race.getTrack().getCheckpoints().size()];
-        raceSplits.splits[laps][0] = plugin.currentTime;
+        raceSplits.setLapTimeStamp(laps, plugin.currentTime);
         race.updatePositions();
     }
 
     public void passCheckpoint(int checkpoint)
     {
-
-        raceSplits.splits[laps][checkpoint] = plugin.currentTime;
+        raceSplits.setCheckpointTimeStamp(laps, checkpoint, plugin.currentTime);
         checkpoint -= 1;
         try
         {
@@ -168,7 +170,7 @@ public class RaceDriver {
     public void start()
     {
         isRunning = true;
-        raceSplits.splits[0][0] = plugin.currentTime;
+        passLap();
     }
 
     public boolean isRunning()
