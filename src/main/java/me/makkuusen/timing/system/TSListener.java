@@ -228,7 +228,7 @@ public class TSListener implements Listener
         Player player = e.getPlayer();
         TSPlayer TSPlayer = ApiDatabase.getPlayer(player.getUniqueId());
 
-        var maybeRaceDriver = RaceController.getDriverFromRace(TSPlayer);
+        var maybeRaceDriver = RaceController.getDriverFromActiveRace(TSPlayer);
         if (maybeRaceDriver.isPresent()) {
             var race = maybeRaceDriver.get();
             handleRace(race, player);

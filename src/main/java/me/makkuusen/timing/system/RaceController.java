@@ -9,8 +9,7 @@ public class RaceController {
     // Track ID key
     public static HashMap<Integer, Race> races = new HashMap<>();
 
-
-    public static Optional<Race> getDriverFromRace(TSPlayer TSPlayer)
+    public static Optional<Race> getDriverFromActiveRace(TSPlayer tsPlayer)
     {
         for (Race race : races.values()) {
 
@@ -22,7 +21,7 @@ public class RaceController {
 
             for (RaceDriver rd : drivers)
             {
-                if (rd.getTSPlayer().equals(TSPlayer))
+                if (rd.getTSPlayer().equals(tsPlayer))
                 {
                     return Optional.of(race);
                 }

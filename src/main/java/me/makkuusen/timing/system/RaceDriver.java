@@ -2,10 +2,9 @@ package me.makkuusen.timing.system;
 
 import java.time.Instant;
 
-public class RaceDriver {
+public class RaceDriver extends RaceParticipant{
 
     public static TimingSystem plugin;
-    private me.makkuusen.timing.system.TSPlayer TSPlayer;
     private int laps;
     private int pits;
     private RaceSplits raceSplits;
@@ -13,25 +12,15 @@ public class RaceDriver {
     private boolean finished;
     private boolean isRunning;
     private Instant endTime;
-    private Race race;
 
-    public RaceDriver(TSPlayer TSPlayer, Race race) {
-        this.TSPlayer = TSPlayer;
+    public RaceDriver(TSPlayer tsPlayer, Race race) {
+        super(tsPlayer, race);
         this.laps = 0;
         this.pits = 0;
         this.finished = false;
         this.checkpoints = new boolean[race.getTrack().getCheckpoints().size()];
         this.raceSplits = new RaceSplits(this, race.getTotalLaps(), race.getTrack().getCheckpoints().size());
-        this.race = race;
         this.isRunning = false;
-    }
-
-    public TSPlayer getTSPlayer() {
-        return TSPlayer;
-    }
-
-    public void setTSPlayer(TSPlayer TSPlayer) {
-        this.TSPlayer = TSPlayer;
     }
 
     public int getLaps() {

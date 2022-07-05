@@ -20,8 +20,9 @@ public class Race {
     private Instant startTime;
     private boolean isRunning = false;
     Track track;
-    HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();;
-    List<RaceSplits> positions = new ArrayList<>();
+    HashMap<UUID, RaceSpectator> raceSpectators = new HashMap<>();
+    HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();
+    List<RaceSplits> livePositioning = new ArrayList<>();
 
     public Race(int totalLaps, int totalPitstops, Track track){
         this.totalLaps = totalLaps;
@@ -43,14 +44,14 @@ public class Race {
             rd.resetRaceSplits();
             pos.add(rd.getRaceSplits());
         }
-        positions = pos;
+        livePositioning = pos;
         isRunning = true;
         updatePositions();
     }
 
     public void updatePositions() {
 
-        Collections.sort(positions);
+        Collections.sort(livePositioning);
         Scoreboard board = getScoreboard();
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setScoreboard(board);
@@ -66,11 +67,6 @@ public class Race {
     public long getEndTime(RaceDriver raceDriver)
     {
         return Duration.between(startTime, raceDriver.getEndTime()).toMillis();
-    }
-
-    public void finishRaceDriver(UUID uuid) {
-        RaceDriver raceDriver = raceDrivers.get(uuid);
-        raceDriver.setFinished();
     }
 
     public void resetRace()
@@ -146,11 +142,11 @@ public class Race {
 
         int count = 0;
         int score = -1;
-        for(RaceSplits rs : positions){
+        for(RaceSplits rs : livePositioning){
             if(score == -9){
                 break;
             }
-            scoreboard.add("§f" + positions.get(count++).getRaceDriver().getTSPlayer().getName(), score--);
+            scoreboard.add("§f" + livePositioning.get(count++).getRaceDriver().getTSPlayer().getName(), score--);
         }
         scoreboard.build();
 
@@ -189,5 +185,21 @@ public class Race {
 
     public boolean hasRaceDriver(UUID uuid){
         return raceDrivers.containsKey(uuid);
+    }
+
+    public HashMap<UUID, RaceSpectator> getRaceSpectators() {
+        return raceSpectators;
+    }
+
+    public RaceSpectator getRaceSpectator(UUID uuid) {
+        return raceSpectators.get(uuid);
+    }
+
+    public void removeRaceSpectator(UUID uuid) {
+        raceSpectators.remove(uuid);
+    }
+
+    public boolean hasRaceSpectator(UUID uuid){
+        return raceSpectators.containsKey(uuid);
     }
 }
