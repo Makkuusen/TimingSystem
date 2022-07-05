@@ -74,7 +74,7 @@ public class TSListener implements Listener
     public void onPlayerTeleport(PlayerTeleportEvent event)
     {
 
-        for (Track Track : TrackDatabase.getRaceTracks())
+        for (Track Track : TrackDatabase.getTracks())
         {
             if (Track.getSpawnLocation().getWorld() == event.getTo().getWorld())
             {
@@ -241,7 +241,7 @@ public class TSListener implements Listener
         }
 
         // Check for starting new tracks
-        Iterator regions = TrackDatabase.getRaceStartRegions().iterator();
+        Iterator regions = TrackDatabase.getTrackStartRegions().iterator();
         while (true)
         {
             Integer regionId;

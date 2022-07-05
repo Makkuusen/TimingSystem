@@ -22,7 +22,7 @@ public class RaceController {
 
             for (RaceDriver rd : drivers)
             {
-                if (rd.getRPlayer().equals(TSPlayer))
+                if (rd.getTSPlayer().equals(TSPlayer))
                 {
                     return Optional.of(race);
                 }

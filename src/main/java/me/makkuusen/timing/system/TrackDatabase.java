@@ -54,7 +54,7 @@ public class TrackDatabase
                 ResultSet resultFinishes = statementFinishes.executeQuery("SELECT * FROM `tracksFinishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `tracksFinishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
                 while (resultFinishes.next())
                 {
-                    rTrack.addRaceFinish(new TimeTrialFinish(resultFinishes));
+                    rTrack.addTimeTrialFinish(new TimeTrialFinish(resultFinishes));
                 }
                 resultFinishes.close();
             }
@@ -158,7 +158,7 @@ public class TrackDatabase
         }
     }
 
-    static public Optional<Track> getRaceTrack(String name)
+    static public Optional<Track> getTrack(String name)
     {
         for (Track t : tracks)
         {
@@ -182,26 +182,26 @@ public class TrackDatabase
         return Optional.empty();
     }
 
-    static public List<Track> getRaceTracks()
+    static public List<Track> getTracks()
     {
         return tracks;
     }
 
-    static public List<Track> getAvailableRaceTracks(Player player)
+    static public List<Track> getAvailableTracks(Player player)
     {
         if (!player.hasPermission("track.admin") && !player.isOp())
         {
-            return TrackDatabase.getRaceTracks().stream().filter(Track::isOpen).toList();
+            return TrackDatabase.getTracks().stream().filter(Track::isOpen).toList();
         }
 
-        return getRaceTracks();
+        return getTracks();
     }
 
-    static public List<TrackRegion> getRaceRegions()
+    static public List<TrackRegion> getTrackRegions()
     {
         return regions;
     }
-    static public List<TrackRegion> getRaceStartRegions()
+    static public List<TrackRegion> getTrackStartRegions()
     {
         return regions.stream().filter(r -> r.getRegionType().equals(TrackRegion.RegionType.START)).collect(Collectors.toList());
     }
@@ -219,17 +219,17 @@ public class TrackDatabase
         return true;
     }
 
-    static public void addRaceRegion(TrackRegion region)
+    static public void addTrackRegion(TrackRegion region)
     {
         regions.add(region);
     }
 
-    static public void removeRaceRegion(TrackRegion region)
+    static public void removeTrackRegion(TrackRegion region)
     {
         regions.remove(region);
     }
 
-    static public void removeRaceTrack(Track Track)
+    static public void removeTrack(Track Track)
     {
         ApiDatabase.asynchronousQuery(new String[]{
                 "UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";",

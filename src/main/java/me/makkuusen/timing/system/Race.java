@@ -102,7 +102,7 @@ public class Race {
 
         if (!raceDriver.hasPassedAllCheckpoints())
         {
-            plugin.sendMessage(raceDriver.getRPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
+            plugin.sendMessage(raceDriver.getTSPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
             return null;
         }
 
@@ -134,7 +134,7 @@ public class Race {
         List<String> names = new ArrayList<>();
         for (RaceDriver rd : raceDrivers.values())
         {
-           names.add(rd.getRPlayer().getName());
+           names.add(rd.getTSPlayer().getName());
         }
 
         return String.join(", ", names);
@@ -150,7 +150,7 @@ public class Race {
             if(score == -9){
                 break;
             }
-            scoreboard.add("§f" + positions.get(count++).getRaceDriver().getRPlayer().getName(), score--);
+            scoreboard.add("§f" + positions.get(count++).getRaceDriver().getTSPlayer().getName(), score--);
         }
         scoreboard.build();
 

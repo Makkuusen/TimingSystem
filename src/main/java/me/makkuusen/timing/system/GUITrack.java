@@ -80,11 +80,11 @@ public class GUITrack
         List<Track> tracks;
         if (page == GOVERNMENTPAGE)
         {
-            tracks = TrackDatabase.getAvailableRaceTracks(p).stream().filter(Track::isGovernment).collect(Collectors.toList());
+            tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isGovernment).collect(Collectors.toList());
         }
         else
         {
-            tracks = TrackDatabase.getAvailableRaceTracks(p).stream().filter(Track::isPersonal).collect(Collectors.toList());
+            tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isPersonal).collect(Collectors.toList());
         }
 
         Integer[] boatSlots = {9, 10, 11, 18, 19, 20, 27, 28, 29, 36, 37, 38};

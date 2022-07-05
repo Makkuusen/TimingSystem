@@ -50,11 +50,11 @@ public class GUIListener implements Listener
 
                             TimeTrialController.playerLeavingMap(e.getWhoClicked().getUniqueId());
                             String mapName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
-                            var maybeTrack = TrackDatabase.getRaceTrack(mapName);
+                            var maybeTrack = TrackDatabase.getTrack(mapName);
                             if (maybeTrack.isPresent())
                             {
-                                var raceTrack = maybeTrack.get();
-                                raceTrack.teleportPlayer(((Player) e.getWhoClicked()).getPlayer());
+                                var track = maybeTrack.get();
+                                track.teleportPlayer(((Player) e.getWhoClicked()).getPlayer());
                                 e.getInventory().close();
                             }
                         }

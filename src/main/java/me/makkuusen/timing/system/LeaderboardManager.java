@@ -97,7 +97,7 @@ public class LeaderboardManager
         {
             return;
         }
-        for (Track t : TrackDatabase.getRaceTracks())
+        for (Track t : TrackDatabase.getTracks())
         {
             updateFastestTimeLeaderboard(t.getId());
         }
@@ -109,7 +109,7 @@ public class LeaderboardManager
         {
             return;
         }
-        for (Track rTrack : TrackDatabase.getRaceTracks())
+        for (Track rTrack : TrackDatabase.getTracks())
         {
             updateFastestTimeLeaderboard(rTrack.getId());
         }

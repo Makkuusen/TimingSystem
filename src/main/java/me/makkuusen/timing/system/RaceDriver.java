@@ -26,11 +26,11 @@ public class RaceDriver {
         this.isRunning = false;
     }
 
-    public TSPlayer getRPlayer() {
+    public TSPlayer getTSPlayer() {
         return TSPlayer;
     }
 
-    public void setRPlayer(TSPlayer TSPlayer) {
+    public void setTSPlayer(TSPlayer TSPlayer) {
         this.TSPlayer = TSPlayer;
     }
 

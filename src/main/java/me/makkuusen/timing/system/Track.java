@@ -40,7 +40,7 @@ public class Track
     private TrackRegion endRegion;
     private final Map<Integer, TrackRegion> checkpoints = new HashMap<>();
     private final Map<Integer, TrackRegion> resetRegions = new HashMap<>();
-    private final Map<TSPlayer, List<TimeTrialFinish>> raceFinishes = new HashMap<>();
+    private final Map<TSPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
 
     public enum TrackType
     {
@@ -274,7 +274,7 @@ public class Track
 
                 TrackRegion checkpoint = new TrackRegion(result);
                 addCheckpoint(checkpoint);
-                TrackDatabase.addRaceRegion(checkpoint);
+                TrackDatabase.addTrackRegion(checkpoint);
 
                 statement.close();
                 result.close();
@@ -293,7 +293,7 @@ public class Track
         {
             var checkpoint = checkpoints.get(index);
             var checkpointId = checkpoint.getId();
-            TrackDatabase.removeRaceRegion(checkpoint);
+            TrackDatabase.removeTrackRegion(checkpoint);
             checkpoints.remove(index);
 
             ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `id` = " + checkpointId + ";"});
@@ -333,7 +333,7 @@ public class Track
 
                 TrackRegion resetRegion = new TrackRegion(result);
                 addResetRegion(resetRegion);
-                TrackDatabase.addRaceRegion(resetRegion);
+                TrackDatabase.addTrackRegion(resetRegion);
 
                 statement.close();
                 result.close();
@@ -352,7 +352,7 @@ public class Track
         {
             var resetRegion = resetRegions.get(index);
             var resetRegionId = resetRegion.getId();
-            TrackDatabase.removeRaceRegion(resetRegion);
+            TrackDatabase.removeTrackRegion(resetRegion);
             resetRegions.remove(index);
 
             ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `id` = " + resetRegionId + ";"});
@@ -371,19 +371,19 @@ public class Track
         return resetRegions;
     }
 
-    public void addRaceFinish(TimeTrialFinish timeTrialFinish)
+    public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish)
     {
-        if (raceFinishes.get(timeTrialFinish.getPlayer()) == null)
+        if (timeTrialFinishes.get(timeTrialFinish.getPlayer()) == null)
         {
             List<TimeTrialFinish> list = new ArrayList<>();
             list.add(timeTrialFinish);
-            raceFinishes.put(timeTrialFinish.getPlayer(), list);
+            timeTrialFinishes.put(timeTrialFinish.getPlayer(), list);
             return;
         }
-        raceFinishes.get(timeTrialFinish.getPlayer()).add(timeTrialFinish);
+        timeTrialFinishes.get(timeTrialFinish.getPlayer()).add(timeTrialFinish);
     }
 
-    public void newRaceFinish(long time, UUID uuid)
+    public void newTimeTrialFinish(long time, UUID uuid)
     {
         try
         {
@@ -402,7 +402,7 @@ public class Track
             result.next();
 
             TimeTrialFinish timeTrialFinish = new TimeTrialFinish(result);
-            addRaceFinish(timeTrialFinish);
+            addTimeTrialFinish(timeTrialFinish);
 
             statement.close();
             result.close();
@@ -416,11 +416,11 @@ public class Track
 
     public TimeTrialFinish getBestFinish(TSPlayer player)
     {
-        if (raceFinishes.get(player) == null)
+        if (timeTrialFinishes.get(player) == null)
         {
             return null;
         }
-        var times = raceFinishes.get(player);
+        var times = timeTrialFinishes.get(player);
         if (times.isEmpty())
         {
             return null;
@@ -433,7 +433,7 @@ public class Track
     {
         try
         {
-            raceFinishes.get(player).remove(bestFinish);
+            timeTrialFinishes.get(player).remove(bestFinish);
             Connection connection = ApiDatabase.getConnection();
             Statement statement = connection.createStatement();
             statement.executeUpdate("UPDATE `tracksFinishes` SET `isRemoved` = 1 WHERE `id` = " + bestFinish.getId() + ";");
@@ -442,9 +442,9 @@ public class Track
             while (result.next())
             {
                 var rf = new TimeTrialFinish(result);
-                if (raceFinishes.get(player).stream().noneMatch(raceFinish -> raceFinish.equals(rf)))
+                if (timeTrialFinishes.get(player).stream().noneMatch(timeTrialFinish -> timeTrialFinish.equals(rf)))
                 {
-                    addRaceFinish(rf);
+                    addTimeTrialFinish(rf);
                 }
             }
 
@@ -475,7 +475,7 @@ public class Track
     {
 
         List<TimeTrialFinish> bestTimes = new ArrayList<>();
-        for (TSPlayer player : raceFinishes.keySet())
+        for (TSPlayer player : timeTrialFinishes.keySet())
         {
             TimeTrialFinish bestFinish = getBestFinish(player);
             if (bestFinish != null)
