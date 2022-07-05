@@ -2,12 +2,12 @@ package me.makkuusen.timing.system;
 
 import java.util.List;
 
-public class RaceConfiguration
+public class TSConfiguration
 {
     private final int leaderboardsUpdateTick;
     private final List<String> leaderboardsFastestTimeLines;
 
-    RaceConfiguration(TimingSystem plugin)
+    TSConfiguration(TimingSystem plugin)
     {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();

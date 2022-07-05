@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class RaceTrack
+public class TSTrack
 {
     private final int id;
-    private RPlayer owner;
+    private TSPlayer owner;
     private String name;
     private final long dateCreated;
     private ItemStack guiItem;
@@ -36,11 +36,11 @@ public class RaceTrack
     private char[] options;
     private boolean toggleOpen;
     private boolean toggleGovernment;
-    private RaceRegion startRegion;
-    private RaceRegion endRegion;
-    private final Map<Integer, RaceRegion> checkpoints = new HashMap<>();
-    private final Map<Integer, RaceRegion> resetRegions = new HashMap<>();
-    private final Map<RPlayer, List<RaceFinish>> raceFinishes = new HashMap<>();
+    private TrackRegion startRegion;
+    private TrackRegion endRegion;
+    private final Map<Integer, TrackRegion> checkpoints = new HashMap<>();
+    private final Map<Integer, TrackRegion> resetRegions = new HashMap<>();
+    private final Map<TSPlayer, List<TimeTrialFinish>> raceFinishes = new HashMap<>();
 
     public enum TrackType
     {
@@ -51,13 +51,13 @@ public class RaceTrack
         TIMETRIAL, PRACTICE, QUALIFICATION, RACE
     }
 
-    public RaceTrack(ResultSet data) throws SQLException
+    public TSTrack(ResultSet data) throws SQLException
     {
         id = data.getInt("id");
         owner = data.getString("uuid") == null ? null : ApiDatabase.getPlayer(UUID.fromString(data.getString("uuid")));
         name = data.getString("name");
         dateCreated = data.getInt("dateCreated");
-        guiItem = RaceUtilities.stringToItem(data.getString("guiItem"));
+        guiItem = ApiUtilities.stringToItem(data.getString("guiItem"));
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         leaderboardLocation = ApiUtilities.stringToLocation(data.getString("leaderboard"));
         type = data.getString("type") == null ? null : TrackType.valueOf(data.getString("type"));
@@ -77,12 +77,12 @@ public class RaceTrack
         return name;
     }
 
-    public RaceRegion getEndRegion()
+    public TrackRegion getEndRegion()
     {
         return endRegion;
     }
 
-    public RaceRegion getStartRegion()
+    public TrackRegion getStartRegion()
     {
         return startRegion;
     }
@@ -113,22 +113,22 @@ public class RaceTrack
         if (toReturn == null){
             return null;
         }
-        RPlayer rPlayer = ApiDatabase.getPlayer(uuid);
+        TSPlayer TSPlayer = ApiDatabase.getPlayer(uuid);
 
         List<Component> loreToSet = new ArrayList<>();
 
         String bestTime;
 
-        if (getBestFinish(rPlayer) == null)
+        if (getBestFinish(TSPlayer) == null)
         {
             bestTime = "§7Your best time: §e(none)";
         }
         else
         {
-            bestTime = "§7Your best time: §e" + RaceUtilities.formatAsTime(getBestFinish(rPlayer).getTime());
+            bestTime = "§7Your best time: §e" + ApiUtilities.formatAsTime(getBestFinish(TSPlayer).getTime());
         }
 
-        loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(rPlayer) == -1 ? "(none)" : getPlayerTopListPosition(rPlayer))));
+        loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(TSPlayer) == -1 ? "(none)" : getPlayerTopListPosition(TSPlayer))));
         loreToSet.add(Component.text(bestTime));
         loreToSet.add(Component.text("§7Created by: §e" + getOwner().getName()));
         loreToSet.add(Component.text("§7Type: §e" + getTypeAsString()));
@@ -182,7 +182,7 @@ public class RaceTrack
     {
         this.guiItem = guiItem;
 
-        ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracks` SET `guiItem` = " + ApiDatabase.sqlString(RaceUtilities.itemToString(guiItem)) + " WHERE `id` = " + id + ";"});
+        ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracks` SET `guiItem` = " + ApiDatabase.sqlString(ApiUtilities.itemToString(guiItem)) + " WHERE `id` = " + id + ";"});
     }
 
     public void setSpawnLocation(Location spawn)
@@ -223,22 +223,22 @@ public class RaceTrack
         ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + endRegion.getId() + ";"});
     }
 
-    public void newStartRegion(RaceRegion region)
+    public void newStartRegion(TrackRegion region)
     {
         this.startRegion = region;
     }
 
-    public void newEndRegion(RaceRegion region)
+    public void newEndRegion(TrackRegion region)
     {
         this.endRegion = region;
     }
 
-    public Map<Integer, RaceRegion> getCheckpoints()
+    public Map<Integer, TrackRegion> getCheckpoints()
     {
         return checkpoints;
     }
 
-    public void addCheckpoint(RaceRegion region)
+    public void addCheckpoint(TrackRegion region)
     {
         checkpoints.put(region.getRegionIndex(), region);
     }
@@ -248,7 +248,7 @@ public class RaceTrack
         if (checkpoints.containsKey(index))
         {
             // Modify checkpoint
-            RaceRegion checkpoint = checkpoints.get(index);
+            TrackRegion checkpoint = checkpoints.get(index);
             checkpoint.setMinP(minP);
             checkpoint.setMaxP(maxP);
             checkpoint.setSpawnLocation(spawn);
@@ -263,7 +263,7 @@ public class RaceTrack
 
                 Connection connection = ApiDatabase.getConnection();
                 Statement statement = connection.createStatement();
-                statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + ApiDatabase.sqlString(RaceRegion.RegionType.CHECKPOINT.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);", Statement.RETURN_GENERATED_KEYS);
+                statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + ApiDatabase.sqlString(TrackRegion.RegionType.CHECKPOINT.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);", Statement.RETURN_GENERATED_KEYS);
                 ResultSet keys = statement.getGeneratedKeys();
 
                 keys.next();
@@ -272,9 +272,9 @@ public class RaceTrack
                 result.next();
 
 
-                RaceRegion checkpoint = new RaceRegion(result);
+                TrackRegion checkpoint = new TrackRegion(result);
                 addCheckpoint(checkpoint);
-                RaceDatabase.addRaceRegion(checkpoint);
+                TrackDatabase.addRaceRegion(checkpoint);
 
                 statement.close();
                 result.close();
@@ -293,7 +293,7 @@ public class RaceTrack
         {
             var checkpoint = checkpoints.get(index);
             var checkpointId = checkpoint.getId();
-            RaceDatabase.removeRaceRegion(checkpoint);
+            TrackDatabase.removeRaceRegion(checkpoint);
             checkpoints.remove(index);
 
             ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `id` = " + checkpointId + ";"});
@@ -307,7 +307,7 @@ public class RaceTrack
         if (resetRegions.containsKey(index))
         {
             // Modify checkpoint
-            RaceRegion resetRegion = resetRegions.get(index);
+            TrackRegion resetRegion = resetRegions.get(index);
             resetRegion.setMinP(minP);
             resetRegion.setMaxP(maxP);
             resetRegion.setSpawnLocation(spawn);
@@ -322,7 +322,7 @@ public class RaceTrack
 
                 Connection connection = ApiDatabase.getConnection();
                 Statement statement = connection.createStatement();
-                statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + ApiDatabase.sqlString(RaceRegion.RegionType.RESET.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);", Statement.RETURN_GENERATED_KEYS);
+                statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + ApiDatabase.sqlString(TrackRegion.RegionType.RESET.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);", Statement.RETURN_GENERATED_KEYS);
                 ResultSet keys = statement.getGeneratedKeys();
 
                 keys.next();
@@ -331,9 +331,9 @@ public class RaceTrack
                 result.next();
 
 
-                RaceRegion resetRegion = new RaceRegion(result);
+                TrackRegion resetRegion = new TrackRegion(result);
                 addResetRegion(resetRegion);
-                RaceDatabase.addRaceRegion(resetRegion);
+                TrackDatabase.addRaceRegion(resetRegion);
 
                 statement.close();
                 result.close();
@@ -352,7 +352,7 @@ public class RaceTrack
         {
             var resetRegion = resetRegions.get(index);
             var resetRegionId = resetRegion.getId();
-            RaceDatabase.removeRaceRegion(resetRegion);
+            TrackDatabase.removeRaceRegion(resetRegion);
             resetRegions.remove(index);
 
             ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `id` = " + resetRegionId + ";"});
@@ -361,26 +361,26 @@ public class RaceTrack
         return false;
     }
 
-    public void addResetRegion(RaceRegion region)
+    public void addResetRegion(TrackRegion region)
     {
         resetRegions.put(region.getRegionIndex(), region);
     }
 
-    public Map<Integer, RaceRegion> getResetRegions()
+    public Map<Integer, TrackRegion> getResetRegions()
     {
         return resetRegions;
     }
 
-    public void addRaceFinish(RaceFinish raceFinish)
+    public void addRaceFinish(TimeTrialFinish timeTrialFinish)
     {
-        if (raceFinishes.get(raceFinish.getPlayer()) == null)
+        if (raceFinishes.get(timeTrialFinish.getPlayer()) == null)
         {
-            List<RaceFinish> list = new ArrayList<>();
-            list.add(raceFinish);
-            raceFinishes.put(raceFinish.getPlayer(), list);
+            List<TimeTrialFinish> list = new ArrayList<>();
+            list.add(timeTrialFinish);
+            raceFinishes.put(timeTrialFinish.getPlayer(), list);
             return;
         }
-        raceFinishes.get(raceFinish.getPlayer()).add(raceFinish);
+        raceFinishes.get(timeTrialFinish.getPlayer()).add(timeTrialFinish);
     }
 
     public void newRaceFinish(long time, UUID uuid)
@@ -401,8 +401,8 @@ public class RaceTrack
             ResultSet result = statement.executeQuery("SELECT * FROM `tracksFinishes` WHERE `id` = " + finishId + ";");
             result.next();
 
-            RaceFinish raceFinish = new RaceFinish(result);
-            addRaceFinish(raceFinish);
+            TimeTrialFinish timeTrialFinish = new TimeTrialFinish(result);
+            addRaceFinish(timeTrialFinish);
 
             statement.close();
             result.close();
@@ -414,7 +414,7 @@ public class RaceTrack
         }
     }
 
-    public RaceFinish getBestFinish(RPlayer player)
+    public TimeTrialFinish getBestFinish(TSPlayer player)
     {
         if (raceFinishes.get(player) == null)
         {
@@ -425,11 +425,11 @@ public class RaceTrack
         {
             return null;
         }
-        times.sort(new RaceFinishComparator());
+        times.sort(new TimeTrialFinishComparator());
         return times.get(0);
     }
 
-    public void deleteBestFinish(RPlayer player, RaceFinish bestFinish)
+    public void deleteBestFinish(TSPlayer player, TimeTrialFinish bestFinish)
     {
         try
         {
@@ -441,7 +441,7 @@ public class RaceTrack
             var result = statement.executeQuery("SELECT * FROM `tracksFinishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `tracksFinishes` WHERE `trackId` = " + id + " AND `uuid` = '" + player.getUniqueId() + "' AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
             while (result.next())
             {
-                var rf = new RaceFinish(result);
+                var rf = new TimeTrialFinish(result);
                 if (raceFinishes.get(player).stream().noneMatch(raceFinish -> raceFinish.equals(rf)))
                 {
                     addRaceFinish(rf);
@@ -458,12 +458,12 @@ public class RaceTrack
         }
     }
 
-    public Integer getPlayerTopListPosition(RPlayer rPlayer)
+    public Integer getPlayerTopListPosition(TSPlayer TSPlayer)
     {
         var topList = getTopList(-1);
         for (int i = 0; i < topList.size(); i++)
         {
-            if (topList.get(i).getPlayer().equals(rPlayer))
+            if (topList.get(i).getPlayer().equals(TSPlayer))
             {
                 return ++i;
             }
@@ -471,19 +471,19 @@ public class RaceTrack
         return -1;
     }
 
-    public List<RaceFinish> getTopList(int limit)
+    public List<TimeTrialFinish> getTopList(int limit)
     {
 
-        List<RaceFinish> bestTimes = new ArrayList<>();
-        for (RPlayer player : raceFinishes.keySet())
+        List<TimeTrialFinish> bestTimes = new ArrayList<>();
+        for (TSPlayer player : raceFinishes.keySet())
         {
-            RaceFinish bestFinish = getBestFinish(player);
+            TimeTrialFinish bestFinish = getBestFinish(player);
             if (bestFinish != null)
             {
                 bestTimes.add(bestFinish);
             }
         }
-        bestTimes.sort(new RaceFinishComparator());
+        bestTimes.sort(new TimeTrialFinishComparator());
 
         if (limit == -1)
         {
@@ -500,7 +500,7 @@ public class RaceTrack
 
     public void spawnBoat(Player player)
     {
-        if (getType().equals(RaceTrack.TrackType.BOAT))
+        if (getType().equals(TSTrack.TrackType.BOAT))
         {
             boolean nearest = player.getLocation().distance(spawnLocation) < 5;
             if (nearest)
@@ -561,15 +561,15 @@ public class RaceTrack
     {
         if (type.equalsIgnoreCase("parkour"))
         {
-            return RaceTrack.TrackType.PARKOUR;
+            return TSTrack.TrackType.PARKOUR;
         }
         else if (type.equalsIgnoreCase("elytra"))
         {
-            return RaceTrack.TrackType.ELYTRA;
+            return TSTrack.TrackType.ELYTRA;
         }
         else if (type.equalsIgnoreCase("boat"))
         {
-            return RaceTrack.TrackType.BOAT;
+            return TSTrack.TrackType.BOAT;
         }
         return null;
     }
@@ -635,12 +635,12 @@ public class RaceTrack
         ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracks` SET `type` = " + ApiDatabase.sqlString(type.toString()) + " WHERE `id` = " + id + ";"});
     }
 
-    public RPlayer getOwner()
+    public TSPlayer getOwner()
     {
         return owner;
     }
 
-    public void setOwner(RPlayer owner)
+    public void setOwner(TSPlayer owner)
     {
         this.owner = owner;
 

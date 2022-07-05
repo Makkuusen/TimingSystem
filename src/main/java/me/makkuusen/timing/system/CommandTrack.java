@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RaceCommandTrack implements CommandExecutor
+public class CommandTrack implements CommandExecutor
 {
     static TimingSystem plugin;
 
@@ -29,7 +29,7 @@ public class RaceCommandTrack implements CommandExecutor
 
         if (!(sender instanceof Player player))
         {
-            RaceUtilities.msgConsole("§cCommand can only be used by players");
+            ApiUtilities.msgConsole("§cCommand can only be used by players");
             return false;
         }
         if (arguments.length == 0)
@@ -190,29 +190,29 @@ public class RaceCommandTrack implements CommandExecutor
                 return true;
             }
 
-            RPlayer rPlayer = ApiDatabase.getPlayer(arguments[1]);
-            if (rPlayer == null)
+            TSPlayer TSPlayer = ApiDatabase.getPlayer(arguments[1]);
+            if (TSPlayer == null)
             {
                 plugin.sendMessage(player,"messages.error.missing.player");
                 return true;
             }
 
             String potentialMapName = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = RaceDatabase.getRaceTrack(potentialMapName);
+            var maybeTrack = TrackDatabase.getRaceTrack(potentialMapName);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
                 return true;
             }
-            RaceTrack track = maybeTrack.get();
-            RaceFinish bestFinish = track.getBestFinish(rPlayer);
+            TSTrack track = maybeTrack.get();
+            TimeTrialFinish bestFinish = track.getBestFinish(TSPlayer);
             if (bestFinish == null)
             {
                 plugin.sendMessage(player,"messages.error.missing.bestTime");
                 return true;
             }
-            track.deleteBestFinish(rPlayer, bestFinish);
-            plugin.sendMessage(player, "messages.remove.bestTime", "%player%", rPlayer.getName(), "%map%", potentialMapName);
+            track.deleteBestFinish(TSPlayer, bestFinish);
+            plugin.sendMessage(player, "messages.remove.bestTime", "%player%", TSPlayer.getName(), "%map%", potentialMapName);
             LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
             return true;
         }
@@ -239,7 +239,7 @@ public class RaceCommandTrack implements CommandExecutor
         }
 
         String name = ApiUtilities.concat(arguments, 0);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        var maybeTrack = TrackDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.errror.unknownCommand", "%command%", "race");
@@ -351,7 +351,7 @@ public class RaceCommandTrack implements CommandExecutor
             return;
         }
 
-        if (!RaceDatabase.trackNameAvailable(name))
+        if (!TrackDatabase.trackNameAvailable(name))
         {
             plugin.sendMessage(player, "messages.error.trackExists");
             return;
@@ -364,17 +364,17 @@ public class RaceCommandTrack implements CommandExecutor
         }
 
         String type = arguments[1];
-        RaceTrack.TrackType t = RaceTrack.TrackType.BOAT;
+        TSTrack.TrackType t = TSTrack.TrackType.BOAT;
         if (type.equalsIgnoreCase("parkour"))
         {
-            t = RaceTrack.TrackType.PARKOUR;
+            t = TSTrack.TrackType.PARKOUR;
         }
         else if (type.equalsIgnoreCase("elytra"))
         {
-            t = RaceTrack.TrackType.ELYTRA;
+            t = TSTrack.TrackType.ELYTRA;
         }
 
-        RaceTrack track = RaceDatabase.trackNew(name, player.getUniqueId(), player.getLocation(), t, player.getInventory().getItemInMainHand());
+        TSTrack track = TrackDatabase.trackNew(name, player.getUniqueId(), player.getLocation(), t, player.getInventory().getItemInMainHand());
         if (track == null)
         {
             plugin.sendMessage(player, "messages.error.generic");
@@ -388,7 +388,7 @@ public class RaceCommandTrack implements CommandExecutor
     static void cmdInfo(Player player, String[] arguments)
     {
         String name = ApiUtilities.concat(arguments, 1);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        var maybeTrack = TrackDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track");
@@ -406,7 +406,7 @@ public class RaceCommandTrack implements CommandExecutor
             plugin.sendMessage(player, "messages.info.track.closed", "%type%", track.getTypeAsString());
         }
         plugin.sendMessage(player, "messages.info.track.created", "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
-        plugin.sendMessage(player, "messages.info.track.options", "%options%", RaceUtilities.formatPermissions(track.getOptions()));
+        plugin.sendMessage(player, "messages.info.track.options", "%options%", ApiUtilities.formatPermissions(track.getOptions()));
         plugin.sendMessage(player, "messages.info.track.mode", "%mode%", track.getModeAsString());
         plugin.sendMessage(player, "messages.info.track.checkpoints", "%size%", String.valueOf(track.getCheckpoints().size()));
         plugin.sendMessage(player, "messages.info.track.resets", "%size%", String.valueOf(track.getResetRegions().size()));
@@ -433,7 +433,7 @@ public class RaceCommandTrack implements CommandExecutor
             return;
         }
 
-        if (RaceDatabase.getRaceTracks().size() == 0)
+        if (TrackDatabase.getRaceTracks().size() == 0)
         {
             plugin.sendMessage(player, "messages.error.missing.tracks");
             return;
@@ -445,7 +445,7 @@ public class RaceCommandTrack implements CommandExecutor
         int start = (pageStart * itemsPerPage) - itemsPerPage;
         int stop = pageStart * itemsPerPage;
 
-        if (start >= RaceDatabase.getRaceTracks().size())
+        if (start >= TrackDatabase.getRaceTracks().size())
         {
             plugin.sendMessage(player, "messages.error.missing.page");
             return;
@@ -453,31 +453,31 @@ public class RaceCommandTrack implements CommandExecutor
 
         for (int i = start; i < stop; i++)
         {
-            if (i == RaceDatabase.getRaceTracks().size())
+            if (i == TrackDatabase.getRaceTracks().size())
             {
                 break;
             }
 
-            RaceTrack track = RaceDatabase.getRaceTracks().get(i);
+            TSTrack track = TrackDatabase.getRaceTracks().get(i);
 
             tmpMessage.append(track.getName()).append(", ");
 
         }
 
-        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) RaceDatabase.getRaceTracks().size()) / ((double) itemsPerPage))));
+        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) TrackDatabase.getRaceTracks().size()) / ((double) itemsPerPage))));
         player.sendMessage("§2" + tmpMessage.substring(0, tmpMessage.length() - 2));
     }
 
     static void cmdDelete(Player player, String[] arguments)
     {
         String name = ApiUtilities.concat(arguments, 1);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        var maybeTrack = TrackDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track");
             return;
         }
-        RaceDatabase.removeRaceTrack(maybeTrack.get());
+        TrackDatabase.removeRaceTrack(maybeTrack.get());
         plugin.sendMessage(player,"messages.remove.track");
 
     }
@@ -486,18 +486,18 @@ public class RaceCommandTrack implements CommandExecutor
     {
         String command = arguments[1];
         String name = ApiUtilities.concat(arguments, 2);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        var maybeTrack = TrackDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track");
             return;
         }
-        RaceTrack raceTrack = maybeTrack.get();
+        TSTrack TSTrack = maybeTrack.get();
         if (command.equalsIgnoreCase("open"))
         {
-            raceTrack.setToggleOpen(!raceTrack.isOpen());
+            TSTrack.setToggleOpen(!TSTrack.isOpen());
 
-            if (raceTrack.isOpen())
+            if (TSTrack.isOpen())
             {
                 plugin.sendMessage(player, "messages.toggle.track.open");
             }
@@ -508,8 +508,8 @@ public class RaceCommandTrack implements CommandExecutor
         }
         else if (command.equalsIgnoreCase("government"))
         {
-            raceTrack.setToggleGovernment(!raceTrack.isGovernment());
-            if (raceTrack.isGovernment())
+            TSTrack.setToggleGovernment(!TSTrack.isGovernment());
+            if (TSTrack.isGovernment())
             {
                 plugin.sendMessage(player, "messages.toggle.track.government");
             }
@@ -531,15 +531,15 @@ public class RaceCommandTrack implements CommandExecutor
         String options = arguments[1];
 
         String name = ApiUtilities.concat(arguments, 2);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        var maybeTrack = TrackDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track");
             return;
         }
-        RaceTrack track = maybeTrack.get();
+        TSTrack track = maybeTrack.get();
 
-        String newOptions = RaceUtilities.parseFlagChange(track.getOptions(), options);
+        String newOptions = ApiUtilities.parseFlagChange(track.getOptions(), options);
         if (newOptions == null)
         {
             plugin.sendMessage(player, "messages.save.generic");
@@ -552,7 +552,7 @@ public class RaceCommandTrack implements CommandExecutor
         }
         else
         {
-            plugin.sendMessage(player, "messages.options.list", "%options%", RaceUtilities.formatPermissions(newOptions.toCharArray()));
+            plugin.sendMessage(player, "messages.options.list", "%options%", ApiUtilities.formatPermissions(newOptions.toCharArray()));
         }
         track.setOptions(newOptions);
     }
@@ -564,7 +564,7 @@ public class RaceCommandTrack implements CommandExecutor
         if (command.equalsIgnoreCase("startregion"))
         {
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -576,7 +576,7 @@ public class RaceCommandTrack implements CommandExecutor
         else if (command.equalsIgnoreCase("endregion"))
         {
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -588,7 +588,7 @@ public class RaceCommandTrack implements CommandExecutor
         else if (command.equalsIgnoreCase("spawn"))
         {
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -601,13 +601,13 @@ public class RaceCommandTrack implements CommandExecutor
         else if (command.equalsIgnoreCase("leaderboard"))
         {
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
-            RaceTrack track = maybeTrack.get();
+            TSTrack track = maybeTrack.get();
             Location loc = player.getLocation();
             loc.setY(loc.getY() + 3);
             track.setLeaderboardLocation(loc);
@@ -623,7 +623,7 @@ public class RaceCommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -649,7 +649,7 @@ public class RaceCommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -666,7 +666,7 @@ public class RaceCommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -694,21 +694,21 @@ public class RaceCommandTrack implements CommandExecutor
                 return;
             }
 
-            RPlayer rPlayer = ApiDatabase.getPlayer(arguments[2]);
-            if (rPlayer == null)
+            TSPlayer TSPlayer = ApiDatabase.getPlayer(arguments[2]);
+            if (TSPlayer == null)
             {
                 plugin.sendMessage(player,"messages.error.missing.player");
                 return;
             }
 
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
-            maybeTrack.get().setOwner(rPlayer);
+            maybeTrack.get().setOwner(TSPlayer);
             plugin.sendMessage(player,"messages.save.generic");
         }
         else if (command.equalsIgnoreCase("checkpoint"))
@@ -719,7 +719,7 @@ public class RaceCommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -736,7 +736,7 @@ public class RaceCommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -762,9 +762,9 @@ public class RaceCommandTrack implements CommandExecutor
         }
     }
 
-    static void cmdSetType(Player player, RaceTrack track, String type)
+    static void cmdSetType(Player player, TSTrack track, String type)
     {
-        RaceTrack.TrackType trackType = track.getTypeFromString(type);
+        TSTrack.TrackType trackType = track.getTypeFromString(type);
 
         if (trackType == null)
         {
@@ -786,7 +786,7 @@ public class RaceCommandTrack implements CommandExecutor
             plugin.sendMessage(player, "messages.error.numberException");
             return;
         }
-        var maybeTrack = RaceDatabase.getTrackById(trackId);
+        var maybeTrack = TrackDatabase.getTrackById(trackId);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player, "messages.error.missing.track.id");
@@ -810,9 +810,9 @@ public class RaceCommandTrack implements CommandExecutor
         LeaderboardManager.updateFastestTimeLeaderboard(trackId);
     }
 
-    static void cmdSetMode(Player player, RaceTrack track, String mode)
+    static void cmdSetMode(Player player, TSTrack track, String mode)
     {
-        RaceTrack.TrackMode trackMode = track.getModeFromString(mode);
+        TSTrack.TrackMode trackMode = track.getModeFromString(mode);
 
         if (mode == null)
         {
@@ -824,7 +824,7 @@ public class RaceCommandTrack implements CommandExecutor
 
     }
 
-    static void cmdSetStartRegion(Player player, RaceTrack track)
+    static void cmdSetStartRegion(Player player, TSTrack track)
     {
         List<Location> positions = getPositions(player);
         if (positions == null)
@@ -835,7 +835,7 @@ public class RaceCommandTrack implements CommandExecutor
         plugin.sendMessage(player, "messages.create.region");
     }
 
-    static void cmdSetEndRegion(Player player, RaceTrack track)
+    static void cmdSetEndRegion(Player player, TSTrack track)
     {
         List<Location> positions = getPositions(player);
         if (positions == null)
@@ -846,7 +846,7 @@ public class RaceCommandTrack implements CommandExecutor
         plugin.sendMessage(player, "messages.create.region");
     }
 
-    static void cmdSetResetRegion(Player player, RaceTrack track, String index)
+    static void cmdSetResetRegion(Player player, TSTrack track, String index)
     {
 
         int regionIndex;
@@ -891,7 +891,7 @@ public class RaceCommandTrack implements CommandExecutor
         }
     }
 
-    static void cmdSetCheckpoint(Player player, RaceTrack track, String index)
+    static void cmdSetCheckpoint(Player player, TSTrack track, String index)
     {
         int regionIndex;
         boolean remove = false;

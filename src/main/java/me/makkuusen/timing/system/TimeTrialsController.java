@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class TimeTrialsController {
 
-    static HashMap<UUID, TimeTrial> timeTrials = new HashMap<>();
+    public static HashMap<UUID, TimeTrial> timeTrials = new HashMap<>();
 
     public static void playerLeavingMap(UUID uuid)
     {
@@ -24,7 +24,7 @@ public class TimeTrialsController {
         {
             return;
         }
-        RaceUtilities.msgConsole(player.getName() + " has cancelled run on " + TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack().getName());
+        ApiUtilities.msgConsole(player.getName() + " has cancelled run on " + TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack().getName());
         TimeTrialsController.timeTrials.remove(player.getUniqueId());
     }
 }

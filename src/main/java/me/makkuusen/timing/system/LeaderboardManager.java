@@ -24,21 +24,21 @@ public class LeaderboardManager
         {
             return;
         }
-        var maybeTrack = RaceDatabase.getTrackById(id);
+        var maybeTrack = TrackDatabase.getTrackById(id);
 		if (maybeTrack.isEmpty())
 		{
-			RaceUtilities.msgConsole("Leaderboard couldn't update, track not found");
+			ApiUtilities.msgConsole("Leaderboard couldn't update, track not found");
 			return;
 		}
-		RaceTrack raceTrack = maybeTrack.get();
+		TSTrack TSTrack = maybeTrack.get();
 
-        var topTen = raceTrack.getTopList(10);
+        var topTen = TSTrack.getTopList(10);
         List<String> textLines = new ArrayList<>();
 
         for (String line : TimingSystem.configuration.leaderboardsFastestTimeLines())
         {
 
-            line = line.replace("{mapname}", raceTrack.getName());
+            line = line.replace("{mapname}", TSTrack.getName());
 
             // Replace stuff
 
@@ -49,7 +49,7 @@ public class LeaderboardManager
                 try
                 {
                     playerName = topTen.get(i - 1).getPlayer().getName();
-                    time = RaceUtilities.formatAsTime(topTen.get(i - 1).getTime());
+                    time = ApiUtilities.formatAsTime(topTen.get(i - 1).getTime());
                 } catch (IndexOutOfBoundsException e)
                 {
                     playerName = "Empty";
@@ -62,7 +62,7 @@ public class LeaderboardManager
         }
         Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
 			Hologram holo;
-			Location leaderBoardLocation = raceTrack.getLeaderboardLocation();
+			Location leaderBoardLocation = TSTrack.getLeaderboardLocation();
 
 			if (fastestHolograms.get(id) == null)
 			{
@@ -97,7 +97,7 @@ public class LeaderboardManager
         {
             return;
         }
-        for (RaceTrack t : RaceDatabase.getRaceTracks())
+        for (TSTrack t : TrackDatabase.getRaceTracks())
         {
             updateFastestTimeLeaderboard(t.getId());
         }
@@ -109,7 +109,7 @@ public class LeaderboardManager
         {
             return;
         }
-        for (RaceTrack rTrack : RaceDatabase.getRaceTracks())
+        for (TSTrack rTrack : TrackDatabase.getRaceTracks())
         {
             updateFastestTimeLeaderboard(rTrack.getId());
         }

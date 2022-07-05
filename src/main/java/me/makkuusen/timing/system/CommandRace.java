@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class RaceCommandRace implements CommandExecutor
+public class CommandRace implements CommandExecutor
 {
     static TimingSystem plugin;
 
@@ -15,7 +15,7 @@ public class RaceCommandRace implements CommandExecutor
     {
         if (!(sender instanceof Player player))
         {
-            RaceUtilities.msgConsole("§cCommand can only be used by players");
+            ApiUtilities.msgConsole("§cCommand can only be used by players");
             return true;
         }
         if (arguments.length == 0)
@@ -217,7 +217,7 @@ public class RaceCommandRace implements CommandExecutor
             plugin.sendMessage(player, "messages.error.missing.page");
             return;
         }
-        var publicTracks = RaceDatabase.getAvailableRaceTracks(player);
+        var publicTracks = TrackDatabase.getAvailableRaceTracks(player);
         if (publicTracks.size() == 0)
         {
             plugin.sendMessage(player,"messages.error.missing.tracks");
@@ -243,19 +243,19 @@ public class RaceCommandRace implements CommandExecutor
                 break;
             }
 
-            RaceTrack track = publicTracks.get(i);
+            TSTrack track = publicTracks.get(i);
             tmpMessage.append(track.getName()).append(", ");
 
         }
 
-        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) RaceDatabase.getRaceTracks().size()) / ((double) itemsPerPage))));
+        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) TrackDatabase.getRaceTracks().size()) / ((double) itemsPerPage))));
         player.sendMessage("§2" + tmpMessage.substring(0, tmpMessage.length() - 2));
     }
 
     static void cmdInfo(Player player, String[] arguments)
     {
         String name = ApiUtilities.concat(arguments, 1);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        var maybeTrack = TrackDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -267,7 +267,7 @@ public class RaceCommandRace implements CommandExecutor
         if (race == null) {
             plugin.sendMessage(player, "messages.error.missing.race");
         }
-        RPlayer rPlayer = ApiDatabase.getPlayer(player.getUniqueId());
+        TSPlayer TSPlayer = ApiDatabase.getPlayer(player.getUniqueId());
 
         player.sendMessage("");
         plugin.sendMessage(player, "messages.info.race.name", "%name%", track.getName());
@@ -293,7 +293,7 @@ public class RaceCommandRace implements CommandExecutor
     static void cmdCreate(Player player, String[] arguments)
     {
         String name = ApiUtilities.concat(arguments, 1);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        var maybeTrack = TrackDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -314,7 +314,7 @@ public class RaceCommandRace implements CommandExecutor
     static void cmdStart(Player player, String[] arguments)
     {
         String name = ApiUtilities.concat(arguments, 1);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        var maybeTrack = TrackDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -329,7 +329,7 @@ public class RaceCommandRace implements CommandExecutor
     static void cmdReset(Player player, String[] arguments)
     {
         String name = ApiUtilities.concat(arguments, 1);
-        var maybeTrack = RaceDatabase.getRaceTrack(name);
+        var maybeTrack = TrackDatabase.getRaceTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -353,7 +353,7 @@ public class RaceCommandRace implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -376,7 +376,7 @@ public class RaceCommandRace implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -400,7 +400,7 @@ public class RaceCommandRace implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = RaceDatabase.getRaceTrack(name);
+            var maybeTrack = TrackDatabase.getRaceTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track");
@@ -469,16 +469,16 @@ public class RaceCommandRace implements CommandExecutor
         }
 
 
-        RPlayer rPlayer = ApiDatabase.getPlayer(driverName);
-        if (rPlayer == null)
+        TSPlayer TSPlayer = ApiDatabase.getPlayer(driverName);
+        if (TSPlayer == null)
         {
             plugin.sendMessage(player, "messages.error.missing.player");
         }
         if (remove)
         {
-            if (race.raceDrivers.containsKey(rPlayer.getUniqueId()))
+            if (race.hasRaceDriver(TSPlayer.getUniqueId()))
             {
-                race.raceDrivers.remove(rPlayer.getUniqueId());
+                race.removeRaceDriver(TSPlayer.getUniqueId());
                 plugin.sendMessage(player, "messages.save.generic");
             }
             else
@@ -488,7 +488,7 @@ public class RaceCommandRace implements CommandExecutor
         }
         else
         {
-            race.addRaceDriver(rPlayer);
+            race.addRaceDriver(TSPlayer);
             plugin.sendMessage(player,"messages.save.generic");
         }
     }

@@ -19,7 +19,7 @@ public class MainGUIListener implements Listener
 
             if (e.getView().getTitle() != null)
             {
-                if (e.getView().getTitle().startsWith(RaceUtilities.color("&3&lPublic")) || e.getView().getTitle().startsWith(RaceUtilities.color("&2&lPrivate")))
+                if (e.getView().getTitle().startsWith(ApiUtilities.color("&3&lPublic")) || e.getView().getTitle().startsWith(ApiUtilities.color("&2&lPrivate")))
                 {
                     e.setCancelled(true);
                     Player player = (Player) e.getWhoClicked();
@@ -50,7 +50,7 @@ public class MainGUIListener implements Listener
 
                             TimeTrialsController.playerLeavingMap(e.getWhoClicked().getUniqueId());
                             String mapName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
-                            var maybeTrack = RaceDatabase.getRaceTrack(mapName);
+                            var maybeTrack = TrackDatabase.getRaceTrack(mapName);
                             if (maybeTrack.isPresent())
                             {
                                 var raceTrack = maybeTrack.get();

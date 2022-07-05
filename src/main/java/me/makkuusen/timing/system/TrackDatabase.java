@@ -14,11 +14,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class RaceDatabase
+public class TrackDatabase
 {
     public static TimingSystem plugin;
-    private static final List<RaceTrack> tracks = new ArrayList<>();
-    private static final List<RaceRegion> regions = new ArrayList<>();
+    private static final List<TSTrack> tracks = new ArrayList<>();
+    private static final List<TrackRegion> regions = new ArrayList<>();
 
     static void connect()
     {
@@ -47,14 +47,14 @@ public class RaceDatabase
 
             while (result.next())
             {
-                RaceTrack rTrack = new RaceTrack(result);
+                TSTrack rTrack = new TSTrack(result);
                 tracks.add(rTrack);
 
                 Statement statementFinishes = connection.createStatement();
                 ResultSet resultFinishes = statementFinishes.executeQuery("SELECT * FROM `tracksFinishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `tracksFinishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
                 while (resultFinishes.next())
                 {
-                    rTrack.addRaceFinish(new RaceFinish(resultFinishes));
+                    rTrack.addRaceFinish(new TimeTrialFinish(resultFinishes));
                 }
                 resultFinishes.close();
             }
@@ -63,27 +63,27 @@ public class RaceDatabase
 
             while (result.next())
             {
-                Optional<RaceTrack> maybeTrack = getTrackById(result.getInt("trackId"));
+                Optional<TSTrack> maybeTrack = getTrackById(result.getInt("trackId"));
                 if (maybeTrack.isPresent())
                 {
                     var rTrack = maybeTrack.get();
-                    RaceRegion raceRegion = new RaceRegion(result);
-                    regions.add(raceRegion);
-                    if (raceRegion.getRegionType().equals(RaceRegion.RegionType.START))
+                    TrackRegion trackRegion = new TrackRegion(result);
+                    regions.add(trackRegion);
+                    if (trackRegion.getRegionType().equals(TrackRegion.RegionType.START))
                     {
-                        rTrack.newStartRegion(raceRegion);
+                        rTrack.newStartRegion(trackRegion);
                     }
-                    else if (raceRegion.getRegionType().equals(RaceRegion.RegionType.END))
+                    else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.END))
                     {
-                        rTrack.newEndRegion(raceRegion);
+                        rTrack.newEndRegion(trackRegion);
                     }
-                    else if (raceRegion.getRegionType().equals(RaceRegion.RegionType.CHECKPOINT))
+                    else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.CHECKPOINT))
                     {
-                        rTrack.addCheckpoint(raceRegion);
+                        rTrack.addCheckpoint(trackRegion);
                     }
-                    else if (raceRegion.getRegionType().equals(RaceRegion.RegionType.RESET))
+                    else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.RESET))
                     {
-                        rTrack.addResetRegion(raceRegion);
+                        rTrack.addResetRegion(trackRegion);
                     }
                 }
             }
@@ -98,7 +98,7 @@ public class RaceDatabase
         }
     }
 
-    static RaceTrack trackNew(String name, UUID uuid, Location location, RaceTrack.TrackType type, ItemStack gui)
+    static TSTrack trackNew(String name, UUID uuid, Location location, TSTrack.TrackType type, ItemStack gui)
     {
         try
         {
@@ -110,7 +110,7 @@ public class RaceDatabase
             Location leaderboard = location.clone();
             leaderboard.setY(leaderboard.getY() + 3);
             // Save the track
-            statement.executeUpdate("INSERT INTO `tracks` (`uuid`, `name`, `dateCreated`, `guiItem`, `spawn`, `leaderboard`, `type`, `toggleOpen`, `toggleGovernment`, `options`, `isRemoved`) VALUES('" + uuid + "', " + ApiDatabase.sqlString(name) + ", " + date + ", " + ApiDatabase.sqlString(RaceUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " + ApiDatabase.sqlString(type == null ? null : type.toString()) + ", 0, 0, NULL , 0);", Statement.RETURN_GENERATED_KEYS);
+            statement.executeUpdate("INSERT INTO `tracks` (`uuid`, `name`, `dateCreated`, `guiItem`, `spawn`, `leaderboard`, `type`, `toggleOpen`, `toggleGovernment`, `options`, `isRemoved`) VALUES('" + uuid + "', " + ApiDatabase.sqlString(name) + ", " + date + ", " + ApiDatabase.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " + ApiDatabase.sqlString(type == null ? null : type.toString()) + ", 0, 0, NULL , 0);", Statement.RETURN_GENERATED_KEYS);
             ResultSet keys = statement.getGeneratedKeys();
 
             keys.next();
@@ -119,10 +119,10 @@ public class RaceDatabase
             ResultSet result = statement.executeQuery("SELECT * FROM `tracks` WHERE `id` = " + trackId + ";");
             result.next();
 
-            RaceTrack rTrack = new RaceTrack(result);
+            TSTrack rTrack = new TSTrack(result);
             tracks.add(rTrack);
 
-            statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", 0, " + ApiDatabase.sqlString(RaceRegion.RegionType.START.toString()) + ", NULL, NULL, '" + ApiUtilities.locationToString(location) + "', 0);", Statement.RETURN_GENERATED_KEYS);
+            statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", 0, " + ApiDatabase.sqlString(TrackRegion.RegionType.START.toString()) + ", NULL, NULL, '" + ApiUtilities.locationToString(location) + "', 0);", Statement.RETURN_GENERATED_KEYS);
             keys = statement.getGeneratedKeys();
 
             keys.next();
@@ -130,11 +130,11 @@ public class RaceDatabase
             result = statement.executeQuery("SELECT * FROM `tracksRegions` WHERE `id` = " + regionId + ";");
             result.next();
 
-            RaceRegion startRegion = new RaceRegion(result);
+            TrackRegion startRegion = new TrackRegion(result);
             rTrack.newStartRegion(startRegion);
             regions.add(startRegion);
 
-            statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", 0, " + ApiDatabase.sqlString(RaceRegion.RegionType.END.toString()) + ", NULL, NULL, '" + ApiUtilities.locationToString(location) + "', 0);", Statement.RETURN_GENERATED_KEYS);
+            statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", 0, " + ApiDatabase.sqlString(TrackRegion.RegionType.END.toString()) + ", NULL, NULL, '" + ApiUtilities.locationToString(location) + "', 0);", Statement.RETURN_GENERATED_KEYS);
             keys = statement.getGeneratedKeys();
 
             keys.next();
@@ -142,7 +142,7 @@ public class RaceDatabase
             result = statement.executeQuery("SELECT * FROM `tracksRegions` WHERE `id` = " + regionId + ";");
             result.next();
 
-            RaceRegion endRegion = new RaceRegion(result);
+            TrackRegion endRegion = new TrackRegion(result);
             rTrack.newEndRegion(endRegion);
             regions.add(endRegion);
 
@@ -158,9 +158,9 @@ public class RaceDatabase
         }
     }
 
-    static public Optional<RaceTrack> getRaceTrack(String name)
+    static public Optional<TSTrack> getRaceTrack(String name)
     {
-        for (RaceTrack t : tracks)
+        for (TSTrack t : tracks)
         {
             if (t.getName().equalsIgnoreCase(name))
             {
@@ -170,9 +170,9 @@ public class RaceDatabase
         return Optional.empty();
     }
 
-    static public Optional<RaceTrack> getTrackById(int id)
+    static public Optional<TSTrack> getTrackById(int id)
     {
-        for (RaceTrack t : tracks)
+        for (TSTrack t : tracks)
         {
             if (t.getId() == id)
             {
@@ -182,34 +182,34 @@ public class RaceDatabase
         return Optional.empty();
     }
 
-    static public List<RaceTrack> getRaceTracks()
+    static public List<TSTrack> getRaceTracks()
     {
         return tracks;
     }
 
-    static public List<RaceTrack> getAvailableRaceTracks(Player player)
+    static public List<TSTrack> getAvailableRaceTracks(Player player)
     {
         if (!player.hasPermission("track.admin") && !player.isOp())
         {
-            return RaceDatabase.getRaceTracks().stream().filter(RaceTrack::isOpen).toList();
+            return TrackDatabase.getRaceTracks().stream().filter(TSTrack::isOpen).toList();
         }
 
         return getRaceTracks();
     }
 
-    static public List<RaceRegion> getRaceRegions()
+    static public List<TrackRegion> getRaceRegions()
     {
         return regions;
     }
-    static public List<RaceRegion> getRaceStartRegions()
+    static public List<TrackRegion> getRaceStartRegions()
     {
-        return regions.stream().filter(r -> r.getRegionType().equals(RaceRegion.RegionType.START)).collect(Collectors.toList());
+        return regions.stream().filter(r -> r.getRegionType().equals(TrackRegion.RegionType.START)).collect(Collectors.toList());
     }
 
     static boolean trackNameAvailable(String name)
     {
 
-        for (RaceTrack rTrack : tracks)
+        for (TSTrack rTrack : tracks)
         {
             if (rTrack.getName().equalsIgnoreCase(name))
             {
@@ -219,26 +219,26 @@ public class RaceDatabase
         return true;
     }
 
-    static public void addRaceRegion(RaceRegion region)
+    static public void addRaceRegion(TrackRegion region)
     {
         regions.add(region);
     }
 
-    static public void removeRaceRegion(RaceRegion region)
+    static public void removeRaceRegion(TrackRegion region)
     {
         regions.remove(region);
     }
 
-    static public void removeRaceTrack(RaceTrack raceTrack)
+    static public void removeRaceTrack(TSTrack TSTrack)
     {
         ApiDatabase.asynchronousQuery(new String[]{
-                "UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `trackId` = " + raceTrack.getId() + ";",
-                "UPDATE `tracksFinishes` SET `isRemoved` = 1 WHERE `trackId` = " + raceTrack.getId() + ";",
-                "UPDATE `tracks` SET `isRemoved` = 1 WHERE `id` = " + raceTrack.getId() + ";"
+                "UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `trackId` = " + TSTrack.getId() + ";",
+                "UPDATE `tracksFinishes` SET `isRemoved` = 1 WHERE `trackId` = " + TSTrack.getId() + ";",
+                "UPDATE `tracks` SET `isRemoved` = 1 WHERE `id` = " + TSTrack.getId() + ";"
         });
 
-        regions.removeIf(raceRegion -> raceRegion.getTrackId() == raceTrack.getId());
-        tracks.remove(raceTrack);
-        LeaderboardManager.removeLeaderboard(raceTrack.getId());
+        regions.removeIf(trackRegion -> trackRegion.getTrackId() == TSTrack.getId());
+        tracks.remove(TSTrack);
+        LeaderboardManager.removeLeaderboard(TSTrack.getId());
     }
 }

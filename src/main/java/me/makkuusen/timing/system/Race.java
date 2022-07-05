@@ -14,25 +14,25 @@ import java.util.UUID;
 
 public class Race {
 
-    static TimingSystem plugin;
+    public static TimingSystem plugin;
     private int totalLaps;
     private int totalPitstops;
     private Instant startTime;
-    boolean isRunning = false;
-    RaceTrack track;
+    private boolean isRunning = false;
+    TSTrack track;
     HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();;
     List<RaceSplits> positions = new ArrayList<>();
 
-    public Race(int totalLaps, int totalPitstops, RaceTrack track){
+    public Race(int totalLaps, int totalPitstops, TSTrack track){
         this.totalLaps = totalLaps;
         this.totalPitstops = totalPitstops;
         this.track = track;
     }
 
-    public void addRaceDriver(RPlayer rPlayer)
+    public void addRaceDriver(TSPlayer TSPlayer)
     {
-        RaceDriver raceDriver = new RaceDriver(rPlayer, this);
-        raceDrivers.put(rPlayer.getUniqueId(), raceDriver);
+        RaceDriver raceDriver = new RaceDriver(TSPlayer, this);
+        raceDrivers.put(TSPlayer.getUniqueId(), raceDriver);
     }
 
     public void startRace() {
@@ -93,7 +93,7 @@ public class Race {
         return raceDrivers.values().stream().toList();
     }
 
-    public RaceTrack getTrack() {
+    public TSTrack getTrack() {
         return track;
     }
 
@@ -169,5 +169,25 @@ public class Race {
         }
 
         return spaces + track.getName() + spaces;
+    }
+
+    public boolean isRunning(){
+        return isRunning;
+    }
+
+    public HashMap<UUID, RaceDriver> getRaceDrivers() {
+        return raceDrivers;
+    }
+
+    public RaceDriver getRaceDriver(UUID uuid) {
+        return raceDrivers.get(uuid);
+    }
+
+    public void removeRaceDriver(UUID uuid) {
+        raceDrivers.remove(uuid);
+    }
+
+    public boolean hasRaceDriver(UUID uuid){
+        return raceDrivers.containsKey(uuid);
     }
 }

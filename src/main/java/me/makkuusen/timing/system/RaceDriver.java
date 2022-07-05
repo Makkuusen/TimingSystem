@@ -5,7 +5,7 @@ import java.time.Instant;
 public class RaceDriver {
 
     public static TimingSystem plugin;
-    private RPlayer rPlayer;
+    private me.makkuusen.timing.system.TSPlayer TSPlayer;
     private int laps;
     private int pits;
     private RaceSplits raceSplits;
@@ -15,8 +15,8 @@ public class RaceDriver {
     private Instant endTime;
     private Race race;
 
-    public RaceDriver(RPlayer rPlayer, Race race) {
-        this.rPlayer = rPlayer;
+    public RaceDriver(TSPlayer TSPlayer, Race race) {
+        this.TSPlayer = TSPlayer;
         this.laps = 0;
         this.pits = 0;
         this.finished = false;
@@ -26,12 +26,12 @@ public class RaceDriver {
         this.isRunning = false;
     }
 
-    public RPlayer getRPlayer() {
-        return rPlayer;
+    public TSPlayer getRPlayer() {
+        return TSPlayer;
     }
 
-    public void setRPlayer(RPlayer rPlayer) {
-        this.rPlayer = rPlayer;
+    public void setRPlayer(TSPlayer TSPlayer) {
+        this.TSPlayer = TSPlayer;
     }
 
     public int getLaps() {

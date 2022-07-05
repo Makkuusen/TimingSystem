@@ -22,12 +22,12 @@ public class TimingSystem extends JavaPlugin
 {
 
     public Logger logger = null;
-    static RaceConfiguration configuration;
+    public static TSConfiguration configuration;
     private static TimingSystem plugin;
     public static boolean enableLeaderboards = true;
-    Set<UUID> override = new HashSet<>();
-    Set<UUID> verbose = new HashSet<>();
-    public static Map<UUID, RPlayer> players = new HashMap<UUID, RPlayer>();
+    public Set<UUID> override = new HashSet<>();
+    public Set<UUID> verbose = new HashSet<>();
+    public static Map<UUID, TSPlayer> players = new HashMap<UUID, TSPlayer>();
     private LanguageManager languageManager;
     public Instant currentTime = Instant.now();
 
@@ -36,11 +36,11 @@ public class TimingSystem extends JavaPlugin
 
         plugin = this;
         this.logger = getLogger();
-        configuration = new RaceConfiguration(this);
-        RaceDatabase.plugin = this;
-        RaceCommandRace.plugin = this;
-        RaceCommandTrack.plugin = this;
-        RaceListener.plugin = this;
+        configuration = new TSConfiguration(this);
+        TrackDatabase.plugin = this;
+        CommandRace.plugin = this;
+        CommandTrack.plugin = this;
+        TSListener.plugin = this;
         TimeTrial.plugin = this;
         Race.plugin = this;
         RaceDriver.plugin = this;
@@ -48,20 +48,20 @@ public class TimingSystem extends JavaPlugin
 
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new MainGUIListener(), plugin);
-        pm.registerEvents(new RaceListener(), plugin);
+        pm.registerEvents(new TSListener(), plugin);
 
         GUIManager.init();
         PlayerTimer.initPlayerTimer();
 
-        getCommand("track").setExecutor(new RaceCommandTrack());
-        getCommand("race").setExecutor(new RaceCommandRace());
+        getCommand("track").setExecutor(new CommandTrack());
+        getCommand("race").setExecutor(new CommandRace());
 
-        RaceDatabase.connect();
+        TrackDatabase.connect();
 
         if (!Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays"))
         {
-            RaceUtilities.msgConsole("&cWARNING HOLOGRAPHICDISPLAYS NOT INSTALLED OR ENABLED");
-            RaceUtilities.msgConsole("&cDISABLING LEADERBOARDS.");
+            ApiUtilities.msgConsole("&cWARNING HOLOGRAPHICDISPLAYS NOT INSTALLED OR ENABLED");
+            ApiUtilities.msgConsole("&cDISABLING LEADERBOARDS.");
             enableLeaderboards = false;
         }
         else
@@ -77,10 +77,10 @@ public class TimingSystem extends JavaPlugin
     public void onDisable()
     {
         logger.info("Version " + getDescription().getVersion() + " disabled.");
-        RaceDatabase.plugin = null;
-        RaceCommandRace.plugin = null;
-        RaceCommandTrack.plugin = null;
-        RaceListener.plugin = null;
+        TrackDatabase.plugin = null;
+        CommandRace.plugin = null;
+        CommandTrack.plugin = null;
+        TSListener.plugin = null;
         TimeTrial.plugin = null;
         Race.plugin = null;
         RaceDriver.plugin = null;

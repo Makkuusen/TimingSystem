@@ -10,11 +10,11 @@ public class RaceController {
     public static HashMap<Integer, Race> races = new HashMap<>();
 
 
-    public static Optional<Race> getDriverFromRace(RPlayer rPlayer)
+    public static Optional<Race> getDriverFromRace(TSPlayer TSPlayer)
     {
         for (Race race : races.values()) {
 
-            if(!race.isRunning)
+            if(!race.isRunning())
             {
                 continue;
             }
@@ -22,7 +22,7 @@ public class RaceController {
 
             for (RaceDriver rd : drivers)
             {
-                if (rd.getRPlayer().equals(rPlayer))
+                if (rd.getRPlayer().equals(TSPlayer))
                 {
                     return Optional.of(race);
                 }

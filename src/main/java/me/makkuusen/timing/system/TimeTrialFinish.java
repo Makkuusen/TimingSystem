@@ -6,17 +6,17 @@ import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.UUID;
 
-public class RaceFinish implements Comparator<RaceFinish>
+public class TimeTrialFinish implements Comparator<TimeTrialFinish>
 {
 
     private final int id;
     private final int trackId;
-    private final RPlayer player;
+    private final TSPlayer player;
     private final long date;
     private final long time;
     private final boolean isRemoved;
 
-    public RaceFinish(ResultSet data) throws SQLException
+    public TimeTrialFinish(ResultSet data) throws SQLException
     {
         this.id = data.getInt("id");
         this.trackId = data.getInt("trackId");
@@ -31,7 +31,7 @@ public class RaceFinish implements Comparator<RaceFinish>
         return id;
     }
 
-    public RPlayer getPlayer()
+    public TSPlayer getPlayer()
     {
         return player;
     }
@@ -47,7 +47,7 @@ public class RaceFinish implements Comparator<RaceFinish>
     }
 
     @Override
-    public int compare(RaceFinish f1, RaceFinish f2)
+    public int compare(TimeTrialFinish f1, TimeTrialFinish f2)
     {
         int result = Long.compare(f1.getTime(), f2.getTime());
         if (result == 0)
@@ -57,7 +57,7 @@ public class RaceFinish implements Comparator<RaceFinish>
         return result;
     }
 
-    public int compareTo(RaceFinish rf)
+    public int compareTo(TimeTrialFinish rf)
     {
         int result = Long.compare(getTime(), rf.getTime());
         if (result == 0)
@@ -70,9 +70,9 @@ public class RaceFinish implements Comparator<RaceFinish>
     @Override
     public boolean equals(Object rf)
     {
-        if (rf instanceof RaceFinish raceFinish)
+        if (rf instanceof TimeTrialFinish timeTrialFinish)
         {
-            return raceFinish.getDate() == getDate() && raceFinish.getPlayer() == getPlayer();
+            return timeTrialFinish.getDate() == getDate() && timeTrialFinish.getPlayer() == getPlayer();
         }
         return false;
     }

@@ -26,7 +26,7 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import java.time.Instant;
 import java.util.Iterator;
 
-public class RaceListener implements Listener
+public class TSListener implements Listener
 {
 
     static TimingSystem plugin;
@@ -42,9 +42,9 @@ public class RaceListener implements Listener
         if (event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED)
         {
 
-            RPlayer rPlayer = ApiDatabase.getPlayer(event.getUniqueId(), event.getName());
+            TSPlayer TSPlayer = ApiDatabase.getPlayer(event.getUniqueId(), event.getName());
 
-            if (rPlayer == null)
+            if (TSPlayer == null)
             {
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Din spelarprofil kunde inte laddas.");
                 return;
@@ -53,14 +53,14 @@ public class RaceListener implements Listener
     }
     @EventHandler
     void onPlayerJoin(PlayerJoinEvent event) {
-        RPlayer rPlayer = ApiDatabase.getPlayer(event.getPlayer().getUniqueId());
+        TSPlayer TSPlayer = ApiDatabase.getPlayer(event.getPlayer().getUniqueId());
 
-        rPlayer.setPlayer(event.getPlayer());
+        TSPlayer.setPlayer(event.getPlayer());
 
-        if (!rPlayer.getName().equals(event.getPlayer().getName())) {
+        if (!TSPlayer.getName().equals(event.getPlayer().getName())) {
             // Update name
-            rPlayer.setName(event.getPlayer().getName());
-            rPlayer.updateNameChanges();
+            TSPlayer.setName(event.getPlayer().getName());
+            TSPlayer.updateNameChanges();
         }
     }
 
@@ -74,13 +74,13 @@ public class RaceListener implements Listener
     public void onPlayerTeleport(PlayerTeleportEvent event)
     {
 
-        for (RaceTrack raceTrack : RaceDatabase.getRaceTracks())
+        for (TSTrack TSTrack : TrackDatabase.getRaceTracks())
         {
-            if (raceTrack.getSpawnLocation().getWorld() == event.getTo().getWorld())
+            if (TSTrack.getSpawnLocation().getWorld() == event.getTo().getWorld())
             {
-                if (raceTrack.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR)
+                if (TSTrack.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR)
                 {
-                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> raceTrack.spawnBoat(event.getPlayer()), 1);
+                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> TSTrack.spawnBoat(event.getPlayer()), 1);
                 }
             }
         }
@@ -127,7 +127,7 @@ public class RaceListener implements Listener
 
             if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
             {
-                RaceTrack track = TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack();
+                TSTrack track = TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack();
                 if (track.hasOption('b'))
                 {
                     plugin.sendMessage(player,"messages.error.leftBoat");
@@ -194,7 +194,7 @@ public class RaceListener implements Listener
         Player player = e.getPlayer();
         if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
         {
-            RaceTrack track = TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack();
+            TSTrack track = TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack();
             if (player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType().equals(Material.ELYTRA) && track.hasOption('e'))
             {
                 player.sendMessage("§cDu får inte ha elytra på den här banan.");
@@ -226,9 +226,9 @@ public class RaceListener implements Listener
     public void onRegionEnterV2(PlayerMoveEvent e)
     {
         Player player = e.getPlayer();
-        RPlayer rPlayer = ApiDatabase.getPlayer(player.getUniqueId());
+        TSPlayer TSPlayer = ApiDatabase.getPlayer(player.getUniqueId());
 
-        var maybeRaceDriver = RaceController.getDriverFromRace(rPlayer);
+        var maybeRaceDriver = RaceController.getDriverFromRace(TSPlayer);
         if (maybeRaceDriver.isPresent()) {
             var race = maybeRaceDriver.get();
             handleRace(race, player);
@@ -241,11 +241,11 @@ public class RaceListener implements Listener
         }
 
         // Check for starting new tracks
-        Iterator regions = RaceDatabase.getRaceStartRegions().iterator();
+        Iterator regions = TrackDatabase.getRaceStartRegions().iterator();
         while (true)
         {
             Integer regionId;
-            RaceRegion region;
+            TrackRegion region;
             do
             {
                 label:
@@ -253,7 +253,7 @@ public class RaceListener implements Listener
                 {
                     while (regions.hasNext())
                     {
-                        region = (RaceRegion) regions.next();
+                        region = (TrackRegion) regions.next();
                         regionId = region.getId();
                         if (region.contains(player.getLocation()))
                         {
@@ -268,13 +268,13 @@ public class RaceListener implements Listener
             } while (PlayerRegionData.instanceOf(player).getEntered().contains(regionId));
 
             //Entering region
-            var maybeTrack = RaceDatabase.getTrackById(region.getTrackId());
+            var maybeTrack = TrackDatabase.getTrackById(region.getTrackId());
             if (maybeTrack.isPresent())
             {
-                RaceTrack track_ = maybeTrack.get();
+                TSTrack track_ = maybeTrack.get();
 
-                if (track_.getMode().equals(RaceTrack.TrackMode.TIMETRIAL)) {
-                    TimeTrial timeTrial = new TimeTrial(track_, rPlayer);
+                if (track_.getMode().equals(TSTrack.TrackMode.TIMETRIAL)) {
+                    TimeTrial timeTrial = new TimeTrial(track_, TSPlayer);
                     timeTrial.playerStartingMap();
                 }
             }
@@ -285,9 +285,9 @@ public class RaceListener implements Listener
     @EventHandler
     void onPlayerQuit(PlayerQuitEvent event)
     {
-        RPlayer rPlayer = ApiDatabase.getPlayer(event.getPlayer());
+        TSPlayer TSPlayer = ApiDatabase.getPlayer(event.getPlayer());
         // Set to offline
-        rPlayer.setPlayer(null);
+        TSPlayer.setPlayer(null);
     }
 
     void handleTimeTrials(Player player)
@@ -319,7 +319,7 @@ public class RaceListener implements Listener
         }
 
         // Check reset regions
-        for (RaceRegion r : track.getResetRegions().values()) {
+        for (TrackRegion r : track.getResetRegions().values()) {
             if (r.contains(player.getLocation())) {
                 timeTrial.playerResetMap();
             }
@@ -328,14 +328,14 @@ public class RaceListener implements Listener
 
     private void handleRace(Race race, Player player) {
         var track = race.getTrack();
-        if (track.getMode() != RaceTrack.TrackMode.RACE) {
+        if (track.getMode() != TSTrack.TrackMode.RACE) {
             return;
         }
 
-        if(!race.isRunning){
+        if(!race.isRunning()){
             return;
         }
-        var raceDriver = race.raceDrivers.get(player.getUniqueId());
+        var raceDriver = race.getRaceDriver(player.getUniqueId());
         if (raceDriver.isFinished()) {
             return;
         }
@@ -344,7 +344,7 @@ public class RaceListener implements Listener
             if (raceDriver.getLatestCheckpoint() != 0) {
                 Long laptime = race.passLap(player.getUniqueId());
                 if (laptime != null){
-                    player.sendMessage("§aYou finished the lap in: " + RaceUtilities.formatAsTime(laptime));
+                    player.sendMessage("§aYou finished the lap in: " + ApiUtilities.formatAsTime(laptime));
                 } else {
                     int checkpoint = raceDriver.getLatestCheckpoint();
                     player.teleport(race.getTrack().getCheckpoints().get(checkpoint).getSpawnLocation());

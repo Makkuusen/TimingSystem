@@ -5,7 +5,7 @@ import org.bukkit.Location;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class RaceRegion
+public class TrackRegion
 {
 
     private final int id;
@@ -21,12 +21,12 @@ public class RaceRegion
         START, END, CHECKPOINT, RESET
     }
 
-    public RaceRegion(ResultSet data) throws SQLException
+    public TrackRegion(ResultSet data) throws SQLException
     {
         id = data.getInt("id");
         trackId = data.getInt("trackId");
         regionIndex = data.getInt("regionIndex");
-        regionType = data.getString("regionType") == null ? null : RaceRegion.RegionType.valueOf(data.getString("regionType"));
+        regionType = data.getString("regionType") == null ? null : TrackRegion.RegionType.valueOf(data.getString("regionType"));
         minP = ApiUtilities.stringToLocation(data.getString("minP"));
         maxP = ApiUtilities.stringToLocation(data.getString("maxP"));
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));

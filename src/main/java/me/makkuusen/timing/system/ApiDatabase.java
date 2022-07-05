@@ -54,7 +54,7 @@ public class ApiDatabase {
             ResultSet result = statement.executeQuery("SELECT * FROM `players`;");
 
             while (result.next()) {
-                RPlayer player = new RPlayer(plugin, result);
+                TSPlayer player = new TSPlayer(plugin, result);
                 plugin.players.put(player.getUniqueId(), player);
             }
 
@@ -174,11 +174,11 @@ public class ApiDatabase {
         return string == null ? "NULL" : "'" + string.replace("\\", "\\\\").replace("'", "\\'") + "'";
     }
 
-    static RPlayer getPlayer(UUID uuid, String name)
+    static TSPlayer getPlayer(UUID uuid, String name)
     {
-        RPlayer rPlayer = plugin.players.get(uuid);
+        TSPlayer TSPlayer = plugin.players.get(uuid);
 
-        if (rPlayer == null)
+        if (TSPlayer == null)
         {
             if (name == null) { return null; }
 
@@ -192,8 +192,8 @@ public class ApiDatabase {
                 ResultSet result = statement.executeQuery("SELECT * FROM `players` WHERE `uuid` = '" + uuid + "';");
                 result.next();
 
-                rPlayer = new RPlayer(plugin, result);
-                plugin.players.put(uuid, rPlayer);
+                TSPlayer = new TSPlayer(plugin, result);
+                plugin.players.put(uuid, TSPlayer);
 
                 result.close();
 
@@ -207,17 +207,17 @@ public class ApiDatabase {
             }
         }
 
-        return rPlayer;
+        return TSPlayer;
     }
 
-    public static RPlayer getPlayer(UUID uuid)
+    public static TSPlayer getPlayer(UUID uuid)
     {
         return getPlayer(uuid, null);
     }
 
-    public static RPlayer getPlayer(String name)
+    public static TSPlayer getPlayer(String name)
     {
-        for (RPlayer player : plugin.players.values())
+        for (TSPlayer player : plugin.players.values())
         {
             if (player.getName().equalsIgnoreCase(name)) { return player; }
         }
@@ -225,12 +225,12 @@ public class ApiDatabase {
         return null;
     }
 
-    public static RPlayer getPlayer(CommandSender sender)
+    public static TSPlayer getPlayer(CommandSender sender)
     {
         return sender instanceof org.bukkit.entity.Player ? plugin.players.get(((org.bukkit.entity.Player) sender).getUniqueId()) : null;
     }
 
-    public static Collection<RPlayer> getPlayers()
+    public static Collection<TSPlayer> getPlayers()
     {
         return plugin.players.values();
     }

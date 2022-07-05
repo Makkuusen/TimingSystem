@@ -3,8 +3,6 @@ package me.makkuusen.timing.system;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-
 public class PlayerTimer {
 
     public static void initPlayerTimer()
@@ -20,31 +18,31 @@ public class PlayerTimer {
                     long mapTime = timeTrial.getCurrentTime();
                     if (timeTrial.getBestFinish() == -1)
                     {
-                        RaceUtilities.sendActionBar("§a" + RaceUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
+                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
                     }
                     else if (mapTime < timeTrial.getBestFinish())
                     {
-                        RaceUtilities.sendActionBar("§a" + RaceUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
+                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
                     }
                     else
                     {
-                        RaceUtilities.sendActionBar("§c" + RaceUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
+                        ApiUtilities.sendActionBar("§c" + ApiUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
                     }
                 }
                 else
                 {
                     for (Race race : RaceController.races.values()) {
-                        if (race.isRunning)
+                        if (race.isRunning())
                         {
-                            if (race.raceDrivers.containsKey(p.getUniqueId()))
+                            if (race.hasRaceDriver(p.getUniqueId()))
                             {
-                                RaceDriver rd = race.raceDrivers.get(p.getUniqueId());
+                                RaceDriver rd = race.getRaceDrivers().get(p.getUniqueId());
                                 if (rd.isFinished()) {
-                                    RaceUtilities.sendActionBar("§a" + RaceUtilities.formatAsTime(race.getEndTime(rd)) + rd.getLapsString(race.getTotalLaps()), p);
+                                    ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(race.getEndTime(rd)) + rd.getLapsString(race.getTotalLaps()), p);
                                 }
                                 else
                                 {
-                                    RaceUtilities.sendActionBar("§a" + RaceUtilities.formatAsTime(race.getCurrentTime()) + rd.getLapsString(race.getTotalLaps()), p);
+                                    ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(race.getCurrentTime()) + rd.getLapsString(race.getTotalLaps()), p);
                                 }
 
                             }

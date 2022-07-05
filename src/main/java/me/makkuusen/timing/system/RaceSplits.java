@@ -32,6 +32,10 @@ public class RaceSplits implements Comparable<RaceSplits>{
         splits[lap][checkpoint] = timeStamp;
     }
 
+    public RaceDriver getRaceDriver() {
+        return raceDriver;
+    }
+
     @Override
     public int compareTo(@NotNull RaceSplits o) {
         if (raceDriver.getLaps() > o.raceDriver.getLaps())
@@ -56,9 +60,5 @@ public class RaceSplits implements Comparable<RaceSplits>{
             return splits[raceDriver.getLaps()][raceDriver.getLatestCheckpoint()].compareTo(o.splits[o.raceDriver.getLaps()][o.raceDriver.getLatestCheckpoint()]);
         }
         return -1;
-    }
-
-    public RaceDriver getRaceDriver() {
-        return raceDriver;
     }
 }

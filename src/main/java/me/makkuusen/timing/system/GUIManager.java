@@ -56,7 +56,7 @@ public class GUIManager
     public static void openMainGUI(Player p, int page)
     {
         playersPages.put(p.getUniqueId(), page);
-        Inventory inv = Bukkit.createInventory(null, 54, (RaceUtilities.color(page == GOVERNMENTPAGE ? "&3&lPublic" : "&2&lPrivate") + " tracks"));
+        Inventory inv = Bukkit.createInventory(null, 54, (ApiUtilities.color(page == GOVERNMENTPAGE ? "&3&lPublic" : "&2&lPrivate") + " tracks"));
 
         Integer[] borderSlots = {0, 2, 3, 5, 6, 8, 45, 46, 47, 51, 52, 53};
         for (Integer slot : borderSlots)
@@ -77,14 +77,14 @@ public class GUIManager
         inv.setItem(45, governmentPage);
         inv.setItem(53, personalPage);
 
-        List<RaceTrack> tracks;
+        List<TSTrack> tracks;
         if (page == GOVERNMENTPAGE)
         {
-            tracks = RaceDatabase.getAvailableRaceTracks(p).stream().filter(RaceTrack::isGovernment).collect(Collectors.toList());
+            tracks = TrackDatabase.getAvailableRaceTracks(p).stream().filter(TSTrack::isGovernment).collect(Collectors.toList());
         }
         else
         {
-            tracks = RaceDatabase.getAvailableRaceTracks(p).stream().filter(RaceTrack::isPersonal).collect(Collectors.toList());
+            tracks = TrackDatabase.getAvailableRaceTracks(p).stream().filter(TSTrack::isPersonal).collect(Collectors.toList());
         }
 
         Integer[] boatSlots = {9, 10, 11, 18, 19, 20, 27, 28, 29, 36, 37, 38};
@@ -94,7 +94,7 @@ public class GUIManager
         int boatCount = 0;
         int parkourCount = 0;
         int elytraCount = 0;
-        for (RaceTrack track : tracks)
+        for (TSTrack track : tracks)
         {
             if (track.isBoatTrack() && boatCount < boatSlots.length)
             {
