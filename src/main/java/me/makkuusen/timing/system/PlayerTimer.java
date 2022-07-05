@@ -32,21 +32,14 @@ public class PlayerTimer {
                 else
                 {
                     for (Race race : RaceController.races.values()) {
-                        if (race.isRunning())
-                        {
-                            if (race.hasRaceDriver(p.getUniqueId()))
-                            {
-                                RaceDriver rd = race.getRaceDrivers().get(p.getUniqueId());
-                                if (rd.isFinished()) {
-                                    ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(race.getEndTime(rd)) + rd.getLapsString(race.getTotalLaps()), p);
-                                }
-                                else
-                                {
-                                    ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(race.getCurrentTime()) + rd.getLapsString(race.getTotalLaps()), p);
-                                }
+                        if (!race.isRunning()) { continue; }
 
-                            }
-                        }
+                        if (!race.hasRaceDriver(p.getUniqueId())) { continue; }
+
+                        RaceDriver rd = race.getRaceDrivers().get(p.getUniqueId());
+                        if (rd.isFinished()) { continue; }
+
+                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(race.getCurrentTime()) + rd.getLapsString(race.getTotalLaps()), p);
                     }
                 }
             }
