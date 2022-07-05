@@ -1,6 +1,8 @@
 package me.makkuusen.timing.system;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -43,6 +45,8 @@ public class Race {
         {
             rd.resetRaceSplits();
             pos.add(rd.getRaceSplits());
+            Player player = rd.getTSPlayer().getPlayer();
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER,1,1);
         }
         livePositioning = pos;
         isRunning = true;
@@ -105,6 +109,12 @@ public class Race {
         if(totalLaps == raceDriver.getLaps())
         {
             raceDriver.setFinished();
+            Player player = raceDriver.getTSPlayer().getPlayer();
+
+            int pos = getPosition(raceDriver);
+            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER,1,1);
+            Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§6-- §eP" + pos + " §6--\"}");
+
             return raceDriver.getLaptime(raceDriver.getLaps() + 1);
         }
         else
@@ -201,5 +211,15 @@ public class Race {
 
     public boolean hasRaceSpectator(UUID uuid){
         return raceSpectators.containsKey(uuid);
+    }
+
+    private int getPosition(RaceDriver raceDriver) {
+        for (int i = 0; i < livePositioning.size(); i++) {
+
+            if (livePositioning.get(i).getRaceDriver().equals(raceDriver)) {
+                return i + 1;
+            }
+        }
+        return -1;
     }
 }
