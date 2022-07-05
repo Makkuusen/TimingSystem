@@ -9,7 +9,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class MainGUIListener implements Listener
+public class GUIListener implements Listener
 {
 
     @EventHandler
@@ -39,16 +39,16 @@ public class MainGUIListener implements Listener
 
                             if (item.getItemMeta().getDisplayName().contains("Private"))
                             {
-                                GUIManager.openMainGUI(player, 1);
+                                GUITrack.openTrackGUI(player, 1);
                                 return;
                             }
                             else if (item.getItemMeta().getDisplayName().contains("Public"))
                             {
-                                GUIManager.openMainGUI(player, 0);
+                                GUITrack.openTrackGUI(player, 0);
                                 return;
                             }
 
-                            TimeTrialsController.playerLeavingMap(e.getWhoClicked().getUniqueId());
+                            TimeTrialController.playerLeavingMap(e.getWhoClicked().getUniqueId());
                             String mapName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
                             var maybeTrack = TrackDatabase.getRaceTrack(mapName);
                             if (maybeTrack.isPresent())

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class TrackDatabase
 {
     public static TimingSystem plugin;
-    private static final List<TSTrack> tracks = new ArrayList<>();
+    private static final List<Track> tracks = new ArrayList<>();
     private static final List<TrackRegion> regions = new ArrayList<>();
 
     static void connect()
@@ -47,7 +47,7 @@ public class TrackDatabase
 
             while (result.next())
             {
-                TSTrack rTrack = new TSTrack(result);
+                Track rTrack = new Track(result);
                 tracks.add(rTrack);
 
                 Statement statementFinishes = connection.createStatement();
@@ -63,7 +63,7 @@ public class TrackDatabase
 
             while (result.next())
             {
-                Optional<TSTrack> maybeTrack = getTrackById(result.getInt("trackId"));
+                Optional<Track> maybeTrack = getTrackById(result.getInt("trackId"));
                 if (maybeTrack.isPresent())
                 {
                     var rTrack = maybeTrack.get();
@@ -98,7 +98,7 @@ public class TrackDatabase
         }
     }
 
-    static TSTrack trackNew(String name, UUID uuid, Location location, TSTrack.TrackType type, ItemStack gui)
+    static Track trackNew(String name, UUID uuid, Location location, Track.TrackType type, ItemStack gui)
     {
         try
         {
@@ -119,7 +119,7 @@ public class TrackDatabase
             ResultSet result = statement.executeQuery("SELECT * FROM `tracks` WHERE `id` = " + trackId + ";");
             result.next();
 
-            TSTrack rTrack = new TSTrack(result);
+            Track rTrack = new Track(result);
             tracks.add(rTrack);
 
             statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", 0, " + ApiDatabase.sqlString(TrackRegion.RegionType.START.toString()) + ", NULL, NULL, '" + ApiUtilities.locationToString(location) + "', 0);", Statement.RETURN_GENERATED_KEYS);
@@ -158,9 +158,9 @@ public class TrackDatabase
         }
     }
 
-    static public Optional<TSTrack> getRaceTrack(String name)
+    static public Optional<Track> getRaceTrack(String name)
     {
-        for (TSTrack t : tracks)
+        for (Track t : tracks)
         {
             if (t.getName().equalsIgnoreCase(name))
             {
@@ -170,9 +170,9 @@ public class TrackDatabase
         return Optional.empty();
     }
 
-    static public Optional<TSTrack> getTrackById(int id)
+    static public Optional<Track> getTrackById(int id)
     {
-        for (TSTrack t : tracks)
+        for (Track t : tracks)
         {
             if (t.getId() == id)
             {
@@ -182,16 +182,16 @@ public class TrackDatabase
         return Optional.empty();
     }
 
-    static public List<TSTrack> getRaceTracks()
+    static public List<Track> getRaceTracks()
     {
         return tracks;
     }
 
-    static public List<TSTrack> getAvailableRaceTracks(Player player)
+    static public List<Track> getAvailableRaceTracks(Player player)
     {
         if (!player.hasPermission("track.admin") && !player.isOp())
         {
-            return TrackDatabase.getRaceTracks().stream().filter(TSTrack::isOpen).toList();
+            return TrackDatabase.getRaceTracks().stream().filter(Track::isOpen).toList();
         }
 
         return getRaceTracks();
@@ -209,7 +209,7 @@ public class TrackDatabase
     static boolean trackNameAvailable(String name)
     {
 
-        for (TSTrack rTrack : tracks)
+        for (Track rTrack : tracks)
         {
             if (rTrack.getName().equalsIgnoreCase(name))
             {
@@ -229,16 +229,16 @@ public class TrackDatabase
         regions.remove(region);
     }
 
-    static public void removeRaceTrack(TSTrack TSTrack)
+    static public void removeRaceTrack(Track Track)
     {
         ApiDatabase.asynchronousQuery(new String[]{
-                "UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `trackId` = " + TSTrack.getId() + ";",
-                "UPDATE `tracksFinishes` SET `isRemoved` = 1 WHERE `trackId` = " + TSTrack.getId() + ";",
-                "UPDATE `tracks` SET `isRemoved` = 1 WHERE `id` = " + TSTrack.getId() + ";"
+                "UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";",
+                "UPDATE `tracksFinishes` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";",
+                "UPDATE `tracks` SET `isRemoved` = 1 WHERE `id` = " + Track.getId() + ";"
         });
 
-        regions.removeIf(trackRegion -> trackRegion.getTrackId() == TSTrack.getId());
-        tracks.remove(TSTrack);
-        LeaderboardManager.removeLeaderboard(TSTrack.getId());
+        regions.removeIf(trackRegion -> trackRegion.getTrackId() == Track.getId());
+        tracks.remove(Track);
+        LeaderboardManager.removeLeaderboard(Track.getId());
     }
 }

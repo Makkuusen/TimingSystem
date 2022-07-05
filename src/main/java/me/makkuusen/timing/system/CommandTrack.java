@@ -39,7 +39,7 @@ public class CommandTrack implements CommandExecutor
                 plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
-            GUIManager.openMainGUI(player);
+            GUITrack.openTrackGUI(player);
             return true;
         }
 
@@ -204,7 +204,7 @@ public class CommandTrack implements CommandExecutor
                 plugin.sendMessage(player,"messages.error.missing.track");
                 return true;
             }
-            TSTrack track = maybeTrack.get();
+            Track track = maybeTrack.get();
             TimeTrialFinish bestFinish = track.getBestFinish(TSPlayer);
             if (bestFinish == null)
             {
@@ -364,17 +364,17 @@ public class CommandTrack implements CommandExecutor
         }
 
         String type = arguments[1];
-        TSTrack.TrackType t = TSTrack.TrackType.BOAT;
+        Track.TrackType t = Track.TrackType.BOAT;
         if (type.equalsIgnoreCase("parkour"))
         {
-            t = TSTrack.TrackType.PARKOUR;
+            t = Track.TrackType.PARKOUR;
         }
         else if (type.equalsIgnoreCase("elytra"))
         {
-            t = TSTrack.TrackType.ELYTRA;
+            t = Track.TrackType.ELYTRA;
         }
 
-        TSTrack track = TrackDatabase.trackNew(name, player.getUniqueId(), player.getLocation(), t, player.getInventory().getItemInMainHand());
+        Track track = TrackDatabase.trackNew(name, player.getUniqueId(), player.getLocation(), t, player.getInventory().getItemInMainHand());
         if (track == null)
         {
             plugin.sendMessage(player, "messages.error.generic");
@@ -458,7 +458,7 @@ public class CommandTrack implements CommandExecutor
                 break;
             }
 
-            TSTrack track = TrackDatabase.getRaceTracks().get(i);
+            Track track = TrackDatabase.getRaceTracks().get(i);
 
             tmpMessage.append(track.getName()).append(", ");
 
@@ -492,12 +492,12 @@ public class CommandTrack implements CommandExecutor
             plugin.sendMessage(player,"messages.error.missing.track");
             return;
         }
-        TSTrack TSTrack = maybeTrack.get();
+        Track Track = maybeTrack.get();
         if (command.equalsIgnoreCase("open"))
         {
-            TSTrack.setToggleOpen(!TSTrack.isOpen());
+            Track.setToggleOpen(!Track.isOpen());
 
-            if (TSTrack.isOpen())
+            if (Track.isOpen())
             {
                 plugin.sendMessage(player, "messages.toggle.track.open");
             }
@@ -508,8 +508,8 @@ public class CommandTrack implements CommandExecutor
         }
         else if (command.equalsIgnoreCase("government"))
         {
-            TSTrack.setToggleGovernment(!TSTrack.isGovernment());
-            if (TSTrack.isGovernment())
+            Track.setToggleGovernment(!Track.isGovernment());
+            if (Track.isGovernment())
             {
                 plugin.sendMessage(player, "messages.toggle.track.government");
             }
@@ -537,7 +537,7 @@ public class CommandTrack implements CommandExecutor
             plugin.sendMessage(player,"messages.error.missing.track");
             return;
         }
-        TSTrack track = maybeTrack.get();
+        Track track = maybeTrack.get();
 
         String newOptions = ApiUtilities.parseFlagChange(track.getOptions(), options);
         if (newOptions == null)
@@ -607,7 +607,7 @@ public class CommandTrack implements CommandExecutor
                 plugin.sendMessage(player,"messages.error.missing.track");
                 return;
             }
-            TSTrack track = maybeTrack.get();
+            Track track = maybeTrack.get();
             Location loc = player.getLocation();
             loc.setY(loc.getY() + 3);
             track.setLeaderboardLocation(loc);
@@ -762,9 +762,9 @@ public class CommandTrack implements CommandExecutor
         }
     }
 
-    static void cmdSetType(Player player, TSTrack track, String type)
+    static void cmdSetType(Player player, Track track, String type)
     {
-        TSTrack.TrackType trackType = track.getTypeFromString(type);
+        Track.TrackType trackType = track.getTypeFromString(type);
 
         if (trackType == null)
         {
@@ -810,9 +810,9 @@ public class CommandTrack implements CommandExecutor
         LeaderboardManager.updateFastestTimeLeaderboard(trackId);
     }
 
-    static void cmdSetMode(Player player, TSTrack track, String mode)
+    static void cmdSetMode(Player player, Track track, String mode)
     {
-        TSTrack.TrackMode trackMode = track.getModeFromString(mode);
+        Track.TrackMode trackMode = track.getModeFromString(mode);
 
         if (mode == null)
         {
@@ -824,7 +824,7 @@ public class CommandTrack implements CommandExecutor
 
     }
 
-    static void cmdSetStartRegion(Player player, TSTrack track)
+    static void cmdSetStartRegion(Player player, Track track)
     {
         List<Location> positions = getPositions(player);
         if (positions == null)
@@ -835,7 +835,7 @@ public class CommandTrack implements CommandExecutor
         plugin.sendMessage(player, "messages.create.region");
     }
 
-    static void cmdSetEndRegion(Player player, TSTrack track)
+    static void cmdSetEndRegion(Player player, Track track)
     {
         List<Location> positions = getPositions(player);
         if (positions == null)
@@ -846,7 +846,7 @@ public class CommandTrack implements CommandExecutor
         plugin.sendMessage(player, "messages.create.region");
     }
 
-    static void cmdSetResetRegion(Player player, TSTrack track, String index)
+    static void cmdSetResetRegion(Player player, Track track, String index)
     {
 
         int regionIndex;
@@ -891,7 +891,7 @@ public class CommandTrack implements CommandExecutor
         }
     }
 
-    static void cmdSetCheckpoint(Player player, TSTrack track, String index)
+    static void cmdSetCheckpoint(Player player, Track track, String index)
     {
         int regionIndex;
         boolean remove = false;

@@ -19,11 +19,11 @@ public class Race {
     private int totalPitstops;
     private Instant startTime;
     private boolean isRunning = false;
-    TSTrack track;
+    Track track;
     HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();;
     List<RaceSplits> positions = new ArrayList<>();
 
-    public Race(int totalLaps, int totalPitstops, TSTrack track){
+    public Race(int totalLaps, int totalPitstops, Track track){
         this.totalLaps = totalLaps;
         this.totalPitstops = totalPitstops;
         this.track = track;
@@ -93,7 +93,7 @@ public class Race {
         return raceDrivers.values().stream().toList();
     }
 
-    public TSTrack getTrack() {
+    public Track getTrack() {
         return track;
     }
 

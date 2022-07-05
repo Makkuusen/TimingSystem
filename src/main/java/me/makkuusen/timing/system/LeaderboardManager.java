@@ -30,15 +30,15 @@ public class LeaderboardManager
 			ApiUtilities.msgConsole("Leaderboard couldn't update, track not found");
 			return;
 		}
-		TSTrack TSTrack = maybeTrack.get();
+		Track Track = maybeTrack.get();
 
-        var topTen = TSTrack.getTopList(10);
+        var topTen = Track.getTopList(10);
         List<String> textLines = new ArrayList<>();
 
         for (String line : TimingSystem.configuration.leaderboardsFastestTimeLines())
         {
 
-            line = line.replace("{mapname}", TSTrack.getName());
+            line = line.replace("{mapname}", Track.getName());
 
             // Replace stuff
 
@@ -62,7 +62,7 @@ public class LeaderboardManager
         }
         Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
 			Hologram holo;
-			Location leaderBoardLocation = TSTrack.getLeaderboardLocation();
+			Location leaderBoardLocation = Track.getLeaderboardLocation();
 
 			if (fastestHolograms.get(id) == null)
 			{
@@ -97,7 +97,7 @@ public class LeaderboardManager
         {
             return;
         }
-        for (TSTrack t : TrackDatabase.getRaceTracks())
+        for (Track t : TrackDatabase.getRaceTracks())
         {
             updateFastestTimeLeaderboard(t.getId());
         }
@@ -109,7 +109,7 @@ public class LeaderboardManager
         {
             return;
         }
-        for (TSTrack rTrack : TrackDatabase.getRaceTracks())
+        for (Track rTrack : TrackDatabase.getRaceTracks())
         {
             updateFastestTimeLeaderboard(rTrack.getId());
         }

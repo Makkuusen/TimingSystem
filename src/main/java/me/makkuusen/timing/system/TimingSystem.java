@@ -22,7 +22,7 @@ public class TimingSystem extends JavaPlugin
 {
 
     public Logger logger = null;
-    public static TSConfiguration configuration;
+    public static TimingSystemConfiguration configuration;
     private static TimingSystem plugin;
     public static boolean enableLeaderboards = true;
     public Set<UUID> override = new HashSet<>();
@@ -36,7 +36,7 @@ public class TimingSystem extends JavaPlugin
 
         plugin = this;
         this.logger = getLogger();
-        configuration = new TSConfiguration(this);
+        configuration = new TimingSystemConfiguration(this);
         TrackDatabase.plugin = this;
         CommandRace.plugin = this;
         CommandTrack.plugin = this;
@@ -47,10 +47,10 @@ public class TimingSystem extends JavaPlugin
         this.languageManager = new LanguageManager(this, "en_us");
 
         PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new MainGUIListener(), plugin);
+        pm.registerEvents(new GUIListener(), plugin);
         pm.registerEvents(new TSListener(), plugin);
 
-        GUIManager.init();
+        GUITrack.init();
         PlayerTimer.initPlayerTimer();
 
         getCommand("track").setExecutor(new CommandTrack());

@@ -25,7 +25,7 @@ public class CommandRace implements CommandExecutor
                 plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
-            GUIManager.openMainGUI(player);
+            GUITrack.openTrackGUI(player);
             return true;
         }
 
@@ -36,11 +36,11 @@ public class CommandRace implements CommandExecutor
                 plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
-            if(!TimeTrialsController.timeTrials.containsKey(player.getUniqueId())){
+            if(!TimeTrialController.timeTrials.containsKey(player.getUniqueId())){
                 plugin.sendMessage(player, "messages.error.runNotStarted");
                 return true;
             }
-            TimeTrialsController.playerCancelMap(player);
+            TimeTrialController.playerCancelMap(player);
             plugin.sendMessage(player, "messages.cancel");
             return true;
         }
@@ -243,7 +243,7 @@ public class CommandRace implements CommandExecutor
                 break;
             }
 
-            TSTrack track = publicTracks.get(i);
+            Track track = publicTracks.get(i);
             tmpMessage.append(track.getName()).append(", ");
 
         }

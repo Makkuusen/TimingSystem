@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class TSTrack
+public class Track
 {
     private final int id;
     private TSPlayer owner;
@@ -51,7 +51,7 @@ public class TSTrack
         TIMETRIAL, PRACTICE, QUALIFICATION, RACE
     }
 
-    public TSTrack(ResultSet data) throws SQLException
+    public Track(ResultSet data) throws SQLException
     {
         id = data.getInt("id");
         owner = data.getString("uuid") == null ? null : ApiDatabase.getPlayer(UUID.fromString(data.getString("uuid")));
@@ -500,7 +500,7 @@ public class TSTrack
 
     public void spawnBoat(Player player)
     {
-        if (getType().equals(TSTrack.TrackType.BOAT))
+        if (getType().equals(Track.TrackType.BOAT))
         {
             boolean nearest = player.getLocation().distance(spawnLocation) < 5;
             if (nearest)
@@ -561,15 +561,15 @@ public class TSTrack
     {
         if (type.equalsIgnoreCase("parkour"))
         {
-            return TSTrack.TrackType.PARKOUR;
+            return Track.TrackType.PARKOUR;
         }
         else if (type.equalsIgnoreCase("elytra"))
         {
-            return TSTrack.TrackType.ELYTRA;
+            return Track.TrackType.ELYTRA;
         }
         else if (type.equalsIgnoreCase("boat"))
         {
-            return TSTrack.TrackType.BOAT;
+            return Track.TrackType.BOAT;
         }
         return null;
     }

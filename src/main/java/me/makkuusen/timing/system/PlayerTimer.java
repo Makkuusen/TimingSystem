@@ -12,9 +12,9 @@ public class PlayerTimer {
 
             for (Player p : Bukkit.getOnlinePlayers())
             {
-                if (TimeTrialsController.timeTrials.containsKey(p.getUniqueId()))
+                if (TimeTrialController.timeTrials.containsKey(p.getUniqueId()))
                 {
-                    TimeTrial timeTrial = TimeTrialsController.timeTrials.get(p.getUniqueId());
+                    TimeTrial timeTrial = TimeTrialController.timeTrials.get(p.getUniqueId());
                     long mapTime = timeTrial.getCurrentTime();
                     if (timeTrial.getBestFinish() == -1)
                     {

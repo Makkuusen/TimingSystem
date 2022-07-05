@@ -67,34 +67,34 @@ public class TSListener implements Listener
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e)
     {
-        TimeTrialsController.playerLeavingMap(e.getEntity().getUniqueId());
+        TimeTrialController.playerLeavingMap(e.getEntity().getUniqueId());
     }
 
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent event)
     {
 
-        for (TSTrack TSTrack : TrackDatabase.getRaceTracks())
+        for (Track Track : TrackDatabase.getRaceTracks())
         {
-            if (TSTrack.getSpawnLocation().getWorld() == event.getTo().getWorld())
+            if (Track.getSpawnLocation().getWorld() == event.getTo().getWorld())
             {
-                if (TSTrack.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR)
+                if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR)
                 {
-                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> TSTrack.spawnBoat(event.getPlayer()), 1);
+                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> Track.spawnBoat(event.getPlayer()), 1);
                 }
             }
         }
 
         if (!event.getCause().equals(PlayerTeleportEvent.TeleportCause.UNKNOWN))
         {
-            TimeTrialsController.playerLeavingMap(event.getPlayer().getUniqueId());
+            TimeTrialController.playerLeavingMap(event.getPlayer().getUniqueId());
         }
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e)
     {
-        TimeTrialsController.playerLeavingMap(e.getPlayer().getUniqueId());
+        TimeTrialController.playerLeavingMap(e.getPlayer().getUniqueId());
     }
 
     @EventHandler
@@ -105,7 +105,7 @@ public class TSListener implements Listener
             var passenger = e.getVehicle().getPassengers().get(0);
             if (passenger instanceof Player player)
             {
-                if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
+                if (TimeTrialController.timeTrials.containsKey(player.getUniqueId()))
                 {
                     e.setCancelled(true);
                     return;
@@ -125,13 +125,13 @@ public class TSListener implements Listener
         if (event.getExited() instanceof Player player)
         {
 
-            if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
+            if (TimeTrialController.timeTrials.containsKey(player.getUniqueId()))
             {
-                TSTrack track = TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack();
+                Track track = TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack();
                 if (track.hasOption('b'))
                 {
                     plugin.sendMessage(player,"messages.error.leftBoat");
-                    TimeTrialsController.playerLeavingMap(player.getUniqueId());
+                    TimeTrialController.playerLeavingMap(player.getUniqueId());
                 }
             }
 
@@ -169,7 +169,7 @@ public class TSListener implements Listener
     {
         if (e.getHook().getHookedEntity() instanceof Player hooked)
         {
-            if (TimeTrialsController.timeTrials.containsKey(hooked.getUniqueId()))
+            if (TimeTrialController.timeTrials.containsKey(hooked.getUniqueId()))
             {
                 e.getPlayer().sendMessage("§cDu får inte kroka någon annan");
                 e.setCancelled(true);
@@ -179,7 +179,7 @@ public class TSListener implements Listener
 
         if (e.getCaught() instanceof Player player)
         {
-            if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
+            if (TimeTrialController.timeTrials.containsKey(player.getUniqueId()))
             {
                 e.getPlayer().sendMessage("§cDu får inte fiska någon annan");
                 e.setCancelled(true);
@@ -192,31 +192,31 @@ public class TSListener implements Listener
     public void onPlayerMoveEvent(PlayerMoveEvent e)
     {
         Player player = e.getPlayer();
-        if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId()))
+        if (TimeTrialController.timeTrials.containsKey(player.getUniqueId()))
         {
-            TSTrack track = TimeTrialsController.timeTrials.get(player.getUniqueId()).getTrack();
+            Track track = TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack();
             if (player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType().equals(Material.ELYTRA) && track.hasOption('e'))
             {
                 player.sendMessage("§cDu får inte ha elytra på den här banan.");
-                TimeTrialsController.playerLeavingMap(player.getUniqueId());
+                TimeTrialController.playerLeavingMap(player.getUniqueId());
             }
             else if (!player.isGliding() && track.hasOption('g'))
             {
                 player.sendMessage("§cDu slutade flyga och tiden avbröts.");
-                TimeTrialsController.playerLeavingMap(player.getUniqueId());
+                TimeTrialController.playerLeavingMap(player.getUniqueId());
             }
             else if (player.getActivePotionEffects().size() > 0 && track.hasOption('p'))
             {
                 player.sendMessage("§cDu får inte ha effekter på den här banan.");
-                TimeTrialsController.playerLeavingMap(player.getUniqueId());
+                TimeTrialController.playerLeavingMap(player.getUniqueId());
             }
             else if (player.isRiptiding() && track.hasOption('t')){
                 player.sendMessage("§cDu får inte använda trident på den här banan.");
-                TimeTrialsController.playerLeavingMap(player.getUniqueId());
+                TimeTrialController.playerLeavingMap(player.getUniqueId());
             }
             else if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.SOUL_SPEED) && track.hasOption('s')){
                 player.sendMessage("§cDu får inte ha själhastighet på dina skor.");
-                TimeTrialsController.playerLeavingMap(player.getUniqueId());
+                TimeTrialController.playerLeavingMap(player.getUniqueId());
             }
 
         }
@@ -234,7 +234,7 @@ public class TSListener implements Listener
             handleRace(race, player);
 
         }
-        if (TimeTrialsController.timeTrials.containsKey(player.getUniqueId())) {
+        if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             handleTimeTrials(player);
             // don't need to check for starting new track
             return;
@@ -271,9 +271,9 @@ public class TSListener implements Listener
             var maybeTrack = TrackDatabase.getTrackById(region.getTrackId());
             if (maybeTrack.isPresent())
             {
-                TSTrack track_ = maybeTrack.get();
+                Track track_ = maybeTrack.get();
 
-                if (track_.getMode().equals(TSTrack.TrackMode.TIMETRIAL)) {
+                if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
                     TimeTrial timeTrial = new TimeTrial(track_, TSPlayer);
                     timeTrial.playerStartingMap();
                 }
@@ -292,7 +292,7 @@ public class TSListener implements Listener
 
     void handleTimeTrials(Player player)
     {
-        TimeTrial timeTrial = TimeTrialsController.timeTrials.get(player.getUniqueId());
+        TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
         // Check for ending current map.
         var track = timeTrial.getTrack();
 
@@ -328,7 +328,7 @@ public class TSListener implements Listener
 
     private void handleRace(Race race, Player player) {
         var track = race.getTrack();
-        if (track.getMode() != TSTrack.TrackMode.RACE) {
+        if (track.getMode() != Track.TrackMode.RACE) {
             return;
         }
 

@@ -12,13 +12,13 @@ public class TimeTrial{
 
     public static TimingSystem plugin;
     private me.makkuusen.timing.system.TSPlayer TSPlayer;
-    private TSTrack track;
+    private Track track;
     private Instant startTime;
     private boolean[] checkpoints;
     private long bestFinish;
 
 
-    public TimeTrial(TSTrack track, TSPlayer player)
+    public TimeTrial(Track track, TSPlayer player)
     {
         this.track = track;
         this.startTime = plugin.currentTime;
@@ -42,7 +42,7 @@ public class TimeTrial{
         return bestFinish;
     }
 
-    public TSTrack getTrack()
+    public Track getTrack()
     {
         return track;
     }
@@ -204,7 +204,7 @@ public class TimeTrial{
             }
         }
         TSPlayer.getPlayer().teleport(track.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-        TimeTrialsController.timeTrials.remove(TSPlayer.getUniqueId());
+        TimeTrialController.timeTrials.remove(TSPlayer.getUniqueId());
         ApiUtilities.msgConsole(TSPlayer.getName() + " has been reset on " + track.getName());
     }
 
@@ -221,7 +221,7 @@ public class TimeTrial{
         {
             return;
         }
-        TimeTrialsController.timeTrials.put(TSPlayer.getUniqueId(), this);
+        TimeTrialController.timeTrials.put(TSPlayer.getUniqueId(), this);
         ApiUtilities.msgConsole(TSPlayer.getName() + " started on " + track.getName());
     }
 
@@ -233,7 +233,7 @@ public class TimeTrial{
         if (!hasPassedAllCheckpoints())
         {
             plugin.sendMessage(p, "messages.error.timer.missedCheckpoints");
-            TimeTrialsController.timeTrials.remove(p.getUniqueId());
+            TimeTrialController.timeTrials.remove(p.getUniqueId());
             return;
         }
 
@@ -260,7 +260,7 @@ public class TimeTrial{
             track.newRaceFinish(mapTime, p.getUniqueId());
         }
 
-        TimeTrialsController.timeTrials.remove(p.getUniqueId());
+        TimeTrialController.timeTrials.remove(p.getUniqueId());
         ApiUtilities.msgConsole(p.getName() + " finished " + track.getName() + " with a time of " + ApiUtilities.formatAsTime(mapTime));
     }
 

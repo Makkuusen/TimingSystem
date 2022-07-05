@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class GUIManager
+public class GUITrack
 {
 
     private static final HashMap<UUID, Integer> playersPages = new HashMap<>();
@@ -44,16 +44,16 @@ public class GUIManager
         parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkours").build();
     }
 
-    public static void openMainGUI(Player p)
+    public static void openTrackGUI(Player p)
     {
         if (!playersPages.containsKey(p.getUniqueId()))
         {
             playersPages.put(p.getUniqueId(), GOVERNMENTPAGE);
         }
-        openMainGUI(p, playersPages.get(p.getUniqueId()));
+        openTrackGUI(p, playersPages.get(p.getUniqueId()));
     }
 
-    public static void openMainGUI(Player p, int page)
+    public static void openTrackGUI(Player p, int page)
     {
         playersPages.put(p.getUniqueId(), page);
         Inventory inv = Bukkit.createInventory(null, 54, (ApiUtilities.color(page == GOVERNMENTPAGE ? "&3&lPublic" : "&2&lPrivate") + " tracks"));
@@ -77,14 +77,14 @@ public class GUIManager
         inv.setItem(45, governmentPage);
         inv.setItem(53, personalPage);
 
-        List<TSTrack> tracks;
+        List<Track> tracks;
         if (page == GOVERNMENTPAGE)
         {
-            tracks = TrackDatabase.getAvailableRaceTracks(p).stream().filter(TSTrack::isGovernment).collect(Collectors.toList());
+            tracks = TrackDatabase.getAvailableRaceTracks(p).stream().filter(Track::isGovernment).collect(Collectors.toList());
         }
         else
         {
-            tracks = TrackDatabase.getAvailableRaceTracks(p).stream().filter(TSTrack::isPersonal).collect(Collectors.toList());
+            tracks = TrackDatabase.getAvailableRaceTracks(p).stream().filter(Track::isPersonal).collect(Collectors.toList());
         }
 
         Integer[] boatSlots = {9, 10, 11, 18, 19, 20, 27, 28, 29, 36, 37, 38};
@@ -94,7 +94,7 @@ public class GUIManager
         int boatCount = 0;
         int parkourCount = 0;
         int elytraCount = 0;
-        for (TSTrack track : tracks)
+        for (Track track : tracks)
         {
             if (track.isBoatTrack() && boatCount < boatSlots.length)
             {
