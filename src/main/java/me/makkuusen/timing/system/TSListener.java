@@ -332,7 +332,7 @@ public class TSListener implements Listener
             return;
         }
 
-        if(!race.isRunning()){
+        if(!race.getRaceState().equals(RaceState.RACING)){
             return;
         }
         var raceDriver = race.getRaceDriver(player.getUniqueId());

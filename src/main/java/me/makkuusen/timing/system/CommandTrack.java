@@ -120,6 +120,8 @@ public class CommandTrack implements CommandExecutor
                 player.sendMessage("§7Syntax /track set checkpoint -§nnumber§r§7 §nname§r§7");
                 player.sendMessage("§7Syntax /track set resetregion +§nnumber§r§7 §nname§r§7");
                 player.sendMessage("§7Syntax /track set resetregion -§nnumber§r§7 §nname§r§7");
+                player.sendMessage("§7Syntax /track set grid +§nnumber§r§7 §nname§r§7");
+                player.sendMessage("§7Syntax /track set grid -§nnumber§r§7 §nname§r§7");
                 return true;
             }
             cmdSet(player, arguments);
@@ -311,6 +313,8 @@ public class CommandTrack implements CommandExecutor
             player.sendMessage("§2/track set checkpoint -§anumber §aname");
             player.sendMessage("§2/track set resetregion +§anumber §aname");
             player.sendMessage("§2/track set resetregion -§anumber §aname");
+            player.sendMessage("§2/track set grid +§anumber §aname");
+            player.sendMessage("§2/track set grid -§anumber §aname");
         }
         if (player.isOp() || player.hasPermission("track.command.toggle"))
         {
@@ -742,6 +746,23 @@ public class CommandTrack implements CommandExecutor
             cmdSetCheckpoint(player, maybeTrack.get(), arguments[2]);
 
         }
+        else if (command.equalsIgnoreCase("grid"))
+        {
+            if (arguments.length < 4)
+            {
+                player.sendMessage("§7Syntax /track set grid §nnumber§r§7 §nname§r§7");
+                return;
+            }
+            String name = ApiUtilities.concat(arguments, 3);
+            var maybeTrack = TrackDatabase.getTrack(name);
+            if (maybeTrack.isEmpty())
+            {
+                plugin.sendMessage(player,"messages.error.missing.track.name");
+                return;
+            }
+            cmdSetGridRegion(player, maybeTrack.get(), arguments[2]);
+
+        }
         else if (command.equalsIgnoreCase("resetregion"))
         {
             if (arguments.length < 4)
@@ -774,6 +795,8 @@ public class CommandTrack implements CommandExecutor
             player.sendMessage("§2/track set checkpoint -§anumber §aname");
             player.sendMessage("§2/track set resetregion +§anumber §aname");
             player.sendMessage("§2/track set resetregion -§anumber §aname");
+            player.sendMessage("§2/track set grid +§anumber §aname");
+            player.sendMessage("§2/track set grid -§anumber §aname");
         }
     }
 
@@ -913,6 +936,51 @@ public class CommandTrack implements CommandExecutor
                 return;
             }
             track.setResetRegion(positions.get(0), positions.get(1), player.getLocation(), regionIndex);
+            plugin.sendMessage(player, "messages.create.region");
+        }
+    }
+
+    static void cmdSetGridRegion(Player player, Track track, String index)
+    {
+
+        int regionIndex;
+        boolean remove = false;
+        if (index.startsWith("-"))
+        {
+            index = index.substring(1);
+            remove = true;
+        }
+        else if (index.startsWith("+"))
+        {
+            index = index.substring(1);
+        }
+        try
+        {
+            regionIndex = Integer.parseInt(index);
+        } catch (NumberFormatException exception)
+        {
+            plugin.sendMessage(player, "messages.error.numberException");
+            return;
+        }
+        if (remove)
+        {
+            if (track.removeResetRegion(regionIndex))
+            {
+                plugin.sendMessage(player, "messages.remove.region");
+            }
+            else
+            {
+                plugin.sendMessage(player, "messages.error.remove.region");
+            }
+        }
+        else
+        {
+            List<Location> positions = getPositions(player);
+            if (positions == null)
+            {
+                return;
+            }
+            track.setGridRegion(positions.get(0), positions.get(1), player.getLocation(), regionIndex);
             plugin.sendMessage(player, "messages.create.region");
         }
     }

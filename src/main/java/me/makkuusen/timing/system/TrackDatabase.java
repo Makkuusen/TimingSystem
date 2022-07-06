@@ -85,6 +85,10 @@ public class TrackDatabase
                     {
                         rTrack.addResetRegion(trackRegion);
                     }
+                    else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.GRID))
+                    {
+                        rTrack.addGridRegion(trackRegion);
+                    }
                     else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.PIT))
                     {
                         rTrack.newPitRegion(trackRegion);

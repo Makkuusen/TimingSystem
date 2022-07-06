@@ -51,6 +51,11 @@ public class CommandRace implements CommandExecutor
                 plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
+            if (arguments.length < 2)
+            {
+                player.sendMessage("§7Syntax /race create §nname§r§7");
+                return true;
+            }
             cmdCreate(player, arguments);
             return true;
         }
@@ -61,17 +66,42 @@ public class CommandRace implements CommandExecutor
                 plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
+            if (arguments.length < 2)
+            {
+                player.sendMessage("§7Syntax /race start §nname§r§7");
+                return true;
+            }
             cmdStart(player, arguments);
             return true;
         }
         else if (arguments[0].equalsIgnoreCase("reset"))
         {
-            if (!player.isOp() && !player.hasPermission("race.command.create") && !player.isOp())
+            if (!player.isOp() && !player.hasPermission("race.command.reset") && !player.isOp())
             {
                 plugin.sendMessage(player, "messages.error.permissionDenied");
                 return true;
             }
+            if (arguments.length < 2)
+            {
+                player.sendMessage("§7Syntax /race reset §nname§r§7");
+                return true;
+            }
             cmdReset(player, arguments);
+            return true;
+        }
+        else if (arguments[0].equalsIgnoreCase("load"))
+        {
+            if (!player.isOp() && !player.hasPermission("race.command.load") && !player.isOp())
+            {
+                plugin.sendMessage(player, "messages.error.permissionDenied");
+                return true;
+            }
+            if (arguments.length < 2)
+            {
+                player.sendMessage("§7Syntax /race load §nname§r§7");
+                return true;
+            }
+            cmdLoad(player, arguments);
             return true;
         }
         else if (arguments[0].equalsIgnoreCase("help"))
@@ -161,15 +191,19 @@ public class CommandRace implements CommandExecutor
         }
         if (player.isOp() || player.hasPermission("race.command.create"))
         {
-            player.sendMessage("§2/race create");
+            player.sendMessage("§2/race create §aname");
         }
         if (player.isOp() || player.hasPermission("race.command.start"))
         {
-            player.sendMessage("§2/race start");
+            player.sendMessage("§2/race start §aname");
         }
         if (player.isOp() || player.hasPermission("race.command.reset"))
         {
-            player.sendMessage("§2/race reset");
+            player.sendMessage("§2/race reset §aname");
+        }
+        if (player.isOp() || player.hasPermission("race.command.load"))
+        {
+            player.sendMessage("§2/race load §aname");
         }
         if (player.isOp() || player.hasPermission("race.command.list"))
         {
@@ -339,6 +373,21 @@ public class CommandRace implements CommandExecutor
         Race race = RaceController.races.get(track.getId());
         race.resetRace();
         player.sendMessage("§aRace has been reset");
+    }
+
+    static void cmdLoad(Player player, String[] arguments)
+    {
+        String name = ApiUtilities.concat(arguments, 1);
+        var maybeTrack = TrackDatabase.getTrack(name);
+        if (maybeTrack.isEmpty())
+        {
+            plugin.sendMessage(player,"messages.error.missing.track.name");
+            return;
+        }
+        var track = maybeTrack.get();
+        Race race = RaceController.races.get(track.getId());
+        race.loadRace();
+        player.sendMessage("§aRace has been loaded");
     }
 
     static void cmdSet(Player player, String[] arguments)

@@ -18,7 +18,7 @@ public class TrackRegion
 
     enum RegionType
     {
-        START, END, CHECKPOINT, RESET, PIT
+        START, END, CHECKPOINT, RESET, PIT, GRID
     }
 
     public TrackRegion(ResultSet data) throws SQLException
@@ -40,6 +40,14 @@ public class TrackRegion
     public void setMaxP(Location maxP)
     {
         this.maxP = maxP;
+    }
+
+    public Location getMinP() {
+        return minP;
+    }
+
+    public Location getMaxP() {
+        return maxP;
     }
 
     public Location getSpawnLocation()

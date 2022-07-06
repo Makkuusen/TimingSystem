@@ -32,7 +32,7 @@ public class PlayerTimer {
                 else
                 {
                     for (Race race : RaceController.races.values()) {
-                        if (!race.isRunning()) { continue; }
+                        if (!race.getRaceState().equals(RaceState.RACING)) { continue; }
 
                         if (!race.hasRaceDriver(p.getUniqueId())) { continue; }
 

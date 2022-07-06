@@ -20,8 +20,9 @@ public class Race {
     private int totalLaps;
     private int totalPits;
     private Instant startTime;
-    private boolean isRunning = false;
+    private RaceState raceState;
     Track track;
+    BlockManager blockManager;
     HashMap<UUID, RaceSpectator> raceSpectators = new HashMap<>();
     HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();
     List<RaceDriver> livePositioning = new ArrayList<>();
@@ -30,7 +31,8 @@ public class Race {
         this.totalLaps = totalLaps;
         this.totalPits = totalPits;
         this.track = track;
-    }
+        this.raceState = RaceState.SETUP;
+        this.blockManager = new BlockManager(track);    }
 
     public void addRaceDriver(TSPlayer TSPlayer)
     {
@@ -38,9 +40,16 @@ public class Race {
         raceDrivers.put(TSPlayer.getUniqueId(), raceDriver);
     }
 
+    public void loadRace() {
+        if (raceState.equals(RaceState.SETUP)) {
+            blockManager.setStartingGridBarriers();
+        }
+    }
+
     public void startRace() {
-        isRunning = true;
+        raceState = RaceState.RACING;
         startTime = plugin.currentTime;
+        blockManager.clearStartingGridBarriers();
         for (RaceDriver rd : raceDrivers.values())
         {
             rd.resetLaps();
@@ -75,7 +84,7 @@ public class Race {
         {
             rd.reset();
         }
-        isRunning = false;
+        raceState = RaceState.SETUP;
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
@@ -150,7 +159,7 @@ public class Race {
             if(score == -9){
                 break;
             }
-            scoreboard.add("§f" + livePositioning.get(count++).getTSPlayer().getName(), score--);
+            scoreboard.add("§f" + rd.getTSPlayer().getName(), score--);
         }
         scoreboard.build();
 
@@ -171,8 +180,8 @@ public class Race {
         return spaces + track.getName() + spaces;
     }
 
-    public boolean isRunning(){
-        return isRunning;
+    public RaceState getRaceState() {
+        return raceState;
     }
 
     public HashMap<UUID, RaceDriver> getRaceDrivers() {

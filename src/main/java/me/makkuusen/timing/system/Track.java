@@ -41,6 +41,7 @@ public class Track
     private TrackRegion pitRegion;
     private final Map<Integer, TrackRegion> checkpoints = new HashMap<>();
     private final Map<Integer, TrackRegion> resetRegions = new HashMap<>();
+    private final Map<Integer, TrackRegion> gridRegions = new HashMap<>();
     private final Map<TSPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
 
     public enum TrackType
@@ -411,9 +412,71 @@ public class Track
         resetRegions.put(region.getRegionIndex(), region);
     }
 
-    public Map<Integer, TrackRegion> getResetRegions()
-    {
+    public Map<Integer, TrackRegion> getResetRegions() {
         return resetRegions;
+    }
+
+    public void setGridRegion(Location minP, Location maxP, Location spawn, int index) {
+        if (gridRegions.containsKey(index)) {
+            // Modify checkpoint
+            TrackRegion resetRegion = gridRegions.get(index);
+            resetRegion.setMinP(minP);
+            resetRegion.setMaxP(maxP);
+            resetRegion.setSpawnLocation(spawn);
+
+            ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "', `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + resetRegion.getId() + ";"});
+
+        } else {
+            try {
+
+                Connection connection = ApiDatabase.getConnection();
+                Statement statement = connection.createStatement();
+                statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + ApiDatabase.sqlString(TrackRegion.RegionType.GRID.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);", Statement.RETURN_GENERATED_KEYS);
+                ResultSet keys = statement.getGeneratedKeys();
+
+                keys.next();
+                int regionId = keys.getInt(1);
+                ResultSet result = statement.executeQuery("SELECT * FROM `tracksRegions` WHERE `id` = " + regionId + ";");
+                result.next();
+
+
+                TrackRegion gridRegion = new TrackRegion(result);
+                addGridRegion(gridRegion);
+                TrackDatabase.addTrackRegion(gridRegion);
+
+                statement.close();
+                result.close();
+                connection.close();
+
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        }
+    }
+
+    public boolean removeGridRegion(int index)
+    {
+        if (gridRegions.containsKey(index))
+        {
+            var gridRegion = gridRegions.get(index);
+            var gridRegionId = gridRegion.getId();
+            TrackDatabase.removeTrackRegion(gridRegion);
+            gridRegions.remove(index);
+
+            ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `id` = " + gridRegionId + ";"});
+            return true;
+        }
+        return false;
+    }
+
+    public void addGridRegion(TrackRegion region)
+    {
+        gridRegions.put(region.getRegionIndex(), region);
+    }
+
+    public Map<Integer, TrackRegion> getGridRegions()
+    {
+        return gridRegions;
     }
 
     public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish)
