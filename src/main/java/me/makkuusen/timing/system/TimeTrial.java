@@ -267,7 +267,8 @@ public class TimeTrial{
     public void playerPassingCheckpoint(int checkpoint)
     {
         passCheckpoint(checkpoint);
-        long timeSinceStart = getTimeSinceStart(Instant.now());
+        long timeSinceStart = getTimeSinceStart(plugin.currentTime);
+        timeSinceStart = Math.round(timeSinceStart/50) * 50;
         if (TimingSystem.getPlugin().verbose.contains(TSPlayer.getUniqueId()))
         {
             plugin.sendMessage(TSPlayer.getPlayer(),"messages.timer.checkpoint", "%checkpoint%", String.valueOf(checkpoint), "%time%", ApiUtilities.formatAsTime(timeSinceStart));

@@ -81,7 +81,6 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
         }
     }
 
-
     public boolean hasPassedAllCheckpoints() {
         return getCurrentLap().hasPassedAllCheckpoints();
     }
@@ -116,6 +115,11 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
 
     public long getEndTime(Instant startTime){
         return Duration.between(startTime, endTime).toMillis();
+    }
+
+    public Instant getTimeStamp(int lap, int checkpoint){
+        RaceLap raceLap = raceLaps.get(lap - 1);
+        return raceLap.getPassedCheckpointTime(checkpoint);
     }
 
     @Override

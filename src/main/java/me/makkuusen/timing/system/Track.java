@@ -66,7 +66,7 @@ public class Track
         toggleOpen = data.getBoolean("toggleOpen");
         toggleGovernment = data.getBoolean("toggleGovernment");
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
-        mode = TrackMode.RACE;
+        mode = TrackMode.TIMETRIAL;
     }
 
     public int getId()
@@ -615,7 +615,7 @@ public class Track
             {
                 Boat boat = spawnLocation.getWorld().spawn(spawnLocation, Boat.class);
                 boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
-                if (player.getName().equalsIgnoreCase("Hogge72"))
+                if (player.getName().equalsIgnoreCase("Renokas1"))
                 {
                     boat.setWoodType(TreeSpecies.ACACIA);
                 }

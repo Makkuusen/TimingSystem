@@ -23,6 +23,7 @@ public class Race {
     private RaceState raceState;
     Track track;
     BlockManager blockManager;
+    RaceScoreboard raceScoreboard;
     HashMap<UUID, RaceSpectator> raceSpectators = new HashMap<>();
     HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();
     List<RaceDriver> livePositioning = new ArrayList<>();
@@ -42,7 +43,10 @@ public class Race {
 
     public void loadRace() {
         if (raceState.equals(RaceState.SETUP)) {
+            livePositioning = new ArrayList<>();
+            livePositioning.addAll(raceDrivers.values());
             blockManager.setStartingGridBarriers();
+            raceScoreboard = new RaceScoreboard(livePositioning, track);
         }
     }
 
@@ -58,15 +62,14 @@ public class Race {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
             }
         }
-        livePositioning = new ArrayList<>();
-        livePositioning.addAll(raceDrivers.values());
+
         updatePositions();
     }
 
     private void updatePositions() {
 
         Collections.sort(livePositioning);
-        Scoreboard board = getScoreboard();
+        Scoreboard board = raceScoreboard.getScoreboard();
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setScoreboard(board);
         }
@@ -147,37 +150,6 @@ public class Race {
         }
 
         return String.join(", ", names);
-    }
-
-    public Scoreboard getScoreboard()
-    {
-        SimpleScoreboard scoreboard = new SimpleScoreboard("§e§l" + getScoreboardName());
-
-        int count = 0;
-        int score = -1;
-        for(RaceDriver rd : livePositioning){
-            if(score == -9){
-                break;
-            }
-            scoreboard.add("§f" + rd.getTSPlayer().getName(), score--);
-        }
-        scoreboard.build();
-
-        return scoreboard.getScoreboard();
-    }
-
-    String getScoreboardName()
-    {
-        int spacesCount = ((20 - track.getName().length()) / 2) - 1;
-
-        StringBuilder spaces = new StringBuilder();
-
-        for (int i = 0; i < spacesCount; i++)
-        {
-            spaces.append(" ");
-        }
-
-        return spaces + track.getName() + spaces;
     }
 
     public RaceState getRaceState() {

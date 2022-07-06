@@ -38,7 +38,9 @@ public class RaceLap {
 
     public long getLaptime(){
 
-        return Duration.between(lapStart, lapEnd).toMillis();
+        long lapTime = Duration.between(lapStart, lapEnd).toMillis();
+        lapTime = Math.round(lapTime/50) * 50;
+        return lapTime;
     }
 
     public RaceDriver getRaceDriver() {
@@ -70,6 +72,9 @@ public class RaceLap {
     }
 
     public Instant getPassedCheckpointTime(int checkpoint){
+        if (checkpoints.size() == 0 || checkpoint == 0) {
+            return lapStart;
+        }
         return checkpoints.get(checkpoint - 1);
     }
 
