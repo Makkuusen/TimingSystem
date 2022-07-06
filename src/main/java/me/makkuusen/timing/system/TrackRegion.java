@@ -18,7 +18,7 @@ public class TrackRegion
 
     enum RegionType
     {
-        START, END, CHECKPOINT, RESET
+        START, END, CHECKPOINT, RESET, PIT
     }
 
     public TrackRegion(ResultSet data) throws SQLException

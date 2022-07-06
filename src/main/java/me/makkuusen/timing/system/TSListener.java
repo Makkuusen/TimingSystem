@@ -359,10 +359,19 @@ public class TSListener implements Listener
 
         }
 
-        if(raceDriver.isRunning()) {
+
+        if (raceDriver.isRunning()) {
+
+            RaceLap lap = raceDriver.getCurrentLap();
+
+            // Check for pitstop
+            if (track.getPitRegion().contains(player.getLocation()))
+            {
+                raceDriver.passPit();
+            }
 
             // Check for next checkpoint in current map
-            RaceLap lap = raceDriver.getCurrentLap();
+
             if (lap.hasPassedAllCheckpoints()){
                 return;
             }

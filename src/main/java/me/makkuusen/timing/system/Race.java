@@ -18,7 +18,7 @@ public class Race {
 
     public static TimingSystem plugin;
     private int totalLaps;
-    private int totalPitstops;
+    private int totalPits;
     private Instant startTime;
     private boolean isRunning = false;
     Track track;
@@ -26,9 +26,9 @@ public class Race {
     HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();
     List<RaceDriver> livePositioning = new ArrayList<>();
 
-    public Race(int totalLaps, int totalPitstops, Track track){
+    public Race(int totalLaps, int totalPits, Track track){
         this.totalLaps = totalLaps;
-        this.totalPitstops = totalPitstops;
+        this.totalPits = totalPits;
         this.track = track;
     }
 
@@ -45,7 +45,9 @@ public class Race {
         {
             rd.resetLaps();
             Player player = rd.getTSPlayer().getPlayer();
-            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER,1,1);
+            if (player != null) {
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+            }
         }
         livePositioning = new ArrayList<>();
         livePositioning.addAll(raceDrivers.values());
@@ -94,7 +96,7 @@ public class Race {
     public void passLap(UUID uuid) {
         var raceDriver = raceDrivers.get(uuid);
 
-        if (totalLaps == raceDriver.getLaps())
+        if (totalLaps <= raceDriver.getLaps() && totalPits <= raceDriver.getPits())
         {
             raceDriver.setFinished();
             updatePositions();
@@ -102,7 +104,7 @@ public class Race {
             int pos = getPosition(raceDriver);
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER,1,1);
             Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§6-- §eP" + pos + " §6--\"}");
-
+            RaceAnnouncements.sendFinish(raceDriver, pos, raceDriver.getEndTime(startTime));
         }
         else
         {
@@ -120,12 +122,12 @@ public class Race {
         this.totalLaps = totalLaps;
     }
 
-    public void setTotalPitstops(int totalPitstops) {
-        this.totalPitstops = totalPitstops;
+    public void setTotalPits(int totalPits) {
+        this.totalPits = totalPits;
     }
 
-    public int getTotalPitstops() {
-        return totalPitstops;
+    public int getTotalPits() {
+        return totalPits;
     }
 
     public String getDriversAsString() {
@@ -213,5 +215,12 @@ public class Race {
             }
         }
         return -1;
+    }
+
+    public List<RaceParticipant> getRaceParticipants(){
+        List<RaceParticipant> rp = new ArrayList<>();
+        rp.addAll(raceDrivers.values());
+        rp.addAll(raceSpectators.values());
+        return rp;
     }
 }

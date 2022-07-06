@@ -2,6 +2,7 @@ package me.makkuusen.timing.system;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,14 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
         raceLaps.add(lap);
     }
 
+    public void passPit() {
+        if (!getCurrentLap().hasPitted()) {
+            pits++;
+            RaceAnnouncements.sendPit(this, pits);
+            getCurrentLap().setHasPitted();
+        }
+    }
+
 
     public boolean hasPassedAllCheckpoints() {
         return getCurrentLap().hasPassedAllCheckpoints();
@@ -103,6 +112,10 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
 
     public void resetLaps(){
         this.raceLaps = new ArrayList<>();
+    }
+
+    public long getEndTime(Instant startTime){
+        return Duration.between(startTime, endTime).toMillis();
     }
 
     @Override

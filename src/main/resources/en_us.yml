@@ -90,3 +90,6 @@ messages:
     newRecord: '&eNew best time!&6 You finished &e%map%&6 in &e%time%&6. Your previous best was &e%oldTime%&6.'
     finish: '&2You finished &a%map%&2 in &a%time%&2. Your best is &a%oldTime%&2.'
     checkpoint: '&2You passed &acheckpoint %checkpoint%&2 in &a%time%&2.'
+  announcements:
+    pitstop: '&e%player% &6completed pitstop: &e&l%pit%'
+    finish: '&e%player% &6finished race in &eP%position% &6with a time of &e%time%'

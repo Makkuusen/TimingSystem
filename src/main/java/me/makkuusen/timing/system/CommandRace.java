@@ -273,7 +273,7 @@ public class CommandRace implements CommandExecutor
         plugin.sendMessage(player, "messages.info.race.name", "%name%", track.getName());
         plugin.sendMessage(player, "messages.info.race.type",  "%type%", track.getTypeAsString());
         plugin.sendMessage(player, "messages.info.race.laps", "%laps%", String.valueOf(race.getTotalLaps()));
-        plugin.sendMessage(player, "messages.info.race.pits", "%pits%", String.valueOf(race.getTotalPitstops()));
+        plugin.sendMessage(player, "messages.info.race.pits", "%pits%", String.valueOf(race.getTotalPits()));
         plugin.sendMessage(player, "messages.info.race.drivers", "%drivers%", race.getDriversAsString());
     }
     static void cmdToggle(Player player, String[] arguments)
@@ -450,7 +450,7 @@ public class CommandRace implements CommandExecutor
             return;
         }
 
-        race.setTotalPitstops(totalPits);
+        race.setTotalPits(totalPits);
         plugin.sendMessage(player,"messages.save.generic");
     }
 

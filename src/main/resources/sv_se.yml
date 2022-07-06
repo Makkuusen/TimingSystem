@@ -90,3 +90,6 @@ messages:
     newRecord: '&eNytt rekord!&6 Du klarade &e%map%&6 på &e%time%&6. Tidigare rekord var &e%oldTime%&6.'
     finish: '&2Du klarade &a%map%&2 på &a%time%&2. Ditt rekord är &a%oldTime%&2.'
     checkpoint: '&2Du passerade &akontrollpunkt %checkpoint%&2 på &a%time%&2.'
+  announcements:
+    pitstop: '&e%player% &6completed pitstop: &e&l%pit%'
+    finish: '&e%player% &6finished race in &eP%position% &6with a time of &e%time%'

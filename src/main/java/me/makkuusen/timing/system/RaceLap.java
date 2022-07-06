@@ -10,11 +10,13 @@ public class RaceLap {
     private Track track;
     private Instant lapEnd;
     private Instant lapStart;
+    private boolean hasPitted;
     private ArrayList<Instant> checkpoints = new ArrayList<>();
 
     public RaceLap(RaceDriver raceDriver) {
         this.raceDriver = raceDriver;
         this.track = raceDriver.race.getTrack();
+        hasPitted = false;
     }
 
     public void setCheckpoint(int checkpoint, Instant timeStamp)
@@ -69,5 +71,13 @@ public class RaceLap {
 
     public Instant getPassedCheckpointTime(int checkpoint){
         return checkpoints.get(checkpoint - 1);
+    }
+
+    public boolean hasPitted(){
+        return hasPitted;
+    }
+
+    public void setHasPitted(){
+        hasPitted = true;
     }
 }

@@ -85,6 +85,10 @@ public class TrackDatabase
                     {
                         rTrack.addResetRegion(trackRegion);
                     }
+                    else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.PIT))
+                    {
+                        rTrack.newPitRegion(trackRegion);
+                    }
                 }
             }
 
@@ -145,6 +149,18 @@ public class TrackDatabase
             TrackRegion endRegion = new TrackRegion(result);
             rTrack.newEndRegion(endRegion);
             regions.add(endRegion);
+
+            statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", 0, " + ApiDatabase.sqlString(TrackRegion.RegionType.PIT.toString()) + ", NULL, NULL, '" + ApiUtilities.locationToString(location) + "', 0);", Statement.RETURN_GENERATED_KEYS);
+            keys = statement.getGeneratedKeys();
+
+            keys.next();
+            regionId = keys.getInt(1);
+            result = statement.executeQuery("SELECT * FROM `tracksRegions` WHERE `id` = " + regionId + ";");
+            result.next();
+
+            TrackRegion pitRegion = new TrackRegion(result);
+            rTrack.newPitRegion(pitRegion);
+            regions.add(pitRegion);
 
             statement.close();
             result.close();

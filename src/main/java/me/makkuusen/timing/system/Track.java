@@ -38,6 +38,7 @@ public class Track
     private boolean toggleGovernment;
     private TrackRegion startRegion;
     private TrackRegion endRegion;
+    private TrackRegion pitRegion;
     private final Map<Integer, TrackRegion> checkpoints = new HashMap<>();
     private final Map<Integer, TrackRegion> resetRegions = new HashMap<>();
     private final Map<TSPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
@@ -85,6 +86,11 @@ public class Track
     public TrackRegion getStartRegion()
     {
         return startRegion;
+    }
+
+    public TrackRegion getPitRegion()
+    {
+        return pitRegion;
     }
 
     public ItemStack getGuiItem(UUID uuid)
@@ -223,6 +229,41 @@ public class Track
         ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + endRegion.getId() + ";"});
     }
 
+    public void setPitRegion(Location minP, Location maxP, Location spawn)
+    {
+        if (pitRegion == null) {
+
+            try {
+                Connection connection = ApiDatabase.getConnection();
+                Statement statement = connection.createStatement();
+                statement.executeUpdate("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", 0, " + ApiDatabase.sqlString(TrackRegion.RegionType.PIT.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);", Statement.RETURN_GENERATED_KEYS);
+                ResultSet keys = statement.getGeneratedKeys();
+
+                keys.next();
+                int regionId = keys.getInt(1);
+                ResultSet result = statement.executeQuery("SELECT * FROM `tracksRegions` WHERE `id` = " + regionId + ";");
+                result.next();
+
+                TrackRegion pitRegion = new TrackRegion(result);
+                newPitRegion(pitRegion);
+                TrackDatabase.addTrackRegion(pitRegion);
+                return;
+            }
+            catch (SQLException exception)
+            {
+                exception.printStackTrace();
+                return;
+            }
+        }
+
+        pitRegion.setMinP(minP);
+        pitRegion.setMaxP(maxP);
+
+        ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + pitRegion.getId() + ";"});
+    }
+
+
+
     public void newStartRegion(TrackRegion region)
     {
         this.startRegion = region;
@@ -231,6 +272,10 @@ public class Track
     public void newEndRegion(TrackRegion region)
     {
         this.endRegion = region;
+    }
+
+    public void newPitRegion(TrackRegion region) {
+        this.pitRegion = region;
     }
 
     public Map<Integer, TrackRegion> getCheckpoints()

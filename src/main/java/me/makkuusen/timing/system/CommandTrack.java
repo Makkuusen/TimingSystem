@@ -115,6 +115,7 @@ public class CommandTrack implements CommandExecutor
                 player.sendMessage("§7Syntax /track set mode §nmode§r§7 §nname§r§7");
                 player.sendMessage("§7Syntax /track set startregion §nname§r§7");
                 player.sendMessage("§7Syntax /track set endregion §nname§r§7");
+                player.sendMessage("§7Syntax /track set pitregion §nname§r§7");
                 player.sendMessage("§7Syntax /track set checkpoint +§nnumber§r§7 §nname§r§7");
                 player.sendMessage("§7Syntax /track set checkpoint -§nnumber§r§7 §nname§r§7");
                 player.sendMessage("§7Syntax /track set resetregion +§nnumber§r§7 §nname§r§7");
@@ -201,7 +202,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(potentialMapName);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return true;
             }
             Track track = maybeTrack.get();
@@ -305,6 +306,7 @@ public class CommandTrack implements CommandExecutor
             player.sendMessage("§2/track set mode §amode §aname");
             player.sendMessage("§2/track set startregion §aname");
             player.sendMessage("§2/track set endregion §aname");
+            player.sendMessage("§2/track set pitregion §aname");
             player.sendMessage("§2/track set checkpoint +§anumber §aname");
             player.sendMessage("§2/track set checkpoint -§anumber §aname");
             player.sendMessage("§2/track set resetregion +§anumber §aname");
@@ -391,7 +393,7 @@ public class CommandTrack implements CommandExecutor
         var maybeTrack = TrackDatabase.getTrack(name);
         if (maybeTrack.isEmpty())
         {
-            plugin.sendMessage(player,"messages.error.missing.track");
+            plugin.sendMessage(player,"messages.error.missing.track.name");
             return;
         }
         var track = maybeTrack.get();
@@ -474,7 +476,7 @@ public class CommandTrack implements CommandExecutor
         var maybeTrack = TrackDatabase.getTrack(name);
         if (maybeTrack.isEmpty())
         {
-            plugin.sendMessage(player,"messages.error.missing.track");
+            plugin.sendMessage(player,"messages.error.missing.track.name");
             return;
         }
         TrackDatabase.removeTrack(maybeTrack.get());
@@ -489,7 +491,7 @@ public class CommandTrack implements CommandExecutor
         var maybeTrack = TrackDatabase.getTrack(name);
         if (maybeTrack.isEmpty())
         {
-            plugin.sendMessage(player,"messages.error.missing.track");
+            plugin.sendMessage(player,"messages.error.missing.track.name");
             return;
         }
         Track Track = maybeTrack.get();
@@ -534,7 +536,7 @@ public class CommandTrack implements CommandExecutor
         var maybeTrack = TrackDatabase.getTrack(name);
         if (maybeTrack.isEmpty())
         {
-            plugin.sendMessage(player,"messages.error.missing.track");
+            plugin.sendMessage(player,"messages.error.missing.track.name");
             return;
         }
         Track track = maybeTrack.get();
@@ -567,7 +569,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
             cmdSetStartRegion(player, maybeTrack.get());
@@ -579,10 +581,22 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
             cmdSetEndRegion(player, maybeTrack.get());
+
+        }
+        else if (command.equalsIgnoreCase("pitregion"))
+        {
+            String name = ApiUtilities.concat(arguments, 2);
+            var maybeTrack = TrackDatabase.getTrack(name);
+            if (maybeTrack.isEmpty())
+            {
+                plugin.sendMessage(player,"messages.error.missing.track.name");
+                return;
+            }
+            cmdSetPitRegion(player, maybeTrack.get());
 
         }
         else if (command.equalsIgnoreCase("spawn"))
@@ -591,7 +605,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
             maybeTrack.get().setSpawnLocation(player.getLocation());
@@ -604,7 +618,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
             Track track = maybeTrack.get();
@@ -626,7 +640,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
 
@@ -652,7 +666,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
             cmdSetType(player, maybeTrack.get(), arguments[2]);
@@ -669,7 +683,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
             cmdSetMode(player, maybeTrack.get(), arguments[2]);
@@ -705,7 +719,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
             maybeTrack.get().setOwner(TSPlayer);
@@ -722,7 +736,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
             cmdSetCheckpoint(player, maybeTrack.get(), arguments[2]);
@@ -739,7 +753,7 @@ public class CommandTrack implements CommandExecutor
             var maybeTrack = TrackDatabase.getTrack(name);
             if (maybeTrack.isEmpty())
             {
-                plugin.sendMessage(player,"messages.error.missing.track");
+                plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
             cmdSetResetRegion(player, maybeTrack.get(), arguments[2]);
@@ -755,6 +769,7 @@ public class CommandTrack implements CommandExecutor
             player.sendMessage("§2/track set mode §amode §aname");
             player.sendMessage("§2/track set startregion §aname");
             player.sendMessage("§2/track set endregion §aname");
+            player.sendMessage("§2/track set pitregion §aname");
             player.sendMessage("§2/track set checkpoint +§anumber §aname");
             player.sendMessage("§2/track set checkpoint -§anumber §aname");
             player.sendMessage("§2/track set resetregion +§anumber §aname");
@@ -843,6 +858,17 @@ public class CommandTrack implements CommandExecutor
             return;
         }
         track.setEndRegion(positions.get(0), positions.get(1));
+        plugin.sendMessage(player, "messages.create.region");
+    }
+
+    static void cmdSetPitRegion(Player player, Track track)
+    {
+        List<Location> positions = getPositions(player);
+        if (positions == null)
+        {
+            return;
+        }
+        track.setPitRegion(positions.get(0), positions.get(1), player.getLocation());
         plugin.sendMessage(player, "messages.create.region");
     }
 
