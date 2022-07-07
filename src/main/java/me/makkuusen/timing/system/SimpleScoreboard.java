@@ -1,7 +1,6 @@
 package me.makkuusen.timing.system;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -54,7 +52,7 @@ public class SimpleScoreboard {
             return;
         }
 
-        Preconditions.checkArgument(text.length() < 48, "text cannot be over 48 characters in length");
+        Preconditions.checkArgument(text.length() < 64, "text cannot be over 64 characters in length");
         text = fixDuplicates(text);
         scores.put(text, score);
     }
@@ -93,24 +91,16 @@ public class SimpleScoreboard {
     {
         while (scores.containsKey(text))
             text += "§r";
-        if (text.length() > 48)
-            text = text.substring(0, 47);
+        if (text.length() > 64)
+            text = text.substring(0, 63);
         return text;
     }
 
     private Map.Entry<Team, String> createTeam(String text)
     {
-        String result = "";
-        if (text.length() <= 16)
-            return new AbstractMap.SimpleEntry<>(null, text);
         Team team = scoreboard.registerNewTeam("text-" + scoreboard.getTeams().size());
-        Iterator<String> iterator = Splitter.fixedLength(16).split(text).iterator();
-        team.setPrefix(iterator.next());
-        result = iterator.next();
-        if (text.length() > 32)
-            team.setSuffix(iterator.next());
         teams.add(team);
-        return new AbstractMap.SimpleEntry<>(team, result);
+        return new AbstractMap.SimpleEntry<>(team, text);
     }
 
     @SuppressWarnings("deprecation")

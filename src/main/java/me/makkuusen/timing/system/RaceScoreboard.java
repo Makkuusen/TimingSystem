@@ -43,17 +43,9 @@ public class RaceScoreboard {
                 }
 
             } else {
-                String text = "§8 Lap: §f" + rd.getLaps() + " §8| §f" + rd.getTSPlayer().getName() + " §8(§f" + rd.getPits() + "§8)";
-                String name = rd.getTSPlayer().getName();
-                if (text.length() > 47 ) {
-                    int textDelta  = text.length() - 47;
-                    name = name.substring(0, rd.getTSPlayer().getName().length() - textDelta - 1);
-
-                }
-                scoreboard.add("§8 Lap: §f" + rd.getLaps() + " §8| §f" + name + " §8(§f" + rd.getPits() + "§8)", score--);
+                scoreboard.add("§8 Lap: §f" + rd.getLaps() + " §8| §f" + rd.getTSPlayer().getName() + " §8(§f" + rd.getPits() + "§8)", score--);
 
             }
-
             count++;
             previousDriver = rd;
         }
