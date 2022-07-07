@@ -118,7 +118,7 @@ public class TrackDatabase
             Location leaderboard = location.clone();
             leaderboard.setY(leaderboard.getY() + 3);
             // Save the track
-            statement.executeUpdate("INSERT INTO `tracks` (`uuid`, `name`, `dateCreated`, `guiItem`, `spawn`, `leaderboard`, `type`, `toggleOpen`, `toggleGovernment`, `options`, `isRemoved`) VALUES('" + uuid + "', " + ApiDatabase.sqlString(name) + ", " + date + ", " + ApiDatabase.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " + ApiDatabase.sqlString(type == null ? null : type.toString()) + ", 0, 0, NULL , 0);", Statement.RETURN_GENERATED_KEYS);
+            statement.executeUpdate("INSERT INTO `tracks` (`uuid`, `name`, `dateCreated`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `toggleGovernment`, `options`, `isRemoved`) VALUES('" + uuid + "', " + ApiDatabase.sqlString(name) + ", " + date + ", " + ApiDatabase.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " + ApiDatabase.sqlString(type == null ? null : type.toString()) + "," + ApiDatabase.sqlString(Track.TrackMode.TIMETRIAL.toString()) + ", 0, 0, NULL , 0);", Statement.RETURN_GENERATED_KEYS);
             ResultSet keys = statement.getGeneratedKeys();
 
             keys.next();

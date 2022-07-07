@@ -66,7 +66,7 @@ public class Track
         toggleOpen = data.getBoolean("toggleOpen");
         toggleGovernment = data.getBoolean("toggleGovernment");
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
-        mode = TrackMode.TIMETRIAL;
+        mode = data.getString("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));;
     }
 
     public int getId()
@@ -176,6 +176,8 @@ public class Track
     public void setMode(TrackMode mode)
     {
         this.mode = mode;
+
+        ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracks` SET `mode` = " + ApiDatabase.sqlString(mode.toString()) + " WHERE `id` = " + id + ";"});
     }
 
     public void setName(String name)
