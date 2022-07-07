@@ -39,7 +39,17 @@ public class PlayerTimer {
                         RaceDriver rd = race.getRaceDrivers().get(p.getUniqueId());
                         if (rd.isFinished()) { continue; }
 
-                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(race.getCurrentTime()) + rd.getLapsString(race.getTotalLaps()), p);
+
+                        String message = TimingSystem.getPlugin().getLocalizedMessage(
+                                rd.getPlayer(),
+                                "messages.actionbar.race",
+                                "%laps%" , String.valueOf(rd.getLaps()),
+                                "%totalLaps%", String.valueOf(race.getTotalLaps()),
+                                "%pos%", String.valueOf(rd.getPosition()),
+                                "%pits%", String.valueOf(rd.getPits()),
+                                "%totalPits%", String.valueOf(race.getTotalPits())
+                        );
+                        ApiUtilities.sendActionBar(message, rd.getPlayer());
                     }
                 }
             }

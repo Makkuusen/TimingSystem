@@ -49,6 +49,10 @@ public class SimpleScoreboard {
     public void add(String text, Integer score)
     {
         text = fixFormating(text);
+        if (text.length() > 47) {
+            TimingSystem.getPlugin().getLogger().warning("Length of scoreboardtext: " + text + " : " + text.length());
+            return;
+        }
 
         Preconditions.checkArgument(text.length() < 48, "text cannot be over 48 characters in length");
         text = fixDuplicates(text);

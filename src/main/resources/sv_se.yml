@@ -91,5 +91,7 @@ messages:
     finish: '&2Du klarade &a%map%&2 på &a%time%&2. Ditt rekord är &a%oldTime%&2.'
     checkpoint: '&2Du passerade &akontrollpunkt %checkpoint%&2 på &a%time%&2.'
   announcements:
-    pitstop: '&e%player% &6completed pitstop: &e&l%pit%'
-    finish: '&e%player% &6finished race in &eP%position% &6with a time of &e%time%'
+    pitstop: '&f%player% &7completed pitstop: &f&l%pit%'
+    finish: '&f%player% &7finished &f&l P%position%&r&7 in &f%time%'
+  actionbar:
+    race: '&8Lap: &f&l%laps%/%totalLaps%&r&8 |&f&l P%pos%&r&8 |&f&l %pits%/%totalPits%&r&8 Pits'

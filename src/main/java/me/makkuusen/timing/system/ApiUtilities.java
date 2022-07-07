@@ -220,7 +220,7 @@ public class ApiUtilities {
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String milis = String.format("%03d", timeInMillis % 1000);
+        String milis = String.format("%03d", (timeInMillis % 1000));
 
         if (hours == 0 && minutes == 0)
         {
@@ -229,6 +229,31 @@ public class ApiUtilities {
         else if (hours == 0)
         {
             toReturn = String.format("%02d:%02d", minutes, seconds) + "." + milis;
+        }
+        else
+        {
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+        }
+        return toReturn;
+    }
+
+    // Used by scoreboard and bossbar
+    public static String formatAsRacingGap(long timeInMillis)
+    {
+        String toReturn;
+
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
+        String milis = String.format("%02d", (timeInMillis % 1000) / 10);
+
+        if (hours == 0 && minutes == 0)
+        {
+            toReturn = String.format("%02d", seconds) + "." + milis;
+        }
+        else if (hours == 0)
+        {
+            toReturn = String.format("%d:%02d", minutes, seconds) + "." + milis;
         }
         else
         {

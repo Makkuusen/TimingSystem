@@ -46,7 +46,7 @@ public class Race {
             livePositioning = new ArrayList<>();
             livePositioning.addAll(raceDrivers.values());
             blockManager.setStartingGridBarriers();
-            raceScoreboard = new RaceScoreboard(livePositioning, track);
+            raceScoreboard = new RaceScoreboard(this);
         }
     }
 
@@ -69,9 +69,16 @@ public class Race {
     private void updatePositions() {
 
         Collections.sort(livePositioning);
+        int pos = 1;
+        for (RaceDriver rd : livePositioning)
+        {
+            rd.setPosition(pos++);
+        }
         Scoreboard board = raceScoreboard.getScoreboard();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setScoreboard(board);
+        for (RaceParticipant raceParticipant : getRaceParticipants()) {
+            if (raceParticipant.getPlayer() != null) {
+                raceParticipant.getPlayer().setScoreboard(board);
+            }
         }
 
     }

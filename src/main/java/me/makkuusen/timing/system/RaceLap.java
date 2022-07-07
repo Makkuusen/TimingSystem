@@ -36,6 +36,10 @@ public class RaceLap {
         return lapStart;
     }
 
+    public Instant getLapEnd() {
+        return lapEnd;
+    }
+
     public long getLaptime(){
 
         long lapTime = Duration.between(lapStart, lapEnd).toMillis();

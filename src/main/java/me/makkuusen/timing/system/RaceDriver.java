@@ -12,6 +12,7 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
     public static TimingSystem plugin;
     private int laps;
     private int pits;
+    private int position;
     private List<RaceLap> raceLaps = new ArrayList<>();
     private boolean finished;
     private boolean isRunning;
@@ -21,6 +22,7 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
         super(tsPlayer, race);
         this.laps = 0;
         this.pits = 0;
+        this.position = 0;
         this.finished = false;
         this.isRunning = false;
     }
@@ -35,6 +37,14 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
 
     public void setPits(int pits) {
         this.pits = pits;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     public boolean isFinished() {
@@ -118,8 +128,11 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
     }
 
     public Instant getTimeStamp(int lap, int checkpoint){
-        RaceLap raceLap = raceLaps.get(lap - 1);
-        return raceLap.getPassedCheckpointTime(checkpoint);
+        if (lap > race.getTotalLaps()){
+            return raceLaps.get(race.getTotalLaps() - 1).getLapEnd();
+        }
+
+        return raceLaps.get(lap - 1).getPassedCheckpointTime(checkpoint);
     }
 
     @Override

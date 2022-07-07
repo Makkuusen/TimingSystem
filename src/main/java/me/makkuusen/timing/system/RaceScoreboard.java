@@ -4,41 +4,54 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 public class RaceScoreboard {
 
-    List<RaceDriver> livePositioning;
-    Track track;
+    Race race;
 
-    public RaceScoreboard(List<RaceDriver> livePositioning, Track track) {
-        this.livePositioning = livePositioning;
-        this.track = track;
+    public RaceScoreboard(Race race) {
+        this.race = race;
     }
 
     public Scoreboard getScoreboard()
     {
-        SimpleScoreboard scoreboard = new SimpleScoreboard("§e§l" + getScoreboardName());
+        SimpleScoreboard scoreboard = new SimpleScoreboard(getScoreboardName());
 
         int count = 0;
         int score = -1;
         RaceDriver previousDriver = null;
-        for (RaceDriver rd : livePositioning){
+        for (RaceDriver rd : race.livePositioning){
             if (score == -9){
                 break;
             }
             if (previousDriver != null) {
                 if (rd.getLaps() < 1){
-                    scoreboard.add("§f        §b| §f" + rd.getTSPlayer().getName(), score--);
+                    scoreboard.add("§f          §8| §f" + rd.getTSPlayer().getName() + " §r§8(§f" + rd.getPits() + "§8)", score--);
                 } else {
                     Instant timeStamp = rd.getTimeStamp(rd.getLaps(), rd.getLatestCheckpoint());
                     Instant previousDriverTimeStamp = previousDriver.getTimeStamp(rd.getLaps(), rd.getLatestCheckpoint());
+                    // If leader has done too many laps and the comparision is weird.
+                    if (previousDriverTimeStamp == null) {
+                        scoreboard.add("§f          §8| §f" + rd.getTSPlayer().getName() + " §r§8(§f" + rd.getPits() + "§8)", score--);
+                    }
                     long timeDiff = Duration.between(previousDriverTimeStamp, timeStamp).toMillis();
-                    scoreboard.add("§f+" + ApiUtilities.formatAsTime(timeDiff) + " §b| §f" + rd.getTSPlayer().getName(), score--);
+                    if (timeDiff < 0) {
+                        scoreboard.add("§f +" + ApiUtilities.formatAsRacingGap(0) + " §8| §f" + rd.getTSPlayer().getName() + " §r§8(§f" + rd.getPits() + "§8)", score--);
+                    } else {
+                        scoreboard.add("§f +" + ApiUtilities.formatAsRacingGap(timeDiff) + " §8| §f" + rd.getTSPlayer().getName() + " §r§8(§f" + rd.getPits() + "§8)", score--);
+                    }
                 }
 
             } else {
-                scoreboard.add("§f        §4| §f" + rd.getTSPlayer().getName(), score--);
+                String text = "§8 Lap: §f" + rd.getLaps() + " §8| §f" + rd.getTSPlayer().getName() + " §8(§f" + rd.getPits() + "§8)";
+                String name = rd.getTSPlayer().getName();
+                if (text.length() > 47 ) {
+                    int textDelta  = text.length() - 47;
+                    name = name.substring(0, rd.getTSPlayer().getName().length() - textDelta - 1);
+
+                }
+                scoreboard.add("§8 Lap: §f" + rd.getLaps() + " §8| §f" + name + " §8(§f" + rd.getPits() + "§8)", score--);
+
             }
 
             count++;
@@ -51,7 +64,7 @@ public class RaceScoreboard {
 
     String getScoreboardName()
     {
-        int spacesCount = ((20 - track.getName().length()) / 2) - 1;
+        int spacesCount = ((20 - race.getTrack().getName().length()) / 2) - 1;
 
         StringBuilder spaces = new StringBuilder();
 
@@ -60,6 +73,6 @@ public class RaceScoreboard {
             spaces.append(" ");
         }
 
-        return spaces + track.getName() + spaces;
+        return spaces + "§7§l" +race.getTrack().getName() + spaces;
     }
 }
