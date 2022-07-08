@@ -64,6 +64,45 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
         return " (" + laps + "/" + totalLaps + ")";
     }
 
+    public long getBestLapTime(){
+        long bestTime = -1;
+        for(RaceLap lap : raceLaps)
+        {
+            if (bestTime == -1){
+                bestTime = lap.getLaptime();
+            }
+            if(lap.getLaptime() < bestTime && lap.getLaptime() > 0)
+            {
+                bestTime = lap.getLaptime();
+            }
+        }
+
+        return bestTime;
+    }
+
+    public long getAverageLapTime(){
+        if(raceLaps.size() > 1) {
+            long totalTime = 0;
+            int laps = 0;
+            for (RaceLap lap : raceLaps) {
+                if (lap.getLapEnd() != null) {
+                    totalTime += lap.getLaptime();
+                    laps++;
+                }
+            }
+            return totalTime / laps;
+        } else {
+            return -1;
+        }
+    }
+
+    public long getPreviousLapTime() {
+        if (raceLaps.size() > 1) {
+            return raceLaps.get(laps - 2).getLaptime();
+        }
+        return -1;
+    }
+
     public void reset() {
         isRunning = false;
         endTime = null;

@@ -65,6 +65,6 @@ public class RaceScoreboard {
             spaces.append(" ");
         }
 
-        return spaces + "§7§l" +race.getTrack().getName() + spaces;
+        return spaces + "§7§l" + race.getTrack().getName() + spaces;
     }
 }

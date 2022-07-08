@@ -41,7 +41,10 @@ public class RaceLap {
     }
 
     public long getLaptime(){
-
+        if(lapEnd == null || lapStart == null)
+        {
+            return -1;
+        }
         long lapTime = Duration.between(lapStart, lapEnd).toMillis();
         lapTime = Math.round(lapTime/50) * 50;
         return lapTime;

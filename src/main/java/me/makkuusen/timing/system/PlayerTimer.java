@@ -1,14 +1,26 @@
 package me.makkuusen.timing.system;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 
 public class PlayerTimer {
+    static boolean update = false;
+
 
     public static void initPlayerTimer()
     {
 
+
         Bukkit.getScheduler().scheduleSyncRepeatingTask(TimingSystem.getPlugin(), () -> {
+
+
 
             for (Player p : Bukkit.getOnlinePlayers())
             {
@@ -50,11 +62,89 @@ public class PlayerTimer {
                                 "%totalPits%", String.valueOf(race.getTotalPits())
                         );
                         ApiUtilities.sendActionBar(message, rd.getPlayer());
+
+                        Player player = rd.getPlayer();
+
+                        try {
+                            Instant now = TimingSystem.getPlugin().currentTime;
+                            var sectorTime = Duration.between(rd.getCurrentLap().getPassedCheckpointTime(rd.getLatestCheckpoint()), now).toMillis();
+                            setItemName(player, 1, "§aSS " + ApiUtilities.formatAsTime(sectorTime) + " SS");
+                        } catch (Exception e){}
+
+                        try {
+                            Instant now = TimingSystem.getPlugin().currentTime;
+                            var lapTime = Duration.between(rd.getCurrentLap().getLapStart(), now).toMillis();
+                            setItemName(player, 2, "§aLL " + ApiUtilities.formatAsTime(lapTime) + " LL");
+                        } catch (Exception e){}
+
+                        try {
+
+                            StringBuilder lapstring = new StringBuilder();
+
+
+                            lapstring.append("§5FLap: ");
+                            if (rd.getBestLapTime() != -1){
+                                lapstring.append(ApiUtilities.formatAsTime(rd.getBestLapTime()));
+                            } else {
+                                lapstring.append(ApiUtilities.formatAsTime(0));
+                            }
+
+                            lapstring.append(" §8| §eAvg:");
+                            if (update) {
+                                lapstring.append(" ");
+                            } else {
+                                lapstring.append("§o §r§e");
+                            }
+                            if (rd.getAverageLapTime() != -1) {
+                                lapstring.append(ApiUtilities.formatAsTime(rd.getAverageLapTime()));
+                            } else {
+                                lapstring.append(ApiUtilities.formatAsTime(0));
+                            }
+
+                            lapstring.append(" §8| §cPrev: ");
+
+
+                            if(rd.getPreviousLapTime() != -1) {
+                                lapstring.append(ApiUtilities.formatAsTime(rd.getPreviousLapTime()));
+                            } else {
+                                lapstring.append(ApiUtilities.formatAsTime(0));
+                            }
+
+                            if (update) {
+                                lapstring.append("§l ");
+                            } else {
+                                lapstring.append(" ");
+                            }
+
+                            update = !update;
+
+                            setItemName(player, 3, lapstring.toString());
+                        } catch (Exception e){}
                     }
                 }
             }
 
         }, 5, 5);
+    }
+
+    private static void setItemName(Player player, int slot, String name){
+        ItemStack item = player.getInventory().getItem(slot);
+        if (item != null) {
+            var meta = item.getItemMeta();
+            meta.setDisplayName(name);
+            item.setItemMeta(meta);
+        } else {
+            ItemStack newItem;
+            if (slot == 1) {
+                newItem = new ItemBuilder(Material.DIAMOND_SWORD).setName(name).build();
+            } else if (slot == 2) {
+                newItem = new ItemBuilder(Material.COOKIE).setName(name).build();
+            } else {
+                newItem = new ItemBuilder(Material.CLOCK).setName(name).build();
+            }
+            player.getInventory().setItem(slot, newItem);
+        }
+
     }
 
 }
