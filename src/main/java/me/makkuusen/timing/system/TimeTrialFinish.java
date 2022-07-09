@@ -11,7 +11,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish>
 
     private final int id;
     private final int trackId;
-    private final TSPlayer player;
+    private final TPlayer player;
     private final long date;
     private final long time;
     private final boolean isRemoved;
@@ -31,7 +31,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish>
         return id;
     }
 
-    public TSPlayer getPlayer()
+    public TPlayer getPlayer()
     {
         return player;
     }

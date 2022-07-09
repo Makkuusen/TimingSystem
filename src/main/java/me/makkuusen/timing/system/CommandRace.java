@@ -301,7 +301,7 @@ public class CommandRace implements CommandExecutor
         if (race == null) {
             plugin.sendMessage(player, "messages.error.missing.race");
         }
-        TSPlayer TSPlayer = ApiDatabase.getPlayer(player.getUniqueId());
+        TPlayer TPlayer = ApiDatabase.getPlayer(player.getUniqueId());
 
         player.sendMessage("");
         plugin.sendMessage(player, "messages.info.race.name", "%name%", track.getName());
@@ -518,16 +518,16 @@ public class CommandRace implements CommandExecutor
         }
 
 
-        TSPlayer TSPlayer = ApiDatabase.getPlayer(driverName);
-        if (TSPlayer == null)
+        TPlayer TPlayer = ApiDatabase.getPlayer(driverName);
+        if (TPlayer == null)
         {
             plugin.sendMessage(player, "messages.error.missing.player");
         }
         if (remove)
         {
-            if (race.hasRaceDriver(TSPlayer.getUniqueId()))
+            if (race.hasRaceDriver(TPlayer.getUniqueId()))
             {
-                race.removeRaceDriver(TSPlayer.getUniqueId());
+                race.removeRaceDriver(TPlayer.getUniqueId());
                 plugin.sendMessage(player, "messages.save.generic");
             }
             else
@@ -537,7 +537,7 @@ public class CommandRace implements CommandExecutor
         }
         else
         {
-            race.addRaceDriver(TSPlayer);
+            race.addRaceDriver(TPlayer);
             plugin.sendMessage(player,"messages.save.generic");
         }
     }

@@ -19,7 +19,7 @@ import java.sql.Statement;
 import java.util.Iterator;
 import java.util.UUID;
 
-public class TSPlayer implements Comparable<TSPlayer> {
+public class TPlayer implements Comparable<TPlayer> {
 	private TimingSystem plugin;
 
 	private Player player;
@@ -29,12 +29,12 @@ public class TSPlayer implements Comparable<TSPlayer> {
 
 
 	@Override
-	public int compareTo(TSPlayer other) {
+	public int compareTo(TPlayer other) {
 		return name.compareTo(other.name);
 	}
 
 	// From database
-	public TSPlayer(TimingSystem plugin, ResultSet data) throws SQLException {
+	public TPlayer(TimingSystem plugin, ResultSet data) throws SQLException {
 		this.plugin = plugin;
 
 		uuid = UUID.fromString(data.getString("uuid"));
@@ -121,7 +121,7 @@ public class TSPlayer implements Comparable<TSPlayer> {
 		// We're not bothering with checking the history if the last name change occurred less than 29 days ago
 		if ((long) (ApiUtilities.getTimestamp() - dateNameChange) < 2506000) { return; }
 
-		final TSPlayer TSPlayer = this;
+		final TPlayer TPlayer = this;
 
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable()
 		{
@@ -157,7 +157,7 @@ public class TSPlayer implements Comparable<TSPlayer> {
 						Long dateNameChangeRaw = (Long) nameChange.get("changedToAt");
 						dateNameChange = dateNameChangeRaw == null ? 0 : (dateNameChangeRaw / 1000);
 
-						if (dateNameChange > TSPlayer.dateNameChange)
+						if (dateNameChange > TPlayer.dateNameChange)
 						{
 							newChanges++;
 						}
@@ -169,17 +169,17 @@ public class TSPlayer implements Comparable<TSPlayer> {
 						return;
 					}
 
-					TSPlayer.dateNameChange = dateNameChange;
-					TSPlayer.dateNameCheck = ApiUtilities.getTimestamp();
+					TPlayer.dateNameChange = dateNameChange;
+					TPlayer.dateNameCheck = ApiUtilities.getTimestamp();
 
 					if (newChanges == 0)
 					{
-						ApiDatabase.asynchronousQuery(new String[] { "UPDATE `players` SET `dateNameCheck` = " + TSPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';" });
+						ApiDatabase.asynchronousQuery(new String[] { "UPDATE `players` SET `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';" });
 					}
 
 					else
 					{
-						ApiDatabase.asynchronousQuery(new String[] { "UPDATE `players` SET `dateNameChange` = " + TSPlayer.dateNameChange + ", `dateNameCheck` = " + TSPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';"});
+						ApiDatabase.asynchronousQuery(new String[] { "UPDATE `players` SET `dateNameChange` = " + TPlayer.dateNameChange + ", `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';"});
 
 						plugin.getLogger().info("Cached " + newChanges + " new name " + (newChanges == 1 ? "change" : "changes") + " for " + uuid + " (" + nameCurrent + ").");
 

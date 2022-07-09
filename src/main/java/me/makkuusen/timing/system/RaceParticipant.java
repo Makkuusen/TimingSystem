@@ -4,21 +4,21 @@ import org.bukkit.entity.Player;
 
 public abstract class RaceParticipant {
 
-    private TSPlayer tsPlayer;
+    private TPlayer tPlayer;
     protected Race race;
 
-    public RaceParticipant(TSPlayer tsPlayer, Race race){
-        this.tsPlayer = tsPlayer;
+    public RaceParticipant(TPlayer tPlayer, Race race){
+        this.tPlayer = tPlayer;
         this.race = race;
     }
 
-    public TSPlayer getTSPlayer() {
-        return tsPlayer;
+    public TPlayer getTSPlayer() {
+        return tPlayer;
     }
 
-    public Player getPlayer() { return tsPlayer.getPlayer();}
+    public Player getPlayer() { return tPlayer.getPlayer();}
 
-    public void setTSPlayer(TSPlayer tsPlayer) {
-        this.tsPlayer = tsPlayer;
+    public void setTSPlayer(TPlayer tPlayer) {
+        this.tPlayer = tPlayer;
     }
 }

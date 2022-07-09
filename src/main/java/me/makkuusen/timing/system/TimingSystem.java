@@ -25,7 +25,7 @@ public class TimingSystem extends JavaPlugin
     public static boolean enableLeaderboards = true;
     public Set<UUID> override = new HashSet<>();
     public Set<UUID> verbose = new HashSet<>();
-    public static Map<UUID, TSPlayer> players = new HashMap<UUID, TSPlayer>();
+    public static Map<UUID, TPlayer> players = new HashMap<UUID, TPlayer>();
     private LanguageManager languageManager;
     public Instant currentTime = Instant.now();
 

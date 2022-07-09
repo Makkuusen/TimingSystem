@@ -6,7 +6,6 @@ import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,10 +34,10 @@ public class Race {
         this.raceState = RaceState.SETUP;
         this.blockManager = new BlockManager(track);    }
 
-    public void addRaceDriver(TSPlayer TSPlayer)
+    public void addRaceDriver(TPlayer TPlayer)
     {
-        RaceDriver raceDriver = new RaceDriver(TSPlayer, this);
-        raceDrivers.put(TSPlayer.getUniqueId(), raceDriver);
+        RaceDriver raceDriver = new RaceDriver(TPlayer, this);
+        raceDrivers.put(TPlayer.getUniqueId(), raceDriver);
     }
 
     public void loadRace() {
@@ -80,12 +79,6 @@ public class Race {
                 raceParticipant.getPlayer().setScoreboard(board);
             }
         }
-
-    }
-
-    public long getCurrentTime()
-    {
-        return Duration.between(startTime, plugin.currentTime).toMillis();
     }
 
     public void resetRace()
@@ -123,7 +116,7 @@ public class Race {
             int pos = getPosition(raceDriver);
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER,1,1);
             Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§6-- §eP" + pos + " §6--\"}");
-            RaceAnnouncements.sendFinish(raceDriver, pos, raceDriver.getEndTime(startTime));
+            RaceAnnouncements.broadcastFinish(raceDriver, raceDriver.getFinishTime(startTime));
         }
         else
         {

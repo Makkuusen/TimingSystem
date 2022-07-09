@@ -195,8 +195,8 @@ public class CommandTrack implements CommandExecutor
                 return true;
             }
 
-            TSPlayer TSPlayer = ApiDatabase.getPlayer(arguments[1]);
-            if (TSPlayer == null)
+            TPlayer TPlayer = ApiDatabase.getPlayer(arguments[1]);
+            if (TPlayer == null)
             {
                 plugin.sendMessage(player,"messages.error.missing.player");
                 return true;
@@ -210,14 +210,14 @@ public class CommandTrack implements CommandExecutor
                 return true;
             }
             Track track = maybeTrack.get();
-            TimeTrialFinish bestFinish = track.getBestFinish(TSPlayer);
+            TimeTrialFinish bestFinish = track.getBestFinish(TPlayer);
             if (bestFinish == null)
             {
                 plugin.sendMessage(player,"messages.error.missing.bestTime");
                 return true;
             }
-            track.deleteBestFinish(TSPlayer, bestFinish);
-            plugin.sendMessage(player, "messages.remove.bestTime", "%player%", TSPlayer.getName(), "%map%", potentialMapName);
+            track.deleteBestFinish(TPlayer, bestFinish);
+            plugin.sendMessage(player, "messages.remove.bestTime", "%player%", TPlayer.getName(), "%map%", potentialMapName);
             LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
             return true;
         }
@@ -796,8 +796,8 @@ public class CommandTrack implements CommandExecutor
                 return;
             }
 
-            TSPlayer TSPlayer = ApiDatabase.getPlayer(arguments[2]);
-            if (TSPlayer == null)
+            TPlayer TPlayer = ApiDatabase.getPlayer(arguments[2]);
+            if (TPlayer == null)
             {
                 plugin.sendMessage(player,"messages.error.missing.player");
                 return;
@@ -810,7 +810,7 @@ public class CommandTrack implements CommandExecutor
                 plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
             }
-            maybeTrack.get().setOwner(TSPlayer);
+            maybeTrack.get().setOwner(TPlayer);
             plugin.sendMessage(player,"messages.save.generic");
         }
         else if (command.equalsIgnoreCase("checkpoint"))

@@ -2,7 +2,7 @@ package me.makkuusen.timing.system;
 
 public class RaceSpectator extends RaceParticipant{
 
-    public RaceSpectator(TSPlayer tsPlayer, Race race){
-        super(tsPlayer, race);
+    public RaceSpectator(TPlayer tPlayer, Race race){
+        super(tPlayer, race);
     }
 }

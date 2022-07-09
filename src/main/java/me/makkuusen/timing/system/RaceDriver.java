@@ -18,8 +18,8 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
     private boolean isRunning;
     private Instant endTime;
 
-    public RaceDriver(TSPlayer tsPlayer, Race race) {
-        super(tsPlayer, race);
+    public RaceDriver(TPlayer tPlayer, Race race) {
+        super(tPlayer, race);
         this.laps = 0;
         this.pits = 0;
         this.position = 0;
@@ -162,7 +162,7 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
         this.raceLaps = new ArrayList<>();
     }
 
-    public long getEndTime(Instant startTime){
+    public long getFinishTime(Instant startTime){
         return Duration.between(startTime, endTime).toMillis();
     }
 

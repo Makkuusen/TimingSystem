@@ -42,9 +42,9 @@ public class TSListener implements Listener
         if (event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED)
         {
 
-            TSPlayer TSPlayer = ApiDatabase.getPlayer(event.getUniqueId(), event.getName());
+            TPlayer TPlayer = ApiDatabase.getPlayer(event.getUniqueId(), event.getName());
 
-            if (TSPlayer == null)
+            if (TPlayer == null)
             {
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Din spelarprofil kunde inte laddas.");
                 return;
@@ -53,14 +53,14 @@ public class TSListener implements Listener
     }
     @EventHandler
     void onPlayerJoin(PlayerJoinEvent event) {
-        TSPlayer TSPlayer = ApiDatabase.getPlayer(event.getPlayer().getUniqueId());
+        TPlayer TPlayer = ApiDatabase.getPlayer(event.getPlayer().getUniqueId());
 
-        TSPlayer.setPlayer(event.getPlayer());
+        TPlayer.setPlayer(event.getPlayer());
 
-        if (!TSPlayer.getName().equals(event.getPlayer().getName())) {
+        if (!TPlayer.getName().equals(event.getPlayer().getName())) {
             // Update name
-            TSPlayer.setName(event.getPlayer().getName());
-            TSPlayer.updateNameChanges();
+            TPlayer.setName(event.getPlayer().getName());
+            TPlayer.updateNameChanges();
         }
     }
 
@@ -227,9 +227,9 @@ public class TSListener implements Listener
     public void onRegionEnterV2(PlayerMoveEvent e)
     {
         Player player = e.getPlayer();
-        TSPlayer TSPlayer = ApiDatabase.getPlayer(player.getUniqueId());
+        TPlayer TPlayer = ApiDatabase.getPlayer(player.getUniqueId());
 
-        var maybeRaceDriver = RaceController.getDriverFromActiveRace(TSPlayer);
+        var maybeRaceDriver = RaceController.getDriverFromActiveRace(TPlayer);
         if (maybeRaceDriver.isPresent()) {
             var race = maybeRaceDriver.get();
             handleRace(race, player);
@@ -275,7 +275,7 @@ public class TSListener implements Listener
                 Track track_ = maybeTrack.get();
 
                 if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
-                    TimeTrial timeTrial = new TimeTrial(track_, TSPlayer);
+                    TimeTrial timeTrial = new TimeTrial(track_, TPlayer);
                     timeTrial.playerStartingMap();
                 }
             }
@@ -286,9 +286,9 @@ public class TSListener implements Listener
     @EventHandler
     void onPlayerQuit(PlayerQuitEvent event)
     {
-        TSPlayer TSPlayer = ApiDatabase.getPlayer(event.getPlayer());
+        TPlayer TPlayer = ApiDatabase.getPlayer(event.getPlayer());
         // Set to offline
-        TSPlayer.setPlayer(null);
+        TPlayer.setPlayer(null);
     }
 
     void handleTimeTrials(Player player)

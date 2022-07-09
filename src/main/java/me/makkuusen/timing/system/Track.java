@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class Track
 {
     private final int id;
-    private TSPlayer owner;
+    private TPlayer owner;
     private String name;
     private final long dateCreated;
     private ItemStack guiItem;
@@ -42,7 +42,7 @@ public class Track
     private final Map<Integer, TrackRegion> checkpoints = new HashMap<>();
     private final Map<Integer, TrackRegion> resetRegions = new HashMap<>();
     private final Map<Integer, TrackRegion> gridRegions = new HashMap<>();
-    private final Map<TSPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
+    private final Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
 
     public enum TrackType
     {
@@ -120,22 +120,22 @@ public class Track
         if (toReturn == null){
             return null;
         }
-        TSPlayer TSPlayer = ApiDatabase.getPlayer(uuid);
+        TPlayer TPlayer = ApiDatabase.getPlayer(uuid);
 
         List<Component> loreToSet = new ArrayList<>();
 
         String bestTime;
 
-        if (getBestFinish(TSPlayer) == null)
+        if (getBestFinish(TPlayer) == null)
         {
             bestTime = "§7Your best time: §e(none)";
         }
         else
         {
-            bestTime = "§7Your best time: §e" + ApiUtilities.formatAsTime(getBestFinish(TSPlayer).getTime());
+            bestTime = "§7Your best time: §e" + ApiUtilities.formatAsTime(getBestFinish(TPlayer).getTime());
         }
 
-        loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(TSPlayer) == -1 ? "(none)" : getPlayerTopListPosition(TSPlayer))));
+        loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(TPlayer) == -1 ? "(none)" : getPlayerTopListPosition(TPlayer))));
         loreToSet.add(Component.text(bestTime));
         loreToSet.add(Component.text("§7Created by: §e" + getOwner().getName()));
         loreToSet.add(Component.text("§7Type: §e" + getTypeAsString()));
@@ -524,7 +524,7 @@ public class Track
         }
     }
 
-    public TimeTrialFinish getBestFinish(TSPlayer player)
+    public TimeTrialFinish getBestFinish(TPlayer player)
     {
         if (timeTrialFinishes.get(player) == null)
         {
@@ -539,7 +539,7 @@ public class Track
         return times.get(0);
     }
 
-    public void deleteBestFinish(TSPlayer player, TimeTrialFinish bestFinish)
+    public void deleteBestFinish(TPlayer player, TimeTrialFinish bestFinish)
     {
         try
         {
@@ -568,12 +568,12 @@ public class Track
         }
     }
 
-    public Integer getPlayerTopListPosition(TSPlayer TSPlayer)
+    public Integer getPlayerTopListPosition(TPlayer TPlayer)
     {
         var topList = getTopList(-1);
         for (int i = 0; i < topList.size(); i++)
         {
-            if (topList.get(i).getPlayer().equals(TSPlayer))
+            if (topList.get(i).getPlayer().equals(TPlayer))
             {
                 return ++i;
             }
@@ -585,7 +585,7 @@ public class Track
     {
 
         List<TimeTrialFinish> bestTimes = new ArrayList<>();
-        for (TSPlayer player : timeTrialFinishes.keySet())
+        for (TPlayer player : timeTrialFinishes.keySet())
         {
             TimeTrialFinish bestFinish = getBestFinish(player);
             if (bestFinish != null)
@@ -606,7 +606,7 @@ public class Track
     public List<TimeTrialFinish> getTopList()
     {
         List<TimeTrialFinish> bestTimes = new ArrayList<>();
-        for (TSPlayer player : timeTrialFinishes.keySet())
+        for (TPlayer player : timeTrialFinishes.keySet())
         {
             TimeTrialFinish bestFinish = getBestFinish(player);
             if (bestFinish != null)
@@ -761,12 +761,12 @@ public class Track
         ApiDatabase.asynchronousQuery(new String[]{"UPDATE `tracks` SET `type` = " + ApiDatabase.sqlString(type.toString()) + " WHERE `id` = " + id + ";"});
     }
 
-    public TSPlayer getOwner()
+    public TPlayer getOwner()
     {
         return owner;
     }
 
-    public void setOwner(TSPlayer owner)
+    public void setOwner(TPlayer owner)
     {
         this.owner = owner;
 
