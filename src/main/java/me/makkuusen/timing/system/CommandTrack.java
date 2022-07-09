@@ -136,6 +136,7 @@ public class CommandTrack implements CommandExecutor
             if (arguments.length < 3)
             {
                 player.sendMessage("§7Syntax /track toggle open §nname§r§7");
+                player.sendMessage("§7Syntax /track toggle government §nname§r§7");
                 return true;
             }
             cmdToggle(player, arguments);

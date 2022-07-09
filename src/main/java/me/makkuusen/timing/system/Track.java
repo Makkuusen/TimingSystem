@@ -608,14 +608,14 @@ public class Track
         player.teleport(spawnLocation);
     }
 
-    public void spawnBoat(Player player)
+    public void spawnBoat(Player player, Location location)
     {
         if (getType().equals(Track.TrackType.BOAT))
         {
-            boolean nearest = player.getLocation().distance(spawnLocation) < 5;
+            boolean nearest = player.getLocation().distance(location) < 5;
             if (nearest)
             {
-                Boat boat = spawnLocation.getWorld().spawn(spawnLocation, Boat.class);
+                Boat boat = location.getWorld().spawn(location, Boat.class);
                 boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
                 if (player.getName().equalsIgnoreCase("Renokas1"))
                 {

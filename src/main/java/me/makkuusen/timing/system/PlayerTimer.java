@@ -30,15 +30,15 @@ public class PlayerTimer {
                     long mapTime = timeTrial.getCurrentTime();
                     if (timeTrial.getBestFinish() == -1)
                     {
-                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
+                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(mapTime), p);
                     }
                     else if (mapTime < timeTrial.getBestFinish())
                     {
-                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
+                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(mapTime), p);
                     }
                     else
                     {
-                        ApiUtilities.sendActionBar("§c" + ApiUtilities.formatAsTime(mapTime) + timeTrial.getCheckpointsString(), p);
+                        ApiUtilities.sendActionBar("§c" + ApiUtilities.formatAsTime(mapTime), p);
                     }
                 }
                 else

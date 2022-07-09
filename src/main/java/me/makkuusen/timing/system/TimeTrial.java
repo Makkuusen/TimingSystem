@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
@@ -200,6 +201,7 @@ public class TimeTrial{
             {
                 var checkpoint = track.getCheckpoints().get(lastCheckpoint);
                 TSPlayer.getPlayer().teleport(checkpoint.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> track.spawnBoat(TSPlayer.getPlayer(), checkpoint.getSpawnLocation()), 1);
                 return;
             }
         }

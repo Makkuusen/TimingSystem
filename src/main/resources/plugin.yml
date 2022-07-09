@@ -4,7 +4,7 @@ version: ${project.version}
 authors: [Markus Hellquist (Makkuusen)]
 depend: [WorldEdit]
 softdepend: [HolographicDisplays]
-api-version: 1.18
+api-version: 1.17
 commands:
    track:
       description: Command for managing tracks.
@@ -17,7 +17,7 @@ permissions:
 
    race.command.cancel:
       description: Player can cancel runs
-      default: false
+      default: true
 
    race.command.list:
       description: Player can list tracks
@@ -31,9 +31,13 @@ permissions:
       description: Player can see all commands
       default: false
 
+   race.command.toggle:
+      description: Player can use toggle commands
+      default: false
+
    track.command.race:
       description: Player can open track menu
-      default: false
+      default: true
 
    track.command.help:
       description: Player can see all commands
@@ -44,8 +48,8 @@ permissions:
       default: false
 
    track.command.teleport:
-      description: Player can create track
-      default: false
+      description: Player can teleport to track via gui
+      default: true
 
    track.command.delete:
       description: Player can delete track

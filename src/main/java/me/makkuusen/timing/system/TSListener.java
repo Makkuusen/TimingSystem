@@ -80,7 +80,7 @@ public class TSListener implements Listener
             {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR)
                 {
-                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> Track.spawnBoat(event.getPlayer()), 1);
+                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> Track.spawnBoat(event.getPlayer(), Track.getSpawnLocation()), 1);
                 }
             }
         }
@@ -121,6 +121,7 @@ public class TSListener implements Listener
         {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> event.getVehicle().remove(), 10);
         }
+
 
         if (event.getExited() instanceof Player player)
         {
@@ -306,6 +307,13 @@ public class TSListener implements Listener
             timeTrial.playerEndedMap();
             return;
         }
+
+        // Check reset regions
+        for (TrackRegion r : track.getResetRegions().values()) {
+            if (r.contains(player.getLocation())) {
+                timeTrial.playerResetMap();
+            }
+        }
         // Check for next checkpoint in current map
         int nextCheckpoint = timeTrial.getNextCheckpoint();
         if (nextCheckpoint == timeTrial.getLatestCheckpoint())
@@ -316,13 +324,6 @@ public class TSListener implements Listener
         if (checkpoint.contains(player.getLocation()))
         {
             timeTrial.playerPassingCheckpoint(nextCheckpoint);
-        }
-
-        // Check reset regions
-        for (TrackRegion r : track.getResetRegions().values()) {
-            if (r.contains(player.getLocation())) {
-                timeTrial.playerResetMap();
-            }
         }
     }
 
@@ -350,7 +351,10 @@ public class TSListener implements Listener
                 if (!raceDriver.hasPassedAllCheckpoints())
                 {
                     int checkpoint = raceDriver.getLatestCheckpoint();
-                    player.teleport(race.getTrack().getCheckpoints().get(checkpoint).getSpawnLocation());
+                    if(race.getTrack().hasOption('c')) {
+                        player.teleport(race.getTrack().getCheckpoints().get(checkpoint).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> track.spawnBoat(player, race.getTrack().getCheckpoints().get(checkpoint).getSpawnLocation()), 1);
+                    }
                     plugin.sendMessage(raceDriver.getTSPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
                     return;
                 }
