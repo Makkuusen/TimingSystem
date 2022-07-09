@@ -7,6 +7,7 @@ public class TimingSystemConfiguration
     private final int leaderboardsUpdateTick;
     private final List<String> leaderboardsFastestTimeLines;
     private boolean lasersItems;
+    private int timesPageSize;
 
     TimingSystemConfiguration(TimingSystem plugin)
     {
@@ -15,6 +16,7 @@ public class TimingSystemConfiguration
         this.leaderboardsUpdateTick = plugin.getConfig().getInt("leaderboards.updateticks");
         this.leaderboardsFastestTimeLines = plugin.getConfig().getStringList("leaderboards.fastesttime.lines");
         this.lasersItems = plugin.getConfig().getBoolean("race.lasersItems");
+        this.timesPageSize = plugin.getConfig().getInt("tracks.timesPageSize");
     }
 
     public int leaderboardsUpdateTick()
@@ -27,5 +29,8 @@ public class TimingSystemConfiguration
     }
     public boolean isLasersItems() {
         return lasersItems;
+    }
+    public int getTimesPageSize() {
+        return timesPageSize;
     }
 }

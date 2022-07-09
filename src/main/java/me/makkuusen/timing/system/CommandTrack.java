@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CommandTrack implements CommandExecutor
 {
@@ -242,6 +243,23 @@ public class CommandTrack implements CommandExecutor
             return true;
         }
 
+        else if (arguments[0].equalsIgnoreCase("times"))
+        {
+            if (!player.isOp() && !player.hasPermission("track.command.times"))
+            {
+                plugin.sendMessage(player, "messages.error.permissionDenied");
+                return true;
+            }
+
+            if (arguments.length < 2)
+            {
+                sender.sendMessage("§7Syntax: /track times §7[§npage§7]§r§7 §nname§r§7");
+                return true;
+            }
+            cmdTimes(player, arguments);
+            return true;
+        }
+
         String name = ApiUtilities.concat(arguments, 0);
         var maybeTrack = TrackDatabase.getTrack(name);
         if (maybeTrack.isEmpty())
@@ -271,6 +289,11 @@ public class CommandTrack implements CommandExecutor
     {
         player.sendMessage("");
         plugin.sendMessage(player, "messages.help", "%command%" , "track");
+
+        if (player.isOp() || player.hasPermission("track.command.race"))
+        {
+            player.sendMessage("§2/track");
+        }
 
         if (player.isOp() || player.hasPermission("track.command.teleport"))
         {
@@ -321,6 +344,11 @@ public class CommandTrack implements CommandExecutor
         {
             player.sendMessage("§2/track toggle open §aname");
             player.sendMessage("§2/track toggle government §aname");
+        }
+        if (player.isOp() || player.hasPermission("track.command.times"))
+        {
+            player.sendMessage("§2/track times §aname");
+            player.sendMessage("§2/track times [§apage§2] §aname");
         }
         if (player.isOp() || player.hasPermission("track.command.options"))
         {
@@ -562,6 +590,61 @@ public class CommandTrack implements CommandExecutor
             plugin.sendMessage(player, "messages.options.list", "%options%", ApiUtilities.formatPermissions(newOptions.toCharArray()));
         }
         track.setOptions(newOptions);
+    }
+
+    static void cmdTimes(Player player, String[] arguments){
+
+        int pageStart;
+
+        String pageStartRaw = arguments[1];
+
+        Optional<Track> maybeTrack;
+        try
+        {
+            pageStart = Integer.parseInt(pageStartRaw);
+            String name = ApiUtilities.concat(arguments, 2);
+            maybeTrack = TrackDatabase.getTrack(name);
+            if (maybeTrack.isEmpty()){
+                plugin.sendMessage(player,"messages.error.missing.track.name");
+                return;
+            }
+        } catch (Exception exception)
+        {
+            pageStart = 1;
+            String name = ApiUtilities.concat(arguments, 1);
+            maybeTrack = TrackDatabase.getTrack(name);
+            if (maybeTrack.isEmpty())
+            {
+                plugin.sendMessage(player,"messages.error.missing.track.name");
+                return;
+            }
+        }
+
+        var track = maybeTrack.get();
+
+        int itemsPerPage = TimingSystem.configuration.getTimesPageSize();
+        int start = (pageStart * itemsPerPage) - itemsPerPage;
+        int stop = pageStart * itemsPerPage;
+
+        if (start >= track.getTopList().size())
+        {
+            plugin.sendMessage(player, "messages.error.missing.page");
+            return;
+        }
+
+        plugin.sendMessage(player, "messages.list.times", "%track%", track.getName(), "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) track.getTopList().size()) / ((double) itemsPerPage))));
+
+        for (int i = start; i < stop; i++)
+        {
+            if (i == track.getTopList().size())
+            {
+                break;
+            }
+
+            TimeTrialFinish finish = track.getTopList().get(i);
+            plugin.sendMessage(player, "messages.list.timesrow", "%pos%" , String.valueOf(i+1), "%player%", finish.getPlayer().getName(), "%time%", ApiUtilities.formatAsTime(finish.getTime()));
+        }
+
     }
 
     static void cmdSet(Player player, String[] arguments)

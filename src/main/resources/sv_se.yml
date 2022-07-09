@@ -71,6 +71,8 @@ messages:
       drivers: '&2Förare:&a %drivers%'
   list:
     tracks: '&2--- &aBanor (sida &l%startPage% &r&aav &l%totalPages%&r&a) &2---'
+    times: '&2--- &a%track% (page &l%startPage% &r&aof &l%totalPages%&r&a) &2---'
+    timesrow: '&2%pos%. &a%player% &2| &a%time%'
   toggle:
     track:
       open: '&aBanan är nu öppen.'

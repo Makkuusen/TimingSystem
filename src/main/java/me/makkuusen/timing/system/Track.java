@@ -603,6 +603,22 @@ public class Track
         return bestTimes.stream().limit(limit).collect(Collectors.toList());
     }
 
+    public List<TimeTrialFinish> getTopList()
+    {
+        List<TimeTrialFinish> bestTimes = new ArrayList<>();
+        for (TSPlayer player : timeTrialFinishes.keySet())
+        {
+            TimeTrialFinish bestFinish = getBestFinish(player);
+            if (bestFinish != null)
+            {
+                bestTimes.add(bestFinish);
+            }
+        }
+        bestTimes.sort(new TimeTrialFinishComparator());
+
+        return bestTimes;
+    }
+
     public void teleportPlayer(Player player)
     {
         player.teleport(spawnLocation);

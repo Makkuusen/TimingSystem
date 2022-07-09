@@ -71,6 +71,8 @@ messages:
       drivers: '&2Drivers:&a %drivers%'
   list:
     tracks: '&2--- &aTracks (page &l%startPage% &r&aof &l%totalPages%&r&a) &2---'
+    times: '&2--- &a%track% &2(page &a&l%startPage% &r&2of &a&l%totalPages%&r&a&2) ---'
+    timesrow: '&2%pos%. &a%player% &2| &a%time%'
   toggle:
     track:
       open: '&aTrack is now open.'
