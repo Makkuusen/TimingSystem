@@ -13,6 +13,8 @@ leaderboards:
          - '§f{name8} §7- §e{time8}'
          - '§f{name9} §7- §e{time9}'
          - '§f{name10} §7- §e{time10}'
+race:
+   lasersitems: false
 sql:
    host: '127.0.0.1'
    port: 3306

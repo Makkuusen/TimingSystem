@@ -63,63 +63,66 @@ public class PlayerTimer {
                         );
                         ApiUtilities.sendActionBar(message, rd.getPlayer());
 
-                        Player player = rd.getPlayer();
+                        if (TimingSystem.configuration.isLasersItems()){
 
-                        try {
-                            Instant now = TimingSystem.getPlugin().currentTime;
-                            var sectorTime = Duration.between(rd.getCurrentLap().getPassedCheckpointTime(rd.getLatestCheckpoint()), now).toMillis();
-                            setItemName(player, 1, "§aSS " + ApiUtilities.formatAsTime(sectorTime) + " SS");
-                        } catch (Exception e){}
+                            Player player = rd.getPlayer();
 
-                        try {
-                            Instant now = TimingSystem.getPlugin().currentTime;
-                            var lapTime = Duration.between(rd.getCurrentLap().getLapStart(), now).toMillis();
-                            setItemName(player, 2, "§aLL " + ApiUtilities.formatAsTime(lapTime) + " LL");
-                        } catch (Exception e){}
+                            try {
+                                Instant now = TimingSystem.getPlugin().currentTime;
+                                var sectorTime = Duration.between(rd.getCurrentLap().getPassedCheckpointTime(rd.getLatestCheckpoint()), now).toMillis();
+                                setItemName(player, 1, "§aSS " + ApiUtilities.formatAsTime(sectorTime) + " SS");
+                            } catch (Exception e){}
 
-                        try {
+                            try {
+                                Instant now = TimingSystem.getPlugin().currentTime;
+                                var lapTime = Duration.between(rd.getCurrentLap().getLapStart(), now).toMillis();
+                                setItemName(player, 2, "§aLL " + ApiUtilities.formatAsTime(lapTime) + " LL");
+                            } catch (Exception e){}
 
-                            StringBuilder lapstring = new StringBuilder();
+                            try {
 
-
-                            lapstring.append("§5FLap: ");
-                            if (rd.getBestLapTime() != -1){
-                                lapstring.append(ApiUtilities.formatAsTime(rd.getBestLapTime()));
-                            } else {
-                                lapstring.append(ApiUtilities.formatAsTime(0));
-                            }
-
-                            lapstring.append(" §8| §eAvg:");
-                            if (update) {
-                                lapstring.append(" ");
-                            } else {
-                                lapstring.append("§o §r§e");
-                            }
-                            if (rd.getAverageLapTime() != -1) {
-                                lapstring.append(ApiUtilities.formatAsTime(rd.getAverageLapTime()));
-                            } else {
-                                lapstring.append(ApiUtilities.formatAsTime(0));
-                            }
-
-                            lapstring.append(" §8| §cPrev: ");
+                                StringBuilder lapstring = new StringBuilder();
 
 
-                            if(rd.getPreviousLapTime() != -1) {
-                                lapstring.append(ApiUtilities.formatAsTime(rd.getPreviousLapTime()));
-                            } else {
-                                lapstring.append(ApiUtilities.formatAsTime(0));
-                            }
+                                lapstring.append("§5FLap: ");
+                                if (rd.getBestLapTime() != -1){
+                                    lapstring.append(ApiUtilities.formatAsTime(rd.getBestLapTime()));
+                                } else {
+                                    lapstring.append(ApiUtilities.formatAsTime(0));
+                                }
 
-                            if (update) {
-                                lapstring.append("§l ");
-                            } else {
-                                lapstring.append(" ");
-                            }
+                                lapstring.append(" §8| §eAvg:");
+                                if (update) {
+                                    lapstring.append(" ");
+                                } else {
+                                    lapstring.append("§o §r§e");
+                                }
+                                if (rd.getAverageLapTime() != -1) {
+                                    lapstring.append(ApiUtilities.formatAsTime(rd.getAverageLapTime()));
+                                } else {
+                                    lapstring.append(ApiUtilities.formatAsTime(0));
+                                }
 
-                            update = !update;
+                                lapstring.append(" §8| §cPrev: ");
 
-                            setItemName(player, 3, lapstring.toString());
-                        } catch (Exception e){}
+
+                                if(rd.getPreviousLapTime() != -1) {
+                                    lapstring.append(ApiUtilities.formatAsTime(rd.getPreviousLapTime()));
+                                } else {
+                                    lapstring.append(ApiUtilities.formatAsTime(0));
+                                }
+
+                                if (update) {
+                                    lapstring.append("§l ");
+                                } else {
+                                    lapstring.append(" ");
+                                }
+
+                                update = !update;
+
+                                setItemName(player, 3, lapstring.toString());
+                            } catch (Exception e){}
+                        }
                     }
                 }
             }
