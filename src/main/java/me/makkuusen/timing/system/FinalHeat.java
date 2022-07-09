@@ -4,38 +4,40 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
 @Setter
-public class Final extends Heat {
+public class FinalHeat extends Heat {
 
     public static TimingSystem plugin;
 
     private int totalLaps;
     private int totalPits;
-    private RaceState raceState;
     private RaceScoreboard raceScoreboard;
     private List<RaceDriver> livePositioning = new ArrayList<>();
 
-    public Final(Track track, int totalLaps, int totalPits){
-        super(track);
+    public FinalHeat(TimingSystem plugin, Track track, int totalLaps, int totalPits){
+        super(plugin, track);
         this.totalLaps = totalLaps;
         this.totalPits = totalPits;
     }
 
+    @Override
     public boolean startHeat() {
-        if (raceState != RaceState.LOADED) {
+        if (getHeatState() != HeatState.LOADED) {
              return false;
         }
-        raceState = RaceState.RACING;
+        setHeatState(HeatState.RACING);
         setStartTime(plugin.currentTime);
         EventAnnouncements.sendStartSound(this);
         return true;
     }
 
+    @Override
     public boolean passLap(Driver driver){
-        if (raceState != RaceState.RACING) {
+        if (getHeatState() != HeatState.RACING) {
             return false;
         }
         if (!(driver instanceof FinalDriver))
@@ -43,7 +45,7 @@ public class Final extends Heat {
             return false;
         }
         FinalDriver fDriver = (FinalDriver) driver;
-        if (totalLaps <= fDriver.getLaps() && totalPits <= fDriver.getPits())
+        if (totalLaps <= fDriver.getLaps().size() && totalPits <= fDriver.getPits())
         {
             finishDriver(fDriver);
             return true;
@@ -53,18 +55,29 @@ public class Final extends Heat {
     }
 
     private void finishDriver(FinalDriver driver) {
-        driver.setFinished();
+        driver.finish();
         EventAnnouncements.sendFinishSound(driver);
         EventAnnouncements.sendFinishTitle(driver);
         EventAnnouncements.broadcastFinish(this, driver, driver.getFinishTime());
     }
 
+    @Override
     public boolean finishHeat() {
-        if (raceState != RaceState.RACING) {
+        if (getHeatState() != HeatState.RACING) {
             return false;
         }
-        raceState = RaceState.FINISHED;
+        setHeatState(HeatState.FINISHED);
         setEndTime(plugin.currentTime);
         return true;
+    }
+
+    @Override
+    public void updatePositions() {
+        Collections.sort(getPositions());
+        int pos = 1;
+        for (Driver rd : getPositions())
+        {
+            rd.setPosition(pos++);
+        }
     }
 }

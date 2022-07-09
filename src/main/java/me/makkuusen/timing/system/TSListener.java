@@ -333,7 +333,7 @@ public class TSListener implements Listener
             return;
         }
 
-        if(!race.getRaceState().equals(RaceState.RACING)){
+        if(!race.getRaceState().equals(HeatState.RACING)){
             return;
         }
         var raceDriver = race.getRaceDriver(player.getUniqueId());

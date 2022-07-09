@@ -27,7 +27,7 @@ public class TimingSystem extends JavaPlugin
     public Set<UUID> verbose = new HashSet<>();
     public static Map<UUID, TPlayer> players = new HashMap<UUID, TPlayer>();
     private LanguageManager languageManager;
-    public Instant currentTime = Instant.now();
+    public static Instant currentTime = Instant.now();
 
     public void onEnable()
     {

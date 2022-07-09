@@ -261,4 +261,9 @@ public class ApiUtilities {
         }
         return toReturn;
     }
+
+    public static long roundToTick(long timeInMillis)
+    {
+        return Math.round(timeInMillis/50) * 50;
+    }
 }

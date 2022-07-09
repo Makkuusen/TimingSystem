@@ -1,5 +1,5 @@
 package me.makkuusen.timing.system;
 
-public enum RaceState {
+public enum HeatState {
     SETUP, LOADED, STARTING, RACING, FINISHED
 }

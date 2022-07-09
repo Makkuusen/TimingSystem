@@ -2,13 +2,11 @@ package me.makkuusen.timing.system;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 public class PlayerTimer {
     static boolean update = false;
@@ -44,7 +42,7 @@ public class PlayerTimer {
                 else
                 {
                     for (Race race : RaceController.races.values()) {
-                        if (!race.getRaceState().equals(RaceState.RACING)) { continue; }
+                        if (!race.getRaceState().equals(HeatState.RACING)) { continue; }
 
                         if (!race.hasRaceDriver(p.getUniqueId())) { continue; }
 

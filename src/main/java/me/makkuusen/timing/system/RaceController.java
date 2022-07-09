@@ -13,7 +13,7 @@ public class RaceController {
     {
         for (Race race : races.values()) {
 
-            if(!race.getRaceState().equals(RaceState.RACING))
+            if(!race.getRaceState().equals(HeatState.RACING))
             {
                 continue;
             }

@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 public class EventAnnouncements {
 
-    private static void sendAnnouncement (Heat heat, String key, String... replacements) {
+    private static void broadcastAnnouncement(Heat heat, String key, String... replacements) {
 
         for (Participant p : heat.getParticipants())
         {
@@ -18,9 +18,22 @@ public class EventAnnouncements {
         }
     }
 
-    public static void broadcastFinish (Heat heat, Driver driver, long time)
+    public static void broadcastFinish(Heat heat, Driver driver, long time)
     {
-        sendAnnouncement(heat, "messages.announcements.finish", "%player%", driver.getTPlayer().getName(), "%position%", String.valueOf(driver.getPosition()), "%time%", ApiUtilities.formatAsTime(time));
+        broadcastAnnouncement(heat, "messages.announcements.finish", "%player%", driver.getTPlayer().getName(), "%position%", String.valueOf(driver.getPosition()), "%time%", ApiUtilities.formatAsTime(time));
+    }
+
+    public static void broadcastPit(Heat heat, Driver driver, int pit)
+    {
+        broadcastAnnouncement(heat, "messages.announcements.pitstop", "%player%", driver.getTPlayer().getName(), "%pit%", String.valueOf(pit));
+    }
+
+    public static void sendLapTime(Driver driver, long time)
+    {
+        if(driver.getTPlayer().getPlayer() == null){
+            return;
+        }
+        TimingSystem.getPlugin().sendMessage(driver.getTPlayer().getPlayer(), "messages.announcements.lap", "%time%", ApiUtilities.formatAsTime(time));
     }
 
     public static void sendStartSound(Heat heat) {

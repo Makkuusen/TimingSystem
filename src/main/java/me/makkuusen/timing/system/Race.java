@@ -19,7 +19,7 @@ public class Race {
     private int totalLaps;
     private int totalPits;
     private Instant startTime;
-    private RaceState raceState;
+    private HeatState heatState;
     Track track;
     BlockManager blockManager;
     RaceScoreboard raceScoreboard;
@@ -31,7 +31,7 @@ public class Race {
         this.totalLaps = totalLaps;
         this.totalPits = totalPits;
         this.track = track;
-        this.raceState = RaceState.SETUP;
+        this.heatState = HeatState.SETUP;
         this.blockManager = new BlockManager(track);    }
 
     public void addRaceDriver(TPlayer TPlayer)
@@ -41,7 +41,7 @@ public class Race {
     }
 
     public void loadRace() {
-        if (raceState.equals(RaceState.SETUP)) {
+        if (heatState.equals(HeatState.SETUP)) {
             livePositioning = new ArrayList<>();
             livePositioning.addAll(raceDrivers.values());
             blockManager.setStartingGridBarriers();
@@ -50,7 +50,7 @@ public class Race {
     }
 
     public void startRace() {
-        raceState = RaceState.RACING;
+        heatState = HeatState.RACING;
         startTime = plugin.currentTime;
         blockManager.clearStartingGridBarriers();
         for (RaceDriver rd : raceDrivers.values())
@@ -87,7 +87,7 @@ public class Race {
         {
             rd.reset();
         }
-        raceState = RaceState.SETUP;
+        heatState = HeatState.SETUP;
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
@@ -152,8 +152,8 @@ public class Race {
         return String.join(", ", names);
     }
 
-    public RaceState getRaceState() {
-        return raceState;
+    public HeatState getRaceState() {
+        return heatState;
     }
 
     public HashMap<UUID, RaceDriver> getRaceDrivers() {

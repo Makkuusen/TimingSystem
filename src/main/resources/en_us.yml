@@ -95,5 +95,6 @@ messages:
   announcements:
     pitstop: '&f%player% &7completed pitstop: &f&l%pit%'
     finish: '&f%player% &7finished &f&l P%position%&r&7 in &f%time%'
+    lap: '&fYou finished lap in: &f%time%'
   actionbar:
     race: '&8Lap: &f&l%laps%/%totalLaps%&r&8 |&f&l P%pos%&r&8 |&f&l %pits%/%totalPits%&r&8 Pits'

@@ -61,7 +61,7 @@ public class RaceLap {
 
     public int getNextCheckpoint()
     {
-        if(track.getCheckpoints().size() >= checkpoints.size())
+        if (track.getCheckpoints().size() >= checkpoints.size())
         {
             return checkpoints.size() + 1;
         }
