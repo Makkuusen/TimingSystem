@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.makkuusen.timing.system</groupId>
     <artifactId>TimingSystem</artifactId>
-    <version>1.18</version>
+    <version>1.0-beta.2</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,6 +18,8 @@
                 <includes>
                     <include>config.yml</include>
                     <include>plugin.yml</include>
+                    <include>en_us.yml</include>
+                    <include>sv_se.yml</include>
                 </includes>
             </resource>
         </resources>
