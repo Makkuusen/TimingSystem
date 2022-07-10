@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -43,7 +44,7 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public void passLap(){
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
-        EventAnnouncements.sendLapTime(this, getCurrentLap().getLaptime());
+        EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
         newLap();
     }
 
@@ -67,8 +68,21 @@ public class Driver extends Participant implements Comparable<Driver> {
         return laps.get(laps.size()-1);
     }
 
+    public Optional<Lap> getBestLap() {
+        if (getLaps().size() == 0){
+            return Optional.empty();
+        }
+        Lap bestLap = getLaps().get(0);
+        for (Lap lap : getLaps()) {
+            if (lap.getLapTime() < bestLap.getLapTime()) {
+                bestLap = lap;
+            }
+        }
+        return Optional.of(bestLap);
+    }
+
     @Override
-    public int compareTo(@NotNull Driver driver) {
+    public int compareTo(@NotNull Driver o) {
         return 0;
     }
 }

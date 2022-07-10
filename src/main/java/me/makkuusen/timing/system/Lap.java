@@ -2,6 +2,7 @@ package me.makkuusen.timing.system;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 
 @Getter
 @Setter
-public class Lap {
+public class Lap implements Comparable<Lap>{
 
     private Driver driver;
     private Track track;
@@ -28,7 +29,7 @@ public class Lap {
 
     }
 
-    public long getLaptime() {
+    public long getLapTime() {
         if(lapEnd == null || lapStart == null)
         {
             return -1;
@@ -53,5 +54,27 @@ public class Lap {
     public void passNextCheckpoint(Instant timeStamp)
     {
         checkpoints.add(timeStamp);
+    }
+
+    public int getLatestCheckpoint(){
+        return checkpoints.size();
+    }
+
+    public Instant getCheckpointTime(int checkpoint) {
+        if (checkpoints.size() == 0 || checkpoint == 0) {
+            return lapStart;
+        }
+        return checkpoints.get(checkpoint - 1);
+    }
+
+    @Override
+    public int compareTo(@NotNull Lap lap) {
+        if (getLapTime() < lap.getLapTime()) {
+            return -1;
+        } else if (getLapTime() > lap.getLapTime()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

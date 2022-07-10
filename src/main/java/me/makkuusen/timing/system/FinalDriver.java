@@ -4,9 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
+
 @Getter
 @Setter
-public class FinalDriver extends Driver{
+public class FinalDriver extends Driver {
 
     private int pits;
 
@@ -28,7 +30,33 @@ public class FinalDriver extends Driver{
     }
 
     @Override
-    public int compareTo(@NotNull Driver driver) {
-        return 0;
+    public int compareTo(@NotNull Driver o) {
+        if (!(o instanceof FinalDriver)){
+            return 0;
+        }
+
+        if (isFinished() && !o.isFinished()) { return -1; }
+        else if (!isFinished() && o.isFinished()) { return 1; }
+        else if (isFinished() && o.isFinished()) { return getEndTime().compareTo(o.getEndTime()); }
+
+        if (getLaps().size() > o.getLaps().size()) { return -1; }
+        else if (getLaps().size() < o.getLaps().size()) { return 1; }
+
+        Lap lap = getCurrentLap();
+        Lap oLap = o.getCurrentLap();
+
+        if (lap.getLatestCheckpoint() > oLap.getLatestCheckpoint()) { return -1; }
+        else if (lap.getLatestCheckpoint() < oLap.getLatestCheckpoint()) { return 1;}
+
+        if (getLaps().size() == 0 && lap.getLatestCheckpoint() == 0){
+            return 0;
+        }
+        else if (lap.getLatestCheckpoint() == 0){
+            return lap.getLapStart().compareTo(oLap.getLapStart());
+        }
+
+        Instant last = lap.getCheckpointTime(lap.getLatestCheckpoint());
+        Instant oLast = oLap.getCheckpointTime(lap.getLatestCheckpoint());
+        return last.compareTo(oLast);
     }
 }
