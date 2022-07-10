@@ -15,6 +15,7 @@ public abstract class Heat {
 
     TimingSystem plugin;
     Track track;
+    private String name;
     private Instant startTime;
     private Instant endTime;
     private HeatState heatState;
@@ -23,7 +24,8 @@ public abstract class Heat {
     BlockManager blockManager;
     List<Driver> positions = new ArrayList<>();
 
-    public Heat(TimingSystem plugin, Track track){
+    public Heat(TimingSystem plugin, Track track, String name){
+        this.name = name;
         this.track = track;
         this.heatState = HeatState.SETUP;
         this.blockManager = new BlockManager(track);
@@ -36,6 +38,14 @@ public abstract class Heat {
     public abstract boolean finishHeat();
 
     public abstract void updatePositions();
+
+    public void addDrivers(List<Driver> listOfDrivers){
+        listOfDrivers.stream().forEach(driver -> drivers.put(driver.getTPlayer().getUniqueId(), driver));
+    }
+
+    public void addDriver(Driver driver) {
+        drivers.put(driver.getTPlayer().getUniqueId(), driver);
+    }
 
     public List<Participant> getParticipants(){
         List<Participant> rp = new ArrayList<>();

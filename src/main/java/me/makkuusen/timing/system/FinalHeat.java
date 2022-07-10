@@ -18,8 +18,8 @@ public class FinalHeat extends Heat {
     private RaceScoreboard raceScoreboard;
     private List<RaceDriver> livePositioning = new ArrayList<>();
 
-    public FinalHeat(TimingSystem plugin, Track track, int totalLaps, int totalPits){
-        super(plugin, track);
+    public FinalHeat(TimingSystem plugin, Track track, String name, int totalLaps, int totalPits){
+        super(plugin, track, name);
         this.totalLaps = totalLaps;
         this.totalPits = totalPits;
     }
