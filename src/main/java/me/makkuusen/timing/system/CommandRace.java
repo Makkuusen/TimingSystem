@@ -1,5 +1,11 @@
 package me.makkuusen.timing.system;
 
+import me.makkuusen.timing.system.gui.GUITrack;
+import me.makkuusen.timing.system.race.Race;
+import me.makkuusen.timing.system.race.RaceController;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
+import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

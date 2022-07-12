@@ -16,7 +16,7 @@ public class ApiDatabase {
     private static TimingSystem plugin;
     private static HikariDataSource dataSource;
 
-    static boolean initialize(TimingSystem plugin) {
+    public static boolean initialize(TimingSystem plugin) {
         ApiDatabase.plugin = plugin;
 
         HikariDataSource dataSource = new HikariDataSource();
@@ -30,7 +30,7 @@ public class ApiDatabase {
         return createTables();
 
     }
-    static boolean synchronize() {
+    public static boolean synchronize() {
         try {
             Connection connection = ApiDatabase.getConnection();
             Statement statement = connection.createStatement();

@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system;
 
-import com.sk89q.worldedit.regions.Region;
+import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;

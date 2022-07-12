@@ -1,6 +1,20 @@
 package me.makkuusen.timing.system;
 
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
+import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.heat.HeatState;
+import me.makkuusen.timing.system.heat.Lap;
+import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.participant.FinalDriver;
+import me.makkuusen.timing.system.race.Race;
+import me.makkuusen.timing.system.race.RaceController;
+import me.makkuusen.timing.system.race.RaceLap;
+import me.makkuusen.timing.system.timetrial.TimeTrial;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
+import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
+import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -74,7 +88,7 @@ public class TSListener implements Listener
     public void onPlayerTeleport(PlayerTeleportEvent event)
     {
 
-        for (Track Track : TrackDatabase.getTracks())
+        for (me.makkuusen.timing.system.track.Track Track : TrackDatabase.getTracks())
         {
             if (Track.getSpawnLocation().getWorld() == event.getTo().getWorld())
             {
@@ -227,9 +241,14 @@ public class TSListener implements Listener
     public void onRegionEnterV2(PlayerMoveEvent e)
     {
         Player player = e.getPlayer();
-        TPlayer TPlayer = ApiDatabase.getPlayer(player.getUniqueId());
+        TPlayer tPlayer = ApiDatabase.getPlayer(player.getUniqueId());
 
-        var maybeRaceDriver = RaceController.getDriverFromActiveRace(TPlayer);
+        var maybeDriver = EventDatabase.getDriverFromRunningHeat(tPlayer.getUniqueId());
+        if (maybeDriver.isPresent()) {
+            handleHeat(maybeDriver.get(), player);
+        }
+
+        var maybeRaceDriver = RaceController.getDriverFromActiveRace(tPlayer);
         if (maybeRaceDriver.isPresent()) {
             var race = maybeRaceDriver.get();
             handleRace(race, player);
@@ -275,7 +294,7 @@ public class TSListener implements Listener
                 Track track_ = maybeTrack.get();
 
                 if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
-                    TimeTrial timeTrial = new TimeTrial(track_, TPlayer);
+                    TimeTrial timeTrial = new TimeTrial(track_, tPlayer);
                     timeTrial.playerStartingMap();
                 }
             }
@@ -385,5 +404,69 @@ public class TSListener implements Listener
             }
         }
 
+    }
+
+    private void handleHeat(Driver driver, Player player) {
+        Heat heat = driver.getHeat();
+        var track = heat.getTrack();
+        if (track.getMode() != Track.TrackMode.RACE) {
+            return;
+        }
+
+        if(!heat.getHeatState().equals(HeatState.RACING)){
+            return;
+        }
+
+        if (driver.isFinished()) {
+            return;
+        }
+        if (track.getStartRegion().contains(player.getLocation()))
+        {
+            if (!driver.isRunning()) {
+                driver.start();
+                heat.updatePositions();
+                return;
+            }
+            else if (driver.getCurrentLap().getLatestCheckpoint() != 0) {
+
+                if (!driver.getCurrentLap().hasPassedAllCheckpoints())
+                {
+                    int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
+                    if (track.hasOption('c')) {
+                        player.teleport(track.getCheckpoints().get(checkpoint).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> track.spawnBoat(player, track.getCheckpoints().get(checkpoint).getSpawnLocation()), 1);
+                    }
+                    plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
+                    return;
+                }
+                heat.passLap(driver);
+                heat.updatePositions();
+                return;
+            }
+
+        }
+
+
+        if (driver.isRunning()) {
+            Lap lap = driver.getCurrentLap();
+
+            if (driver instanceof FinalDriver finalDriver) {
+                // Check for pitstop
+                if (track.getPitRegion().contains(player.getLocation())) {
+                    finalDriver.passPit();
+                }
+            }
+
+            // Check for next checkpoint in current map
+
+            if (lap.hasPassedAllCheckpoints()){
+                return;
+            }
+            var checkpoint = track.getCheckpoints().get(lap.getNextCheckpoint());
+            if (checkpoint.contains(player.getLocation())) {
+                lap.passNextCheckpoint(TimingSystem.currentTime);
+                heat.updatePositions();
+            }
+        }
     }
 }
