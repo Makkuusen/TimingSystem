@@ -240,65 +240,69 @@ public class TSListener implements Listener
     @EventHandler
     public void onRegionEnterV2(PlayerMoveEvent e)
     {
-        Player player = e.getPlayer();
-        TPlayer tPlayer = ApiDatabase.getPlayer(player.getUniqueId());
-
-        var maybeDriver = EventDatabase.getDriverFromRunningHeat(tPlayer.getUniqueId());
-        if (maybeDriver.isPresent()) {
-            handleHeat(maybeDriver.get(), player);
-        }
-
-        var maybeRaceDriver = RaceController.getDriverFromActiveRace(tPlayer);
-        if (maybeRaceDriver.isPresent()) {
-            var race = maybeRaceDriver.get();
-            handleRace(race, player);
-
-        }
-        if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
-            handleTimeTrials(player);
-            // don't need to check for starting new track
-            return;
-        }
-
-        // Check for starting new tracks
-        Iterator regions = TrackDatabase.getTrackStartRegions().iterator();
-        while (true)
+        if ((int) (e.getFrom().getX() - 0.5) != (int) e.getTo().getX() || (int) e.getFrom().getY() != (int) e.getTo().getY() || (int) (e.getFrom().getZ() - 0.5) != (int) e.getTo().getZ())
         {
-            Integer regionId;
-            TrackRegion region;
-            do
+            Player player = e.getPlayer();
+            TPlayer tPlayer = ApiDatabase.getPlayer(player.getUniqueId());
+
+            var maybeDriver = EventDatabase.getDriverFromRunningHeat(tPlayer.getUniqueId());
+            if (maybeDriver.isPresent()) {
+                handleHeat(maybeDriver.get(), player);
+                return;
+            }
+
+            var maybeRaceDriver = RaceController.getDriverFromActiveRace(tPlayer);
+            if (maybeRaceDriver.isPresent()) {
+                var race = maybeRaceDriver.get();
+                handleRace(race, player);
+                return;
+            }
+            if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
+                handleTimeTrials(player);
+                // don't need to check for starting new track
+                return;
+            }
+
+            // Check for starting new tracks
+            Iterator regions = TrackDatabase.getTrackStartRegions().iterator();
+            while (true)
             {
-                label:
+                Integer regionId;
+                TrackRegion region;
                 do
                 {
-                    while (regions.hasNext())
+                    label:
+                    do
                     {
-                        region = (TrackRegion) regions.next();
-                        regionId = region.getId();
-                        if (region.contains(player.getLocation()))
+                        while (regions.hasNext())
                         {
-                            continue label;
+                            region = (TrackRegion) regions.next();
+                            regionId = region.getId();
+                            if (region.contains(player.getLocation()))
+                            {
+                                continue label;
+                            }
+                            // Leaving Region
+                            PlayerRegionData.instanceOf(player).getEntered().remove(regionId);
                         }
-                        // Leaving Region
-                        PlayerRegionData.instanceOf(player).getEntered().remove(regionId);
+
+                        return;
+                    } while (!player.getWorld().getName().equals(region.getWorldName()));
+                } while (PlayerRegionData.instanceOf(player).getEntered().contains(regionId));
+
+                //Entering region
+                var maybeTrack = TrackDatabase.getTrackById(region.getTrackId());
+                if (maybeTrack.isPresent())
+                {
+                    Track track_ = maybeTrack.get();
+
+                    if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
+                        TimeTrial timeTrial = new TimeTrial(track_, tPlayer);
+                        timeTrial.playerStartingMap();
                     }
-
-                    return;
-                } while (!player.getWorld().getName().equals(region.getWorldName()));
-            } while (PlayerRegionData.instanceOf(player).getEntered().contains(regionId));
-
-            //Entering region
-            var maybeTrack = TrackDatabase.getTrackById(region.getTrackId());
-            if (maybeTrack.isPresent())
-            {
-                Track track_ = maybeTrack.get();
-
-                if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
-                    TimeTrial timeTrial = new TimeTrial(track_, tPlayer);
-                    timeTrial.playerStartingMap();
                 }
+                PlayerRegionData.instanceOf(player).getEntered().add(regionId);
             }
-            PlayerRegionData.instanceOf(player).getEntered().add(regionId);
         }
     }
 
@@ -408,7 +412,7 @@ public class TSListener implements Listener
 
     private void handleHeat(Driver driver, Player player) {
         Heat heat = driver.getHeat();
-        var track = heat.getTrack();
+        var track = heat.getEvent().getTrack();
         if (track.getMode() != Track.TrackMode.RACE) {
             return;
         }
@@ -425,6 +429,7 @@ public class TSListener implements Listener
             if (!driver.isRunning()) {
                 driver.start();
                 heat.updatePositions();
+                ApiUtilities.msgConsole("Starting :" + player.getName());
                 return;
             }
             else if (driver.getCurrentLap().getLatestCheckpoint() != 0) {

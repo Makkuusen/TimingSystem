@@ -9,22 +9,19 @@ import org.bukkit.scoreboard.Scoreboard;
 import java.time.Duration;
 import java.time.Instant;
 
-public class FinalScoreboard {
+public class FinalScoreboard extends GenericScoreboard{
 
-    FinalHeat finalHeat;
-
-    public FinalScoreboard(FinalHeat finalHeat) {
-        this.finalHeat = finalHeat;
+    public FinalScoreboard(FinalHeat heat) {
+       super(heat);
     }
 
-    public Scoreboard getScoreboard()
+    @Override
+    public Scoreboard getRacingScoreboard(SimpleScoreboard scoreboard)
     {
-        SimpleScoreboard scoreboard = new SimpleScoreboard(getScoreboardName());
 
-        int count = 0;
         int score = -1;
         FinalDriver previousDriver = null;
-        for (Driver driver : finalHeat.getPositions()){
+        for (Driver driver : getHeat().getLivePositions()){
             if(driver instanceof FinalDriver finalDriver) {
                 if (score == -9) {
                     break;
@@ -59,26 +56,10 @@ public class FinalScoreboard {
                     scoreboard.add("§8 Lap: §f" + driver.getLaps().size() + " §8| §f" + driver.getTPlayer().getName() + " §8(§f" + finalDriver.getPits() + "§8)", score--);
 
                 }
-                count++;
                 previousDriver = finalDriver;
             }
         }
         scoreboard.build();
-
         return scoreboard.getScoreboard();
-    }
-
-    String getScoreboardName()
-    {
-        int spacesCount = ((20 - finalHeat.getName().length()) / 2) - 1;
-
-        StringBuilder spaces = new StringBuilder();
-
-        for (int i = 0; i < spacesCount; i++)
-        {
-            spaces.append(" ");
-        }
-
-        return "§7§l" + finalHeat.getName() + " - " + finalHeat.getEvent().getDisplayName();
     }
 }

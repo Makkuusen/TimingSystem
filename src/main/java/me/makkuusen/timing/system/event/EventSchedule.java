@@ -61,8 +61,8 @@ public class EventSchedule {
         return heats;
     }
 
-    public Optional<Heat> getHeat(String name){
+    public Optional<Heat> getHeat(String heatName){
         var heats = getHeats();
-        return heats.stream().filter(heat -> heat.getName().equalsIgnoreCase(heat.getName())).findAny();
+        return heats.stream().filter(heat -> heatName.equalsIgnoreCase(heat.getName())).findFirst();
     }
 }

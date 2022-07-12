@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
@@ -43,14 +44,39 @@ public class CommandEvent extends BaseCommand {
             player.sendMessage("§aCreated event " + arguments[0]);
         }
     }
+    @Subcommand("select")
+    @CommandCompletion("@event")
+    public static void onSelectEvent(Player player, Event event){
+        EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
+        player.sendMessage("§aSelected new event");
+    }
 
     @Subcommand("quickstart")
     @CommandCompletion("@event")
     public static void onQuickSetup(Player player, Event event){
         List<TPlayer> tPlayers = new ArrayList<>();
-        Bukkit.getOnlinePlayers().stream().forEach(p -> tPlayers.add(TimingSystem.players.get(p.getUniqueId())));
+        Bukkit.getOnlinePlayers().stream().forEach(p -> {
+            tPlayers.add(TimingSystem.players.get(p.getUniqueId()));
+        });
         event.setTrack(TrackDatabase.getTrack("newbie").get());
         event.quickSetup(tPlayers, 60000, 3, 1);
+        event.setState(Event.EventState.QUALIFICATION);
         player.sendMessage("§aDid a quick setup for " + event.getId());
+    }
+
+    @Subcommand("finish qualy")
+    public static void onFinishQualy(Player player, @Optional Event event){
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                player.sendMessage("§cYou have no event selected");
+                return;
+            }
+        }
+        if (event.finishQualy()){
+            player.sendMessage("§a Qualification has been finished. Get ready for finals!");
+        }
     }
 }

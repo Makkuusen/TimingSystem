@@ -6,8 +6,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class QualyDriver extends Driver {
 
-    public QualyDriver(TPlayer tPlayer, Heat heat){
+    public QualyDriver(TPlayer tPlayer, Heat heat, int startPos){
         super(tPlayer, heat);
+        setStartPosition(startPos);
     }
 
     @Override

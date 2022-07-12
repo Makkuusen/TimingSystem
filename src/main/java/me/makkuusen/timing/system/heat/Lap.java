@@ -28,11 +28,7 @@ public class Lap implements Comparable<Lap>{
         this.track = track;
         this.lapStart = TimingSystem.currentTime;
     }
-
-    public void startLap() {
-
-    }
-
+    
     public long getLapTime() {
         if(lapEnd == null || lapStart == null)
         {

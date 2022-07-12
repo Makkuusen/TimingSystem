@@ -101,7 +101,7 @@ public class SimpleScoreboard {
     @SuppressWarnings("deprecation")
     public void build()
     {
-        Objective obj = scoreboard.registerNewObjective((title.length() > 16 ? title.substring(0, 15) : title), "dummy");
+        Objective obj = scoreboard.registerNewObjective((title), "dummy");
         obj.setDisplayName(title);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 

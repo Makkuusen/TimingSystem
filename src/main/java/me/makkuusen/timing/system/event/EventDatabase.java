@@ -104,7 +104,9 @@ public class EventDatabase {
                     .filter(heat -> heat.getDrivers().containsKey(uuid))
                     .findFirst();
 
+
             if (maybeHeat.isPresent()) {
+
                 var driver = maybeHeat.get().getDrivers().get(uuid);
                 return Optional.of(maybeHeat.get().getDrivers().get(uuid));
             }

@@ -17,8 +17,9 @@ public class FinalDriver extends Driver {
 
     private int pits;
 
-    public FinalDriver(TPlayer tPlayer, Heat heat){
+    public FinalDriver(TPlayer tPlayer, Heat heat, int startPosition){
         super(tPlayer, heat);
+        setStartPosition(startPosition);
     }
 
     public void passPit() {
@@ -56,13 +57,17 @@ public class FinalDriver extends Driver {
         if (getLaps().size() > o.getLaps().size()) { return -1; }
         else if (getLaps().size() < o.getLaps().size()) { return 1; }
 
+        if (getLaps().size() == 0){
+            return 0;
+        }
+
         Lap lap = getCurrentLap();
         Lap oLap = o.getCurrentLap();
 
         if (lap.getLatestCheckpoint() > oLap.getLatestCheckpoint()) { return -1; }
         else if (lap.getLatestCheckpoint() < oLap.getLatestCheckpoint()) { return 1;}
 
-        if (getLaps().size() == 0 && lap.getLatestCheckpoint() == 0){
+        if (lap.getLatestCheckpoint() == 0){
             return 0;
         }
         else if (lap.getLatestCheckpoint() == 0){

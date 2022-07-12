@@ -5,11 +5,12 @@ import lombok.Setter;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.heat.FinalHeat;
+import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.QualyHeat;
+import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.FinalDriver;
 import me.makkuusen.timing.system.participant.QualyDriver;
-import me.makkuusen.timing.system.race.RaceDriver;
-import me.makkuusen.timing.system.race.RaceSpectator;
+import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.track.Track;
 
 import java.util.ArrayList;
@@ -26,14 +27,15 @@ public class Event {
     private String id;
     private String displayName;
     private String date;
-    HashMap<UUID, RaceSpectator> raceSpectators = new HashMap<>();
-    HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();
+    HashMap<UUID, Spectator> spectators = new HashMap<>();
+    HashMap<UUID, Driver> drivers = new HashMap<>();
     private EventSchedule eventSchedule;
+    private EventResults eventResults = new EventResults();
     private EventState state = EventState.SETUP;
     Track track;
 
     public enum EventState {
-        SETUP, RUNNING, FINISHED
+        SETUP, PRACTICE, QUALIFICATION, FINAL, FINISHED
     }
 
     public Event(String name){
@@ -42,20 +44,66 @@ public class Event {
         this.eventSchedule = new EventSchedule();
     }
 
-    public boolean quickSetup(List<TPlayer> tDrivers,long qualyTime, int laps, int pitstops) {
+    public boolean finishPractice(){
+        if(state != EventState.SETUP && state != EventState.PRACTICE){
+            return false;
+        }
+
+        if (state == EventState.PRACTICE)
+        {
+            //calculate practice thingy.
+        }
+        state = EventState.QUALIFICATION;
+        return true;
+    }
+
+    public boolean finishQualy(){
+        if (state != EventState.QUALIFICATION) {
+            return false;
+        }
+        List<Driver> drivers = eventResults.generateFinalPositions();
+        // Ugly way to get finalheat
+        Heat finalHeat = eventSchedule.getFinalHeatList().get(0);
+        int startPos = 1;
+        for (Driver driver : drivers){
+            finalHeat.addDriver(new FinalDriver(driver.getTPlayer(), finalHeat, startPos++));
+        }
+        state = EventState.FINAL;
+        return true;
+    }
+
+    public boolean quickSetup(List<TPlayer> tDrivers, long qualyTime, int laps, int pitstops) {
         if (track == null) {
             return false;
         }
         String heatNameQ = "Qualy";
-        QualyHeat qualyHeat = new QualyHeat(this,track,heatNameQ, qualyTime);
+        QualyHeat qualyHeat = new QualyHeat(this, "Qualy1", qualyTime);
+        QualyHeat qualyHeat2 = new QualyHeat(this, "Qualy2", qualyTime);
         String heatName = "Final";
-        FinalHeat finalHeat = new FinalHeat(this, track, heatName, laps, pitstops);
-        for (TPlayer tPlayer : tDrivers) {
-            qualyHeat.addDriver(new QualyDriver(tPlayer, qualyHeat));
-            finalHeat.addDriver(new FinalDriver(tPlayer, finalHeat));
+        FinalHeat finalHeat = new FinalHeat(this, heatName, laps, pitstops);
+        int startPos = 1;
+        int startPos2 = 1;
+        for (int i = 0; i < tDrivers.size(); i++){
+            if (i%2 == 0) {
+                qualyHeat.addDriver(new QualyDriver(tDrivers.get(i), qualyHeat, startPos++));
+            } else {
+                qualyHeat2.addDriver(new QualyDriver(tDrivers.get(i), qualyHeat2, startPos2++));
+            }
+            spectators.put(tDrivers.get(i).getUniqueId(), new Spectator(tDrivers.get(i)));
         }
-        eventSchedule.createQuickSchedule(List.of(qualyHeat),List.of(finalHeat));
+        eventSchedule.createQuickSchedule(List.of(qualyHeat, qualyHeat2),List.of(finalHeat));
         return true;
+    }
+
+    public List<Spectator> getSpectators(){
+        return spectators.values().stream().toList();
+    }
+
+    public void addSpectator(List<TPlayer> tPlayers){
+        for(TPlayer tPlayer : tPlayers) {
+            spectators.put(tPlayer.getUniqueId(), new Spectator(tPlayer));
+        }
+
     }
 
     public List<String> getHeatList() {

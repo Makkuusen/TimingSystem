@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.participant;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.EventAnnouncements;
@@ -23,9 +24,10 @@ public class Driver extends Participant implements Comparable<Driver> {
     private Heat heat;
     private boolean finished = false;
     private int position = 0;
+    private int startPosition = -1;
     private Instant startTime;
     private Instant endTime;
-    private boolean isRunning;
+    private boolean isRunning = false;
     private List<Lap> laps = new ArrayList<>();
 
     public Driver(TPlayer tPlayer, Heat heat){
@@ -35,6 +37,7 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public void finish(){
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
+        EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
         endTime = TimingSystem.currentTime;
         isRunning = false;
         finished = true;
@@ -52,6 +55,7 @@ public class Driver extends Participant implements Comparable<Driver> {
     public void passLap(){
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
         EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
+        ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLapTime()));
         newLap();
     }
 
@@ -64,7 +68,7 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     private void newLap(){
-        laps.add(new Lap(this, heat.getTrack()));
+        laps.add(new Lap(this, heat.getEvent().getTrack()));
     }
 
     public long getFinishTime(){

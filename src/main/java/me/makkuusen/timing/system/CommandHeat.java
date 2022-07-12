@@ -9,6 +9,7 @@ import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.participant.Driver;
 import org.bukkit.entity.Player;
 
 @CommandAlias("heat")
@@ -30,6 +31,14 @@ public class CommandHeat extends BaseCommand {
         messages.forEach(message -> player.sendMessage(message));
         return;
     }
+    @Subcommand("info")
+    @CommandCompletion("@heat")
+    public static void onHeatInfo(Player player, Heat heat){
+        player.sendMessage("Heatstate: " + heat.getHeatState().name());
+        Driver driver = heat.getDrivers().get(player.getUniqueId());
+        player.sendMessage("Driver running: " +  driver.isRunning());
+        player.sendMessage("Driver finished: " +  driver.isFinished());
+    }
 
     @Subcommand("start")
     @CommandCompletion("@heat")
@@ -39,6 +48,25 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         player.sendMessage("§cCouldn't start " + heat.getName());
+    }
+
+    @Subcommand("finish")
+    @CommandCompletion("@heat")
+    public static void onHeatFinish(Player player, Heat heat){
+        if (heat.finishHeat()) {
+            player.sendMessage("§aFinished " + heat.getName());
+            return;
+        }
+        player.sendMessage("§cCouldn't finish" + heat.getName());
+        return;
+    }
+
+    @Subcommand("load")
+    @CommandCompletion("@heat")
+    public static void onHeatLoad(Player player, Heat heat){
+        heat.loadHeat();
+        player.sendMessage("§aLoaded " + heat.getName());
+        return;
     }
 
     @Subcommand("reset")
