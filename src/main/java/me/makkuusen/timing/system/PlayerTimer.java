@@ -1,14 +1,23 @@
 package me.makkuusen.timing.system;
 
+import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.gui.ItemBuilder;
+import me.makkuusen.timing.system.heat.FinalHeat;
+import me.makkuusen.timing.system.heat.HeatState;
+import me.makkuusen.timing.system.participant.FinalDriver;
+import me.makkuusen.timing.system.participant.QualyDriver;
+import me.makkuusen.timing.system.race.Race;
+import me.makkuusen.timing.system.race.RaceController;
+import me.makkuusen.timing.system.race.RaceDriver;
+import me.makkuusen.timing.system.timetrial.TimeTrial;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 public class PlayerTimer {
     static boolean update = false;
@@ -43,8 +52,33 @@ public class PlayerTimer {
                 }
                 else
                 {
+                    var maybeDriver = EventDatabase.getDriverFromRunningHeat(p.getUniqueId());
+                    if (maybeDriver.isPresent()) {
+                        var driver = maybeDriver.get();
+                        if (driver instanceof FinalDriver finalDriver){
+                            if (driver.getHeat() instanceof FinalHeat finalHeat) {
+                                String message = TimingSystem.getPlugin().getLocalizedMessage(
+                                        p,
+                                        "messages.actionbar.race",
+                                        "%laps%", String.valueOf(finalDriver.getLaps().size()),
+                                        "%totalLaps%", String.valueOf(finalHeat.getTotalLaps()),
+                                        "%pos%", String.valueOf(finalDriver.getPosition()),
+                                        "%pits%", String.valueOf(finalDriver.getPits()),
+                                        "%totalPits%", String.valueOf(finalHeat.getTotalPits())
+                                );
+                                ApiUtilities.sendActionBar(message, p);
+                            }
+                        } else if (driver instanceof QualyDriver){
+                            if (driver.getLaps().size() > 0 && driver.isRunning()) {
+                                long lapTime = Duration.between(driver.getCurrentLap().getLapStart(),TimingSystem.currentTime).toMillis();
+                                ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(lapTime), p);
+                            }
+                        }
+                    }
+
+
                     for (Race race : RaceController.races.values()) {
-                        if (!race.getRaceState().equals(RaceState.RACING)) { continue; }
+                        if (!race.getRaceState().equals(HeatState.RACING)) { continue; }
 
                         if (!race.hasRaceDriver(p.getUniqueId())) { continue; }
 

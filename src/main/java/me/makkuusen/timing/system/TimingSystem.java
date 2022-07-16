@@ -1,5 +1,16 @@
 package me.makkuusen.timing.system;
 
+import co.aikar.commands.PaperCommandManager;
+import me.makkuusen.timing.system.event.Event;
+import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.gui.GUIListener;
+import me.makkuusen.timing.system.gui.GUITrack;
+import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.race.Race;
+import me.makkuusen.timing.system.race.RaceDriver;
+import me.makkuusen.timing.system.timetrial.TimeTrial;
+import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,9 +36,9 @@ public class TimingSystem extends JavaPlugin
     public static boolean enableLeaderboards = true;
     public Set<UUID> override = new HashSet<>();
     public Set<UUID> verbose = new HashSet<>();
-    public static Map<UUID, TSPlayer> players = new HashMap<UUID, TSPlayer>();
+    public static Map<UUID, TPlayer> players = new HashMap<UUID, TPlayer>();
     private LanguageManager languageManager;
-    public Instant currentTime = Instant.now();
+    public static Instant currentTime = Instant.now();
 
     public void onEnable()
     {
@@ -53,6 +64,31 @@ public class TimingSystem extends JavaPlugin
 
         getCommand("track").setExecutor(new CommandTrack());
         getCommand("race").setExecutor(new CommandRace());
+
+        PaperCommandManager manager = new PaperCommandManager(this);
+        // enable brigadier integration for paper servers
+        manager.enableUnstableAPI("brigadier");
+
+        // optional: enable unstable api to use help
+        manager.enableUnstableAPI("help");
+
+        manager.getCommandContexts().registerContext(
+                Event.class, EventDatabase.getEventContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("event", context ->
+                EventDatabase.getEventsAsStrings()
+        );
+        manager.getCommandContexts().registerContext(
+                Heat.class, EventDatabase.getHeatContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("heat", context ->
+                EventDatabase.getHeatsAsStrings(context.getPlayer().getUniqueId())
+        );
+        manager.getCommandContexts().registerContext(
+                Track.class, TrackDatabase.getTrackContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("track", context ->
+                TrackDatabase.getTracksAsStrings()
+        );
+        manager.registerCommand(new CommandEvent());
+        manager.registerCommand(new CommandHeat());
 
         TrackDatabase.connect();
 

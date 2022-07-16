@@ -12,6 +12,9 @@ commands:
    race:
       description: Command for running tracks.
       aliases: []
+   event:
+      description: Command for events.
+      aliases: []
 
 permissions:
 

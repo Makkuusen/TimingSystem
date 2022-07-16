@@ -16,7 +16,7 @@ public class ApiDatabase {
     private static TimingSystem plugin;
     private static HikariDataSource dataSource;
 
-    static boolean initialize(TimingSystem plugin) {
+    public static boolean initialize(TimingSystem plugin) {
         ApiDatabase.plugin = plugin;
 
         HikariDataSource dataSource = new HikariDataSource();
@@ -30,7 +30,7 @@ public class ApiDatabase {
         return createTables();
 
     }
-    static boolean synchronize() {
+    public static boolean synchronize() {
         try {
             Connection connection = ApiDatabase.getConnection();
             Statement statement = connection.createStatement();
@@ -38,7 +38,7 @@ public class ApiDatabase {
             ResultSet result = statement.executeQuery("SELECT * FROM `players`;");
 
             while (result.next()) {
-                TSPlayer player = new TSPlayer(plugin, result);
+                TPlayer player = new TPlayer(plugin, result);
                 plugin.players.put(player.getUniqueId(), player);
             }
 
@@ -158,11 +158,11 @@ public class ApiDatabase {
         return string == null ? "NULL" : "'" + string.replace("\\", "\\\\").replace("'", "\\'") + "'";
     }
 
-    static TSPlayer getPlayer(UUID uuid, String name)
+    static TPlayer getPlayer(UUID uuid, String name)
     {
-        TSPlayer TSPlayer = plugin.players.get(uuid);
+        TPlayer TPlayer = plugin.players.get(uuid);
 
-        if (TSPlayer == null)
+        if (TPlayer == null)
         {
             if (name == null) { return null; }
 
@@ -176,8 +176,8 @@ public class ApiDatabase {
                 ResultSet result = statement.executeQuery("SELECT * FROM `players` WHERE `uuid` = '" + uuid + "';");
                 result.next();
 
-                TSPlayer = new TSPlayer(plugin, result);
-                plugin.players.put(uuid, TSPlayer);
+                TPlayer = new TPlayer(plugin, result);
+                plugin.players.put(uuid, TPlayer);
 
                 result.close();
 
@@ -191,17 +191,17 @@ public class ApiDatabase {
             }
         }
 
-        return TSPlayer;
+        return TPlayer;
     }
 
-    public static TSPlayer getPlayer(UUID uuid)
+    public static TPlayer getPlayer(UUID uuid)
     {
         return getPlayer(uuid, null);
     }
 
-    public static TSPlayer getPlayer(String name)
+    public static TPlayer getPlayer(String name)
     {
-        for (TSPlayer player : plugin.players.values())
+        for (TPlayer player : plugin.players.values())
         {
             if (player.getName().equalsIgnoreCase(name)) { return player; }
         }
@@ -209,12 +209,12 @@ public class ApiDatabase {
         return null;
     }
 
-    public static TSPlayer getPlayer(CommandSender sender)
+    public static TPlayer getPlayer(CommandSender sender)
     {
         return sender instanceof org.bukkit.entity.Player ? plugin.players.get(((org.bukkit.entity.Player) sender).getUniqueId()) : null;
     }
 
-    public static Collection<TSPlayer> getPlayers()
+    public static Collection<TPlayer> getPlayers()
     {
         return plugin.players.values();
     }

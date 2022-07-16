@@ -261,4 +261,39 @@ public class ApiUtilities {
         }
         return toReturn;
     }
+
+    public static String formatAsQualyGap(long timeInMillis)
+    {
+        String toReturn;
+
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
+        String milis = String.format("%02d", (timeInMillis % 1000) / 10);
+
+        if (hours == 0 && minutes == 0)
+        {
+            toReturn = String.format("%01d", seconds) + "." + milis;
+        }
+        else if (hours == 0)
+        {
+            toReturn = String.format("%d:%02d", minutes, seconds) + "." + milis;
+        }
+        else
+        {
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+        }
+        return toReturn;
+    }
+
+    public static long roundToTick(long timeInMillis)
+    {
+        return Math.round(timeInMillis/50) * 50;
+    }
+
+    public static void clearScoreboards(){
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+        }
+    }
 }
