@@ -57,7 +57,7 @@ public class Track
     }
     public enum TrackMode
     {
-        TIMETRIAL, PRACTICE, QUALIFICATION, RACE
+        TIMETRIAL, RACE
     }
 
     public Track(ResultSet data) throws SQLException
@@ -640,13 +640,17 @@ public class Track
             {
                 Boat boat = location.getWorld().spawn(location, Boat.class);
                 boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
-                if (player.getName().equalsIgnoreCase("Renokas1"))
+                if (player.getName().equalsIgnoreCase("Renokas1") || player.getName().equalsIgnoreCase("AdamsApples"))
                 {
                     boat.setWoodType(TreeSpecies.ACACIA);
                 }
                 else if (player.getName().equalsIgnoreCase("Makkuusen"))
                 {
                     boat.setWoodType(TreeSpecies.JUNGLE);
+                }
+                else if (player.getName().equalsIgnoreCase("JollyTheDuck"))
+                {
+                    boat.setWoodType(TreeSpecies.DARK_OAK);
                 }
                 boat.addPassenger(player);
             }
@@ -748,14 +752,6 @@ public class Track
         else if (mode.equals(TrackMode.TIMETRIAL))
         {
             return "Timetrial";
-        }
-        else if (mode.equals(TrackMode.QUALIFICATION))
-        {
-            return "Qualification";
-        }
-        else if (mode.equals(TrackMode.PRACTICE))
-        {
-            return "Practice";
         }
 
         return "Unknown";

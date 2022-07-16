@@ -33,6 +33,7 @@ public class FinalHeat extends Heat {
         FinalDriver fDriver = (FinalDriver) driver;
         if (totalLaps <= fDriver.getLaps().size() && totalPits <= fDriver.getPits())
         {
+            updatePositions();
             finishDriver(fDriver);
             if (allDriversFinished()){
                 finishHeat();

@@ -9,6 +9,7 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.race.Race;
 import me.makkuusen.timing.system.race.RaceDriver;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
+import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -80,6 +81,11 @@ public class TimingSystem extends JavaPlugin
                 Heat.class, EventDatabase.getHeatContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("heat", context ->
                 EventDatabase.getHeatsAsStrings(context.getPlayer().getUniqueId())
+        );
+        manager.getCommandContexts().registerContext(
+                Track.class, TrackDatabase.getTrackContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("track", context ->
+                TrackDatabase.getTracksAsStrings()
         );
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandHeat());

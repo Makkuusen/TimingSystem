@@ -7,7 +7,6 @@ import co.aikar.commands.contexts.ContextResolver;
 import lombok.Getter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Driver;
 
 import java.util.ArrayList;
@@ -24,6 +23,7 @@ public class EventDatabase {
     public static TimingSystem plugin;
     private static Set<Event> events = new HashSet<>();
     private static final HashMap<UUID, Event> playerSelectedEvent = new HashMap<>();
+    private static final HashMap<UUID, Driver> playerInRunningHeat = new HashMap<>();
 
 
     static public void setPlayerSelectedEvent(UUID uuid, Event event) {
@@ -97,19 +97,21 @@ public class EventDatabase {
         };
     }
 
+    public static boolean addPlayerToRunningHeat(Driver driver){
+        if (playerInRunningHeat.get(driver.getTPlayer().getUniqueId()) != null) {
+            return false;
+        }
+        playerInRunningHeat.put(driver.getTPlayer().getUniqueId(), driver);
+        return true;
+    }
+
+    public static void removePlayerFromRunningHeat(UUID uuid) {
+        playerInRunningHeat.remove(uuid);
+    }
+
     public static Optional<Driver> getDriverFromRunningHeat(UUID uuid){
-        for (Event event : EventDatabase.getEvents()) {
-            var maybeHeat = event.getEventSchedule().getHeats().stream()
-                    .filter(heat -> heat.getHeatState().equals(HeatState.RACING))
-                    .filter(heat -> heat.getDrivers().containsKey(uuid))
-                    .findFirst();
-
-
-            if (maybeHeat.isPresent()) {
-
-                var driver = maybeHeat.get().getDrivers().get(uuid);
-                return Optional.of(maybeHeat.get().getDrivers().get(uuid));
-            }
+        if (playerInRunningHeat.get(uuid) != null) {
+            return Optional.of(playerInRunningHeat.get(uuid));
         }
         return Optional.empty();
     }

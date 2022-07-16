@@ -1,5 +1,9 @@
 package me.makkuusen.timing.system.track;
 
+import co.aikar.commands.BukkitCommandExecutionContext;
+import co.aikar.commands.InvalidCommandArgument;
+import co.aikar.commands.MessageKeys;
+import co.aikar.commands.contexts.ContextResolver;
 import me.makkuusen.timing.system.ApiDatabase;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.LeaderboardManager;
@@ -265,5 +269,26 @@ public class TrackDatabase
         regions.removeIf(trackRegion -> trackRegion.getTrackId() == Track.getId());
         tracks.remove(Track);
         LeaderboardManager.removeLeaderboard(Track.getId());
+    }
+
+    public static List<String> getTracksAsStrings(){
+        List<String> tracks = new ArrayList<>();
+        getTracks().stream().forEach(track -> tracks.add(track.getName()));
+        return tracks;
+    }
+
+    public static ContextResolver<Track, BukkitCommandExecutionContext> getTrackContextResolver() {
+        return (c) -> {
+            String[] ts = new String[c.getArgs().size()];
+            c.getArgs().toArray(ts);
+            String trackName = ApiUtilities.concat(ts, 0);
+            var maybeTrack = getTrack(trackName);
+            if (maybeTrack.isPresent()) {
+                return maybeTrack.get();
+            } else {
+                // User didn't type an Event, show error!
+                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
+            }
+        };
     }
 }

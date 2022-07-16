@@ -1,11 +1,16 @@
 package me.makkuusen.timing.system.heat;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
+import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
 
 import java.time.Duration;
 
+@Setter
+@Getter
 public class QualyHeat extends Heat {
 
     private long timeLimit;
@@ -21,7 +26,9 @@ public class QualyHeat extends Heat {
             return false;
         }
         if (timeIsOver()) {
+            updatePositions();
             driver.finish();
+            EventAnnouncements.sendFinishSound(driver);
             if (allDriversFinished()){
                 finishHeat();
             }
@@ -30,15 +37,6 @@ public class QualyHeat extends Heat {
 
         driver.passLap();
         return true;
-    }
-
-    @Override
-    public boolean finishHeat() {
-        if (super.finishHeat()) {
-            getEvent().getEventResults().reportQualyResults(getLivePositions());
-            return true;
-        }
-        return false;
     }
 
     private boolean timeIsOver(){

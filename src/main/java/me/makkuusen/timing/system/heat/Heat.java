@@ -7,11 +7,12 @@ import me.makkuusen.timing.system.BlockManager;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
+import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
+import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -50,18 +51,21 @@ public abstract class Heat {
             return false;
         }
         getBlockManager().setStartingGridBarriers();
-        setHeatState(HeatState.LOADED);
         List<Driver> pos = new ArrayList<>();
         pos.addAll(getStartPositions());
-        for(Driver d : getStartPositions()){
+        if(getEvent().getTrack().getGridRegions().values().size() != 0)
+        for (Driver d : getStartPositions()){
             Player player = d.getTPlayer().getPlayer();
-            if (player != null){
-                Location loc = getEvent().getTrack().getGridRegions().get(d.getStartPosition()).getSpawnLocation();
-                player.teleport(loc);
-                getEvent().getTrack().spawnBoat(player, loc);
+            if (player != null) {
+                TrackRegion gridRegion = getEvent().getTrack().getGridRegions().get(d.getStartPosition());
+                if (gridRegion != null) {
+                    player.teleport(gridRegion.getSpawnLocation());
+                    getEvent().getTrack().spawnBoat(player, gridRegion.getSpawnLocation());
+                }
             }
         }
         setLivePositions(pos);
+        setHeatState(HeatState.LOADED);
         updateScoreboard();
         ApiUtilities.msgConsole("Drivers: " + getDrivers().values().size());
         ApiUtilities.msgConsole("StartPositions: " + getStartPositions().size());
@@ -78,7 +82,10 @@ public abstract class Heat {
         setStartTime(TimingSystem.currentTime);
         getBlockManager().clearStartingGridBarriers();
         EventAnnouncements.sendStartSound(this);
-        getDrivers().values().stream().forEach(driver -> driver.setStartTime(TimingSystem.currentTime));
+        getDrivers().values().stream().forEach(driver -> {
+            driver.setStartTime(TimingSystem.currentTime);
+            EventDatabase.addPlayerToRunningHeat(driver);
+        });
         return true;
     }
 
@@ -96,6 +103,13 @@ public abstract class Heat {
                 ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
             }
         }, 200);
+
+        if (this instanceof QualyHeat) {
+            getEvent().getEventResults().reportQualyResults(getLivePositions());
+        } else if (this instanceof FinalHeat) {
+            getEvent().getEventResults().reportFinalResults(getLivePositions());
+        }
+        getDrivers().values().stream().forEach(driver -> EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId()));
         return true;
     }
 
@@ -118,14 +132,11 @@ public abstract class Heat {
         ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
     }
 
-    public void reportResults(){
-
-    }
-
-    public void addDrivers(List<Driver> listOfDrivers){
-        listOfDrivers.stream().forEach(driver -> {
-            drivers.put(driver.getTPlayer().getUniqueId(), driver);
-        });
+    public List<Driver> getResults(){
+        if (heatState != HeatState.FINISHED) {
+            return List.of();
+        }
+        return livePositions;
     }
 
     public void addDriver(Driver driver) {
@@ -144,7 +155,7 @@ public abstract class Heat {
 
     public void updateScoreboard(){
         Scoreboard board = scoreboard.getScoreboard();
-        getEvent().getSpectators().stream()
+        getEvent().getParticipants().stream()
                 .filter(participant -> participant.getTPlayer().getPlayer() != null)
                 .forEach(participant -> participant.getTPlayer().getPlayer().setScoreboard(board));
     }

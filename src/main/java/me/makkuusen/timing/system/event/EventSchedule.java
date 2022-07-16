@@ -12,7 +12,6 @@ import java.util.Optional;
 @Getter
 public class EventSchedule {
 
-    private final List<Heat> practiceHeatList = new ArrayList<>();
     private final List<QualyHeat> qualyHeatList = new ArrayList<>();
     private final List<FinalHeat> finalHeatList = new ArrayList<>();
 
@@ -27,19 +26,24 @@ public class EventSchedule {
 
     public List<Heat> getHeats(){
         List<Heat> heats = new ArrayList<>();
-        heats.addAll(getPracticeHeatList());
         heats.addAll(getQualyHeatList());
         heats.addAll(getFinalHeatList());
         return heats;
     }
 
+    public boolean addHeat(Heat heat){
+        if (heat instanceof QualyHeat qualyHeat && !qualyHeatList.contains(qualyHeat)) {
+            qualyHeatList.add(qualyHeat);
+            return true;
+        } else if (heat instanceof FinalHeat finalHeat && !finalHeatList.contains(finalHeat)) {
+            finalHeatList.add(finalHeat);
+        }
+
+        return false;
+    }
+
     public List<String> listHeats() {
         List<String> message = new ArrayList<>();
-
-        if (!getPracticeHeatList().isEmpty()) {
-            message.add("§2Practice Heats:");
-            getPracticeHeatList().stream().forEach(heat -> message.add("§a - " + heat.getName()));
-        }
 
         if (!getQualyHeatList().isEmpty()) {
             message.add("§2Qualification Heats:");
@@ -55,7 +59,6 @@ public class EventSchedule {
 
     public List<String> getRawHeats(){
         List<String> heats = new ArrayList<>();
-        getPracticeHeatList().stream().forEach(heat -> heats.add(heat.getName()));
         getQualyHeatList().stream().forEach(heat -> heats.add(heat.getName()));
         getFinalHeatList().stream().forEach(heat -> heats.add(heat.getName()));
         return heats;
