@@ -264,6 +264,33 @@ public class CommandTrack implements CommandExecutor
             return true;
         }
 
+        else if (arguments[0].equalsIgnoreCase("edit")) {
+            if (!player.isOp() && !player.hasPermission("track.command.edit"))
+            {
+                plugin.sendMessage(player, "messages.error.permissionDenied");
+                return true;
+            }
+            if (arguments.length == 1) {
+                TimingSystem.playerEditingSession.remove(player.getUniqueId());
+                player.sendMessage("§a Removed from editing session");
+                return true;
+            }
+
+            if (arguments.length > 1) {
+
+                String name = ApiUtilities.concat(arguments, 1);
+                var maybeTrack = TrackDatabase.getTrack(name);
+                if (maybeTrack.isEmpty()) {
+                    plugin.sendMessage(player, "messages.error.missing.track.name");
+                    return true;
+                }
+                Track track = maybeTrack.get();
+                TimingSystem.playerEditingSession.put(player.getUniqueId(), track);
+                plugin.sendMessage(player, "messages.save.generic");
+                return true;
+            }
+        }
+
         String name = ApiUtilities.concat(arguments, 0);
         var maybeTrack = TrackDatabase.getTrack(name);
         if (maybeTrack.isEmpty())
@@ -313,6 +340,16 @@ public class CommandTrack implements CommandExecutor
         {
             player.sendMessage("§2/track create §atype name");
         }
+        if (player.isOp() || player.hasPermission("track.command.edit"))
+        {
+            player.sendMessage("§2/track edit");
+        }
+
+        if (player.isOp() || player.hasPermission("track.command.edit"))
+        {
+            player.sendMessage("§2/track edit §aname");
+        }
+
         if (player.isOp() || player.hasPermission("track.command.delete"))
         {
             player.sendMessage("§2/track delete §aname");

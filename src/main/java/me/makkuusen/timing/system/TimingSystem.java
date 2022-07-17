@@ -36,9 +36,11 @@ public class TimingSystem extends JavaPlugin
     public static boolean enableLeaderboards = true;
     public Set<UUID> override = new HashSet<>();
     public Set<UUID> verbose = new HashSet<>();
+    public static HashMap<UUID, Track> playerEditingSession = new HashMap<>();
     public static Map<UUID, TPlayer> players = new HashMap<UUID, TPlayer>();
     private LanguageManager languageManager;
     public static Instant currentTime = Instant.now();
+    Tasks tasks;
 
     public void onEnable()
     {
@@ -91,6 +93,8 @@ public class TimingSystem extends JavaPlugin
         manager.registerCommand(new CommandHeat());
 
         TrackDatabase.connect();
+
+        tasks = new Tasks(this);
 
         if (!Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays"))
         {
