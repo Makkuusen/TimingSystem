@@ -49,7 +49,7 @@ public class Race {
         if (heatState.equals(HeatState.SETUP)) {
             livePositioning = new ArrayList<>();
             livePositioning.addAll(raceDrivers.values());
-            BlockManager.setStartingGridBarriers();
+            BlockManager.setStartingGrid();
             raceScoreboard = new RaceScoreboard(this);
         }
     }
@@ -57,7 +57,7 @@ public class Race {
     public void startRace() {
         heatState = HeatState.RACING;
         startTime = plugin.currentTime;
-        BlockManager.clearStartingGridBarriers();
+        BlockManager.clearStartingGrid();
         for (RaceDriver rd : raceDrivers.values())
         {
             rd.resetLaps();

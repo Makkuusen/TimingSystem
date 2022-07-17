@@ -7,26 +7,38 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class BlockManager {
 
     private Track track;
+    private HashMap<Integer, List<Material>> trackRegionBlocks = new HashMap<>();
 
     public BlockManager(Track track) {
         this.track = track;
     }
 
-    public void setStartingGridBarriers(){
-        track.getGridRegions().values().stream().forEach( trackRegion -> getGridBlocks(trackRegion).forEach(block -> block.setType(Material.WHITE_CARPET)));
+    public void setStartingGrid(){
+        track.getGridRegions().values().stream().forEach( trackRegion -> {
+                    getGridBorderBlocks(trackRegion).forEach(block -> block.setType(Material.WHITE_CARPET));
+                    getGridGroundBlocks(trackRegion, true).forEach(block -> block.setType(Material.WHITE_CONCRETE));
+        });
     }
-
-    public void clearStartingGridBarriers()
+    public void clearStartingGrid()
     {
-        track.getGridRegions().values().stream().forEach( trackRegion -> getGridBlocks(trackRegion).forEach(block -> block.setType(Material.AIR)));
+        track.getGridRegions().values().stream().forEach( trackRegion -> {
+            getGridBorderBlocks(trackRegion).forEach(block -> block.setType(Material.AIR));
+            List<Material> mats = trackRegionBlocks.get(trackRegion.getId());
+            if (mats != null) {
+                int count = 0;
+                for (Block block : getGridGroundBlocks(trackRegion, false)) {
+                    block.setType(mats.get(count++));
+                }
+            }
+        });
     }
-
-    private List<Block> getGridBlocks(TrackRegion region){
+    private List<Block> getGridBorderBlocks(TrackRegion region){
         List<Block> selected = new ArrayList<>();
         int y = region.getMaxP().getBlockY();
         World world = region.getMaxP().getWorld();
@@ -43,6 +55,22 @@ public class BlockManager {
             selected.add(world.getBlockAt(region.getMaxP().getBlockX(), y, z1));
         }
 
+        return selected;
+    }
+
+    private List<Block> getGridGroundBlocks(TrackRegion region, boolean saveMaterial){
+        List<Block> selected = new ArrayList<>();
+        int y = region.getMaxP().getBlockY() - 1;
+        World world = region.getMaxP().getWorld();
+
+        for (int x = region.getMinP().getBlockX() + 1; x < region.getMaxP().getBlockX(); x++) {
+            for (int z = region.getMinP().getBlockZ() + 1; z < region.getMaxP().getBlockZ(); z++) {
+                selected.add(world.getBlockAt(x, y, z));
+            }
+        }
+        List<Material> mats = new ArrayList<>();
+        selected.forEach(block -> mats.add(block.getType()));
+        if (saveMaterial) trackRegionBlocks.put(region.getId(), mats);
         return selected;
     }
 }

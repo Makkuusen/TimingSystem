@@ -50,7 +50,7 @@ public abstract class Heat {
         if (getHeatState() != HeatState.SETUP) {
             return false;
         }
-        getBlockManager().setStartingGridBarriers();
+        getBlockManager().setStartingGrid();
         List<Driver> pos = new ArrayList<>();
         pos.addAll(getStartPositions());
         if(getEvent().getTrack().getGridRegions().values().size() != 0)
@@ -80,7 +80,7 @@ public abstract class Heat {
         setHeatState(HeatState.RACING);
         updateScoreboard();
         setStartTime(TimingSystem.currentTime);
-        getBlockManager().clearStartingGridBarriers();
+        getBlockManager().clearStartingGrid();
         EventAnnouncements.sendStartSound(this);
         getDrivers().values().stream().forEach(driver -> {
             driver.setStartTime(TimingSystem.currentTime);
