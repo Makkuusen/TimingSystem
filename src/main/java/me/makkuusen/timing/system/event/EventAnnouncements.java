@@ -2,13 +2,18 @@ package me.makkuusen.timing.system.event;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
-import me.makkuusen.timing.system.heat.Heat;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
+
+import java.time.Duration;
 
 public class EventAnnouncements {
 
@@ -27,6 +32,19 @@ public class EventAnnouncements {
 
     public static void broadcastPit(Heat heat, Driver driver, int pit) {
         broadcastAnnouncement(heat, "messages.announcements.pitstop", "%player%", driver.getTPlayer().getName(), "%pit%", String.valueOf(pit));
+    }
+
+    public static void broadcastCountdown(Heat heat, Integer count){
+        for (Participant participant : heat.getParticipants()) {
+            Player player = participant.getTPlayer().getPlayer();
+            if (player != null) {
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, SoundCategory.MASTER, 1, 1);
+                Component mainTitle = Component.text(count, NamedTextColor.WHITE);
+                Title.Times times = Title.Times.times(Duration.ofMillis(100), Duration.ofMillis(1000), Duration.ofMillis(100));
+                Title title = Title.title(mainTitle, Component.empty(), times);
+                player.showTitle(title);
+            }
+        }
     }
 
     public static void sendLapTime(Driver driver, long time) {
