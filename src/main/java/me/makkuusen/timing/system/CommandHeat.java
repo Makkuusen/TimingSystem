@@ -47,6 +47,7 @@ public class CommandHeat extends BaseCommand {
             player.sendMessage("§aLaps: " + finalHeat.getTotalLaps());
             player.sendMessage("§aPits: " + finalHeat.getTotalPits());
         }
+        player.sendMessage("§aFastest lap:" + ApiUtilities.formatAsTime(heat.getFastestLap()));
         player.sendMessage("§aDrivers:");
         for (Driver d : heat.getDrivers().values()) {
             player.sendMessage("  " + d.getTPlayer().getName());

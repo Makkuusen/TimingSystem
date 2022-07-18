@@ -36,8 +36,7 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public void finish(){
-        getCurrentLap().setLapEnd(TimingSystem.currentTime);
-        EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
+        finishLap();
         endTime = TimingSystem.currentTime;
         isRunning = false;
         finished = true;
@@ -48,15 +47,20 @@ public class Driver extends Participant implements Comparable<Driver> {
         newLap();
     }
 
-    public void startLap(){
+    public void passLap(){
+        finishLap();
         newLap();
     }
 
-    public void passLap(){
+    private void finishLap(){
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
-        EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
+        if (heat.getFastestLap() == -1 || getCurrentLap().getLapTime() < heat.getFastestLap()) {
+            EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap().getLapTime());
+            heat.setFastestLap(getCurrentLap().getLapTime());
+        } else {
+            EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
+        }
         ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLapTime()));
-        newLap();
     }
 
     public void reset(){

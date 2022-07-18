@@ -34,6 +34,11 @@ public class EventAnnouncements {
         broadcastAnnouncement(heat, "messages.announcements.pitstop", "%player%", driver.getTPlayer().getName(), "%pit%", String.valueOf(pit));
     }
 
+    public static void broadcastFastestLap(Heat heat, Driver driver, long time) {
+        broadcastAnnouncement(heat, "messages.announcements.fastestLap", "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time));
+
+    }
+
     public static void broadcastCountdown(Heat heat, Integer count){
         for (Participant participant : heat.getParticipants()) {
             Player player = participant.getTPlayer().getPlayer();

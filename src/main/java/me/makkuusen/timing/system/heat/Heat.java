@@ -40,6 +40,7 @@ public abstract class Heat {
     private List<Driver> startPositions = new ArrayList<>();
     private List<Driver> livePositions = new ArrayList<>();
     private GenericScoreboard scoreboard;
+    private long fastestLap = -1;
 
     public Heat(Event event, String name){
         this.event = event;
