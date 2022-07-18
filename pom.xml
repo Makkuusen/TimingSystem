@@ -52,11 +52,17 @@
                             <pattern>co.aikar.locales</pattern>
                             <shadedPattern>me.makkuusen.timing.system.locales</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>co.aikar.taskchain</pattern>
+                            <shadedPattern>me.makkuusen.timing.system.taskchain</shadedPattern> <!-- Replace this -->
+                        </relocation>
                     </relocations>
                     <artifactSet>
                         <includes>
                             <include>com.zaxxer:HikariCP:jar:*</include>
                             <include>co.aikar:acf-paper:jar:*</include>
+                            <include>co.aikar:taskchain-bukkit:jar:*</include>
+                            <include>co.aikar:taskchain-core:jar:*</include>
                         </includes>
                     </artifactSet>
                 </configuration>
@@ -110,6 +116,12 @@
             <groupId>co.aikar</groupId>
             <artifactId>acf-paper</artifactId> <!-- Don't forget to replace this -->
             <version>0.5.1-SNAPSHOT</version> <!-- Replace this as well -->
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>co.aikar</groupId>
+            <artifactId>taskchain-bukkit</artifactId>
+            <version>3.7.2</version> <!-- Replace this with the version from TaskChain -->
             <scope>compile</scope>
         </dependency>
 

@@ -56,8 +56,8 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("start")
     @CommandCompletion("@heat")
     public static void onHeatStart(Player player, Heat heat){
-        if (heat.startHeat()) {
-            player.sendMessage("§aStarted " + heat.getName());
+        if (heat.startCountdown()) {
+            player.sendMessage("§aStarted countdown for " + heat.getName());
             return;
         }
         player.sendMessage("§cCouldn't start " + heat.getName());

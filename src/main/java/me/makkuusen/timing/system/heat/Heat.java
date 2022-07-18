@@ -4,15 +4,17 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.BlockManager;
+import me.makkuusen.timing.system.TaskChainCountdown;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
-import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -73,20 +75,27 @@ public abstract class Heat {
         return true;
     }
 
-    public boolean startHeat() {
+    public boolean startCountdown() {
         if (getHeatState() != HeatState.LOADED) {
             return false;
         }
+        TaskChainCountdown.countdown(this);
+        return true;
+    }
+
+    public void startHeat() {
         setHeatState(HeatState.RACING);
         updateScoreboard();
         setStartTime(TimingSystem.currentTime);
         getBlockManager().clearStartingGrid();
-        EventAnnouncements.sendStartSound(this);
         getDrivers().values().stream().forEach(driver -> {
             driver.setStartTime(TimingSystem.currentTime);
             EventDatabase.addPlayerToRunningHeat(driver);
+            if (driver.getTPlayer().getPlayer() != null) {
+                driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+            }
+
         });
-        return true;
     }
 
     public abstract boolean passLap(Driver driver);

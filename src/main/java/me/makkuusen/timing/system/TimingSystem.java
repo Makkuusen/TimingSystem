@@ -1,6 +1,9 @@
 package me.makkuusen.timing.system;
 
 import co.aikar.commands.PaperCommandManager;
+import co.aikar.taskchain.BukkitTaskChainFactory;
+import co.aikar.taskchain.TaskChain;
+import co.aikar.taskchain.TaskChainFactory;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.GUIListener;
@@ -40,6 +43,7 @@ public class TimingSystem extends JavaPlugin
     public static Map<UUID, TPlayer> players = new HashMap<UUID, TPlayer>();
     private LanguageManager languageManager;
     public static Instant currentTime = Instant.now();
+    private static TaskChainFactory taskChainFactory;
     Tasks tasks;
 
     public void onEnable()
@@ -91,6 +95,7 @@ public class TimingSystem extends JavaPlugin
         );
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandHeat());
+        taskChainFactory = BukkitTaskChainFactory.create(this);
 
         TrackDatabase.connect();
 
@@ -153,6 +158,13 @@ public class TimingSystem extends JavaPlugin
         } else {
             return this.getConfig().getString("settings.locale", "en_us");
         }
+    }
+
+    public static <T> TaskChain<T> newChain() {
+        return taskChainFactory.newChain();
+    }
+    public static <T> TaskChain<T> newSharedChain(String name) {
+        return taskChainFactory.newSharedChain(name);
     }
 
 }
