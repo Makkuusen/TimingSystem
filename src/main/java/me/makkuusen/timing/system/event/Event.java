@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.event;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.makkuusen.timing.system.ApiDatabase;
+import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
@@ -114,7 +114,7 @@ public class Event {
     }
 
     public void addParticipant(UUID uuid){
-        participants.put(uuid, new Spectator(ApiDatabase.getPlayer(uuid)));
+        participants.put(uuid, new Spectator(Database.getPlayer(uuid)));
     }
 
     public List<Participant> getParticipants(){

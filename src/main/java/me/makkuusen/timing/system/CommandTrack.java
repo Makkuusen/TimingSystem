@@ -11,7 +11,6 @@ import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -199,7 +198,7 @@ public class CommandTrack implements CommandExecutor
                 return true;
             }
 
-            TPlayer TPlayer = ApiDatabase.getPlayer(arguments[1]);
+            TPlayer TPlayer = Database.getPlayer(arguments[1]);
             if (TPlayer == null)
             {
                 plugin.sendMessage(player,"messages.error.missing.player");
@@ -207,7 +206,7 @@ public class CommandTrack implements CommandExecutor
             }
 
             String potentialMapName = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = TrackDatabase.getTrack(potentialMapName);
+            var maybeTrack = DatabaseTrack.getTrack(potentialMapName);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -279,7 +278,7 @@ public class CommandTrack implements CommandExecutor
             if (arguments.length > 1) {
 
                 String name = ApiUtilities.concat(arguments, 1);
-                var maybeTrack = TrackDatabase.getTrack(name);
+                var maybeTrack = DatabaseTrack.getTrack(name);
                 if (maybeTrack.isEmpty()) {
                     plugin.sendMessage(player, "messages.error.missing.track.name");
                     return true;
@@ -292,7 +291,7 @@ public class CommandTrack implements CommandExecutor
         }
 
         String name = ApiUtilities.concat(arguments, 0);
-        var maybeTrack = TrackDatabase.getTrack(name);
+        var maybeTrack = DatabaseTrack.getTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.errror.unknownCommand", "%command%", "race");
@@ -427,7 +426,7 @@ public class CommandTrack implements CommandExecutor
             return;
         }
 
-        if (!TrackDatabase.trackNameAvailable(name))
+        if (!DatabaseTrack.trackNameAvailable(name))
         {
             plugin.sendMessage(player, "messages.error.trackExists");
             return;
@@ -450,7 +449,7 @@ public class CommandTrack implements CommandExecutor
             t = Track.TrackType.ELYTRA;
         }
 
-        Track track = TrackDatabase.trackNew(name, player.getUniqueId(), player.getLocation(), t, player.getInventory().getItemInMainHand());
+        Track track = DatabaseTrack.trackNew(name, player.getUniqueId(), player.getLocation(), t, player.getInventory().getItemInMainHand());
         if (track == null)
         {
             plugin.sendMessage(player, "messages.error.generic");
@@ -464,7 +463,7 @@ public class CommandTrack implements CommandExecutor
     static void cmdInfo(Player player, String[] arguments)
     {
         String name = ApiUtilities.concat(arguments, 1);
-        var maybeTrack = TrackDatabase.getTrack(name);
+        var maybeTrack = DatabaseTrack.getTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -509,7 +508,7 @@ public class CommandTrack implements CommandExecutor
             return;
         }
 
-        if (TrackDatabase.getTracks().size() == 0)
+        if (DatabaseTrack.getTracks().size() == 0)
         {
             plugin.sendMessage(player, "messages.error.missing.tracks");
             return;
@@ -521,7 +520,7 @@ public class CommandTrack implements CommandExecutor
         int start = (pageStart * itemsPerPage) - itemsPerPage;
         int stop = pageStart * itemsPerPage;
 
-        if (start >= TrackDatabase.getTracks().size())
+        if (start >= DatabaseTrack.getTracks().size())
         {
             plugin.sendMessage(player, "messages.error.missing.page");
             return;
@@ -529,31 +528,31 @@ public class CommandTrack implements CommandExecutor
 
         for (int i = start; i < stop; i++)
         {
-            if (i == TrackDatabase.getTracks().size())
+            if (i == DatabaseTrack.getTracks().size())
             {
                 break;
             }
 
-            Track track = TrackDatabase.getTracks().get(i);
+            Track track = DatabaseTrack.getTracks().get(i);
 
             tmpMessage.append(track.getName()).append(", ");
 
         }
 
-        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) TrackDatabase.getTracks().size()) / ((double) itemsPerPage))));
+        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) DatabaseTrack.getTracks().size()) / ((double) itemsPerPage))));
         player.sendMessage("§2" + tmpMessage.substring(0, tmpMessage.length() - 2));
     }
 
     static void cmdDelete(Player player, String[] arguments)
     {
         String name = ApiUtilities.concat(arguments, 1);
-        var maybeTrack = TrackDatabase.getTrack(name);
+        var maybeTrack = DatabaseTrack.getTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track.name");
             return;
         }
-        TrackDatabase.removeTrack(maybeTrack.get());
+        DatabaseTrack.removeTrack(maybeTrack.get());
         plugin.sendMessage(player,"messages.remove.track");
 
     }
@@ -562,7 +561,7 @@ public class CommandTrack implements CommandExecutor
     {
         String command = arguments[1];
         String name = ApiUtilities.concat(arguments, 2);
-        var maybeTrack = TrackDatabase.getTrack(name);
+        var maybeTrack = DatabaseTrack.getTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -607,7 +606,7 @@ public class CommandTrack implements CommandExecutor
         String options = arguments[1];
 
         String name = ApiUtilities.concat(arguments, 2);
-        var maybeTrack = TrackDatabase.getTrack(name);
+        var maybeTrack = DatabaseTrack.getTrack(name);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -644,7 +643,7 @@ public class CommandTrack implements CommandExecutor
         {
             pageStart = Integer.parseInt(pageStartRaw);
             String name = ApiUtilities.concat(arguments, 2);
-            maybeTrack = TrackDatabase.getTrack(name);
+            maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty()){
                 plugin.sendMessage(player,"messages.error.missing.track.name");
                 return;
@@ -653,7 +652,7 @@ public class CommandTrack implements CommandExecutor
         {
             pageStart = 1;
             String name = ApiUtilities.concat(arguments, 1);
-            maybeTrack = TrackDatabase.getTrack(name);
+            maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -695,7 +694,7 @@ public class CommandTrack implements CommandExecutor
         if (command.equalsIgnoreCase("startregion"))
         {
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -707,7 +706,7 @@ public class CommandTrack implements CommandExecutor
         else if (command.equalsIgnoreCase("endregion"))
         {
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -719,7 +718,7 @@ public class CommandTrack implements CommandExecutor
         else if (command.equalsIgnoreCase("pitregion"))
         {
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -731,7 +730,7 @@ public class CommandTrack implements CommandExecutor
         else if (command.equalsIgnoreCase("spawn"))
         {
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -744,7 +743,7 @@ public class CommandTrack implements CommandExecutor
         else if (command.equalsIgnoreCase("leaderboard"))
         {
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -766,7 +765,7 @@ public class CommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 2);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -792,7 +791,7 @@ public class CommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -809,7 +808,7 @@ public class CommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -837,7 +836,7 @@ public class CommandTrack implements CommandExecutor
                 return;
             }
 
-            TPlayer TPlayer = ApiDatabase.getPlayer(arguments[2]);
+            TPlayer TPlayer = Database.getPlayer(arguments[2]);
             if (TPlayer == null)
             {
                 plugin.sendMessage(player,"messages.error.missing.player");
@@ -845,7 +844,7 @@ public class CommandTrack implements CommandExecutor
             }
 
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -862,7 +861,7 @@ public class CommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -879,7 +878,7 @@ public class CommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -896,7 +895,7 @@ public class CommandTrack implements CommandExecutor
                 return;
             }
             String name = ApiUtilities.concat(arguments, 3);
-            var maybeTrack = TrackDatabase.getTrack(name);
+            var maybeTrack = DatabaseTrack.getTrack(name);
             if (maybeTrack.isEmpty())
             {
                 plugin.sendMessage(player,"messages.error.missing.track.name");
@@ -949,7 +948,7 @@ public class CommandTrack implements CommandExecutor
             plugin.sendMessage(player, "messages.error.numberException");
             return;
         }
-        var maybeTrack = TrackDatabase.getTrackById(trackId);
+        var maybeTrack = DatabaseTrack.getTrackById(trackId);
         if (maybeTrack.isEmpty())
         {
             plugin.sendMessage(player, "messages.error.missing.track.id");

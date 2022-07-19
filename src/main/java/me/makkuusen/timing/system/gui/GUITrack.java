@@ -2,8 +2,8 @@ package me.makkuusen.timing.system.gui;
 
 
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -83,11 +83,11 @@ public class GUITrack
         List<Track> tracks;
         if (page == GOVERNMENTPAGE)
         {
-            tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isGovernment).collect(Collectors.toList());
+            tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isGovernment).collect(Collectors.toList());
         }
         else
         {
-            tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isPersonal).collect(Collectors.toList());
+            tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isPersonal).collect(Collectors.toList());
         }
 
         Integer[] boatSlots = {9, 10, 11, 18, 19, 20, 27, 28, 29, 36, 37, 38};

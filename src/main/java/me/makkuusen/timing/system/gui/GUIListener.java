@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.track.TrackDatabase;
+import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -53,7 +53,7 @@ public class GUIListener implements Listener
 
                             TimeTrialController.playerLeavingMap(e.getWhoClicked().getUniqueId());
                             String mapName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
-                            var maybeTrack = TrackDatabase.getTrack(mapName);
+                            var maybeTrack = DatabaseTrack.getTrack(mapName);
                             if (maybeTrack.isPresent())
                             {
                                 var track = maybeTrack.get();
