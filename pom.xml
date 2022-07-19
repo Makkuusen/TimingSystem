@@ -56,15 +56,21 @@
                             <pattern>co.aikar.taskchain</pattern>
                             <shadedPattern>me.makkuusen.timing.system.taskchain</shadedPattern> <!-- Replace this -->
                         </relocation>
+                        <relocation>
+                            <pattern>co.aikar.idb</pattern>
+                            <shadedPattern>me.makkuusen.timing.system.idb</shadedPattern> <!-- Replace this -->
+                        </relocation>
                     </relocations>
-                    <artifactSet>
+                    <!--<artifactSet>
                         <includes>
                             <include>com.zaxxer:HikariCP:jar:*</include>
                             <include>co.aikar:acf-paper:jar:*</include>
                             <include>co.aikar:taskchain-bukkit:jar:*</include>
                             <include>co.aikar:taskchain-core:jar:*</include>
+                            <include>co.aikar:idb-core:jar:*</include>
+                            <include>co.aikar:idb-bukkit:jar:*</include>
                         </includes>
-                    </artifactSet>
+                    </artifactSet>-->
                 </configuration>
 
                 <executions>
@@ -85,25 +91,21 @@
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.18.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>me.filoghost.holographicdisplays</groupId>
             <artifactId>holographicdisplays-api</artifactId>
             <version>3.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
             <version>7.2.10</version>
-        </dependency>
-
-        <!-- HikariCP -->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>5.0.1</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -123,6 +125,21 @@
             <artifactId>taskchain-bukkit</artifactId>
             <version>3.7.2</version> <!-- Replace this with the version from TaskChain -->
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>co.aikar</groupId>
+            <artifactId>idb-core</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>co.aikar</groupId>
+            <artifactId>idb-bukkit</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

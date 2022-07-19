@@ -1,6 +1,8 @@
 package me.makkuusen.timing.system;
 
 
+import co.aikar.idb.DB;
+import co.aikar.idb.DbRow;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONArray;
@@ -12,10 +14,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -36,13 +36,21 @@ public class TPlayer implements Comparable<TPlayer> {
 	// From database
 	public TPlayer(TimingSystem plugin, ResultSet data) throws SQLException {
 		this.plugin = plugin;
-
 		uuid = UUID.fromString(data.getString("uuid"));
 		name = data.getString("name");
-		dateJoin = data.getLong("dateJoin");
+		dateJoin = (data.getString("dateJoin") == null ? 1 : 2);
 		dateNameChange = data.getLong("dateNameChange");
 		dateNameCheck = data.getLong("dateNameCheck");
 		dateSeen = data.getLong("dateSeen");
+	}
+
+	public TPlayer(TimingSystem plugin, DbRow data)  {
+		this.plugin = plugin;
+		uuid = UUID.fromString(data.getString("uuid"));
+		name = data.getString("name");
+		if(data.get("dateJoin")!= null) dateJoin = data.get("dateJoin");
+		if(data.get("dateNameChange")!= null) dateNameChange = data.getLong("dateNameChange");
+		if(data.get("dateSeen")!= null) dateSeen = data.getLong("dateSeen");
 	}
 
 	public UUID getUniqueId() {
@@ -61,28 +69,10 @@ public class TPlayer implements Comparable<TPlayer> {
 		plugin.getLogger().info("Updating name of " + uuid + " from " + this.name + " to " + name + ".");
 
 		this.name = name;
-		ApiDatabase.asynchronousQuery(new String[]{"UPDATE `players` SET `name` = " + ApiDatabase.sqlString(name) + " WHERE `uuid` = '" + uuid + "';"});
+		DB.executeUpdateAsync("UPDATE `players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
 
 		if (player != null) {
 			player.setDisplayName(getNameDisplay());
-		}
-	}
-
-
-	public void reload() {
-		try {
-			Connection connection = ApiDatabase.getConnection();
-			Statement statement = connection.createStatement();
-
-			ResultSet data = statement.executeQuery("SELECT * FROM `players` WHERE `uuid` = '" + uuid + "';");
-			data.next();
-
-
-			data.close();
-			connection.close();
-
-		} catch (Exception exception) {
-			plugin.getLogger().warning("Failed to reload player: " + exception.getMessage());
 		}
 	}
 
@@ -174,12 +164,12 @@ public class TPlayer implements Comparable<TPlayer> {
 
 					if (newChanges == 0)
 					{
-						ApiDatabase.asynchronousQuery(new String[] { "UPDATE `players` SET `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';" });
+						DB.executeUpdateAsync("UPDATE `players` SET `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';");
 					}
 
 					else
 					{
-						ApiDatabase.asynchronousQuery(new String[] { "UPDATE `players` SET `dateNameChange` = " + TPlayer.dateNameChange + ", `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';"});
+						DB.executeUpdateAsync("UPDATE `players` SET `dateNameChange` = " + TPlayer.dateNameChange + ", `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';");
 
 						plugin.getLogger().info("Cached " + newChanges + " new name " + (newChanges == 1 ? "change" : "changes") + " for " + uuid + " (" + nameCurrent + ").");
 

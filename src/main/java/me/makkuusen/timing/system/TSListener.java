@@ -13,7 +13,6 @@ import me.makkuusen.timing.system.race.RaceLap;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -56,7 +55,7 @@ public class TSListener implements Listener
         if (event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED)
         {
 
-            TPlayer TPlayer = ApiDatabase.getPlayer(event.getUniqueId(), event.getName());
+            TPlayer TPlayer = Database.getPlayer(event.getUniqueId(), event.getName());
 
             if (TPlayer == null)
             {
@@ -67,7 +66,7 @@ public class TSListener implements Listener
     }
     @EventHandler
     void onPlayerJoin(PlayerJoinEvent event) {
-        TPlayer TPlayer = ApiDatabase.getPlayer(event.getPlayer().getUniqueId());
+        TPlayer TPlayer = Database.getPlayer(event.getPlayer().getUniqueId());
 
         TPlayer.setPlayer(event.getPlayer());
 
@@ -88,7 +87,7 @@ public class TSListener implements Listener
     public void onPlayerTeleport(PlayerTeleportEvent event)
     {
 
-        for (me.makkuusen.timing.system.track.Track Track : TrackDatabase.getTracks())
+        for (me.makkuusen.timing.system.track.Track Track : DatabaseTrack.getTracks())
         {
             if (Track.getSpawnLocation().getWorld() == event.getTo().getWorld())
             {
@@ -243,7 +242,7 @@ public class TSListener implements Listener
         if ((int) (e.getFrom().getX() - 0.5) != (int) e.getTo().getX() || (int) e.getFrom().getY() != (int) e.getTo().getY() || (int) (e.getFrom().getZ() - 0.5) != (int) e.getTo().getZ())
         {
             Player player = e.getPlayer();
-            TPlayer tPlayer = ApiDatabase.getPlayer(player.getUniqueId());
+            TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
 
             var maybeDriver = EventDatabase.getDriverFromRunningHeat(tPlayer.getUniqueId());
             if (maybeDriver.isPresent()) {
@@ -264,7 +263,7 @@ public class TSListener implements Listener
             }
 
             // Check for starting new tracks
-            Iterator regions = TrackDatabase.getTrackStartRegions().iterator();
+            Iterator regions = DatabaseTrack.getTrackStartRegions().iterator();
             while (true)
             {
                 Integer regionId;
@@ -291,7 +290,7 @@ public class TSListener implements Listener
                 } while (PlayerRegionData.instanceOf(player).getEntered().contains(regionId));
 
                 //Entering region
-                var maybeTrack = TrackDatabase.getTrackById(region.getTrackId());
+                var maybeTrack = DatabaseTrack.getTrackById(region.getTrackId());
                 if (maybeTrack.isPresent())
                 {
                     Track track_ = maybeTrack.get();
@@ -309,7 +308,7 @@ public class TSListener implements Listener
     @EventHandler
     void onPlayerQuit(PlayerQuitEvent event)
     {
-        TPlayer TPlayer = ApiDatabase.getPlayer(event.getPlayer());
+        TPlayer TPlayer = Database.getPlayer(event.getPlayer());
         // Set to offline
         TPlayer.setPlayer(null);
     }

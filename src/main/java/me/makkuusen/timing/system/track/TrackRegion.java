@@ -1,10 +1,8 @@
 package me.makkuusen.timing.system.track;
 
+import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.ApiUtilities;
 import org.bukkit.Location;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class TrackRegion
 {
@@ -17,12 +15,12 @@ public class TrackRegion
     private Location maxP;
     private Location spawnLocation;
 
-    enum RegionType
+    public enum RegionType
     {
         START, END, CHECKPOINT, RESET, PIT, GRID
     }
 
-    public TrackRegion(ResultSet data) throws SQLException
+    public TrackRegion(DbRow data)
     {
         id = data.getInt("id");
         trackId = data.getInt("trackId");

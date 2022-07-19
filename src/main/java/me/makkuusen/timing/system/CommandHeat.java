@@ -175,12 +175,12 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("* @heat")
     public static void onHeatAddDriver(Player sender, OnlinePlayer onlinePlayer, Heat heat){
         if (heat instanceof QualyHeat qualyHeat) {
-            QualyDriver qd = new QualyDriver(ApiDatabase.getPlayer(onlinePlayer.getPlayer().getUniqueId()), heat, heat.getDrivers().size() + 1);
+            QualyDriver qd = new QualyDriver(Database.getPlayer(onlinePlayer.getPlayer().getUniqueId()), heat, heat.getDrivers().size() + 1);
             qualyHeat.addDriver(qd);
             heat.getEvent().addParticipant(onlinePlayer.getPlayer().getUniqueId());
             sender.sendMessage("§aAdded qualy driver");
         } else if (heat instanceof FinalHeat finalHeat){
-            FinalDriver fd = new FinalDriver(ApiDatabase.getPlayer(onlinePlayer.getPlayer().getUniqueId()), heat, heat.getDrivers().size() + 1);
+            FinalDriver fd = new FinalDriver(Database.getPlayer(onlinePlayer.getPlayer().getUniqueId()), heat, heat.getDrivers().size() + 1);
             finalHeat.addDriver(fd);
             sender.sendMessage("§aAdded final driver");
             heat.getEvent().addParticipant(onlinePlayer.getPlayer().getUniqueId());

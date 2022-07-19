@@ -11,7 +11,6 @@ import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -96,7 +95,7 @@ public class CommandEvent extends BaseCommand {
         Bukkit.getOnlinePlayers().stream().forEach(p -> {
             tPlayers.add(TimingSystem.players.get(p.getUniqueId()));
         });
-        event.setTrack(TrackDatabase.getTrack("newbie").get());
+        event.setTrack(DatabaseTrack.getTrack("newbie").get());
         event.quickSetup(tPlayers, 60000, 3, 1);
         event.setState(Event.EventState.QUALIFICATION);
         player.sendMessage("§aDid a quick setup for " + event.getId());

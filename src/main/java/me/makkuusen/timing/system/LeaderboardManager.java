@@ -4,7 +4,6 @@ import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.HologramLines;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -26,7 +25,7 @@ public class LeaderboardManager
         {
             return;
         }
-        var maybeTrack = TrackDatabase.getTrackById(id);
+        var maybeTrack = DatabaseTrack.getTrackById(id);
 		if (maybeTrack.isEmpty())
 		{
 			ApiUtilities.msgConsole("Leaderboard couldn't update, track not found");
@@ -99,7 +98,7 @@ public class LeaderboardManager
         {
             return;
         }
-        for (Track t : TrackDatabase.getTracks())
+        for (Track t : DatabaseTrack.getTracks())
         {
             updateFastestTimeLeaderboard(t.getId());
         }
@@ -111,7 +110,7 @@ public class LeaderboardManager
         {
             return;
         }
-        for (Track rTrack : TrackDatabase.getTracks())
+        for (Track rTrack : DatabaseTrack.getTracks())
         {
             updateFastestTimeLeaderboard(rTrack.getId());
         }

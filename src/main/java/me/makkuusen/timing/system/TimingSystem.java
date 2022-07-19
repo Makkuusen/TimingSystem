@@ -13,7 +13,6 @@ import me.makkuusen.timing.system.race.Race;
 import me.makkuusen.timing.system.race.RaceDriver;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -52,13 +51,14 @@ public class TimingSystem extends JavaPlugin
         plugin = this;
         this.logger = getLogger();
         configuration = new TimingSystemConfiguration(this);
-        TrackDatabase.plugin = this;
+        DatabaseTrack.plugin = this;
         CommandRace.plugin = this;
         CommandTrack.plugin = this;
         TSListener.plugin = this;
         TimeTrial.plugin = this;
         Race.plugin = this;
         RaceDriver.plugin = this;
+        Database.plugin = this;
         this.languageManager = new LanguageManager(this, "en_us");
 
         PluginManager pm = Bukkit.getPluginManager();
@@ -89,15 +89,19 @@ public class TimingSystem extends JavaPlugin
                 EventDatabase.getHeatsAsStrings(context.getPlayer().getUniqueId())
         );
         manager.getCommandContexts().registerContext(
-                Track.class, TrackDatabase.getTrackContextResolver());
+                Track.class, DatabaseTrack.getTrackContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("track", context ->
-                TrackDatabase.getTracksAsStrings()
+                DatabaseTrack.getTracksAsStrings()
         );
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandHeat());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
-        TrackDatabase.connect();
+
+        Database.initialize();
+        Database.synchronize();
+        //TrackDatabase.connect();
+
 
         tasks = new Tasks(this);
 
@@ -120,7 +124,8 @@ public class TimingSystem extends JavaPlugin
     public void onDisable()
     {
         logger.info("Version " + getDescription().getVersion() + " disabled.");
-        TrackDatabase.plugin = null;
+        DatabaseTrack.plugin = null;
+        Database.plugin = null;
         CommandRace.plugin = null;
         CommandTrack.plugin = null;
         TSListener.plugin = null;
