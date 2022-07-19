@@ -14,13 +14,13 @@ public class Database {
 
     public static boolean initialize(){
         try {
-            co.aikar.idb.Database db = BukkitDB.createHikariDatabase(TimingSystem.getPlugin(),
+            BukkitDB.createHikariDatabase(TimingSystem.getPlugin(),
                     TimingSystem.configuration.getSqlUsername(),
                     TimingSystem.configuration.getSqlPassword(),
                     TimingSystem.configuration.getSqlDatabase(),
                     TimingSystem.configuration.getSqlHost() + ":" + TimingSystem.configuration.getSqlPort()
             );
-            return true;
+            return createTables();
         }
         catch (Exception e) {
             plugin.getLogger().warning("Failed to initialize database, disabling plugin.");
