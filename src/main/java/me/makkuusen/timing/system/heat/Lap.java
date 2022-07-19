@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.track.Track;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 @Getter
 @Setter
-public class Lap implements Comparable<Lap>{
+public class Lap implements Comparable<Lap> {
 
     private Driver driver;
     private Track track;
@@ -23,15 +23,14 @@ public class Lap implements Comparable<Lap>{
     private boolean pitted;
     private ArrayList<Instant> checkpoints = new ArrayList<>();
 
-    public Lap(Driver driver, Track track){
+    public Lap (Driver driver, Track track) {
         this.driver = driver;
         this.track = track;
         this.lapStart = TimingSystem.currentTime;
     }
-    
+
     public long getLapTime() {
-        if(lapEnd == null || lapStart == null)
-        {
+        if (lapEnd == null || lapStart == null) {
             return -1;
         }
         long lapTime = Duration.between(lapStart, lapEnd).toMillis();
@@ -39,24 +38,21 @@ public class Lap implements Comparable<Lap>{
     }
 
     public int getNextCheckpoint() {
-        if (track.getCheckpoints().size() >= checkpoints.size())
-        {
+        if (track.getCheckpoints().size() >= checkpoints.size()) {
             return checkpoints.size() + 1;
         }
         return checkpoints.size();
     }
 
-    public boolean hasPassedAllCheckpoints()
-    {
+    public boolean hasPassedAllCheckpoints() {
         return checkpoints.size() == track.getCheckpoints().size();
     }
 
-    public void passNextCheckpoint(Instant timeStamp)
-    {
+    public void passNextCheckpoint(Instant timeStamp) {
         checkpoints.add(timeStamp);
     }
 
-    public int getLatestCheckpoint(){
+    public int getLatestCheckpoint() {
         return checkpoints.size();
     }
 
