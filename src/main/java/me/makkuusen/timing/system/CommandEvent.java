@@ -113,7 +113,9 @@ public class CommandEvent extends BaseCommand {
             }
         }
         if (event.finishQualification()){
-            player.sendMessage("§a Qualification has been finished. Get ready for finals!");
+            player.sendMessage("§aQualification has been finished. Get ready for finals!");
+        } else {
+            player.sendMessage("§cEvent is not in qualification mode");
         }
     }
 
@@ -129,7 +131,9 @@ public class CommandEvent extends BaseCommand {
             }
         }
         if (event.finishFinals()){
-            player.sendMessage("§a Finals and the event has been finished. It's podium time!");
+            player.sendMessage("§aFinals and the event has been finished. It's podium time!");
+        } else {
+            player.sendMessage("§cEvent is not in finals mode");
         }
     }
 

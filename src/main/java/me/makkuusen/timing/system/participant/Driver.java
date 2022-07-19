@@ -69,6 +69,7 @@ public class Driver extends Participant implements Comparable<Driver> {
         startTime = null;
         laps = new ArrayList<>();
         finished = false;
+        position = 0;
     }
 
     private void newLap(){

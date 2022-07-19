@@ -50,6 +50,12 @@ public abstract class Heat {
     }
 
     public boolean loadHeat() {
+        if (this instanceof QualyHeat && event.getState() != Event.EventState.QUALIFICATION){
+            return false;
+        }
+        if (this instanceof FinalHeat && event.getState() != Event.EventState.FINAL){
+            return false;
+        }
         if (getHeatState() != HeatState.SETUP) {
             return false;
         }
@@ -95,7 +101,6 @@ public abstract class Heat {
             if (driver.getTPlayer().getPlayer() != null) {
                 driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
             }
-
         });
     }
 
@@ -137,6 +142,8 @@ public abstract class Heat {
         setHeatState(HeatState.SETUP);
         setStartTime(null);
         setEndTime(null);
+        setFastestLap(-1);
+        setLivePositions(new ArrayList<>());
         getDrivers().values().stream().forEach(driver -> driver.reset());
         ApiUtilities.clearScoreboards();
         ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
