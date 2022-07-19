@@ -644,7 +644,7 @@ public class Track
                 {
                     boat.setWoodType(TreeSpecies.ACACIA);
                 }
-                else if (player.getName().equalsIgnoreCase("Makkuusen"))
+                else if (player.getName().equalsIgnoreCase("Makkuusen")  || player.getName().equalsIgnoreCase("TechnoGustav"))
                 {
                     boat.setWoodType(TreeSpecies.JUNGLE);
                 }
