@@ -78,9 +78,12 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("load")
     @CommandCompletion("@heat")
     public static void onHeatLoad(Player player, Heat heat){
-        heat.loadHeat();
-        player.sendMessage("§aLoaded " + heat.getName());
-        return;
+        if (heat.loadHeat()) {
+            player.sendMessage("§aLoaded " + heat.getName());
+            return;
+        }
+        player.sendMessage("§cCouldn't load" + heat.getName());
+
     }
 
     @Subcommand("reset")

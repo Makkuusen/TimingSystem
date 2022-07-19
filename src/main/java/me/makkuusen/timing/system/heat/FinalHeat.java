@@ -33,7 +33,6 @@ public class FinalHeat extends Heat {
         FinalDriver fDriver = (FinalDriver) driver;
         if (totalLaps <= fDriver.getLaps().size() && totalPits <= fDriver.getPits())
         {
-            updatePositions();
             finishDriver(fDriver);
             if (allDriversFinished()){
                 finishHeat();
@@ -46,6 +45,7 @@ public class FinalHeat extends Heat {
 
     private void finishDriver(FinalDriver driver) {
         driver.finish();
+        updatePositions();
         EventAnnouncements.sendFinishSound(driver);
         EventAnnouncements.sendFinishTitle(driver);
         EventAnnouncements.broadcastFinish(this, driver, driver.getFinishTime());

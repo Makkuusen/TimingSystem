@@ -351,9 +351,6 @@ public class TSListener implements Listener
 
     private void handleRace(Race race, Player player) {
         var track = race.getTrack();
-        if (track.getMode() != Track.TrackMode.RACE) {
-            return;
-        }
 
         if(!race.getRaceState().equals(HeatState.RACING)){
             return;
@@ -410,10 +407,6 @@ public class TSListener implements Listener
 
     private void handleHeat(Driver driver, Player player) {
         Heat heat = driver.getHeat();
-        var track = heat.getEvent().getTrack();
-        if (track.getMode() != Track.TrackMode.RACE) {
-            return;
-        }
 
         if(!heat.getHeatState().equals(HeatState.RACING)){
             return;
@@ -422,6 +415,7 @@ public class TSListener implements Listener
         if (driver.isFinished()) {
             return;
         }
+        var track = heat.getEvent().getTrack();
         if (track.getStartRegion().contains(player.getLocation()))
         {
             if (!driver.isRunning()) {
