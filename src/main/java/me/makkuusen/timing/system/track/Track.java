@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,22 +58,6 @@ public class Track
     public enum TrackMode
     {
         TIMETRIAL, RACE
-    }
-
-    public Track(ResultSet data) throws SQLException
-    {
-        id = data.getInt("id");
-        owner = data.getString("uuid") == null ? null : Database.getPlayer(UUID.fromString(data.getString("uuid")));
-        name = data.getString("name");
-        dateCreated = data.getInt("dateCreated");
-        guiItem = ApiUtilities.stringToItem(data.getString("guiItem"));
-        spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
-        leaderboardLocation = ApiUtilities.stringToLocation(data.getString("leaderboard"));
-        type = data.getString("type") == null ? null : TrackType.valueOf(data.getString("type"));
-        toggleOpen = data.getBoolean("toggleOpen");
-        toggleGovernment = data.getBoolean("toggleGovernment");
-        options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
-        mode = data.getString("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));;
     }
 
     public Track(DbRow data)

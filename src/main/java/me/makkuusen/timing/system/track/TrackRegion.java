@@ -4,9 +4,6 @@ import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.ApiUtilities;
 import org.bukkit.Location;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 public class TrackRegion
 {
 
@@ -21,17 +18,6 @@ public class TrackRegion
     public enum RegionType
     {
         START, END, CHECKPOINT, RESET, PIT, GRID
-    }
-
-    public TrackRegion(ResultSet data) throws SQLException
-    {
-        id = data.getInt("id");
-        trackId = data.getInt("trackId");
-        regionIndex = data.getInt("regionIndex");
-        regionType = data.getString("regionType") == null ? null : TrackRegion.RegionType.valueOf(data.getString("regionType"));
-        minP = ApiUtilities.stringToLocation(data.getString("minP"));
-        maxP = ApiUtilities.stringToLocation(data.getString("maxP"));
-        spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
     }
 
     public TrackRegion(DbRow data)

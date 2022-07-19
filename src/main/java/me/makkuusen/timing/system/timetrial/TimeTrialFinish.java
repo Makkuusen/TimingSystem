@@ -5,8 +5,6 @@ import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.UUID;
 
@@ -19,16 +17,6 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish>
     private final long date;
     private final long time;
     private final boolean isRemoved;
-
-    public TimeTrialFinish(ResultSet data) throws SQLException
-    {
-        this.id = data.getInt("id");
-        this.trackId = data.getInt("trackId");
-        this.player = data.getString("uuid") == null ? null : Database.getPlayer(UUID.fromString(data.getString("uuid")));
-        this.date = data.getInt("date");
-        this.time = data.getInt("time");
-        this.isRemoved = data.getBoolean("isRemoved");
-    }
 
     public TimeTrialFinish(DbRow data)
     {
