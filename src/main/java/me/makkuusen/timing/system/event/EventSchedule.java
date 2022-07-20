@@ -3,7 +3,7 @@ package me.makkuusen.timing.system.event;
 import lombok.Getter;
 import me.makkuusen.timing.system.heat.FinalHeat;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.heat.QualyHeat;
+import me.makkuusen.timing.system.heat.QualifyHeat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,28 +12,28 @@ import java.util.Optional;
 @Getter
 public class EventSchedule {
 
-    private final List<QualyHeat> qualyHeatList = new ArrayList<>();
+    private final List<QualifyHeat> qualifyHeatList = new ArrayList<>();
     private final List<FinalHeat> finalHeatList = new ArrayList<>();
 
     public EventSchedule() {
 
     }
 
-    public void createQuickSchedule(List<QualyHeat> qualyHeats, List<FinalHeat> finalHeats) {
-        qualyHeatList.addAll(qualyHeats);
+    public void createQuickSchedule(List<QualifyHeat> qualifyHeats, List<FinalHeat> finalHeats) {
+        qualifyHeatList.addAll(qualifyHeats);
         finalHeatList.addAll(finalHeats);
     }
 
     public List<Heat> getHeats(){
         List<Heat> heats = new ArrayList<>();
-        heats.addAll(getQualyHeatList());
+        heats.addAll(getQualifyHeatList());
         heats.addAll(getFinalHeatList());
         return heats;
     }
 
     public boolean addHeat(Heat heat){
-        if (heat instanceof QualyHeat qualyHeat && !qualyHeatList.contains(qualyHeat)) {
-            qualyHeatList.add(qualyHeat);
+        if (heat instanceof QualifyHeat qualifyHeat && !qualifyHeatList.contains(qualifyHeat)) {
+            qualifyHeatList.add(qualifyHeat);
             return true;
         } else if (heat instanceof FinalHeat finalHeat && !finalHeatList.contains(finalHeat)) {
             finalHeatList.add(finalHeat);
@@ -45,9 +45,9 @@ public class EventSchedule {
     public List<String> listHeats() {
         List<String> message = new ArrayList<>();
 
-        if (!getQualyHeatList().isEmpty()) {
+        if (!getQualifyHeatList().isEmpty()) {
             message.add("§2Qualification Heats:");
-            getQualyHeatList().stream().forEach(heat -> message.add("§a - " + heat.getName()));
+            getQualifyHeatList().stream().forEach(heat -> message.add("§a - " + heat.getName()));
         }
 
         if (!getFinalHeatList().isEmpty()) {
@@ -59,7 +59,7 @@ public class EventSchedule {
 
     public List<String> getRawHeats(){
         List<String> heats = new ArrayList<>();
-        getQualyHeatList().stream().forEach(heat -> heats.add(heat.getName()));
+        getQualifyHeatList().stream().forEach(heat -> heats.add(heat.getName()));
         getFinalHeatList().stream().forEach(heat -> heats.add(heat.getName()));
         return heats;
     }

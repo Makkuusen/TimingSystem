@@ -1,8 +1,9 @@
 package me.makkuusen.timing.system.heat;
 
+import co.aikar.idb.DB;
+import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
-import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.FinalDriver;
@@ -14,10 +15,10 @@ public class FinalHeat extends Heat {
     private int totalLaps;
     private int totalPits;
 
-    public FinalHeat(Event event, String name, int totalLaps, int totalPits){
-        super(event, name);
-        this.totalLaps = totalLaps;
-        this.totalPits = totalPits;
+    public FinalHeat(DbRow data) {
+        super(data);
+        totalLaps = data.getInt("totalLaps");
+        totalPits = data.getInt("totalPitstops");
         setScoreboard(new FinalScoreboard(this));
     }
 
@@ -49,5 +50,15 @@ public class FinalHeat extends Heat {
         EventAnnouncements.sendFinishSound(driver);
         EventAnnouncements.sendFinishTitle(driver);
         EventAnnouncements.broadcastFinish(this, driver, driver.getFinishTime());
+    }
+
+    public void setTotalLaps(int totalLaps){
+        this.totalLaps = totalLaps;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalLaps` = " + totalLaps + " WHERE `id` = " + getId() + ";");
+    }
+
+    public void setTotalPits(int totalPits){
+        this.totalPits = totalPits;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalPitstops` = " + totalPits + " WHERE `id` = " + getId() + ";");
     }
 }

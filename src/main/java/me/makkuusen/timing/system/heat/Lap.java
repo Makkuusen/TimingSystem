@@ -1,8 +1,12 @@
 package me.makkuusen.timing.system.heat;
 
+import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.DatabaseTrack;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
@@ -16,7 +20,8 @@ import java.util.ArrayList;
 @Setter
 public class Lap implements Comparable<Lap> {
 
-    private Driver driver;
+    private TPlayer player;
+    private int heatId;
     private Track track;
     private Instant lapEnd;
     private Instant lapStart;
@@ -24,9 +29,20 @@ public class Lap implements Comparable<Lap> {
     private ArrayList<Instant> checkpoints = new ArrayList<>();
 
     public Lap (Driver driver, Track track) {
-        this.driver = driver;
+        this.heatId = driver.getHeat().getId();
+        this.player = driver.getTPlayer();
         this.track = track;
         this.lapStart = TimingSystem.currentTime;
+        this.pitted = false;
+    }
+
+    public Lap (DbRow data) {
+        player = Database.getPlayer(data.getString("uuid"));;
+        heatId = data.getInt("heatId");
+        track = DatabaseTrack.getTrackById(data.getInt("trackId")).get();
+        lapStart = Instant.ofEpochMilli(data.getLong("lapStart"));
+        lapEnd = Instant.ofEpochMilli(data.getLong("lapEnd"));
+        pitted = data.get("pitted");
     }
 
     public long getLapTime() {

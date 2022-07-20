@@ -8,7 +8,7 @@ import org.bukkit.scoreboard.Scoreboard;
 public class QualyScoreboard extends GenericScoreboard {
 
 
-    public QualyScoreboard(QualyHeat heat) {
+    public QualyScoreboard(QualifyHeat heat) {
         super(heat);
     }
 

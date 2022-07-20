@@ -100,7 +100,6 @@ public class TimingSystem extends JavaPlugin
 
         Database.initialize();
         Database.synchronize();
-        //TrackDatabase.connect();
 
 
         tasks = new Tasks(this);

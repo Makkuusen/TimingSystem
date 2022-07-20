@@ -1,14 +1,12 @@
 package me.makkuusen.timing.system.participant;
 
-import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.TPlayer;
+import co.aikar.idb.DbRow;
 import org.jetbrains.annotations.NotNull;
 
 public class QualyDriver extends Driver {
 
-    public QualyDriver(TPlayer tPlayer, Heat heat, int startPos){
-        super(tPlayer, heat);
-        setStartPosition(startPos);
+    public QualyDriver(DbRow data) {
+        super(data);
     }
 
     @Override

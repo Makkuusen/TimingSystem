@@ -1,11 +1,13 @@
 package me.makkuusen.timing.system.participant;
 
+import co.aikar.idb.DB;
+import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.EventAnnouncements;
+import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
 import org.jetbrains.annotations.NotNull;
@@ -19,27 +21,35 @@ import java.util.Optional;
 
 @Getter
 @Setter
-public class Driver extends Participant implements Comparable<Driver> {
+public abstract class Driver extends Participant implements Comparable<Driver> {
 
+    private int id;
     private Heat heat;
-    private boolean finished = false;
-    private int position = 0;
-    private int startPosition = -1;
+    private boolean finished;
+    private int position;
+    private int startPosition;
     private Instant startTime;
     private Instant endTime;
-    private boolean isRunning = false;
+    private boolean isRunning;
     private List<Lap> laps = new ArrayList<>();
 
-    public Driver(TPlayer tPlayer, Heat heat){
-        super(tPlayer);
-        this.heat = heat;
+    public Driver(DbRow data) {
+        super(data);
+        id = data.get("id");
+        heat = EventDatabase.getHeat(data.getInt("heatId")).get();
+        finished = data.get("isFinished");
+        position = data.getInt("position");
+        startPosition = data.getInt("startPosition");
+        startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
+        endTime = data.getLong("endTime") == null ? null : Instant.ofEpochMilli(data.getLong("endTime"));
+        isRunning = false;
     }
 
     public void finish(){
         finishLap();
-        endTime = TimingSystem.currentTime;
+        setEndTime(TimingSystem.currentTime);
         isRunning = false;
-        finished = true;
+        setFinished(true);
     }
 
     public void start(){
@@ -54,7 +64,7 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     private void finishLap(){
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
-        if (heat.getFastestLap() == -1 || getCurrentLap().getLapTime() < heat.getFastestLap()) {
+        if (heat.getFastestLap() < 1 || getCurrentLap().getLapTime() < heat.getFastestLap()) {
             EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap().getLapTime());
             heat.setFastestLap(getCurrentLap().getLapTime());
         } else {
@@ -65,11 +75,11 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public void reset(){
         isRunning = false;
-        endTime = null;
-        startTime = null;
+        setEndTime(null);
+        setStartTime(null);
         laps = new ArrayList<>();
-        finished = false;
-        position = 0;
+        setFinished(false);
+        setPosition(startPosition);
     }
 
     private void newLap(){
@@ -78,6 +88,34 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public long getFinishTime(){
         return Duration.between(startTime, endTime).toMillis();
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `isFinished` = " + finished + " WHERE `id` = " + id + ";");
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `position` = " + position + " WHERE `id` = " + id + ";");
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
+        if (startTime == null) {
+            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startTime` = NULL WHERE `id` = " + id + ";");
+        } else {
+            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startTime` = "+ startTime.toEpochMilli() + " WHERE `id` = " + id + ";");
+        }
+    }
+
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
+        if (endTime == null) {
+            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = NULL WHERE `id` = " + id + ";");
+        } else {
+            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = "+ endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
+        }
     }
 
     public @Nullable Lap getCurrentLap(){

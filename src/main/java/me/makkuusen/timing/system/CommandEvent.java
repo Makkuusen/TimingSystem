@@ -11,11 +11,9 @@ import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @CommandAlias("event")
@@ -53,7 +51,12 @@ public class CommandEvent extends BaseCommand {
     @CommandCompletion("@event")
     public static void onInfo(CommandSender sender, Event event) {
         sender.sendMessage("§aEvent name: " + event.getDisplayName());
-        sender.sendMessage("§aTrack: " + event.getTrack().getName());
+        if (event.getTrack() == null) {
+            sender.sendMessage("§aTrack: None");
+        } else {
+            sender.sendMessage("§aTrack: " + event.getTrack().getName());
+        }
+
         sender.sendMessage("§aState: " + event.getState());
     }
 
@@ -61,8 +64,11 @@ public class CommandEvent extends BaseCommand {
     @CommandCompletion("<name>")
     public static void onCreate(Player player, String[] arguments) {
         if (arguments.length >= 1) {
-            EventDatabase.eventNew(player.getUniqueId(), arguments[0]);
-            player.sendMessage("§aCreated event " + arguments[0]);
+            if (EventDatabase.eventNew(player.getUniqueId(), arguments[0])) {
+                player.sendMessage("§aCreated event " + arguments[0]);
+                return;
+            }
+            player.sendMessage("§cCould not create event " + arguments[0]);
         }
     }
     @Subcommand("select")
@@ -88,6 +94,7 @@ public class CommandEvent extends BaseCommand {
 
     }
 
+    /*
     @Subcommand("quickstart")
     @CommandCompletion("@event")
     public static void onQuickSetup(Player player, Event event){
@@ -99,7 +106,7 @@ public class CommandEvent extends BaseCommand {
         event.quickSetup(tPlayers, 60000, 3, 1);
         event.setState(Event.EventState.QUALIFICATION);
         player.sendMessage("§aDid a quick setup for " + event.getId());
-    }
+    }*/
 
     @Subcommand("finish qualification")
     public static void onFinishQualification(Player player, @Optional Event event){
