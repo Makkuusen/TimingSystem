@@ -31,8 +31,8 @@ import java.util.UUID;
 public class EventDatabase {
 
     public static TimingSystem plugin;
-    private static Set<Event> events = new HashSet<>();
-    private static Set<Heat> heats = new HashSet<>();
+    private static final Set<Event> events = new HashSet<>();
+    private static final Set<Heat> heats = new HashSet<>();
     private static final HashMap<UUID, Event> playerSelectedEvent = new HashMap<>();
     private static final HashMap<UUID, Driver> playerInRunningHeat = new HashMap<>();
 
@@ -64,7 +64,7 @@ public class EventDatabase {
                         }
                         driver.setLaps(laps);
                     }
-                    if(heat.getEndTime() != null && heat.getEndTime().toEpochMilli() > 0) {
+                    if (heat.getEndTime() != null && heat.getEndTime().toEpochMilli() > 0) {
                         er.reportFinalResults(heat.getDrivers().values().stream().toList());
                     }
 
@@ -84,7 +84,7 @@ public class EventDatabase {
                         }
                         driver.setLaps(laps);
                     }
-                    if(heat.getEndTime() != null && heat.getEndTime().toEpochMilli() > 0) {
+                    if (heat.getEndTime() != null && heat.getEndTime().toEpochMilli() > 0) {
                         er.reportQualyResults(heat.getDrivers().values().stream().toList());
                     }
                 }
@@ -98,8 +98,9 @@ public class EventDatabase {
     static public void setPlayerSelectedEvent(UUID uuid, Event event) {
         playerSelectedEvent.put(uuid, event);
     }
+
     static public Optional<Event> getPlayerSelectedEvent(UUID uuid) {
-        if (playerSelectedEvent.containsKey(uuid)){
+        if (playerSelectedEvent.containsKey(uuid)) {
             return Optional.of(playerSelectedEvent.get(uuid));
         }
         return Optional.empty();
@@ -118,9 +119,8 @@ public class EventDatabase {
     }
 
     static public boolean eventNew(UUID uuid, String name) {
-        try
-        {
-            if (getEvent(name).isPresent()){
+        try {
+            if (getEvent(name).isPresent()) {
                 return false;
             }
             var eventId = DB.executeInsert("INSERT INTO `ts_events`(" +
@@ -143,8 +143,7 @@ public class EventDatabase {
                 setPlayerSelectedEvent(uuid, event);
             }
             return true;
-        } catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             exception.printStackTrace();
             return false;
         }
@@ -182,8 +181,7 @@ public class EventDatabase {
             heats.add(qualifyHeat);
             event.getEventSchedule().addHeat(qualifyHeat);
             return true;
-        } catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             exception.printStackTrace();
             return false;
         }
@@ -221,8 +219,7 @@ public class EventDatabase {
             heats.add(finalHeat);
             event.getEventSchedule().addHeat(finalHeat);
             return true;
-        } catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             exception.printStackTrace();
             return false;
         }
@@ -235,22 +232,20 @@ public class EventDatabase {
             heat.addDriver(finalDriver);
             heat.getEvent().addParticipant(uuid);
             return true;
-        } catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             exception.printStackTrace();
             return false;
         }
     }
 
-    public static boolean qualyDriverNew(UUID uuid, Heat heat, int startPosition){
+    public static boolean qualyDriverNew(UUID uuid, Heat heat, int startPosition) {
         try {
             var driverDbRow = driverNew(uuid, heat, startPosition);
             var qualyDriver = new QualyDriver(driverDbRow);
             heat.addDriver(qualyDriver);
             heat.getEvent().addParticipant(uuid);
             return true;
-        } catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             exception.printStackTrace();
             return false;
         }
@@ -281,7 +276,7 @@ public class EventDatabase {
     public static boolean lapNew(Lap lap) {
         try {
             String lapEnd;
-            if (lap.getLapEnd() == null){
+            if (lap.getLapEnd() == null) {
                 lapEnd = "NULL";
             } else {
                 lapEnd = String.valueOf(lap.getLapEnd().toEpochMilli());
@@ -301,8 +296,7 @@ public class EventDatabase {
                     lapEnd + "," +
                     lap.isPitted() + ")");
 
-        } catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             exception.printStackTrace();
             return false;
         }
@@ -320,9 +314,9 @@ public class EventDatabase {
         return eventStrings;
     }
 
-    static public List<String> getHeatsAsStrings(UUID uuid){
+    static public List<String> getHeatsAsStrings(UUID uuid) {
         var maybeEvent = getPlayerSelectedEvent(uuid);
-        if (maybeEvent.isEmpty()){
+        if (maybeEvent.isEmpty()) {
             return List.of();
         }
         return maybeEvent.get().getRawHeatList();
@@ -349,7 +343,7 @@ public class EventDatabase {
             if (maybeEvent.isPresent()) {
                 Event event = maybeEvent.get();
                 var maybeHeat = event.getEventSchedule().getHeat(heatName);
-                if (maybeHeat.isPresent()){
+                if (maybeHeat.isPresent()) {
                     return maybeHeat.get();
                 }
             }
@@ -358,7 +352,7 @@ public class EventDatabase {
         };
     }
 
-    public static boolean addPlayerToRunningHeat(Driver driver){
+    public static boolean addPlayerToRunningHeat(Driver driver) {
         if (playerInRunningHeat.get(driver.getTPlayer().getUniqueId()) != null) {
             return false;
         }
@@ -370,7 +364,7 @@ public class EventDatabase {
         playerInRunningHeat.remove(uuid);
     }
 
-    public static Optional<Driver> getDriverFromRunningHeat(UUID uuid){
+    public static Optional<Driver> getDriverFromRunningHeat(UUID uuid) {
         if (playerInRunningHeat.get(uuid) != null) {
             return Optional.of(playerInRunningHeat.get(uuid));
         }

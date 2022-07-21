@@ -14,24 +14,24 @@ public class EventResults {
     List<Driver> qualyResults = new ArrayList<>();
     List<Driver> finalResults = new ArrayList<>();
 
-    public EventResults(){
+    public EventResults() {
 
     }
 
-    public void reportQualyResults(List<Driver> heatPos){
+    public void reportQualyResults(List<Driver> heatPos) {
         qualyResults.addAll(heatPos);
         Collections.sort(qualyResults);
     }
 
-    public void reportFinalResults(List<Driver> heatPos){
+    public void reportFinalResults(List<Driver> heatPos) {
         finalResults.addAll(heatPos);
         Collections.sort(finalResults);
     }
 
-    public List<Driver> generateFinalStartingPositions(){
+    public List<Driver> generateFinalStartingPositions() {
         Collections.sort(qualyResults);
         ApiUtilities.msgConsole("Generated Final Positions:");
-        for(Driver d : qualyResults){
+        for (Driver d : qualyResults) {
             ApiUtilities.msgConsole(d.getPosition() + ":" + d.getTPlayer().getName());
         }
 

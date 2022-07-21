@@ -24,14 +24,14 @@ public class EventSchedule {
         finalHeatList.addAll(finalHeats);
     }
 
-    public List<Heat> getHeats(){
+    public List<Heat> getHeats() {
         List<Heat> heats = new ArrayList<>();
         heats.addAll(getQualifyHeatList());
         heats.addAll(getFinalHeatList());
         return heats;
     }
 
-    public boolean addHeat(Heat heat){
+    public boolean addHeat(Heat heat) {
         if (heat instanceof QualifyHeat qualifyHeat && !qualifyHeatList.contains(qualifyHeat)) {
             qualifyHeatList.add(qualifyHeat);
             return true;
@@ -57,14 +57,14 @@ public class EventSchedule {
         return message;
     }
 
-    public List<String> getRawHeats(){
+    public List<String> getRawHeats() {
         List<String> heats = new ArrayList<>();
         getQualifyHeatList().stream().forEach(heat -> heats.add(heat.getName()));
         getFinalHeatList().stream().forEach(heat -> heats.add(heat.getName()));
         return heats;
     }
 
-    public Optional<Heat> getHeat(String heatName){
+    public Optional<Heat> getHeat(String heatName) {
         var heats = getHeats();
         return heats.stream().filter(heat -> heatName.equalsIgnoreCase(heat.getName())).findFirst();
     }

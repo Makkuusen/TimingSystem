@@ -39,7 +39,7 @@ public class Event {
         SETUP, QUALIFICATION, FINAL, FINISHED
     }
 
-    public Event(DbRow data){
+    public Event(DbRow data) {
         id = data.getInt("id");
         displayName = data.getString("name");
         uuid = UUID.fromString(data.getString("uuid"));
@@ -49,14 +49,14 @@ public class Event {
         eventSchedule = new EventSchedule();
     }
 
-    public boolean start(){
-        if (state != EventState.SETUP){
+    public boolean start() {
+        if (state != EventState.SETUP) {
             return false;
         }
-        if (track == null){
+        if (track == null) {
             return false;
         }
-        if (eventSchedule.getHeats().size() == 0){
+        if (eventSchedule.getHeats().size() == 0) {
             return false;
         }
         if (eventSchedule.getQualifyHeatList().size() > 0) {
@@ -69,7 +69,7 @@ public class Event {
         return false;
     }
 
-    public boolean finishQualification(){
+    public boolean finishQualification() {
         if (state != EventState.QUALIFICATION) {
             return false;
         }
@@ -77,14 +77,14 @@ public class Event {
         // Ugly way to get finalheat
         Heat finalHeat = eventSchedule.getFinalHeatList().get(0);
         int startPos = 1;
-        for (Driver driver : drivers){
+        for (Driver driver : drivers) {
             EventDatabase.finalDriverNew(driver.getTPlayer().getUniqueId(), finalHeat, startPos++);
         }
         setState(EventState.FINAL);
         return true;
     }
 
-    public boolean finishFinals(){
+    public boolean finishFinals() {
         if (state != EventState.FINAL) {
             return false;
         }
@@ -93,34 +93,11 @@ public class Event {
         return true;
     }
 
-    /*public boolean quickSetup(List<TPlayer> tDrivers, long qualyTime, int laps, int pitstops) {
-        if (track == null) {
-            return false;
-        }
-        String heatNameQ = "Qualy";
-        QualifyHeat qualifyHeat = new QualifyHeat(this, "Qualy1", qualyTime);
-        QualifyHeat qualifyHeat2 = new QualifyHeat(this, "Qualy2", qualyTime);
-        String heatName = "Final";
-        FinalHeat finalHeat = new FinalHeat(this, heatName, laps, pitstops);
-        int startPos = 1;
-        int startPos2 = 1;
-        for (int i = 0; i < tDrivers.size(); i++){
-            if (i%2 == 0) {
-                qualifyHeat.addDriver(new QualyDriver(tDrivers.get(i), qualifyHeat, startPos++));
-            } else {
-                qualifyHeat2.addDriver(new QualyDriver(tDrivers.get(i), qualifyHeat2, startPos2++));
-            }
-            participants.put(tDrivers.get(i).getUniqueId(), new Spectator(tDrivers.get(i)));
-        }
-        eventSchedule.createQuickSchedule(List.of(qualifyHeat, qualifyHeat2),List.of(finalHeat));
-        return true;
-    }*/
-
-    public void addParticipant(UUID uuid){
+    public void addParticipant(UUID uuid) {
         participants.put(uuid, new Spectator(Database.getPlayer(uuid)));
     }
 
-    public List<Participant> getParticipants(){
+    public List<Participant> getParticipants() {
         return participants.values().stream().toList();
     }
 
@@ -135,7 +112,7 @@ public class Event {
         return eventSchedule.getRawHeats();
     }
 
-    public void setTrack(Track track){
+    public void setTrack(Track track) {
         this.track = track;
         DB.executeUpdateAsync("UPDATE `ts_events` SET `track` = " + track.getId() + " WHERE `id` = " + id + ";");
     }
@@ -159,7 +136,7 @@ public class Event {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return displayName;
     }
 }

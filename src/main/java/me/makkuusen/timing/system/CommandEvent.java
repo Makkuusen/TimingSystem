@@ -23,14 +23,13 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("help")
     @Description("Displays help")
     public static void onHelp(Player player) {
-        if (player.isOp() || player.hasPermission("event.command.help"))
-        {
+        if (player.isOp() || player.hasPermission("event.command.help")) {
             player.sendMessage("§2/event help");
         }
     }
 
     @Subcommand("start")
-    public static void onStart(Player player, @Optional Event event){
+    public static void onStart(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -40,7 +39,7 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        if (event.start()){
+        if (event.start()) {
             player.sendMessage("§aEvent has started");
             return;
         }
@@ -71,16 +70,17 @@ public class CommandEvent extends BaseCommand {
             player.sendMessage("§cCould not create event " + arguments[0]);
         }
     }
+
     @Subcommand("select")
     @CommandCompletion("@event")
-    public static void onSelectEvent(Player player, Event event){
+    public static void onSelectEvent(Player player, Event event) {
         EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
         player.sendMessage("§aSelected new event");
     }
 
     @Subcommand("set track")
     @CommandCompletion("@track")
-    public static void onSetTrack(Player player, Track track){
+    public static void onSetTrack(Player player, Track track) {
         Event event;
         var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
         if (maybeEvent.isPresent()) {
@@ -94,22 +94,8 @@ public class CommandEvent extends BaseCommand {
 
     }
 
-    /*
-    @Subcommand("quickstart")
-    @CommandCompletion("@event")
-    public static void onQuickSetup(Player player, Event event){
-        List<TPlayer> tPlayers = new ArrayList<>();
-        Bukkit.getOnlinePlayers().stream().forEach(p -> {
-            tPlayers.add(TimingSystem.players.get(p.getUniqueId()));
-        });
-        event.setTrack(DatabaseTrack.getTrack("newbie").get());
-        event.quickSetup(tPlayers, 60000, 3, 1);
-        event.setState(Event.EventState.QUALIFICATION);
-        player.sendMessage("§aDid a quick setup for " + event.getId());
-    }*/
-
     @Subcommand("finish qualification")
-    public static void onFinishQualification(Player player, @Optional Event event){
+    public static void onFinishQualification(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -119,7 +105,7 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        if (event.finishQualification()){
+        if (event.finishQualification()) {
             player.sendMessage("§aQualification has been finished. Get ready for finals!");
         } else {
             player.sendMessage("§cEvent is not in qualification mode");
@@ -127,7 +113,7 @@ public class CommandEvent extends BaseCommand {
     }
 
     @Subcommand("finish finals")
-    public static void onFinishFinals(Player player, @Optional Event event){
+    public static void onFinishFinals(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -137,7 +123,7 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        if (event.finishFinals()){
+        if (event.finishFinals()) {
             player.sendMessage("§aFinals and the event has been finished. It's podium time!");
         } else {
             player.sendMessage("§cEvent is not in finals mode");
@@ -145,7 +131,7 @@ public class CommandEvent extends BaseCommand {
     }
 
     @Subcommand("results finals")
-    public static void onResultsFinals(Player player, @Optional Event event){
+    public static void onResultsFinals(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -168,7 +154,7 @@ public class CommandEvent extends BaseCommand {
     }
 
     @Subcommand("results qualification")
-    public static void onResultsQualification(Player player, @Optional Event event){
+    public static void onResultsQualification(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
