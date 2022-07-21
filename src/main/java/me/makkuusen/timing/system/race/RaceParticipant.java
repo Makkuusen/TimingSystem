@@ -8,7 +8,7 @@ public abstract class RaceParticipant {
     private TPlayer tPlayer;
     protected Race race;
 
-    public RaceParticipant(TPlayer tPlayer, Race race){
+    public RaceParticipant(TPlayer tPlayer, Race race) {
         this.tPlayer = tPlayer;
         this.race = race;
     }
@@ -17,7 +17,9 @@ public abstract class RaceParticipant {
         return tPlayer;
     }
 
-    public Player getPlayer() { return tPlayer.getPlayer();}
+    public Player getPlayer() {
+        return tPlayer.getPlayer();
+    }
 
     public void setTSPlayer(TPlayer tPlayer) {
         this.tPlayer = tPlayer;

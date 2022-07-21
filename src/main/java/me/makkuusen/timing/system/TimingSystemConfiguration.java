@@ -5,20 +5,18 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class TimingSystemConfiguration
-{
+public class TimingSystemConfiguration {
     private final int leaderboardsUpdateTick;
     private final List<String> leaderboardsFastestTimeLines;
-    private boolean lasersItems;
-    private int timesPageSize;
-    private String sqlHost;
-    private int sqlPort;
-    private String sqlDatabase;
-    private String sqlUsername;
-    private String sqlPassword;
+    private final boolean lasersItems;
+    private final int timesPageSize;
+    private final String sqlHost;
+    private final int sqlPort;
+    private final String sqlDatabase;
+    private final String sqlUsername;
+    private final String sqlPassword;
 
-    TimingSystemConfiguration(TimingSystem plugin)
-    {
+    TimingSystemConfiguration(TimingSystem plugin) {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         leaderboardsUpdateTick = plugin.getConfig().getInt("leaderboards.updateticks");
@@ -33,17 +31,18 @@ public class TimingSystemConfiguration
         sqlPassword = plugin.getConfig().getString("sql.password");
     }
 
-    public int leaderboardsUpdateTick()
-    {
+    public int leaderboardsUpdateTick() {
         return leaderboardsUpdateTick;
     }
-    public List<String> leaderboardsFastestTimeLines()
-    {
+
+    public List<String> leaderboardsFastestTimeLines() {
         return leaderboardsFastestTimeLines;
     }
+
     public boolean isLasersItems() {
         return lasersItems;
     }
+
     public int getTimesPageSize() {
         return timesPageSize;
     }

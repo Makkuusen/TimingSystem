@@ -10,19 +10,15 @@ public class TimeTrialController {
 
     public static HashMap<UUID, TimeTrial> timeTrials = new HashMap<>();
 
-    public static void playerLeavingMap(UUID uuid)
-    {
-        if (!TimeTrialController.timeTrials.containsKey(uuid))
-        {
+    public static void playerLeavingMap(UUID uuid) {
+        if (!TimeTrialController.timeTrials.containsKey(uuid)) {
             return;
         }
         TimeTrialController.timeTrials.remove(uuid);
     }
 
-    public static void playerCancelMap(Player player)
-    {
-        if (!TimeTrialController.timeTrials.containsKey(player.getUniqueId()))
-        {
+    public static void playerCancelMap(Player player) {
+        if (!TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             return;
         }
         ApiUtilities.msgConsole(player.getName() + " has cancelled run on " + TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack().getName());

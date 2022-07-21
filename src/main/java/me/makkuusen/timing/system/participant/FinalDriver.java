@@ -31,14 +31,14 @@ public class FinalDriver extends Driver {
     }
 
     @Override
-    public void reset(){
+    public void reset() {
         super.reset();
         setPits(0);
     }
 
-    public Instant getTimeStamp(int lap, int checkpoint){
+    public Instant getTimeStamp(int lap, int checkpoint) {
         var finalHeat = (FinalHeat) getHeat();
-        if (lap > finalHeat.getTotalLaps()){
+        if (lap > finalHeat.getTotalLaps()) {
             return getLaps().get(finalHeat.getTotalLaps() - 1).getLapEnd();
         }
 
@@ -52,31 +52,40 @@ public class FinalDriver extends Driver {
 
     @Override
     public int compareTo(@NotNull Driver o) {
-        if (!(o instanceof FinalDriver)){
+        if (!(o instanceof FinalDriver)) {
             return 0;
         }
 
-        if (isFinished() && !o.isFinished()) { return -1; }
-        else if (!isFinished() && o.isFinished()) { return 1; }
-        else if (isFinished() && o.isFinished()) { return getEndTime().compareTo(o.getEndTime()); }
+        if (isFinished() && !o.isFinished()) {
+            return -1;
+        } else if (!isFinished() && o.isFinished()) {
+            return 1;
+        } else if (isFinished() && o.isFinished()) {
+            return getEndTime().compareTo(o.getEndTime());
+        }
 
-        if (getLaps().size() > o.getLaps().size()) { return -1; }
-        else if (getLaps().size() < o.getLaps().size()) { return 1; }
+        if (getLaps().size() > o.getLaps().size()) {
+            return -1;
+        } else if (getLaps().size() < o.getLaps().size()) {
+            return 1;
+        }
 
-        if (getLaps().size() == 0){
+        if (getLaps().size() == 0) {
             return 0;
         }
 
         Lap lap = getCurrentLap();
         Lap oLap = o.getCurrentLap();
 
-        if (lap.getLatestCheckpoint() > oLap.getLatestCheckpoint()) { return -1; }
-        else if (lap.getLatestCheckpoint() < oLap.getLatestCheckpoint()) { return 1;}
-
-        if (lap.getLatestCheckpoint() == 0){
-            return 0;
+        if (lap.getLatestCheckpoint() > oLap.getLatestCheckpoint()) {
+            return -1;
+        } else if (lap.getLatestCheckpoint() < oLap.getLatestCheckpoint()) {
+            return 1;
         }
-        else if (lap.getLatestCheckpoint() == 0){
+
+        if (lap.getLatestCheckpoint() == 0) {
+            return 0;
+        } else if (lap.getLatestCheckpoint() == 0) {
             return lap.getLapStart().compareTo(oLap.getLapStart());
         }
 

@@ -12,12 +12,11 @@ import java.util.UUID;
 
 public class Tasks {
 
-    public Tasks(TimingSystem plugin){
+    public Tasks(TimingSystem plugin) {
 
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 
-        scheduler.scheduleSyncRepeatingTask(plugin, new Runnable()
-        {
+        scheduler.scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
             public void run() {
                 for (UUID uuid : TimingSystem.playerEditingSession.keySet()) {
@@ -28,7 +27,7 @@ public class Tasks {
                     setParticles(player, startRegion, Particle.VILLAGER_HAPPY);
 
                     TrackRegion endRegion = track.getEndRegion();
-                    if(!(startRegion.getMinP().equals(endRegion.getMinP()) && startRegion.getMaxP().equals(endRegion.getMaxP()))) {
+                    if (!(startRegion.getMinP().equals(endRegion.getMinP()) && startRegion.getMaxP().equals(endRegion.getMaxP()))) {
                         setParticles(player, endRegion, Particle.VILLAGER_ANGRY);
                     }
 
@@ -45,9 +44,9 @@ public class Tasks {
         }, 0, 10);
     }
 
-    private void setParticles(Player player, TrackRegion region, Particle particle){
+    private void setParticles(Player player, TrackRegion region, Particle particle) {
 
-        if(region.getMinP() == null || region.getMaxP() == null){
+        if (region.getMinP() == null || region.getMaxP() == null) {
             return;
         }
 
@@ -57,9 +56,9 @@ public class Tasks {
         for (int x = min.getBlockX(); x <= max.getBlockX() + 1; x++) {
             for (int y = min.getBlockY(); y <= max.getBlockY() + 1; y++) {
                 for (int z = min.getBlockZ(); z <= max.getBlockZ() + 1; z++) {
-                     if (x == min.getBlockX() || x == max.getBlockX() + 1 || y == min.getBlockY() || y == max.getBlockY() + 1 || z == min.getBlockZ() || z == max.getBlockZ() + 1) {
+                    if (x == min.getBlockX() || x == max.getBlockX() + 1 || y == min.getBlockY() || y == max.getBlockY() + 1 || z == min.getBlockZ() || z == max.getBlockZ() + 1) {
                         player.spawnParticle(particle, x, y, z, 1);
-                     }
+                    }
                 }
             }
         }

@@ -1,9 +1,9 @@
 package me.makkuusen.timing.system.race;
 
-import me.makkuusen.timing.system.heat.HeatState;
-import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.BlockManager;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -32,15 +32,15 @@ public class Race {
     HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();
     List<RaceDriver> livePositioning = new ArrayList<>();
 
-    public Race(int totalLaps, int totalPits, Track track){
+    public Race(int totalLaps, int totalPits, Track track) {
         this.totalLaps = totalLaps;
         this.totalPits = totalPits;
         this.track = track;
         this.heatState = HeatState.SETUP;
-        this.BlockManager = new BlockManager(track);    }
+        this.BlockManager = new BlockManager(track);
+    }
 
-    public void addRaceDriver(TPlayer TPlayer)
-    {
+    public void addRaceDriver(TPlayer TPlayer) {
         RaceDriver raceDriver = new RaceDriver(TPlayer, this);
         raceDrivers.put(TPlayer.getUniqueId(), raceDriver);
     }
@@ -56,10 +56,9 @@ public class Race {
 
     public void startRace() {
         heatState = HeatState.RACING;
-        startTime = plugin.currentTime;
+        startTime = TimingSystem.currentTime;
         BlockManager.clearStartingGrid();
-        for (RaceDriver rd : raceDrivers.values())
-        {
+        for (RaceDriver rd : raceDrivers.values()) {
             rd.resetLaps();
             Player player = rd.getTSPlayer().getPlayer();
             if (player != null) {
@@ -74,8 +73,7 @@ public class Race {
 
         Collections.sort(livePositioning);
         int pos = 1;
-        for (RaceDriver rd : livePositioning)
-        {
+        for (RaceDriver rd : livePositioning) {
             rd.setPosition(pos++);
         }
         Scoreboard board = raceScoreboard.getScoreboard();
@@ -86,10 +84,8 @@ public class Race {
         }
     }
 
-    public void resetRace()
-    {
-        for (RaceDriver rd : raceDrivers.values())
-        {
+    public void resetRace() {
+        for (RaceDriver rd : raceDrivers.values()) {
             rd.reset();
         }
         heatState = HeatState.SETUP;
@@ -113,25 +109,22 @@ public class Race {
     public void passLap(UUID uuid) {
         var raceDriver = raceDrivers.get(uuid);
 
-        if (totalLaps <= raceDriver.getLaps() && totalPits <= raceDriver.getPits())
-        {
+        if (totalLaps <= raceDriver.getLaps() && totalPits <= raceDriver.getPits()) {
             raceDriver.setFinished();
             updatePositions();
             Player player = raceDriver.getTSPlayer().getPlayer();
             int pos = getPosition(raceDriver);
-            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER,1,1);
+            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
             Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§6-- §eP" + pos + " §6--\"}");
             RaceAnnouncements.broadcastFinish(raceDriver, raceDriver.getFinishTime(startTime));
-        }
-        else
-        {
+        } else {
             raceDriver.passLap();
             updatePositions();
         }
     }
 
-    public void passNextCheckpoint(RaceDriver raceDriver){
-        raceDriver.getCurrentLap().passNextCheckpoint(plugin.currentTime);
+    public void passNextCheckpoint(RaceDriver raceDriver) {
+        raceDriver.getCurrentLap().passNextCheckpoint(TimingSystem.currentTime);
         updatePositions();
     }
 
@@ -149,9 +142,8 @@ public class Race {
 
     public String getDriversAsString() {
         List<String> names = new ArrayList<>();
-        for (RaceDriver rd : raceDrivers.values())
-        {
-           names.add(rd.getTSPlayer().getName());
+        for (RaceDriver rd : raceDrivers.values()) {
+            names.add(rd.getTSPlayer().getName());
         }
 
         return String.join(", ", names);
@@ -173,7 +165,7 @@ public class Race {
         raceDrivers.remove(uuid);
     }
 
-    public boolean hasRaceDriver(UUID uuid){
+    public boolean hasRaceDriver(UUID uuid) {
         return raceDrivers.containsKey(uuid);
     }
 
@@ -189,7 +181,7 @@ public class Race {
         raceSpectators.remove(uuid);
     }
 
-    public boolean hasRaceSpectator(UUID uuid){
+    public boolean hasRaceSpectator(UUID uuid) {
         return raceSpectators.containsKey(uuid);
     }
 
@@ -203,7 +195,7 @@ public class Race {
         return -1;
     }
 
-    public List<RaceParticipant> getRaceParticipants(){
+    public List<RaceParticipant> getRaceParticipants() {
         List<RaceParticipant> rp = new ArrayList<>();
         rp.addAll(raceDrivers.values());
         rp.addAll(raceSpectators.values());

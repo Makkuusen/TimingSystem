@@ -29,8 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-public class TimingSystem extends JavaPlugin
-{
+public class TimingSystem extends JavaPlugin {
 
     public Logger logger = null;
     public static TimingSystemConfiguration configuration;
@@ -45,8 +44,7 @@ public class TimingSystem extends JavaPlugin
     private static TaskChainFactory taskChainFactory;
     Tasks tasks;
 
-    public void onEnable()
-    {
+    public void onEnable() {
 
         plugin = this;
         this.logger = getLogger();
@@ -104,14 +102,11 @@ public class TimingSystem extends JavaPlugin
 
         tasks = new Tasks(this);
 
-        if (!Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays"))
-        {
+        if (!Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
             ApiUtilities.msgConsole("&cWARNING HOLOGRAPHICDISPLAYS NOT INSTALLED OR ENABLED");
             ApiUtilities.msgConsole("&cDISABLING LEADERBOARDS.");
             enableLeaderboards = false;
-        }
-        else
-        {
+        } else {
             LeaderboardManager.startUpdateTask();
         }
 
@@ -120,8 +115,7 @@ public class TimingSystem extends JavaPlugin
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         logger.info("Version " + getDescription().getVersion() + " disabled.");
         DatabaseTrack.plugin = null;
         Database.plugin = null;
@@ -135,8 +129,7 @@ public class TimingSystem extends JavaPlugin
         plugin = null;
     }
 
-    public static TimingSystem getPlugin()
-    {
+    public static TimingSystem getPlugin() {
         return plugin;
     }
 
@@ -167,6 +160,7 @@ public class TimingSystem extends JavaPlugin
     public static <T> TaskChain<T> newChain() {
         return taskChainFactory.newChain();
     }
+
     public static <T> TaskChain<T> newSharedChain(String name) {
         return taskChainFactory.newSharedChain(name);
     }

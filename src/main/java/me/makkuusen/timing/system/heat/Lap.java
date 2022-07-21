@@ -28,7 +28,7 @@ public class Lap implements Comparable<Lap> {
     private boolean pitted;
     private ArrayList<Instant> checkpoints = new ArrayList<>();
 
-    public Lap (Driver driver, Track track) {
+    public Lap(Driver driver, Track track) {
         this.heatId = driver.getHeat().getId();
         this.player = driver.getTPlayer();
         this.track = track;
@@ -36,8 +36,8 @@ public class Lap implements Comparable<Lap> {
         this.pitted = false;
     }
 
-    public Lap (DbRow data) {
-        player = Database.getPlayer(data.getString("uuid"));;
+    public Lap(DbRow data) {
+        player = Database.getPlayer(data.getString("uuid"));
         heatId = data.getInt("heatId");
         track = DatabaseTrack.getTrackById(data.getInt("trackId")).get();
         lapStart = Instant.ofEpochMilli(data.getLong("lapStart"));

@@ -43,43 +43,29 @@ public class DatabaseTrack {
         var trackRegions = DB.getResults("SELECT * FROM `tracksRegions` WHERE `isRemoved` = 0;");
         for (DbRow region : trackRegions) {
             Optional<Track> maybeTrack = getTrackById(region.getInt("trackId"));
-            if (maybeTrack.isPresent())
-            {
+            if (maybeTrack.isPresent()) {
                 var rTrack = maybeTrack.get();
                 TrackRegion trackRegion = new TrackRegion(region);
-                if (trackRegion.getRegionType().equals(TrackRegion.RegionType.START))
-                {
+                if (trackRegion.getRegionType().equals(TrackRegion.RegionType.START)) {
                     rTrack.newStartRegion(trackRegion);
                     addTrackRegion(trackRegion);
-                }
-                else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.END))
-                {
+                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.END)) {
                     rTrack.newEndRegion(trackRegion);
-                }
-                else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.CHECKPOINT))
-                {
+                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.CHECKPOINT)) {
                     rTrack.addCheckpoint(trackRegion);
-                }
-                else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.RESET))
-                {
+                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.RESET)) {
                     rTrack.addResetRegion(trackRegion);
-                }
-                else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.GRID))
-                {
+                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.GRID)) {
                     rTrack.addGridRegion(trackRegion);
-                }
-                else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.PIT))
-                {
+                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.PIT)) {
                     rTrack.newPitRegion(trackRegion);
                 }
             }
         }
     }
 
-    public static Track trackNew(String name, UUID uuid, Location location, Track.TrackType type, ItemStack gui)
-    {
-        try
-        {
+    public static Track trackNew(String name, UUID uuid, Location location, Track.TrackType type, ItemStack gui) {
+        try {
             long date = ApiUtilities.getTimestamp();
 
             Location leaderboard = location.clone();
@@ -109,8 +95,7 @@ public class DatabaseTrack {
             rTrack.newPitRegion(pitRegion);
 
             return rTrack;
-        } catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             exception.printStackTrace();
             return null;
         }
@@ -124,8 +109,7 @@ public class DatabaseTrack {
 
     }
 
-    static public void removeTrack(Track Track)
-    {
+    static public void removeTrack(Track Track) {
         DB.executeUpdateAsync("UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";");
         DB.executeUpdateAsync("UPDATE `tracksFinishes` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";");
         DB.executeUpdateAsync("UPDATE `tracks` SET `isRemoved` = 1 WHERE `id` = " + Track.getId() + ";");
@@ -134,78 +118,63 @@ public class DatabaseTrack {
         LeaderboardManager.removeLeaderboard(Track.getId());
     }
 
-    static public Optional<Track> getTrack(String name)
-    {
-        for (Track t : tracks)
-        {
-            if (t.getName().equalsIgnoreCase(name))
-            {
+    static public Optional<Track> getTrack(String name) {
+        for (Track t : tracks) {
+            if (t.getName().equalsIgnoreCase(name)) {
                 return Optional.of(t);
             }
         }
         return Optional.empty();
     }
 
-    static public Optional<Track> getTrackById(int id)
-    {
-        for (Track t : tracks)
-        {
-            if (t.getId() == id)
-            {
+    static public Optional<Track> getTrackById(int id) {
+        for (Track t : tracks) {
+            if (t.getId() == id) {
                 return Optional.of(t);
             }
         }
         return Optional.empty();
     }
 
-    static public List<Track> getTracks()
-    {
+    static public List<Track> getTracks() {
         return tracks;
     }
 
-    static public List<Track> getAvailableTracks(Player player)
-    {
-        if (!player.hasPermission("track.admin") && !player.isOp())
-        {
+    static public List<Track> getAvailableTracks(Player player) {
+        if (!player.hasPermission("track.admin") && !player.isOp()) {
             return DatabaseTrack.getTracks().stream().filter(Track::isOpen).toList();
         }
 
         return getTracks();
     }
 
-    static public List<TrackRegion> getTrackRegions()
-    {
+    static public List<TrackRegion> getTrackRegions() {
         return regions;
     }
-    static public List<TrackRegion> getTrackStartRegions()
-    {
+
+    static public List<TrackRegion> getTrackStartRegions() {
         return regions.stream().filter(r -> r.getRegionType().equals(TrackRegion.RegionType.START)).collect(Collectors.toList());
     }
 
-    public static boolean trackNameAvailable(String name)
-    {
+    public static boolean trackNameAvailable(String name) {
 
-        for (Track rTrack : tracks)
-        {
-            if (rTrack.getName().equalsIgnoreCase(name))
-            {
+        for (Track rTrack : tracks) {
+            if (rTrack.getName().equalsIgnoreCase(name)) {
                 return false;
             }
         }
         return true;
     }
 
-    static public void addTrackRegion(TrackRegion region)
-    {
+    static public void addTrackRegion(TrackRegion region) {
         regions.add(region);
     }
 
-    static public void removeTrackRegion(TrackRegion region)
-    {
+    static public void removeTrackRegion(TrackRegion region) {
         regions.remove(region);
     }
 
-    public static List<String> getTracksAsStrings(){
+    public static List<String> getTracksAsStrings() {
         List<String> tracks = new ArrayList<>();
         getTracks().stream().forEach(track -> tracks.add(track.getName()));
         return tracks;

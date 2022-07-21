@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system.race;
 
-import me.makkuusen.timing.system.SimpleScoreboard;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.SimpleScoreboard;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.time.Duration;
@@ -15,19 +15,18 @@ public class RaceScoreboard {
         this.race = race;
     }
 
-    public Scoreboard getScoreboard()
-    {
+    public Scoreboard getScoreboard() {
         SimpleScoreboard scoreboard = new SimpleScoreboard(getScoreboardName());
 
         int count = 0;
         int score = -1;
         RaceDriver previousDriver = null;
-        for (RaceDriver rd : race.livePositioning){
-            if (score == -9){
+        for (RaceDriver rd : race.livePositioning) {
+            if (score == -9) {
                 break;
             }
             if (previousDriver != null) {
-                if (rd.getLaps() < 1){
+                if (rd.getLaps() < 1) {
                     scoreboard.add("§f          §8| §f" + rd.getTSPlayer().getName() + " §r§8(§f" + rd.getPits() + "§8)", score--);
                 } else {
                     Instant timeStamp = rd.getTimeStamp(rd.getLaps(), rd.getLatestCheckpoint());
@@ -56,14 +55,12 @@ public class RaceScoreboard {
         return scoreboard.getScoreboard();
     }
 
-    String getScoreboardName()
-    {
+    String getScoreboardName() {
         int spacesCount = ((20 - race.getTrack().getName().length()) / 2) - 1;
 
         StringBuilder spaces = new StringBuilder();
 
-        for (int i = 0; i < spacesCount; i++)
-        {
+        for (int i = 0; i < spacesCount; i++) {
             spaces.append(" ");
         }
 

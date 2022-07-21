@@ -4,8 +4,7 @@ import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.ApiUtilities;
 import org.bukkit.Location;
 
-public class TrackRegion
-{
+public class TrackRegion {
 
     private final int id;
     private final int trackId;
@@ -15,13 +14,11 @@ public class TrackRegion
     private Location maxP;
     private Location spawnLocation;
 
-    public enum RegionType
-    {
+    public enum RegionType {
         START, END, CHECKPOINT, RESET, PIT, GRID
     }
 
-    public TrackRegion(DbRow data)
-    {
+    public TrackRegion(DbRow data) {
         id = data.getInt("id");
         trackId = data.getInt("trackId");
         regionIndex = data.getInt("regionIndex");
@@ -31,13 +28,11 @@ public class TrackRegion
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
     }
 
-    public void setMinP(Location minP)
-    {
+    public void setMinP(Location minP) {
         this.minP = minP;
     }
 
-    public void setMaxP(Location maxP)
-    {
+    public void setMaxP(Location maxP) {
         this.maxP = maxP;
     }
 
@@ -49,50 +44,39 @@ public class TrackRegion
         return maxP;
     }
 
-    public Location getSpawnLocation()
-    {
+    public Location getSpawnLocation() {
         return spawnLocation;
     }
 
-    public void setSpawnLocation(Location spawnLocation)
-    {
+    public void setSpawnLocation(Location spawnLocation) {
         this.spawnLocation = spawnLocation;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public int getTrackId()
-    {
+    public int getTrackId() {
         return trackId;
     }
 
-    public int getRegionIndex()
-    {
+    public int getRegionIndex() {
         return regionIndex;
     }
 
-    public RegionType getRegionType()
-    {
+    public RegionType getRegionType() {
         return regionType;
     }
 
-    public boolean contains(Location loc)
-    {
-        if (loc == null || minP == null || maxP == null)
-        {
+    public boolean contains(Location loc) {
+        if (loc == null || minP == null || maxP == null) {
             return false;
-        }
-        else
-        {
+        } else {
             return loc.getBlockX() >= this.minP.getBlockX() && loc.getBlockX() <= this.maxP.getBlockX() && loc.getBlockY() >= this.minP.getBlockY() && loc.getBlockY() <= this.maxP.getBlockY() && loc.getBlockZ() >= this.minP.getBlockZ() && loc.getBlockZ() <= this.maxP.getBlockZ();
         }
     }
 
-    public String getWorldName()
-    {
+    public String getWorldName() {
         return spawnLocation.getWorld().getName();
     }
 }

@@ -45,24 +45,24 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         isRunning = false;
     }
 
-    public void finish(){
+    public void finish() {
         finishLap();
         setEndTime(TimingSystem.currentTime);
         isRunning = false;
         setFinished(true);
     }
 
-    public void start(){
+    public void start() {
         isRunning = true;
         newLap();
     }
 
-    public void passLap(){
+    public void passLap() {
         finishLap();
         newLap();
     }
 
-    private void finishLap(){
+    private void finishLap() {
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
         if (heat.getFastestLap() < 1 || getCurrentLap().getLapTime() < heat.getFastestLap()) {
             EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap().getLapTime());
@@ -73,7 +73,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLapTime()));
     }
 
-    public void reset(){
+    public void reset() {
         isRunning = false;
         setEndTime(null);
         setStartTime(null);
@@ -82,11 +82,11 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         setPosition(startPosition);
     }
 
-    private void newLap(){
+    private void newLap() {
         laps.add(new Lap(this, heat.getEvent().getTrack()));
     }
 
-    public long getFinishTime(){
+    public long getFinishTime() {
         return Duration.between(startTime, endTime).toMillis();
     }
 
@@ -105,7 +105,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         if (startTime == null) {
             DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startTime` = NULL WHERE `id` = " + id + ";");
         } else {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startTime` = "+ startTime.toEpochMilli() + " WHERE `id` = " + id + ";");
+            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startTime` = " + startTime.toEpochMilli() + " WHERE `id` = " + id + ";");
         }
     }
 
@@ -114,19 +114,19 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         if (endTime == null) {
             DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = NULL WHERE `id` = " + id + ";");
         } else {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = "+ endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
+            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = " + endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
         }
     }
 
-    public @Nullable Lap getCurrentLap(){
-        return laps.get(laps.size()-1);
+    public @Nullable Lap getCurrentLap() {
+        return laps.get(laps.size() - 1);
     }
 
     public Optional<Lap> getBestLap() {
-        if (getLaps().size() == 0){
+        if (getLaps().size() == 0) {
             return Optional.empty();
         }
-        if (getLaps().get(0).getLapTime() == -1){
+        if (getLaps().get(0).getLapTime() == -1) {
             return Optional.empty();
         }
         Lap bestLap = getLaps().get(0);

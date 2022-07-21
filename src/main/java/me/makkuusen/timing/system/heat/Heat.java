@@ -59,10 +59,10 @@ public abstract class Heat {
     }
 
     public boolean loadHeat() {
-        if (this instanceof QualifyHeat && event.getState() != Event.EventState.QUALIFICATION){
+        if (this instanceof QualifyHeat && event.getState() != Event.EventState.QUALIFICATION) {
             return false;
         }
-        if (this instanceof FinalHeat && event.getState() != Event.EventState.FINAL){
+        if (this instanceof FinalHeat && event.getState() != Event.EventState.FINAL) {
             return false;
         }
         if (getHeatState() != HeatState.SETUP) {
@@ -71,17 +71,17 @@ public abstract class Heat {
         getBlockManager().setStartingGrid();
         List<Driver> pos = new ArrayList<>();
         pos.addAll(getStartPositions());
-        if(getEvent().getTrack().getGridRegions().values().size() != 0)
-        for (Driver d : getStartPositions()){
-            Player player = d.getTPlayer().getPlayer();
-            if (player != null) {
-                TrackRegion gridRegion = getEvent().getTrack().getGridRegions().get(d.getStartPosition());
-                if (gridRegion != null) {
-                    player.teleport(gridRegion.getSpawnLocation());
-                    getEvent().getTrack().spawnBoat(player, gridRegion.getSpawnLocation());
+        if (getEvent().getTrack().getGridRegions().values().size() != 0)
+            for (Driver d : getStartPositions()) {
+                Player player = d.getTPlayer().getPlayer();
+                if (player != null) {
+                    TrackRegion gridRegion = getEvent().getTrack().getGridRegions().get(d.getStartPosition());
+                    if (gridRegion != null) {
+                        player.teleport(gridRegion.getSpawnLocation());
+                        getEvent().getTrack().spawnBoat(player, gridRegion.getSpawnLocation());
+                    }
                 }
             }
-        }
         setLivePositions(pos);
         setHeatState(HeatState.LOADED);
         updateScoreboard();
@@ -144,8 +144,7 @@ public abstract class Heat {
     public void updatePositions() {
         Collections.sort(getLivePositions());
         int pos = 1;
-        for (Driver rd : getLivePositions())
-        {
+        for (Driver rd : getLivePositions()) {
             rd.setPosition(pos++);
         }
         updateScoreboard();
@@ -162,7 +161,7 @@ public abstract class Heat {
         ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
     }
 
-    public List<Driver> getResults(){
+    public List<Driver> getResults() {
         if (heatState != HeatState.FINISHED) {
             return List.of();
         }
@@ -172,24 +171,24 @@ public abstract class Heat {
     public void addDriver(Driver driver) {
         drivers.put(driver.getTPlayer().getUniqueId(), driver);
         if (driver.getStartPosition() > 0) {
-            startPositions.add(driver.getStartPosition()-1, driver);
+            startPositions.add(driver.getStartPosition() - 1, driver);
         }
     }
 
-    public List<Participant> getParticipants(){
+    public List<Participant> getParticipants() {
         return event.getParticipants();
     }
 
-    public void updateScoreboard(){
+    public void updateScoreboard() {
         Scoreboard board = scoreboard.getScoreboard();
         getEvent().getParticipants().stream()
                 .filter(participant -> participant.getTPlayer().getPlayer() != null)
                 .forEach(participant -> participant.getTPlayer().getPlayer().setScoreboard(board));
     }
 
-    public boolean allDriversFinished(){
-        for (Driver d : getDrivers().values()){
-            if (!d.isFinished()){
+    public boolean allDriversFinished() {
+        for (Driver d : getDrivers().values()) {
+            if (!d.isFinished()) {
                 return false;
             }
         }
@@ -206,7 +205,7 @@ public abstract class Heat {
         if (startTime == null) {
             DB.executeUpdateAsync("UPDATE `ts_heats` SET `startTime` = NULL WHERE `id` = " + id + ";");
         } else {
-            DB.executeUpdateAsync("UPDATE `ts_heats` SET `startTime` = "+ startTime.toEpochMilli() + " WHERE `id` = " + id + ";");
+            DB.executeUpdateAsync("UPDATE `ts_heats` SET `startTime` = " + startTime.toEpochMilli() + " WHERE `id` = " + id + ";");
         }
     }
 
@@ -215,7 +214,7 @@ public abstract class Heat {
         if (endTime == null) {
             DB.executeUpdateAsync("UPDATE `ts_heats` SET `endTime` = NULL WHERE `id` = " + id + ";");
         } else {
-            DB.executeUpdateAsync("UPDATE `ts_heats` SET `endTime` = "+ endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
+            DB.executeUpdateAsync("UPDATE `ts_heats` SET `endTime` = " + endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
         }
     }
 

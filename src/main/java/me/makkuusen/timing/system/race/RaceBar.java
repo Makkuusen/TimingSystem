@@ -7,12 +7,11 @@ import org.bukkit.boss.BossBar;
 
 public class RaceBar {
 
-    public RaceBar()
-    {
+    public RaceBar() {
 
     }
 
-    public BossBar getRaceBar(RaceDriver raceDriver){
+    public BossBar getRaceBar(RaceDriver raceDriver) {
         var bb = Bukkit.createBossBar(
                 "Title",
                 BarColor.WHITE,

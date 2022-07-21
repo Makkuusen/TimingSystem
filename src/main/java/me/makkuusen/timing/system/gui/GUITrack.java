@@ -16,8 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class GUITrack
-{
+public class GUITrack {
 
     private static final HashMap<UUID, Integer> playersPages = new HashMap<>();
 
@@ -35,8 +34,7 @@ public class GUITrack
     public static Component governmentTitle;
     public static Component personalTitle;
 
-    public static void init()
-    {
+    public static void init() {
 
         borderGlass = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName("§r").build();
         lightBorderGlass = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName("§r").build();
@@ -47,29 +45,24 @@ public class GUITrack
         parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkours").build();
     }
 
-    public static void openTrackGUI(Player p)
-    {
-        if (!playersPages.containsKey(p.getUniqueId()))
-        {
+    public static void openTrackGUI(Player p) {
+        if (!playersPages.containsKey(p.getUniqueId())) {
             playersPages.put(p.getUniqueId(), GOVERNMENTPAGE);
         }
         openTrackGUI(p, playersPages.get(p.getUniqueId()));
     }
 
-    public static void openTrackGUI(Player p, int page)
-    {
+    public static void openTrackGUI(Player p, int page) {
         playersPages.put(p.getUniqueId(), page);
         Inventory inv = Bukkit.createInventory(null, 54, (ApiUtilities.color(page == GOVERNMENTPAGE ? "&3&lPublic" : "&2&lPrivate") + " tracks"));
 
         Integer[] borderSlots = {0, 2, 3, 5, 6, 8, 45, 46, 47, 51, 52, 53};
-        for (Integer slot : borderSlots)
-        {
+        for (Integer slot : borderSlots) {
             inv.setItem(slot, borderGlass);
         }
 
         Integer[] lightBorderSlots = {3, 5, 48, 49, 50};
-        for (Integer slot : lightBorderSlots)
-        {
+        for (Integer slot : lightBorderSlots) {
             inv.setItem(slot, lightBorderGlass);
         }
 
@@ -81,12 +74,9 @@ public class GUITrack
         inv.setItem(53, personalPage);
 
         List<Track> tracks;
-        if (page == GOVERNMENTPAGE)
-        {
+        if (page == GOVERNMENTPAGE) {
             tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isGovernment).collect(Collectors.toList());
-        }
-        else
-        {
+        } else {
             tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isPersonal).collect(Collectors.toList());
         }
 
@@ -97,20 +87,14 @@ public class GUITrack
         int boatCount = 0;
         int parkourCount = 0;
         int elytraCount = 0;
-        for (Track track : tracks)
-        {
-            if (track.isBoatTrack() && boatCount < boatSlots.length)
-            {
+        for (Track track : tracks) {
+            if (track.isBoatTrack() && boatCount < boatSlots.length) {
                 inv.setItem(boatSlots[boatCount], track.getGuiItem(p.getUniqueId()));
                 boatCount++;
-            }
-            else if (track.isElytraTrack() && elytraCount < elytraSlots.length)
-            {
+            } else if (track.isElytraTrack() && elytraCount < elytraSlots.length) {
                 inv.setItem(elytraSlots[elytraCount], track.getGuiItem(p.getUniqueId()));
                 elytraCount++;
-            }
-            else if (track.isParkourTrack() && parkourCount < parkourSlots.length)
-            {
+            } else if (track.isParkourTrack() && parkourCount < parkourSlots.length) {
                 inv.setItem(parkourSlots[parkourCount], track.getGuiItem(p.getUniqueId()));
                 parkourCount++;
             }

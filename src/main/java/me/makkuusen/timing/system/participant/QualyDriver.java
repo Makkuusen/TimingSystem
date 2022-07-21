@@ -11,7 +11,7 @@ public class QualyDriver extends Driver {
 
     @Override
     public int compareTo(@NotNull Driver o) {
-        if (!(o instanceof QualyDriver)){
+        if (!(o instanceof QualyDriver)) {
             return 0;
         }
         var bestLap = getBestLap();

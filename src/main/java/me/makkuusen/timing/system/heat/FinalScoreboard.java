@@ -9,20 +9,19 @@ import org.bukkit.scoreboard.Scoreboard;
 import java.time.Duration;
 import java.time.Instant;
 
-public class FinalScoreboard extends GenericScoreboard{
+public class FinalScoreboard extends GenericScoreboard {
 
     public FinalScoreboard(FinalHeat heat) {
-       super(heat);
+        super(heat);
     }
 
     @Override
-    public Scoreboard getRacingScoreboard(SimpleScoreboard scoreboard)
-    {
+    public Scoreboard getRacingScoreboard(SimpleScoreboard scoreboard) {
 
         int score = -1;
         FinalDriver previousDriver = null;
-        for (Driver driver : getHeat().getLivePositions()){
-            if(driver instanceof FinalDriver finalDriver) {
+        for (Driver driver : getHeat().getLivePositions()) {
+            if (driver instanceof FinalDriver finalDriver) {
                 if (score == -9) {
                     break;
                 }
@@ -31,7 +30,7 @@ public class FinalScoreboard extends GenericScoreboard{
                         scoreboard.add("§f          §8| §f" + driver.getTPlayer().getName() + " §r§8(§f" + finalDriver.getPits() + "§8)", score--);
                     } else {
                         long timeDiff = 0;
-                        if (driver.isFinished()){
+                        if (driver.isFinished()) {
                             timeDiff = Duration.between(previousDriver.getEndTime(), finalDriver.getEndTime()).toMillis();
                             scoreboard.add("§f +" + ApiUtilities.formatAsRacingGap(timeDiff) + " §8| §f" + driver.getTPlayer().getName() + " §r§8(§f" + finalDriver.getPits() + "§8)", score--);
                         } else {

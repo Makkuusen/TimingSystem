@@ -8,8 +8,7 @@ import me.makkuusen.timing.system.TPlayer;
 import java.util.Comparator;
 import java.util.UUID;
 
-public class TimeTrialFinish implements Comparator<TimeTrialFinish>
-{
+public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
 
     private final int id;
     private final int trackId;
@@ -18,8 +17,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish>
     private final long time;
     private final boolean isRemoved;
 
-    public TimeTrialFinish(DbRow data)
-    {
+    public TimeTrialFinish(DbRow data) {
         this.id = data.getInt("id");
         this.trackId = data.getInt("trackId");
         this.player = data.getString("uuid") == null ? null : Database.getPlayer(UUID.fromString(data.getString("uuid")));
@@ -28,52 +26,42 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish>
         this.isRemoved = data.get("isRemoved");
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public TPlayer getPlayer()
-    {
+    public TPlayer getPlayer() {
         return player;
     }
 
-    public long getTime()
-    {
+    public long getTime() {
         return time;
     }
 
-    public long getDate()
-    {
+    public long getDate() {
         return date;
     }
 
     @Override
-    public int compare(TimeTrialFinish f1, TimeTrialFinish f2)
-    {
+    public int compare(TimeTrialFinish f1, TimeTrialFinish f2) {
         int result = Long.compare(f1.getTime(), f2.getTime());
-        if (result == 0)
-        {
+        if (result == 0) {
             return Long.compare(f1.getDate(), f2.getDate());
         }
         return result;
     }
 
-    public int compareTo(TimeTrialFinish rf)
-    {
+    public int compareTo(TimeTrialFinish rf) {
         int result = Long.compare(getTime(), rf.getTime());
-        if (result == 0)
-        {
+        if (result == 0) {
             return Long.compare(getDate(), rf.getDate());
         }
         return result;
     }
 
     @Override
-    public boolean equals(Object rf)
-    {
-        if (rf instanceof TimeTrialFinish timeTrialFinish)
-        {
+    public boolean equals(Object rf) {
+        if (rf instanceof TimeTrialFinish timeTrialFinish) {
             return timeTrialFinish.getDate() == getDate() && timeTrialFinish.getPlayer() == getPlayer();
         }
         return false;

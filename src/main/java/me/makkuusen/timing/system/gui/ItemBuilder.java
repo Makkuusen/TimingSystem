@@ -5,8 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-public class ItemBuilder
-{
+public class ItemBuilder {
 
     private final ItemStack item;
     private final ItemMeta itemMeta;
@@ -17,38 +16,28 @@ public class ItemBuilder
      *
      * @param m The material the item should be.
      */
-    public ItemBuilder(Material m)
-    {
+    public ItemBuilder(Material m) {
         item = new ItemStack(m);
         itemMeta = item.getItemMeta();
-        if (m.toString().toLowerCase().contains("leather"))
-        {
+        if (m.toString().toLowerCase().contains("leather")) {
             leatherMeta = (LeatherArmorMeta) item.getItemMeta();
         }
     }
 
-    public ItemBuilder setName(String name)
-    {
-        if (item.getType().toString().toLowerCase().contains("leather"))
-        {
+    public ItemBuilder setName(String name) {
+        if (item.getType().toString().toLowerCase().contains("leather")) {
             leatherMeta.setDisplayName(name);
-        }
-        else
-        {
+        } else {
             itemMeta.setDisplayName(name);
         }
         return this;
     }
 
-    public ItemStack build()
-    {
+    public ItemStack build() {
 
-        if (item.getType().toString().toLowerCase().contains("leather"))
-        {
+        if (item.getType().toString().toLowerCase().contains("leather")) {
             item.setItemMeta(leatherMeta);
-        }
-        else
-        {
+        } else {
             item.setItemMeta(itemMeta);
         }
 

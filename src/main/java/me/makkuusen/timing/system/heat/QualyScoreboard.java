@@ -13,7 +13,7 @@ public class QualyScoreboard extends GenericScoreboard {
     }
 
     @Override
-    Scoreboard getRacingScoreboard(SimpleScoreboard scoreboard){
+    Scoreboard getRacingScoreboard(SimpleScoreboard scoreboard) {
         int score = -1;
         Driver previousDriver = null;
         for (Driver driver : getHeat().getLivePositions()) {

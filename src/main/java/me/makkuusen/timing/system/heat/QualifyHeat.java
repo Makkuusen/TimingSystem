@@ -31,7 +31,7 @@ public class QualifyHeat extends Heat {
             updatePositions();
             driver.finish();
             EventAnnouncements.sendFinishSound(driver);
-            if (allDriversFinished()){
+            if (allDriversFinished()) {
                 finishHeat();
             }
             return true;
@@ -41,14 +41,11 @@ public class QualifyHeat extends Heat {
         return true;
     }
 
-    private boolean timeIsOver(){
-        if (Duration.between(getStartTime(),TimingSystem.currentTime).toMillis() > timeLimit) {
-            return true;
-        }
-        return false;
+    private boolean timeIsOver() {
+        return Duration.between(getStartTime(), TimingSystem.currentTime).toMillis() > timeLimit;
     }
 
-    public void setTimeLimit(int timeLimit){
+    public void setTimeLimit(int timeLimit) {
         this.timeLimit = timeLimit;
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `timeLimit` = " + timeLimit + " WHERE `id` = " + getId() + ";");
     }

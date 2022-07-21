@@ -12,41 +12,31 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class GUIListener implements Listener
-{
+public class GUIListener implements Listener {
 
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent e)
-    {
+    public void onInventoryClick(InventoryClickEvent e) {
         if (e.getInventory() != null) {
 
-            if (e.getView().getTitle() != null)
-            {
-                if (e.getView().getTitle().startsWith(ApiUtilities.color("&3&lPublic")) || e.getView().getTitle().startsWith(ApiUtilities.color("&2&lPrivate")))
-                {
+            if (e.getView().getTitle() != null) {
+                if (e.getView().getTitle().startsWith(ApiUtilities.color("&3&lPublic")) || e.getView().getTitle().startsWith(ApiUtilities.color("&2&lPrivate"))) {
                     e.setCancelled(true);
                     Player player = (Player) e.getWhoClicked();
 
-                    if ((!(e.getClickedInventory() == player.getInventory())) && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR)
-                    {
+                    if ((!(e.getClickedInventory() == player.getInventory())) && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
 
                         ItemStack item = e.getCurrentItem();
 
-                        if (item.getItemMeta() == null || item.getType().equals(Material.BLACK_STAINED_GLASS_PANE) || item.getType().equals(Material.GRAY_STAINED_GLASS_PANE))
-                        {
+                        if (item.getItemMeta() == null || item.getType().equals(Material.BLACK_STAINED_GLASS_PANE) || item.getType().equals(Material.GRAY_STAINED_GLASS_PANE)) {
                             return;
                         }
 
-                        if (e.getClick() == ClickType.LEFT || e.getClick() == ClickType.SHIFT_LEFT)
-                        {
+                        if (e.getClick() == ClickType.LEFT || e.getClick() == ClickType.SHIFT_LEFT) {
 
-                            if (item.getItemMeta().getDisplayName().contains("Private"))
-                            {
+                            if (item.getItemMeta().getDisplayName().contains("Private")) {
                                 GUITrack.openTrackGUI(player, 1);
                                 return;
-                            }
-                            else if (item.getItemMeta().getDisplayName().contains("Public"))
-                            {
+                            } else if (item.getItemMeta().getDisplayName().contains("Public")) {
                                 GUITrack.openTrackGUI(player, 0);
                                 return;
                             }
@@ -54,8 +44,7 @@ public class GUIListener implements Listener
                             TimeTrialController.playerLeavingMap(e.getWhoClicked().getUniqueId());
                             String mapName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
                             var maybeTrack = DatabaseTrack.getTrack(mapName);
-                            if (maybeTrack.isPresent())
-                            {
+                            if (maybeTrack.isPresent()) {
                                 var track = maybeTrack.get();
                                 track.teleportPlayer(((Player) e.getWhoClicked()).getPlayer());
                                 e.getInventory().close();

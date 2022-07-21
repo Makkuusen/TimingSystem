@@ -57,7 +57,7 @@ public class FinalHeat extends Heat {
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalLaps` = " + totalLaps + " WHERE `id` = " + getId() + ";");
     }
 
-    public void setTotalPits(int totalPits){
+    public void setTotalPits(int totalPits) {
         this.totalPits = totalPits;
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalPitstops` = " + totalPits + " WHERE `id` = " + getId() + ";");
     }

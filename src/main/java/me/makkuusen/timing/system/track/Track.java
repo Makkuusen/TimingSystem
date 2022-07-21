@@ -29,8 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class Track
-{
+public class Track {
     private final int id;
     private TPlayer owner;
     private String name;
@@ -51,17 +50,15 @@ public class Track
     private final Map<Integer, TrackRegion> gridRegions = new HashMap<>();
     private final Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
 
-    public enum TrackType
-    {
+    public enum TrackType {
         BOAT, ELYTRA, PARKOUR
     }
-    public enum TrackMode
-    {
+
+    public enum TrackMode {
         TIMETRIAL, RACE
     }
 
-    public Track(DbRow data)
-    {
+    public Track(DbRow data) {
         id = data.getInt("id");
         owner = data.getString("uuid") == null ? null : Database.getPlayer(UUID.fromString(data.getString("uuid")));
         name = data.getString("name");
@@ -78,55 +75,41 @@ public class Track
 
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public TrackRegion getEndRegion()
-    {
+    public TrackRegion getEndRegion() {
         return endRegion;
     }
 
-    public TrackRegion getStartRegion()
-    {
+    public TrackRegion getStartRegion() {
         return startRegion;
     }
 
-    public TrackRegion getPitRegion()
-    {
+    public TrackRegion getPitRegion() {
         return pitRegion;
     }
 
-    public ItemStack getGuiItem(UUID uuid)
-    {
+    public ItemStack getGuiItem(UUID uuid) {
         ItemStack toReturn;
-        if (guiItem == null)
-        {
-            if (isBoatTrack())
-            {
+        if (guiItem == null) {
+            if (isBoatTrack()) {
                 toReturn = new ItemBuilder(Material.PACKED_ICE).setName(getName()).build();
-            }
-            else if (isElytraTrack())
-            {
+            } else if (isElytraTrack()) {
                 toReturn = new ItemBuilder(Material.ELYTRA).setName(getName()).build();
-            }
-            else
-            {
+            } else {
                 toReturn = new ItemBuilder(Material.BIG_DRIPLEAF).setName(getName()).build();
             }
-        }
-        else
-        {
+        } else {
             toReturn = guiItem.clone();
         }
 
-        if (toReturn == null){
+        if (toReturn == null) {
             return null;
         }
         TPlayer TPlayer = Database.getPlayer(uuid);
@@ -135,12 +118,9 @@ public class Track
 
         String bestTime;
 
-        if (getBestFinish(TPlayer) == null)
-        {
+        if (getBestFinish(TPlayer) == null) {
             bestTime = "§7Your best time: §e(none)";
-        }
-        else
-        {
+        } else {
             bestTime = "§7Your best time: §e" + ApiUtilities.formatAsTime(getBestFinish(TPlayer).getTime());
         }
 
@@ -150,99 +130,85 @@ public class Track
         loreToSet.add(Component.text("§7Type: §e" + getTypeAsString()));
 
         ItemMeta im = toReturn.getItemMeta();
-        im.displayName(Component.text(getName()).color(TextColor.color(255,255,85)));
+        im.displayName(Component.text(getName()).color(TextColor.color(255, 255, 85)));
         im.lore(loreToSet);
         toReturn.setItemMeta(im);
 
         return toReturn;
     }
 
-    public Location getSpawnLocation()
-    {
+    public Location getSpawnLocation() {
         return spawnLocation;
     }
 
-    public Location getLeaderboardLocation()
-    {
+    public Location getLeaderboardLocation() {
         return leaderboardLocation;
     }
 
-    public TrackType getType()
-    {
+    public TrackType getType() {
         return type;
     }
 
-    public TrackMode getMode()
-    {
+    public TrackMode getMode() {
         return mode;
     }
 
-    public boolean isOpen()
-    {
+    public boolean isOpen() {
         return toggleOpen;
     }
 
-    public void setMode(TrackMode mode)
-    {
+    public void setMode(TrackMode mode) {
         this.mode = mode;
 
         DB.executeUpdateAsync("UPDATE `tracks` SET `mode` = " + Database.sqlString(mode.toString()) + " WHERE `id` = " + id + ";");
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
 
         DB.executeUpdateAsync("UPDATE `tracks` SET `name` = '" + name + "' WHERE `id` = " + id + ";");
     }
 
-    public void setGuiItem(ItemStack guiItem)
-    {
+    public void setGuiItem(ItemStack guiItem) {
         this.guiItem = guiItem;
 
         DB.executeUpdateAsync("UPDATE `tracks` SET `guiItem` = " + Database.sqlString(ApiUtilities.itemToString(guiItem)) + " WHERE `id` = " + id + ";");
     }
 
-    public void setSpawnLocation(Location spawn)
-    {
+    public void setSpawnLocation(Location spawn) {
         this.spawnLocation = spawn;
 
         DB.executeUpdateAsync("UPDATE `tracks` SET `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + id + ";");
     }
 
-    public void setLeaderboardLocation(Location leaderboard)
-    {
+    public void setLeaderboardLocation(Location leaderboard) {
         this.leaderboardLocation = leaderboard;
 
         DB.executeUpdateAsync("UPDATE `tracks` SET `leaderboard` = '" + ApiUtilities.locationToString(leaderboard) + "' WHERE `id` = " + id + ";");
     }
 
-    public void setToggleOpen(boolean toggleOpen)
-    {
+    public void setToggleOpen(boolean toggleOpen) {
         this.toggleOpen = toggleOpen;
 
         DB.executeUpdateAsync("UPDATE `tracks` SET `toggleOpen` = " + toggleOpen + " WHERE `id` = " + id + ";");
 
     }
 
-    public void setStartRegion(Location minP, Location maxP)
-    {
+    public void setStartRegion(Location minP, Location maxP) {
         startRegion.setMinP(minP);
         startRegion.setMaxP(maxP);
 
         DB.executeUpdateAsync("UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + startRegion.getId() + ";");
     }
 
-    public void setEndRegion(Location minP, Location maxP)
-    {
+    public void setEndRegion(Location minP, Location maxP) {
         endRegion.setMinP(minP);
         endRegion.setMaxP(maxP);
 
         DB.executeUpdateAsync("UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + endRegion.getId() + ";");
     }
 
-    public void setPitRegion(Location minP, Location maxP, Location spawn)
-    {
+    public void setPitRegion(Location minP, Location maxP, Location spawn) {
         if (pitRegion == null) {
 
             try {
@@ -252,9 +218,7 @@ public class Track
                 TrackRegion pitRegion = new TrackRegion(dbRow);
                 newPitRegion(pitRegion);
                 return;
-            }
-            catch (SQLException exception)
-            {
+            } catch (SQLException exception) {
                 exception.printStackTrace();
                 return;
             }
@@ -267,14 +231,11 @@ public class Track
     }
 
 
-
-    public void newStartRegion(TrackRegion region)
-    {
+    public void newStartRegion(TrackRegion region) {
         this.startRegion = region;
     }
 
-    public void newEndRegion(TrackRegion region)
-    {
+    public void newEndRegion(TrackRegion region) {
         this.endRegion = region;
     }
 
@@ -282,38 +243,31 @@ public class Track
         this.pitRegion = region;
     }
 
-    public Map<Integer, TrackRegion> getCheckpoints()
-    {
+    public Map<Integer, TrackRegion> getCheckpoints() {
         return checkpoints;
     }
 
-    public void addCheckpoint(TrackRegion region)
-    {
+    public void addCheckpoint(TrackRegion region) {
         checkpoints.put(region.getRegionIndex(), region);
     }
 
-    public void setCheckpoint(Location minP, Location maxP, Location spawn, int index)
-    {
+    public void setCheckpoint(Location minP, Location maxP, Location spawn, int index) {
         setTrackRegions(checkpoints, TrackRegion.RegionType.CHECKPOINT, minP, maxP, spawn, index);
     }
 
-    public boolean removeCheckpoint(int index)
-    {
+    public boolean removeCheckpoint(int index) {
         return removeTrackRegions(checkpoints, index);
     }
 
-    public void setResetRegion(Location minP, Location maxP, Location spawn, int index)
-    {
+    public void setResetRegion(Location minP, Location maxP, Location spawn, int index) {
         setTrackRegions(resetRegions, TrackRegion.RegionType.RESET, minP, maxP, spawn, index);
     }
 
-    public boolean removeResetRegion(int index)
-    {
+    public boolean removeResetRegion(int index) {
         return removeTrackRegions(resetRegions, index);
     }
 
-    public void addResetRegion(TrackRegion region)
-    {
+    public void addResetRegion(TrackRegion region) {
         resetRegions.put(region.getRegionIndex(), region);
     }
 
@@ -325,23 +279,20 @@ public class Track
         setTrackRegions(gridRegions, TrackRegion.RegionType.GRID, minP, maxP, spawn, index);
     }
 
-    public boolean removeGridRegion(int index)
-    {
+    public boolean removeGridRegion(int index) {
         return removeTrackRegions(gridRegions, index);
     }
 
-    public void addGridRegion(TrackRegion region)
-    {
+    public void addGridRegion(TrackRegion region) {
         gridRegions.put(region.getRegionIndex(), region);
     }
 
-    public Map<Integer, TrackRegion> getGridRegions()
-    {
+    public Map<Integer, TrackRegion> getGridRegions() {
         return gridRegions;
     }
 
 
-    private void setTrackRegions(Map<Integer, TrackRegion> map, TrackRegion.RegionType regionType, Location minP, Location maxP, Location spawn, int index){
+    private void setTrackRegions(Map<Integer, TrackRegion> map, TrackRegion.RegionType regionType, Location minP, Location maxP, Location spawn, int index) {
 
         if (map.containsKey(index)) {
             // Modify checkpoint
@@ -368,8 +319,7 @@ public class Track
     }
 
     private boolean removeTrackRegions(Map<Integer, TrackRegion> map, int index) {
-        if (map.containsKey(index))
-        {
+        if (map.containsKey(index)) {
             var gridRegion = map.get(index);
             var gridRegionId = gridRegion.getId();
             DatabaseTrack.removeTrackRegion(gridRegion);
@@ -381,10 +331,8 @@ public class Track
         return false;
     }
 
-    public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish)
-    {
-        if (timeTrialFinishes.get(timeTrialFinish.getPlayer()) == null)
-        {
+    public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish) {
+        if (timeTrialFinishes.get(timeTrialFinish.getPlayer()) == null) {
             List<TimeTrialFinish> list = new ArrayList<>();
             list.add(timeTrialFinish);
             timeTrialFinishes.put(timeTrialFinish.getPlayer(), list);
@@ -393,10 +341,8 @@ public class Track
         timeTrialFinishes.get(timeTrialFinish.getPlayer()).add(timeTrialFinish);
     }
 
-    public void newTimeTrialFinish(long time, UUID uuid)
-    {
-        try
-        {
+    public void newTimeTrialFinish(long time, UUID uuid) {
+        try {
 
             long date = ApiUtilities.getTimestamp();
             var finishId = DB.executeInsert("INSERT INTO `tracksFinishes` (`trackId`, `uuid`, `date`, `time`, `isRemoved`) VALUES(" + id + ", '" + uuid + "', " + date + ", " + time + ", 0);");
@@ -405,92 +351,74 @@ public class Track
             TimeTrialFinish timeTrialFinish = new TimeTrialFinish(dbRow);
             addTimeTrialFinish(timeTrialFinish);
 
-        } catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             exception.printStackTrace();
         }
     }
 
-    public TimeTrialFinish getBestFinish(TPlayer player)
-    {
-        if (timeTrialFinishes.get(player) == null)
-        {
+    public TimeTrialFinish getBestFinish(TPlayer player) {
+        if (timeTrialFinishes.get(player) == null) {
             return null;
         }
         var times = timeTrialFinishes.get(player);
-        if (times.isEmpty())
-        {
+        if (times.isEmpty()) {
             return null;
         }
         times.sort(new TimeTrialFinishComparator());
         return times.get(0);
     }
 
-    public void deleteBestFinish(TPlayer player, TimeTrialFinish bestFinish)
-    {
-        try
-        {
+    public void deleteBestFinish(TPlayer player, TimeTrialFinish bestFinish) {
+        try {
             timeTrialFinishes.get(player).remove(bestFinish);
             DB.executeUpdate("UPDATE `tracksFinishes` SET `isRemoved` = 1 WHERE `id` = " + bestFinish.getId() + ";");
 
             var dbRows = DB.getResults("SELECT * FROM `tracksFinishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `tracksFinishes` WHERE `trackId` = " + id + " AND `uuid` = '" + player.getUniqueId() + "' AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
             for (DbRow dbRow : dbRows) {
                 var rf = new TimeTrialFinish(dbRow);
-                if (timeTrialFinishes.get(player).stream().noneMatch(timeTrialFinish -> timeTrialFinish.equals(rf)))
-                {
+                if (timeTrialFinishes.get(player).stream().noneMatch(timeTrialFinish -> timeTrialFinish.equals(rf))) {
                     addTimeTrialFinish(rf);
                 }
             }
 
-        } catch (SQLException exception)
-        {
+        } catch (SQLException exception) {
             exception.printStackTrace();
         }
     }
 
-    public Integer getPlayerTopListPosition(TPlayer TPlayer)
-    {
+    public Integer getPlayerTopListPosition(TPlayer TPlayer) {
         var topList = getTopList(-1);
-        for (int i = 0; i < topList.size(); i++)
-        {
-            if (topList.get(i).getPlayer().equals(TPlayer))
-            {
+        for (int i = 0; i < topList.size(); i++) {
+            if (topList.get(i).getPlayer().equals(TPlayer)) {
                 return ++i;
             }
         }
         return -1;
     }
 
-    public List<TimeTrialFinish> getTopList(int limit)
-    {
+    public List<TimeTrialFinish> getTopList(int limit) {
 
         List<TimeTrialFinish> bestTimes = new ArrayList<>();
-        for (TPlayer player : timeTrialFinishes.keySet())
-        {
+        for (TPlayer player : timeTrialFinishes.keySet()) {
             TimeTrialFinish bestFinish = getBestFinish(player);
-            if (bestFinish != null)
-            {
+            if (bestFinish != null) {
                 bestTimes.add(bestFinish);
             }
         }
         bestTimes.sort(new TimeTrialFinishComparator());
 
-        if (limit == -1)
-        {
+        if (limit == -1) {
             return bestTimes;
         }
 
         return bestTimes.stream().limit(limit).collect(Collectors.toList());
     }
 
-    public List<TimeTrialFinish> getTopList()
-    {
+    public List<TimeTrialFinish> getTopList() {
         List<TimeTrialFinish> bestTimes = new ArrayList<>();
-        for (TPlayer player : timeTrialFinishes.keySet())
-        {
+        for (TPlayer player : timeTrialFinishes.keySet()) {
             TimeTrialFinish bestFinish = getBestFinish(player);
-            if (bestFinish != null)
-            {
+            if (bestFinish != null) {
                 bestTimes.add(bestFinish);
             }
         }
@@ -499,30 +427,21 @@ public class Track
         return bestTimes;
     }
 
-    public void teleportPlayer(Player player)
-    {
+    public void teleportPlayer(Player player) {
         player.teleport(spawnLocation);
     }
 
-    public void spawnBoat(Player player, Location location)
-    {
-        if (getType().equals(Track.TrackType.BOAT))
-        {
+    public void spawnBoat(Player player, Location location) {
+        if (getType().equals(Track.TrackType.BOAT)) {
             boolean nearest = player.getLocation().distance(location) < 5;
-            if (nearest)
-            {
+            if (nearest) {
                 Boat boat = location.getWorld().spawn(location, Boat.class);
                 boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
-                if (player.getName().equalsIgnoreCase("Renokas1") || player.getName().equalsIgnoreCase("AdamsApples"))
-                {
+                if (player.getName().equalsIgnoreCase("Renokas1") || player.getName().equalsIgnoreCase("AdamsApples")) {
                     boat.setWoodType(TreeSpecies.ACACIA);
-                }
-                else if (player.getName().equalsIgnoreCase("Makkuusen")  || player.getName().equalsIgnoreCase("TechnoGustav"))
-                {
+                } else if (player.getName().equalsIgnoreCase("Makkuusen") || player.getName().equalsIgnoreCase("TechnoGustav")) {
                     boat.setWoodType(TreeSpecies.JUNGLE);
-                }
-                else if (player.getName().equalsIgnoreCase("JollyTheDuck"))
-                {
+                } else if (player.getName().equalsIgnoreCase("JollyTheDuck")) {
                     boat.setWoodType(TreeSpecies.DARK_OAK);
                 }
                 boat.addPassenger(player);
@@ -530,145 +449,114 @@ public class Track
         }
     }
 
-    public long getDateCreated()
-    {
+    public long getDateCreated() {
         return dateCreated;
     }
 
-    public boolean isGovernment()
-    {
+    public boolean isGovernment() {
         return toggleGovernment;
     }
 
-    public boolean isPersonal()
-    {
+    public boolean isPersonal() {
         return !toggleGovernment;
     }
 
-    public void setToggleGovernment(boolean toggleGovernment)
-    {
+    public void setToggleGovernment(boolean toggleGovernment) {
         this.toggleGovernment = toggleGovernment;
 
         DB.executeUpdateAsync("UPDATE `tracks` SET `toggleGovernment` = " + toggleGovernment + " WHERE `id` = " + id + ";");
     }
 
-    public boolean isElytraTrack()
-    {
+    public boolean isElytraTrack() {
         return getType().equals(TrackType.ELYTRA);
     }
 
-    public boolean isBoatTrack()
-    {
+    public boolean isBoatTrack() {
         return getType().equals(TrackType.BOAT);
     }
 
-    public boolean isParkourTrack()
-    {
+    public boolean isParkourTrack() {
         return getType().equals(TrackType.PARKOUR);
     }
 
-    public TrackType getTypeFromString(String type)
-    {
-        if (type.equalsIgnoreCase("parkour"))
-        {
+    public TrackType getTypeFromString(String type) {
+        if (type.equalsIgnoreCase("parkour")) {
             return Track.TrackType.PARKOUR;
-        }
-        else if (type.equalsIgnoreCase("elytra"))
-        {
+        } else if (type.equalsIgnoreCase("elytra")) {
             return Track.TrackType.ELYTRA;
-        }
-        else if (type.equalsIgnoreCase("boat"))
-        {
+        } else if (type.equalsIgnoreCase("boat")) {
             return Track.TrackType.BOAT;
         }
         return null;
     }
 
-    public TrackMode getModeFromString(String mode)
-    {
-        if (mode.equalsIgnoreCase("race"))
-        {
+    public TrackMode getModeFromString(String mode) {
+        if (mode.equalsIgnoreCase("race")) {
             return TrackMode.RACE;
-        }
-        else if (mode.equalsIgnoreCase("timetrial"))
-        {
+        } else if (mode.equalsIgnoreCase("timetrial")) {
             return TrackMode.TIMETRIAL;
-        }
-        else
-        return null;
+        } else
+            return null;
     }
 
-    public String getTypeAsString()
-    {
-        if (isBoatTrack())
-        {
+    public String getTypeAsString() {
+        if (isBoatTrack()) {
             return "Boat";
-        }
-        else if (isParkourTrack())
-        {
+        } else if (isParkourTrack()) {
             return "Parkour";
-        }
-        else if (isElytraTrack())
-        {
+        } else if (isElytraTrack()) {
             return "Elytra";
         }
 
         return "Unknown";
     }
 
-    public String getModeAsString()
-    {
-        if (mode.equals(TrackMode.RACE))
-        {
+    public String getModeAsString() {
+        if (mode.equals(TrackMode.RACE)) {
             return "Race";
-        }
-        else if (mode.equals(TrackMode.TIMETRIAL))
-        {
+        } else if (mode.equals(TrackMode.TIMETRIAL)) {
             return "Timetrial";
         }
 
         return "Unknown";
     }
 
-    public void setTrackType(TrackType type)
-    {
+    public void setTrackType(TrackType type) {
         this.type = type;
 
         DB.executeUpdateAsync("UPDATE `tracks` SET `type` = " + Database.sqlString(type.toString()) + " WHERE `id` = " + id + ";");
     }
 
-    public TPlayer getOwner()
-    {
+    public TPlayer getOwner() {
         return owner;
     }
 
-    public void setOwner(TPlayer owner)
-    {
+    public void setOwner(TPlayer owner) {
         this.owner = owner;
 
         DB.executeUpdateAsync("UPDATE `tracks` SET `uuid` = '" + owner.getUniqueId() + "' WHERE `id` = " + id + ";");
     }
 
-    public void setOptions(String options)
-    {
+    public void setOptions(String options) {
 
         this.options = options.toCharArray();
         DB.executeUpdateAsync("UPDATE `tracks` SET `options` = " + Database.sqlString(options) + " WHERE `id` = " + id + ";");
 
     }
 
-    public char[] getOptions()
-    {
+    public char[] getOptions() {
         return this.options;
     }
 
-    public boolean hasOption(char needle)
-    {
-        if (this.options == null) { return false; }
+    public boolean hasOption(char needle) {
+        if (this.options == null) {
+            return false;
+        }
 
-        for (char option : this.options)
-        {
-            if (option == needle) { return true; }
+        for (char option : this.options) {
+            if (option == needle) {
+                return true;
+            }
         }
 
         return false;

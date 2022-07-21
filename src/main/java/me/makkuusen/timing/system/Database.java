@@ -13,7 +13,7 @@ public class Database {
 
     public static TimingSystem plugin;
 
-    public static boolean initialize(){
+    public static boolean initialize() {
         try {
             BukkitDB.createHikariDatabase(TimingSystem.getPlugin(),
                     TimingSystem.configuration.getSqlUsername(),
@@ -22,8 +22,7 @@ public class Database {
                     TimingSystem.configuration.getSqlHost() + ":" + TimingSystem.configuration.getSqlPort()
             );
             return createTables();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             plugin.getLogger().warning("Failed to initialize database, disabling plugin.");
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             return false;
@@ -37,15 +36,13 @@ public class Database {
 
             for (DbRow row : result) {
                 TPlayer player = new TPlayer(plugin, row);
-                plugin.players.put(player.getUniqueId(), player);
+                TimingSystem.players.put(player.getUniqueId(), player);
             }
 
             DatabaseTrack.initDatabaseSynchronize();
             EventDatabase.initDatabaseSynchronize();
             return true;
-        }
-        catch (Exception exception)
-        {
+        } catch (Exception exception) {
             exception.printStackTrace();
             plugin.getLogger().warning("Failed to synchronize database, disabling plugin.");
             plugin.getServer().getPluginManager().disablePlugin(plugin);
@@ -53,25 +50,21 @@ public class Database {
         }
     }
 
-    static TPlayer getPlayer(UUID uuid, String name)
-    {
-        TPlayer TPlayer = plugin.players.get(uuid);
+    static TPlayer getPlayer(UUID uuid, String name) {
+        TPlayer TPlayer = TimingSystem.players.get(uuid);
 
-        if (TPlayer == null)
-        {
-            if (name == null) { return null; }
-
-            try
-            {
-                DB.executeUpdate("INSERT INTO `players` (`uuid`, `name`, `dateJoin`, `dateNameChange`, `dateNameCheck`, `dateSeen`) VALUES('" + uuid + "', " + sqlString(name) + ", " + ApiUtilities.getTimestamp() + ", -1, 0, 0);");
-                var dbRow= DB.getFirstRow("SELECT * FROM `players` WHERE `uuid` = '" + uuid + "';");
-
-                TPlayer = new TPlayer(plugin, dbRow);
-                plugin.players.put(uuid, TPlayer);
+        if (TPlayer == null) {
+            if (name == null) {
+                return null;
             }
 
-            catch (SQLException exception)
-            {
+            try {
+                DB.executeUpdate("INSERT INTO `players` (`uuid`, `name`, `dateJoin`, `dateNameChange`, `dateNameCheck`, `dateSeen`) VALUES('" + uuid + "', " + sqlString(name) + ", " + ApiUtilities.getTimestamp() + ", -1, 0, 0);");
+                var dbRow = DB.getFirstRow("SELECT * FROM `players` WHERE `uuid` = '" + uuid + "';");
+
+                TPlayer = new TPlayer(plugin, dbRow);
+                TimingSystem.players.put(uuid, TPlayer);
+            } catch (SQLException exception) {
                 plugin.getLogger().warning("Failed to create new player: " + exception.getMessage());
                 return null;
             }
@@ -80,32 +73,29 @@ public class Database {
         return TPlayer;
     }
 
-    public static TPlayer getPlayer(UUID uuid)
-    {
+    public static TPlayer getPlayer(UUID uuid) {
         return getPlayer(uuid, null);
     }
 
-    public static TPlayer getPlayer(String name)
-    {
-        for (TPlayer player : plugin.players.values())
-        {
-            if (player.getName().equalsIgnoreCase(name)) { return player; }
+    public static TPlayer getPlayer(String name) {
+        for (TPlayer player : TimingSystem.players.values()) {
+            if (player.getName().equalsIgnoreCase(name)) {
+                return player;
+            }
         }
 
         return null;
     }
 
-    public static TPlayer getPlayer(CommandSender sender)
-    {
-        return sender instanceof org.bukkit.entity.Player ? plugin.players.get(((org.bukkit.entity.Player) sender).getUniqueId()) : null;
+    public static TPlayer getPlayer(CommandSender sender) {
+        return sender instanceof org.bukkit.entity.Player ? TimingSystem.players.get(((org.bukkit.entity.Player) sender).getUniqueId()) : null;
     }
 
-    public static String sqlString(String string)
-    {
+    public static String sqlString(String string) {
         return string == null ? "NULL" : "'" + string.replace("\\", "\\\\").replace("'", "\\'") + "'";
     }
 
-    public static boolean createTables(){
+    public static boolean createTables() {
         try {
 
             DB.executeUpdate("CREATE TABLE IF NOT EXISTS `players` (\n" +

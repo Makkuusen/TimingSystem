@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system.race;
 
-import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver>{
+public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver> {
 
     public static TimingSystem plugin;
     private int laps;
@@ -57,25 +57,23 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
     public void setFinished() {
         finished = true;
         isRunning = false;
-        getCurrentLap().setLapEnd(plugin.currentTime);
+        getCurrentLap().setLapEnd(TimingSystem.currentTime);
         getTSPlayer().getPlayer().sendMessage("§aYou finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLaptime()));
-        endTime = plugin.currentTime;
+        endTime = TimingSystem.currentTime;
     }
 
-    public String getLapsString(int totalLaps){
+    public String getLapsString(int totalLaps) {
 
         return " (" + laps + "/" + totalLaps + ")";
     }
 
-    public long getBestLapTime(){
+    public long getBestLapTime() {
         long bestTime = -1;
-        for(RaceLap lap : raceLaps)
-        {
-            if (bestTime == -1){
+        for (RaceLap lap : raceLaps) {
+            if (bestTime == -1) {
                 bestTime = lap.getLaptime();
             }
-            if(lap.getLaptime() < bestTime && lap.getLaptime() > 0)
-            {
+            if (lap.getLaptime() < bestTime && lap.getLaptime() > 0) {
                 bestTime = lap.getLaptime();
             }
         }
@@ -83,8 +81,8 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
         return bestTime;
     }
 
-    public long getAverageLapTime(){
-        if(raceLaps.size() > 1) {
+    public long getAverageLapTime() {
+        if (raceLaps.size() > 1) {
             long totalTime = 0;
             int laps = 0;
             for (RaceLap lap : raceLaps) {
@@ -116,12 +114,12 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
 
     public void passLap() {
         if (laps != 0) {
-            getCurrentLap().setLapEnd(plugin.currentTime);
+            getCurrentLap().setLapEnd(TimingSystem.currentTime);
             getTSPlayer().getPlayer().sendMessage("§aYou finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLaptime()));
         }
         laps++;
         RaceLap lap = new RaceLap(this);
-        lap.setLapStart(plugin.currentTime);
+        lap.setLapStart(TimingSystem.currentTime);
         raceLaps.add(lap);
     }
 
@@ -137,40 +135,36 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
         return getCurrentLap().hasPassedAllCheckpoints();
     }
 
-    public int getLatestCheckpoint()
-    {
-        if (raceLaps.size() == 0){
+    public int getLatestCheckpoint() {
+        if (raceLaps.size() == 0) {
             return 0;
         }
         return getCurrentLap().getLatestCheckpoint();
     }
 
-    public RaceLap getCurrentLap()
-    {
+    public RaceLap getCurrentLap() {
         return raceLaps.get(laps - 1);
     }
 
-    public void start()
-    {
+    public void start() {
         isRunning = true;
         passLap();
     }
 
-    public boolean isRunning()
-    {
+    public boolean isRunning() {
         return isRunning;
     }
 
-    public void resetLaps(){
+    public void resetLaps() {
         this.raceLaps = new ArrayList<>();
     }
 
-    public long getFinishTime(Instant startTime){
+    public long getFinishTime(Instant startTime) {
         return Duration.between(startTime, endTime).toMillis();
     }
 
-    public Instant getTimeStamp(int lap, int checkpoint){
-        if (lap > race.getTotalLaps()){
+    public Instant getTimeStamp(int lap, int checkpoint) {
+        if (lap > race.getTotalLaps()) {
             return raceLaps.get(race.getTotalLaps() - 1).getLapEnd();
         }
 
@@ -179,20 +173,29 @@ public class RaceDriver extends RaceParticipant implements Comparable<RaceDriver
 
     @Override
     public int compareTo(@NotNull RaceDriver o) {
-        if (finished && !o.finished) { return -1; }
-        else if (!finished && o.finished) { return 1; }
-        else if (finished && o.finished) { return endTime.compareTo(o.endTime); }
-
-        if (laps > o.laps) { return -1; }
-        else if (laps < o.laps) { return 1; }
-
-        if (getLatestCheckpoint() > o.getLatestCheckpoint()) { return -1; }
-        else if (getLatestCheckpoint() < o.getLatestCheckpoint()) { return 1;}
-
-        if (laps == 0 && getLatestCheckpoint() == 0){
-            return 0;
+        if (finished && !o.finished) {
+            return -1;
+        } else if (!finished && o.finished) {
+            return 1;
+        } else if (finished && o.finished) {
+            return endTime.compareTo(o.endTime);
         }
-        else if (getLatestCheckpoint() == 0){
+
+        if (laps > o.laps) {
+            return -1;
+        } else if (laps < o.laps) {
+            return 1;
+        }
+
+        if (getLatestCheckpoint() > o.getLatestCheckpoint()) {
+            return -1;
+        } else if (getLatestCheckpoint() < o.getLatestCheckpoint()) {
+            return 1;
+        }
+
+        if (laps == 0 && getLatestCheckpoint() == 0) {
+            return 0;
+        } else if (getLatestCheckpoint() == 0) {
             return getCurrentLap().getLapStart().compareTo(o.getCurrentLap().getLapStart());
         }
 

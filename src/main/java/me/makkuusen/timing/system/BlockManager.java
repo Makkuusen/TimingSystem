@@ -12,22 +12,22 @@ import java.util.List;
 
 public class BlockManager {
 
-    private Track track;
-    private HashMap<Integer, List<Material>> trackRegionBlocks = new HashMap<>();
+    private final Track track;
+    private final HashMap<Integer, List<Material>> trackRegionBlocks = new HashMap<>();
 
     public BlockManager(Track track) {
         this.track = track;
     }
 
-    public void setStartingGrid(){
-        track.getGridRegions().values().stream().forEach( trackRegion -> {
-                    getGridBorderBlocks(trackRegion).forEach(block -> block.setType(Material.WHITE_CARPET));
-                    getGridGroundBlocks(trackRegion, true).forEach(block -> block.setType(Material.WHITE_CONCRETE));
+    public void setStartingGrid() {
+        track.getGridRegions().values().stream().forEach(trackRegion -> {
+            getGridBorderBlocks(trackRegion).forEach(block -> block.setType(Material.WHITE_CARPET));
+            getGridGroundBlocks(trackRegion, true).forEach(block -> block.setType(Material.WHITE_CONCRETE));
         });
     }
-    public void clearStartingGrid()
-    {
-        track.getGridRegions().values().stream().forEach( trackRegion -> {
+
+    public void clearStartingGrid() {
+        track.getGridRegions().values().stream().forEach(trackRegion -> {
             getGridBorderBlocks(trackRegion).forEach(block -> block.setType(Material.AIR));
             List<Material> mats = trackRegionBlocks.get(trackRegion.getId());
             if (mats != null) {
@@ -38,19 +38,18 @@ public class BlockManager {
             }
         });
     }
-    private List<Block> getGridBorderBlocks(TrackRegion region){
+
+    private List<Block> getGridBorderBlocks(TrackRegion region) {
         List<Block> selected = new ArrayList<>();
         int y = region.getMaxP().getBlockY();
         World world = region.getMaxP().getWorld();
 
-        for (int x1 = region.getMinP().getBlockX() + 1; x1 < region.getMaxP().getBlockX(); x1++)
-        {
+        for (int x1 = region.getMinP().getBlockX() + 1; x1 < region.getMaxP().getBlockX(); x1++) {
             selected.add(world.getBlockAt(x1, y, region.getMinP().getBlockZ()));
             selected.add(world.getBlockAt(x1, y, region.getMaxP().getBlockZ()));
         }
 
-        for (int z1 = region.getMinP().getBlockZ() + 1; z1 < region.getMaxP().getBlockZ(); z1++)
-        {
+        for (int z1 = region.getMinP().getBlockZ() + 1; z1 < region.getMaxP().getBlockZ(); z1++) {
             selected.add(world.getBlockAt(region.getMinP().getBlockX(), y, z1));
             selected.add(world.getBlockAt(region.getMaxP().getBlockX(), y, z1));
         }
@@ -58,7 +57,7 @@ public class BlockManager {
         return selected;
     }
 
-    private List<Block> getGridGroundBlocks(TrackRegion region, boolean saveMaterial){
+    private List<Block> getGridGroundBlocks(TrackRegion region, boolean saveMaterial) {
         List<Block> selected = new ArrayList<>();
         int y = region.getMaxP().getBlockY() - 1;
         World world = region.getMaxP().getWorld();
