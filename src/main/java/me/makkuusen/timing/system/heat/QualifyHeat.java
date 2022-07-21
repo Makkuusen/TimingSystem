@@ -1,9 +1,10 @@
 package me.makkuusen.timing.system.heat;
 
+import co.aikar.idb.DB;
+import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
 
@@ -11,12 +12,13 @@ import java.time.Duration;
 
 @Setter
 @Getter
-public class QualyHeat extends Heat {
+public class QualifyHeat extends Heat {
 
-    private long timeLimit;
-    public QualyHeat(Event event, String name, long timeLimit){
-        super(event, name);
-        this.timeLimit = timeLimit;
+    private int timeLimit;
+
+    public QualifyHeat(DbRow data) {
+        super(data);
+        timeLimit = data.getInt("timeLimit");
         setScoreboard(new QualyScoreboard(this));
     }
 
@@ -44,5 +46,10 @@ public class QualyHeat extends Heat {
             return true;
         }
         return false;
+    }
+
+    public void setTimeLimit(int timeLimit){
+        this.timeLimit = timeLimit;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `timeLimit` = " + timeLimit + " WHERE `id` = " + getId() + ";");
     }
 }

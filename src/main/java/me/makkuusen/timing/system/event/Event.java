@@ -1,18 +1,16 @@
 package me.makkuusen.timing.system.event;
 
+import co.aikar.idb.DB;
+import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.heat.FinalHeat;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.heat.QualyHeat;
 import me.makkuusen.timing.system.participant.Driver;
-import me.makkuusen.timing.system.participant.FinalDriver;
 import me.makkuusen.timing.system.participant.Participant;
-import me.makkuusen.timing.system.participant.QualyDriver;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.track.Track;
 
@@ -27,46 +25,51 @@ import java.util.UUID;
 public class Event {
 
     public static TimingSystem plugin;
-    private String id;
+    private int id;
+    private UUID uuid;
     private String displayName;
-    private String date;
+    private long date;
     HashMap<UUID, Participant> participants = new HashMap<>();
     private EventSchedule eventSchedule;
     private EventResults eventResults = new EventResults();
-    private EventState state = EventState.SETUP;
+    private EventState state;
     Track track;
 
     public enum EventState {
         SETUP, QUALIFICATION, FINAL, FINISHED
     }
 
-    public Event(String name){
-        this.id = name;
-        this.displayName = name;
-        this.eventSchedule = new EventSchedule();
+    public Event(DbRow data) {
+        id = data.getInt("id");
+        displayName = data.getString("name");
+        uuid = UUID.fromString(data.getString("uuid"));
+        date = data.getLong("date");
+        track = data.get("track") == null ? null : DatabaseTrack.getTrackById(data.getInt("track")).get();
+        state = EventState.valueOf(data.getString("state"));
+        eventSchedule = new EventSchedule();
     }
 
-    public boolean start(){
-        if (state != EventState.SETUP){
+    public boolean start() {
+        if (state != EventState.SETUP) {
             return false;
         }
-        if (track == null){
+        if (track == null) {
             return false;
         }
-        if (eventSchedule.getHeats().size() == 0){
+        if (eventSchedule.getHeats().size() == 0) {
             return false;
         }
-        if (eventSchedule.getQualyHeatList().size() > 0) {
-            state = EventState.QUALIFICATION;
+        if (eventSchedule.getQualifyHeatList().size() > 0) {
+            setState(EventState.QUALIFICATION);
             return true;
         } else if (eventSchedule.getFinalHeatList().size() > 0) {
-            state = EventState.FINAL;
+            setState(EventState.FINAL);
             return true;
         }
         return false;
     }
 
-    public boolean finishQualification(){
+    public boolean finishQualification() {
         if (state != EventState.QUALIFICATION) {
             return false;
         }
@@ -74,50 +77,27 @@ public class Event {
         // Ugly way to get finalheat
         Heat finalHeat = eventSchedule.getFinalHeatList().get(0);
         int startPos = 1;
-        for (Driver driver : drivers){
-            finalHeat.addDriver(new FinalDriver(driver.getTPlayer(), finalHeat, startPos++));
+        for (Driver driver : drivers) {
+            EventDatabase.finalDriverNew(driver.getTPlayer().getUniqueId(), finalHeat, startPos++);
         }
-        state = EventState.FINAL;
+        setState(EventState.FINAL);
         return true;
     }
 
-    public boolean finishFinals(){
+    public boolean finishFinals() {
         if (state != EventState.FINAL) {
             return false;
         }
         ApiUtilities.clearScoreboards();
-        state = EventState.FINISHED;
+        setState(EventState.FINISHED);
         return true;
     }
 
-    public boolean quickSetup(List<TPlayer> tDrivers, long qualyTime, int laps, int pitstops) {
-        if (track == null) {
-            return false;
-        }
-        String heatNameQ = "Qualy";
-        QualyHeat qualyHeat = new QualyHeat(this, "Qualy1", qualyTime);
-        QualyHeat qualyHeat2 = new QualyHeat(this, "Qualy2", qualyTime);
-        String heatName = "Final";
-        FinalHeat finalHeat = new FinalHeat(this, heatName, laps, pitstops);
-        int startPos = 1;
-        int startPos2 = 1;
-        for (int i = 0; i < tDrivers.size(); i++){
-            if (i%2 == 0) {
-                qualyHeat.addDriver(new QualyDriver(tDrivers.get(i), qualyHeat, startPos++));
-            } else {
-                qualyHeat2.addDriver(new QualyDriver(tDrivers.get(i), qualyHeat2, startPos2++));
-            }
-            participants.put(tDrivers.get(i).getUniqueId(), new Spectator(tDrivers.get(i)));
-        }
-        eventSchedule.createQuickSchedule(List.of(qualyHeat, qualyHeat2),List.of(finalHeat));
-        return true;
-    }
-
-    public void addParticipant(UUID uuid){
+    public void addParticipant(UUID uuid) {
         participants.put(uuid, new Spectator(Database.getPlayer(uuid)));
     }
 
-    public List<Participant> getParticipants(){
+    public List<Participant> getParticipants() {
         return participants.values().stream().toList();
     }
 
@@ -132,12 +112,22 @@ public class Event {
         return eventSchedule.getRawHeats();
     }
 
+    public void setTrack(Track track) {
+        this.track = track;
+        DB.executeUpdateAsync("UPDATE `ts_events` SET `track` = " + track.getId() + " WHERE `id` = " + id + ";");
+    }
+
+    public void setState(EventState state) {
+        this.state = state;
+        DB.executeUpdateAsync("UPDATE `ts_events` SET `state` = '" + state.name() + "' WHERE `id` = " + id + ";");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return id.equals(event.id);
+        return id == event.id;
     }
 
     @Override
@@ -146,7 +136,7 @@ public class Event {
     }
 
     @Override
-    public String toString(){
-        return id;
+    public String toString() {
+        return displayName;
     }
 }

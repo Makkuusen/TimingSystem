@@ -1,11 +1,11 @@
 package me.makkuusen.timing.system.participant;
 
+import co.aikar.idb.DB;
+import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
-import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.heat.FinalHeat;
-import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,14 +17,15 @@ public class FinalDriver extends Driver {
 
     private int pits;
 
-    public FinalDriver(TPlayer tPlayer, Heat heat, int startPosition){
-        super(tPlayer, heat);
-        setStartPosition(startPosition);
+    public FinalDriver(DbRow data) {
+        super(data);
+        pits = data.getInt("pitstops");
     }
 
     public void passPit() {
         if (!getCurrentLap().isPitted()) {
-            EventAnnouncements.broadcastPit(getHeat(), this, ++pits);
+            setPits(pits + 1);
+            EventAnnouncements.broadcastPit(getHeat(), this, pits);
             getCurrentLap().setPitted(true);
         }
     }
@@ -32,7 +33,7 @@ public class FinalDriver extends Driver {
     @Override
     public void reset(){
         super.reset();
-        pits = 0;
+        setPits(0);
     }
 
     public Instant getTimeStamp(int lap, int checkpoint){
@@ -42,6 +43,11 @@ public class FinalDriver extends Driver {
         }
 
         return getLaps().get(lap - 1).getCheckpointTime(checkpoint);
+    }
+
+    public void setPits(int pits) {
+        this.pits = pits;
+        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `pitstops` = " + pits + " WHERE `id` = " + getId() + ";");
     }
 
     @Override

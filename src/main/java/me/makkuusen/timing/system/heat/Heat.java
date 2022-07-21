@@ -1,5 +1,7 @@
 package me.makkuusen.timing.system.heat;
 
+import co.aikar.idb.DB;
+import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
@@ -10,7 +12,6 @@ import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
-import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -29,28 +30,36 @@ import java.util.UUID;
 @Setter
 public abstract class Heat {
 
+    private int id;
     private Event event;
     private String name;
     private Instant startTime;
     private Instant endTime;
     private HeatState heatState;
-    private HashMap<UUID, Spectator> spectators = new HashMap<>();
     private HashMap<UUID, Driver> drivers = new HashMap<>();
     private BlockManager BlockManager;
     private List<Driver> startPositions = new ArrayList<>();
     private List<Driver> livePositions = new ArrayList<>();
     private GenericScoreboard scoreboard;
-    private long fastestLap = -1;
+    private Long fastestLap;
 
-    public Heat(Event event, String name){
-        this.event = event;
-        this.name = name;
-        this.heatState = HeatState.SETUP;
-        this.BlockManager = new BlockManager(event.getTrack());
+    public Heat(DbRow data) {
+        id = data.getInt("id");
+        event = EventDatabase.getEvent(data.getInt("eventId")).get();
+        name = data.getString("name");
+        heatState = HeatState.valueOf(data.getString("state"));
+        startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
+        endTime = data.getLong("endTime") == null ? null : Instant.ofEpochMilli(data.getLong("endTime"));
+        if (data.get("fastestLap") == null) {
+            fastestLap = 0L;
+        } else {
+            fastestLap = data.getInt("fastestLap").longValue();
+        }
+        BlockManager = new BlockManager(event.getTrack());
     }
 
     public boolean loadHeat() {
-        if (this instanceof QualyHeat && event.getState() != Event.EventState.QUALIFICATION){
+        if (this instanceof QualifyHeat && event.getState() != Event.EventState.QUALIFICATION){
             return false;
         }
         if (this instanceof FinalHeat && event.getState() != Event.EventState.FINAL){
@@ -119,12 +128,16 @@ public abstract class Heat {
             }
         }, 200);
 
-        if (this instanceof QualyHeat) {
+        if (this instanceof QualifyHeat) {
             getEvent().getEventResults().reportQualyResults(getLivePositions());
         } else if (this instanceof FinalHeat) {
             getEvent().getEventResults().reportFinalResults(getLivePositions());
         }
         getDrivers().values().stream().forEach(driver -> EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId()));
+
+        //Dump all laps to database
+        getDrivers().values().stream().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
+
         return true;
     }
 
@@ -142,7 +155,7 @@ public abstract class Heat {
         setHeatState(HeatState.SETUP);
         setStartTime(null);
         setEndTime(null);
-        setFastestLap(-1);
+        setFastestLap(0);
         setLivePositions(new ArrayList<>());
         getDrivers().values().stream().forEach(driver -> driver.reset());
         ApiUtilities.clearScoreboards();
@@ -164,10 +177,7 @@ public abstract class Heat {
     }
 
     public List<Participant> getParticipants(){
-        List<Participant> rp = new ArrayList<>();
-        rp.addAll(drivers.values());
-        rp.addAll(spectators.values());
-        return rp;
+        return event.getParticipants();
     }
 
     public void updateScoreboard(){
@@ -184,5 +194,33 @@ public abstract class Heat {
             }
         }
         return true;
+    }
+
+    public void setHeatState(HeatState state) {
+        this.heatState = state;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `state` = '" + state.name() + "' WHERE `id` = " + id + ";");
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
+        if (startTime == null) {
+            DB.executeUpdateAsync("UPDATE `ts_heats` SET `startTime` = NULL WHERE `id` = " + id + ";");
+        } else {
+            DB.executeUpdateAsync("UPDATE `ts_heats` SET `startTime` = "+ startTime.toEpochMilli() + " WHERE `id` = " + id + ";");
+        }
+    }
+
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
+        if (endTime == null) {
+            DB.executeUpdateAsync("UPDATE `ts_heats` SET `endTime` = NULL WHERE `id` = " + id + ";");
+        } else {
+            DB.executeUpdateAsync("UPDATE `ts_heats` SET `endTime` = "+ endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
+        }
+    }
+
+    public void setFastestLap(long fastestLap) {
+        this.fastestLap = fastestLap;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `fastestLap` = " + fastestLap + " WHERE `id` = " + id + ";");
     }
 }
