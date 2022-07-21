@@ -20,10 +20,12 @@ public class EventResults {
 
     public void reportQualyResults(List<Driver> heatPos){
         qualyResults.addAll(heatPos);
+        Collections.sort(qualyResults);
     }
 
     public void reportFinalResults(List<Driver> heatPos){
         finalResults.addAll(heatPos);
+        Collections.sort(finalResults);
     }
 
     public List<Driver> generateFinalStartingPositions(){

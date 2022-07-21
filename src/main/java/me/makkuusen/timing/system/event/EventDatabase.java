@@ -72,7 +72,7 @@ public class EventDatabase {
                     heat = new QualifyHeat(heatData);
                     es.addHeat(heat);
                     heats.add(heat);
-                    var driverDbRows = DB.getResults("SELECT * FROM `ts_drivers` WHERE `id` = " + heat.getId() + ";");
+                    var driverDbRows = DB.getResults("SELECT * FROM `ts_drivers` WHERE `heatId` = " + heat.getId() + ";");
                     for (DbRow driverData : driverDbRows) {
                         Driver driver = new QualyDriver(driverData);
                         heat.addDriver(driver);
@@ -280,6 +280,12 @@ public class EventDatabase {
 
     public static boolean lapNew(Lap lap) {
         try {
+            String lapEnd;
+            if (lap.getLapEnd() == null){
+                lapEnd = "NULL";
+            } else {
+                lapEnd = String.valueOf(lap.getLapEnd().toEpochMilli());
+            }
             var driverId = DB.executeInsert("INSERT INTO `ts_laps`(" +
                     "`uuid`, " +
                     "`heatId`, " +
@@ -292,7 +298,7 @@ public class EventDatabase {
                     lap.getHeatId() + "," +
                     lap.getTrack().getId() + "," +
                     lap.getLapStart().toEpochMilli() + "," +
-                    lap.getLapEnd().toEpochMilli() + "," +
+                    lapEnd + "," +
                     lap.isPitted() + ")");
 
         } catch (SQLException exception)
