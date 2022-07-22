@@ -70,7 +70,7 @@ public class TPlayer implements Comparable<TPlayer> {
         plugin.getLogger().info("Updating name of " + uuid + " from " + this.name + " to " + name + ".");
 
         this.name = name;
-        DB.executeUpdateAsync("UPDATE `players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
 
         if (player != null) {
             player.setDisplayName(getNameDisplay());
@@ -146,9 +146,9 @@ public class TPlayer implements Comparable<TPlayer> {
                     TPlayer.dateNameCheck = ApiUtilities.getTimestamp();
 
                     if (newChanges == 0) {
-                        DB.executeUpdateAsync("UPDATE `players` SET `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';");
+                        DB.executeUpdateAsync("UPDATE `ts_players` SET `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';");
                     } else {
-                        DB.executeUpdateAsync("UPDATE `players` SET `dateNameChange` = " + TPlayer.dateNameChange + ", `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';");
+                        DB.executeUpdateAsync("UPDATE `ts_players` SET `dateNameChange` = " + TPlayer.dateNameChange + ", `dateNameCheck` = " + TPlayer.dateNameCheck + " WHERE `uuid` = '" + uuid + "';");
 
                         plugin.getLogger().info("Cached " + newChanges + " new name " + (newChanges == 1 ? "change" : "changes") + " for " + uuid + " (" + nameCurrent + ").");
 

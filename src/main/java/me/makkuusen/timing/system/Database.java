@@ -32,7 +32,7 @@ public class Database {
     public static boolean synchronize() {
         try {
             // Load players;
-            var result = DB.getResults("SELECT * FROM `players`;");
+            var result = DB.getResults("SELECT * FROM `ts_players`;");
 
             for (DbRow row : result) {
                 TPlayer player = new TPlayer(plugin, row);
@@ -59,8 +59,8 @@ public class Database {
             }
 
             try {
-                DB.executeUpdate("INSERT INTO `players` (`uuid`, `name`, `dateJoin`, `dateNameChange`, `dateNameCheck`, `dateSeen`) VALUES('" + uuid + "', " + sqlString(name) + ", " + ApiUtilities.getTimestamp() + ", -1, 0, 0);");
-                var dbRow = DB.getFirstRow("SELECT * FROM `players` WHERE `uuid` = '" + uuid + "';");
+                DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `dateJoin`, `dateNameChange`, `dateNameCheck`, `dateSeen`) VALUES('" + uuid + "', " + sqlString(name) + ", " + ApiUtilities.getTimestamp() + ", -1, 0, 0);");
+                var dbRow = DB.getFirstRow("SELECT * FROM `ts_players` WHERE `uuid` = '" + uuid + "';");
 
                 TPlayer = new TPlayer(plugin, dbRow);
                 TimingSystem.players.put(uuid, TPlayer);
@@ -98,7 +98,7 @@ public class Database {
     public static boolean createTables() {
         try {
 
-            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `players` (\n" +
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_players` (\n" +
                     "  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',\n" +
                     "  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `dateJoin` bigint(30) DEFAULT NULL,\n" +
@@ -108,7 +108,7 @@ public class Database {
                     "  PRIMARY KEY (`uuid`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `tracks` (\n" +
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_tracks` (\n" +
                     "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
                     "  `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
@@ -125,7 +125,7 @@ public class Database {
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
-            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `tracksFinishes` (\n" +
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_finishes` (\n" +
                     "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
                     "  `trackId` int(11) NOT NULL,\n" +
                     "  `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
@@ -135,7 +135,7 @@ public class Database {
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
-            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `tracksRegions` (\n" +
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_regions` (\n" +
                     "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
                     "  `trackId` int(11) NOT NULL,\n" +
                     "  `regionIndex` int(11) DEFAULT NULL,\n" +

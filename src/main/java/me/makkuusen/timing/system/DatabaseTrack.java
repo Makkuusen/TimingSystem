@@ -27,20 +27,20 @@ public class DatabaseTrack {
     private static final List<TrackRegion> regions = new ArrayList<>();
 
     public static void initDatabaseSynchronize() throws SQLException {
-        var dbRows = DB.getResults("SELECT * FROM `tracks` WHERE `isRemoved` = 0;");
+        var dbRows = DB.getResults("SELECT * FROM `ts_tracks` WHERE `isRemoved` = 0;");
 
         for (DbRow dbRow : dbRows) {
             Track rTrack = new Track(dbRow);
             tracks.add(rTrack);
 
-            var resultFinishes = DB.getResults("SELECT * FROM `tracksFinishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `tracksFinishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
+            var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
             for (DbRow finish : resultFinishes) {
                 rTrack.addTimeTrialFinish(new TimeTrialFinish(finish));
             }
 
         }
 
-        var trackRegions = DB.getResults("SELECT * FROM `tracksRegions` WHERE `isRemoved` = 0;");
+        var trackRegions = DB.getResults("SELECT * FROM `ts_regions` WHERE `isRemoved` = 0;");
         for (DbRow region : trackRegions) {
             Optional<Track> maybeTrack = getTrackById(region.getInt("trackId"));
             if (maybeTrack.isPresent()) {
@@ -71,7 +71,7 @@ public class DatabaseTrack {
             Location leaderboard = location.clone();
             leaderboard.setY(leaderboard.getY() + 3);
             // Save the track
-            var trackId = DB.executeInsert("INSERT INTO `tracks` " +
+            var trackId = DB.executeInsert("INSERT INTO `ts_tracks` " +
                     "(`uuid`, `name`, `dateCreated`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `toggleGovernment`, `options`, `isRemoved`) " +
                     "VALUES('" + uuid + "', " +
                     Database.sqlString(name) + ", " + date + ", " +
@@ -79,7 +79,7 @@ public class DatabaseTrack {
                     Database.sqlString(type == null ? null : type.toString()) + "," +
                     Database.sqlString(Track.TrackMode.TIMETRIAL.toString()) + ", 0, 0, NULL , 0);");
 
-            var dbRow = DB.getFirstRow("SELECT * FROM `tracks` WHERE `id` = " + trackId + ";");
+            var dbRow = DB.getFirstRow("SELECT * FROM `ts_tracks` WHERE `id` = " + trackId + ";");
 
             Track rTrack = new Track(dbRow);
             tracks.add(rTrack);
@@ -102,17 +102,17 @@ public class DatabaseTrack {
     }
 
     public static TrackRegion trackRegionNew(long trackId, TrackRegion.RegionType type, Location location) throws SQLException {
-        var regionId = DB.executeInsert("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", 0, " +
+        var regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", 0, " +
                 Database.sqlString(type.toString()) + ", NULL, NULL, '" + ApiUtilities.locationToString(location) + "', 0);");
-        var dbRow = DB.getFirstRow("SELECT * FROM `tracksRegions` WHERE `id` = " + regionId + ";");
+        var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
         return new TrackRegion(dbRow);
 
     }
 
     static public void removeTrack(Track Track) {
-        DB.executeUpdateAsync("UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";");
-        DB.executeUpdateAsync("UPDATE `tracksFinishes` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";");
-        DB.executeUpdateAsync("UPDATE `tracks` SET `isRemoved` = 1 WHERE `id` = " + Track.getId() + ";");
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";");
+        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = " + Track.getId() + ";");
         regions.removeIf(trackRegion -> trackRegion.getTrackId() == Track.getId());
         tracks.remove(Track);
         LeaderboardManager.removeLeaderboard(Track.getId());

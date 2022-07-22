@@ -198,23 +198,23 @@ public class Track {
         startRegion.setMinP(minP);
         startRegion.setMaxP(maxP);
 
-        DB.executeUpdateAsync("UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + startRegion.getId() + ";");
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + startRegion.getId() + ";");
     }
 
     public void setEndRegion(Location minP, Location maxP) {
         endRegion.setMinP(minP);
         endRegion.setMaxP(maxP);
 
-        DB.executeUpdateAsync("UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + endRegion.getId() + ";");
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + endRegion.getId() + ";");
     }
 
     public void setPitRegion(Location minP, Location maxP, Location spawn) {
         if (pitRegion == null) {
 
             try {
-                var regionId = DB.executeInsert("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", 0, " + Database.sqlString(TrackRegion.RegionType.PIT.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);");
+                var regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", 0, " + Database.sqlString(TrackRegion.RegionType.PIT.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);");
 
-                var dbRow = DB.getFirstRow("SELECT * FROM `tracksRegions` WHERE `id` = " + regionId + ";");
+                var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
                 TrackRegion pitRegion = new TrackRegion(dbRow);
                 newPitRegion(pitRegion);
                 return;
@@ -227,7 +227,7 @@ public class Track {
         pitRegion.setMinP(minP);
         pitRegion.setMaxP(maxP);
 
-        DB.executeUpdateAsync("UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + pitRegion.getId() + ";");
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + pitRegion.getId() + ";");
     }
 
 
@@ -301,13 +301,13 @@ public class Track {
             resetRegion.setMaxP(maxP);
             resetRegion.setSpawnLocation(spawn);
 
-            DB.executeUpdateAsync("UPDATE `tracksRegions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "', `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + resetRegion.getId() + ";");
+            DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "', `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + resetRegion.getId() + ";");
 
         } else {
             try {
 
-                var regionId = DB.executeInsert("INSERT INTO `tracksRegions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + Database.sqlString(type.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);");
-                var dbRow = DB.getFirstRow("SELECT * FROM `tracksRegions` WHERE `id` = " + regionId + ";");
+                var regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + Database.sqlString(type.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);");
+                var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
 
                 TrackRegion gridRegion = new TrackRegion(dbRow);
                 addGridRegion(gridRegion);
@@ -325,7 +325,7 @@ public class Track {
             DatabaseTrack.removeTrackRegion(gridRegion);
             map.remove(index);
 
-            DB.executeUpdateAsync("UPDATE `tracksRegions` SET `isRemoved` = 1 WHERE `id` = " + gridRegionId + ";");
+            DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `id` = " + gridRegionId + ";");
             return true;
         }
         return false;
@@ -345,8 +345,8 @@ public class Track {
         try {
 
             long date = ApiUtilities.getTimestamp();
-            var finishId = DB.executeInsert("INSERT INTO `tracksFinishes` (`trackId`, `uuid`, `date`, `time`, `isRemoved`) VALUES(" + id + ", '" + uuid + "', " + date + ", " + time + ", 0);");
-            var dbRow = DB.getFirstRow("SELECT * FROM `tracksFinishes` WHERE `id` = " + finishId + ";");
+            var finishId = DB.executeInsert("INSERT INTO `ts_finishes` (`trackId`, `uuid`, `date`, `time`, `isRemoved`) VALUES(" + id + ", '" + uuid + "', " + date + ", " + time + ", 0);");
+            var dbRow = DB.getFirstRow("SELECT * FROM `ts_finishes` WHERE `id` = " + finishId + ";");
 
             TimeTrialFinish timeTrialFinish = new TimeTrialFinish(dbRow);
             addTimeTrialFinish(timeTrialFinish);
@@ -371,9 +371,9 @@ public class Track {
     public void deleteBestFinish(TPlayer player, TimeTrialFinish bestFinish) {
         try {
             timeTrialFinishes.get(player).remove(bestFinish);
-            DB.executeUpdate("UPDATE `tracksFinishes` SET `isRemoved` = 1 WHERE `id` = " + bestFinish.getId() + ";");
+            DB.executeUpdate("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `id` = " + bestFinish.getId() + ";");
 
-            var dbRows = DB.getResults("SELECT * FROM `tracksFinishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `tracksFinishes` WHERE `trackId` = " + id + " AND `uuid` = '" + player.getUniqueId() + "' AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
+            var dbRows = DB.getResults("SELECT * FROM `ts_finishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + id + " AND `uuid` = '" + player.getUniqueId() + "' AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
             for (DbRow dbRow : dbRows) {
                 var rf = new TimeTrialFinish(dbRow);
                 if (timeTrialFinishes.get(player).stream().noneMatch(timeTrialFinish -> timeTrialFinish.equals(rf))) {
