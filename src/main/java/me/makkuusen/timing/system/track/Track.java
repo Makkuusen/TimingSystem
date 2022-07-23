@@ -296,22 +296,27 @@ public class Track {
 
         if (map.containsKey(index)) {
             // Modify checkpoint
-            TrackRegion resetRegion = map.get(index);
-            resetRegion.setMinP(minP);
-            resetRegion.setMaxP(maxP);
-            resetRegion.setSpawnLocation(spawn);
+            TrackRegion region = map.get(index);
+            region.setMinP(minP);
+            region.setMaxP(maxP);
+            region.setSpawnLocation(spawn);
 
-            DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "', `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + resetRegion.getId() + ";");
+            DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "', `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + region.getId() + ";");
 
         } else {
             try {
 
-                var regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + Database.sqlString(type.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);");
+                var regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + Database.sqlString(regionType.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);");
                 var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
 
-                TrackRegion gridRegion = new TrackRegion(dbRow);
-                addGridRegion(gridRegion);
-
+                TrackRegion region = new TrackRegion(dbRow);
+                if (regionType.equals(TrackRegion.RegionType.CHECKPOINT)) {
+                    addCheckpoint(region);
+                } else if (regionType.equals(TrackRegion.RegionType.GRID)) {
+                    addGridRegion(region);
+                } else if (regionType.equals(TrackRegion.RegionType.RESET)) {
+                    addResetRegion(region);
+                }
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }

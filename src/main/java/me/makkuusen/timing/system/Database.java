@@ -116,8 +116,8 @@ public class Database {
                     "  `guiItem` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `leaderboard` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
-                    "  `type` longblob NOT NULL,\n" +
-                    "  `mode` longblob DEFAULT NULL,\n" +
+                    "  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  `mode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `toggleOpen` tinyint(1) NOT NULL,\n" +
                     "  `toggleGovernment` tinyint(1) NOT NULL,\n" +
                     "  `options` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
@@ -139,7 +139,7 @@ public class Database {
                     "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
                     "  `trackId` int(11) NOT NULL,\n" +
                     "  `regionIndex` int(11) DEFAULT NULL,\n" +
-                    "  `regionType` longblob DEFAULT NULL,\n" +
+                    "  `regionType` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `minP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  `maxP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
