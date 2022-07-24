@@ -1,6 +1,5 @@
 package me.makkuusen.timing.system.race;
 
-import me.makkuusen.timing.system.BlockManager;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -26,7 +25,6 @@ public class Race {
     private Instant startTime;
     private HeatState heatState;
     Track track;
-    BlockManager BlockManager;
     RaceScoreboard raceScoreboard;
     HashMap<UUID, RaceSpectator> raceSpectators = new HashMap<>();
     HashMap<UUID, RaceDriver> raceDrivers = new HashMap<>();
@@ -37,7 +35,6 @@ public class Race {
         this.totalPits = totalPits;
         this.track = track;
         this.heatState = HeatState.SETUP;
-        this.BlockManager = new BlockManager(track);
     }
 
     public void addRaceDriver(TPlayer TPlayer) {
@@ -49,7 +46,6 @@ public class Race {
         if (heatState.equals(HeatState.SETUP)) {
             livePositioning = new ArrayList<>();
             livePositioning.addAll(raceDrivers.values());
-            BlockManager.setStartingGrid();
             raceScoreboard = new RaceScoreboard(this);
         }
     }
@@ -57,7 +53,6 @@ public class Race {
     public void startRace() {
         heatState = HeatState.RACING;
         startTime = TimingSystem.currentTime;
-        BlockManager.clearStartingGrid();
         for (RaceDriver rd : raceDrivers.values()) {
             rd.resetLaps();
             Player player = rd.getTSPlayer().getPlayer();

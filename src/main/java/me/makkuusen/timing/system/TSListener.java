@@ -116,13 +116,25 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onVehicleExit(VehicleExitEvent event) {
-        if (event.getVehicle() instanceof Boat && event.getVehicle().hasMetadata("spawned") && event.getVehicle().getPassengers().size() < 2) {
-            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> event.getVehicle().remove(), 10);
+
+        if (event.getVehicle() instanceof Boat && event.getVehicle().hasMetadata("spawned")) {
+            if (event.getExited() instanceof Player player) {
+                var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
+                if (maybeDriver.isPresent()) {
+                    if (maybeDriver.get().getHeat().getHeatState() == HeatState.LOADED) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+
+            if (event.getVehicle().getPassengers().size() < 2) {
+                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> event.getVehicle().remove(), 10);
+            }
         }
 
 
         if (event.getExited() instanceof Player player) {
-
             if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
                 Track track = TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack();
                 if (track.hasOption('b')) {
