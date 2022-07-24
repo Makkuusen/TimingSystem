@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.heat.FinalHeat;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 @CommandAlias("heat")
@@ -199,6 +200,28 @@ public class CommandHeat extends BaseCommand {
             }
         }
         sender.sendMessage("§cCould not add driver to heat");
+    }
+
+
+    @Subcommand("add alldrivers")
+    @CommandCompletion("@heat")
+    public static void onHeatAddDriver(Player sender,  Heat heat) {
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (heat.getDrivers().get(player.getUniqueId()) != null) {
+                continue;
+            }
+            if (heat instanceof QualifyHeat qualifyHeat) {
+                if (EventDatabase.qualyDriverNew(player.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
+                    continue;
+                }
+            } else if (heat instanceof FinalHeat finalHeat) {
+                if (EventDatabase.finalDriverNew(player.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
+                    continue;
+                }
+            }
+        }
+        sender.sendMessage("§cAll online players has been added");
     }
 
     @Subcommand("results")
