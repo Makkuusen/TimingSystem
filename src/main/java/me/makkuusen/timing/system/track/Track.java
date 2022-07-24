@@ -6,7 +6,6 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.gui.ItemBuilder;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
@@ -14,12 +13,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.TreeSpecies;
-import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.metadata.FixedMetadataValue;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -434,24 +430,6 @@ public class Track {
 
     public void teleportPlayer(Player player) {
         player.teleport(spawnLocation);
-    }
-
-    public void spawnBoat(Player player, Location location) {
-        if (getType().equals(Track.TrackType.BOAT)) {
-            boolean nearest = player.getLocation().distance(location) < 5;
-            if (nearest) {
-                Boat boat = location.getWorld().spawn(location, Boat.class);
-                boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
-                if (player.getName().equalsIgnoreCase("Renokas1") || player.getName().equalsIgnoreCase("AdamsApples")) {
-                    boat.setWoodType(TreeSpecies.ACACIA);
-                } else if (player.getName().equalsIgnoreCase("Makkuusen") || player.getName().equalsIgnoreCase("TechnoGustav")) {
-                    boat.setWoodType(TreeSpecies.JUNGLE);
-                } else if (player.getName().equalsIgnoreCase("JollyTheDuck")) {
-                    boat.setWoodType(TreeSpecies.DARK_OAK);
-                }
-                boat.addPassenger(player);
-            }
-        }
     }
 
     public long getDateCreated() {

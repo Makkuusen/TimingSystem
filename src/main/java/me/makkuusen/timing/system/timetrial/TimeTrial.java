@@ -168,7 +168,9 @@ public class TimeTrial {
             if (lastCheckpoint != 0) {
                 var checkpoint = track.getCheckpoints().get(lastCheckpoint);
                 TPlayer.getPlayer().teleport(checkpoint.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> track.spawnBoat(TPlayer.getPlayer(), checkpoint.getSpawnLocation()), 1);
+                if (track.getType() == Track.TrackType.BOAT) {
+                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoat(TPlayer.getPlayer(), checkpoint.getSpawnLocation()), 1);
+                }
                 return;
             }
         }

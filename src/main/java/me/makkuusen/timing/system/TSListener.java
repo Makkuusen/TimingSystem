@@ -86,7 +86,9 @@ public class TSListener implements Listener {
         for (me.makkuusen.timing.system.track.Track Track : DatabaseTrack.getTracks()) {
             if (Track.getSpawnLocation().getWorld() == event.getTo().getWorld()) {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
-                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> Track.spawnBoat(event.getPlayer(), Track.getSpawnLocation()), 1);
+                    if (Track.isBoatTrack()) {
+                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoat(event.getPlayer(), Track.getSpawnLocation()), 1);
+                    }
                 }
             }
         }
@@ -331,7 +333,9 @@ public class TSListener implements Listener {
                     int checkpoint = raceDriver.getLatestCheckpoint();
                     if (race.getTrack().hasOption('c')) {
                         player.teleport(race.getTrack().getCheckpoints().get(checkpoint).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> track.spawnBoat(player, race.getTrack().getCheckpoints().get(checkpoint).getSpawnLocation()), 1);
+                        if (track.isBoatTrack()) {
+                            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoat(player, race.getTrack().getCheckpoints().get(checkpoint).getSpawnLocation()), 1);
+                        }
                     }
                     plugin.sendMessage(raceDriver.getTSPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
                     return;
@@ -386,7 +390,9 @@ public class TSListener implements Listener {
                     int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                     if (track.hasOption('c')) {
                         player.teleport(track.getCheckpoints().get(checkpoint).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> track.spawnBoat(player, track.getCheckpoints().get(checkpoint).getSpawnLocation()), 1);
+                        if (track.isBoatTrack()) {
+                            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoat(player, track.getCheckpoints().get(checkpoint).getSpawnLocation()), 1);
+                        }
                     }
                     plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
                     return;
