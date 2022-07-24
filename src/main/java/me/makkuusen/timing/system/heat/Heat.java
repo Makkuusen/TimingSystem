@@ -5,13 +5,13 @@ import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.BlockManager;
 import me.makkuusen.timing.system.TaskChainCountdown;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
+import me.makkuusen.timing.system.track.GridManager;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -37,7 +37,7 @@ public abstract class Heat {
     private Instant endTime;
     private HeatState heatState;
     private HashMap<UUID, Driver> drivers = new HashMap<>();
-    private BlockManager BlockManager;
+    private GridManager gridManager;
     private List<Driver> startPositions = new ArrayList<>();
     private List<Driver> livePositions = new ArrayList<>();
     private GenericScoreboard scoreboard;
@@ -55,7 +55,7 @@ public abstract class Heat {
         } else {
             fastestLap = data.getInt("fastestLap").longValue();
         }
-        BlockManager = new BlockManager(event.getTrack());
+        gridManager = new GridManager();
     }
 
     public boolean loadHeat() {
@@ -68,7 +68,6 @@ public abstract class Heat {
         if (getHeatState() != HeatState.SETUP) {
             return false;
         }
-        getBlockManager().setStartingGrid();
         List<Driver> pos = new ArrayList<>();
         pos.addAll(getStartPositions());
         if (getEvent().getTrack().getGridRegions().values().size() != 0)
@@ -77,10 +76,10 @@ public abstract class Heat {
                 if (player != null) {
                     TrackRegion gridRegion = getEvent().getTrack().getGridRegions().get(d.getStartPosition());
                     if (gridRegion != null) {
-                        player.teleport(gridRegion.getSpawnLocation());
-                        getEvent().getTrack().spawnBoat(player, gridRegion.getSpawnLocation());
+                        gridManager.teleportPlayerToGrid(player, gridRegion);
                     }
                 }
+                EventDatabase.addPlayerToRunningHeat(d);
             }
         setLivePositions(pos);
         setHeatState(HeatState.LOADED);
@@ -103,8 +102,8 @@ public abstract class Heat {
         setHeatState(HeatState.RACING);
         updateScoreboard();
         setStartTime(TimingSystem.currentTime);
-        getBlockManager().clearStartingGrid();
         getDrivers().values().stream().forEach(driver -> {
+            gridManager.startPlayerFromGrid(driver.getTPlayer().getUniqueId());
             driver.setStartTime(TimingSystem.currentTime);
             EventDatabase.addPlayerToRunningHeat(driver);
             if (driver.getTPlayer().getPlayer() != null) {
@@ -156,7 +155,11 @@ public abstract class Heat {
         setEndTime(null);
         setFastestLap(0);
         setLivePositions(new ArrayList<>());
-        getDrivers().values().stream().forEach(driver -> driver.reset());
+        gridManager.clearArmorstands();
+        getDrivers().values().stream().forEach(driver -> {
+            driver.reset();
+            EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
+        });
         ApiUtilities.clearScoreboards();
         ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
     }
