@@ -22,7 +22,7 @@ public class FinalScoreboard extends GenericScoreboard {
         FinalDriver previousDriver = null;
         for (Driver driver : getHeat().getLivePositions()) {
             if (driver instanceof FinalDriver finalDriver) {
-                if (score == -9) {
+                if (score == -16) {
                     break;
                 }
                 if (previousDriver != null) {
