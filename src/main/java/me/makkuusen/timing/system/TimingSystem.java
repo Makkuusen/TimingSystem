@@ -9,8 +9,6 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.race.Race;
-import me.makkuusen.timing.system.race.RaceDriver;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Bukkit;
@@ -54,8 +52,6 @@ public class TimingSystem extends JavaPlugin {
         CommandTrack.plugin = this;
         TSListener.plugin = this;
         TimeTrial.plugin = this;
-        Race.plugin = this;
-        RaceDriver.plugin = this;
         Database.plugin = this;
         this.languageManager = new LanguageManager(this, "en_us");
 
@@ -123,8 +119,6 @@ public class TimingSystem extends JavaPlugin {
         CommandTrack.plugin = null;
         TSListener.plugin = null;
         TimeTrial.plugin = null;
-        Race.plugin = null;
-        RaceDriver.plugin = null;
         logger = null;
         plugin = null;
     }

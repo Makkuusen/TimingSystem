@@ -22,14 +22,6 @@ permissions:
       description: Player can cancel runs
       default: true
 
-   race.command.list:
-      description: Player can list tracks
-      default: false
-
-   race.command.info:
-      description: Player can see info on track
-      default: false
-
    race.command.help:
       description: Player can see all commands
       default: false
