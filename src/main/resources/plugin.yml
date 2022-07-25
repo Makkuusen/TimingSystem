@@ -9,67 +9,21 @@ commands:
    track:
       description: Command for managing tracks.
       aliases: [t]
-   race:
+   timetrial:
       description: Command for running tracks.
-      aliases: []
+      aliases: [tt]
    event:
       description: Command for events.
+      aliases: []
+   heat:
+      description: Command for heats.
       aliases: []
 
 permissions:
 
-   race.command.cancel:
-      description: Player can cancel runs
-      default: true
-
-   race.command.help:
-      description: Player can see all commands
-      default: false
-
-   race.command.toggle:
-      description: Player can use toggle commands
-      default: false
-
-   track.command.race:
-      description: Player can open track menu
-      default: true
-
-   track.command.help:
-      description: Player can see all commands
-      default: false
-
-   track.command.create:
-      description: Player can create track
-      default: false
-
-   track.command.teleport:
-      description: Player can teleport to track via gui
-      default: true
-
-   track.command.delete:
-      description: Player can delete track
-      default: false
-
-   track.command.info:
-      description: Player can see info on track
-      default: false
-
-   track.command.set:
-      description: Player can change track
-      default: false
-
-   track.command.toggle:
-      description: Player can change track
-      default: false
-
-   track.command.updateleaderboards:
-      description: Player can force update leaderboards
-      default: false
-
-   track.command.deletebesttime:
-      description: Player can delete times
-      default: false
-
-   track.command.override:
-      description: Player can toggle override
-      default: false
+   track.admin:
+      description: Player can admin tracks
+      default: op
+   event.admin:
+      description: Player can admin events
+      default: op

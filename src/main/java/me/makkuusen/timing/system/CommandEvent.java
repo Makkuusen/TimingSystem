@@ -3,6 +3,7 @@ package me.makkuusen.timing.system;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Optional;
@@ -17,15 +18,14 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 @CommandAlias("event")
+@CommandPermission("event.admin")
 public class CommandEvent extends BaseCommand {
 
     @Default
     @Subcommand("help")
     @Description("Displays help")
     public static void onHelp(Player player) {
-        if (player.isOp() || player.hasPermission("event.command.help")) {
-            player.sendMessage("§2/event help");
-        }
+        player.sendMessage("§2/event help");
     }
 
     @Subcommand("start")
@@ -53,7 +53,7 @@ public class CommandEvent extends BaseCommand {
         if (event.getTrack() == null) {
             sender.sendMessage("§aTrack: None");
         } else {
-            sender.sendMessage("§aTrack: " + event.getTrack().getName());
+            sender.sendMessage("§aTrack: " + event.getTrack().getDisplayName());
         }
 
         sender.sendMessage("§aState: " + event.getState());

@@ -84,7 +84,10 @@ public class TSListener implements Listener {
             if (Track.getSpawnLocation().getWorld() == event.getTo().getWorld()) {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
                     if (Track.isBoatTrack()) {
-                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoat(event.getPlayer(), Track.getSpawnLocation()), 1);
+                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                            Boat boat = ApiUtilities.spawnBoat(event.getPlayer(), Track.getSpawnLocation());
+                            boat.addPassenger(event.getPlayer());
+                        }, 1);
                     }
                 }
             }

@@ -1,5 +1,13 @@
 package me.makkuusen.timing.system;
 
+import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.LocalSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.bukkit.BukkitPlayer;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.Region;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -11,8 +19,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -282,5 +292,29 @@ public class ApiUtilities {
             boat.setWoodType(TreeSpecies.DARK_OAK);
         }
         return boat;
+    }
+
+    public static List<Location> getPositions(Player player) {
+        BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
+        LocalSession session = WorldEdit.getInstance().getSessionManager().get(bPlayer);
+        Region selection;
+        try {
+            selection = session.getSelection(bPlayer.getWorld());
+        } catch (IncompleteRegionException e) {
+            plugin.sendMessage(player, "messages.error.missing.selection");
+            return null;
+        }
+
+        if (selection instanceof CuboidRegion) {
+            List<Location> locations = new ArrayList<>();
+            BlockVector3 p1 = selection.getMinimumPoint();
+            locations.add(new Location(player.getWorld(), p1.getBlockX(), p1.getBlockY(), p1.getBlockZ()));
+            BlockVector3 p2 = selection.getMaximumPoint();
+            locations.add(new Location(player.getWorld(), p2.getBlockX(), p2.getBlockY(), p2.getBlockZ()));
+            return locations;
+        } else {
+            plugin.sendMessage(player, "messages.error.selectionException");
+            return null;
+        }
     }
 }

@@ -20,8 +20,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -48,7 +50,7 @@ public class TimingSystem extends JavaPlugin {
         this.logger = getLogger();
         configuration = new TimingSystemConfiguration(this);
         DatabaseTrack.plugin = this;
-        CommandRace.plugin = this;
+        CommandTimeTrial.plugin = this;
         CommandTrack.plugin = this;
         TSListener.plugin = this;
         TimeTrial.plugin = this;
@@ -61,9 +63,6 @@ public class TimingSystem extends JavaPlugin {
 
         GUITrack.init();
         PlayerTimer.initPlayerTimer();
-
-        getCommand("track").setExecutor(new CommandTrack());
-        getCommand("race").setExecutor(new CommandRace());
 
         PaperCommandManager manager = new PaperCommandManager(this);
         // enable brigadier integration for paper servers
@@ -87,8 +86,30 @@ public class TimingSystem extends JavaPlugin {
         manager.getCommandCompletions().registerAsyncCompletion("track", context ->
                 DatabaseTrack.getTracksAsStrings()
         );
+
+        manager.getCommandContexts().registerContext(
+                Track.TrackType.class, Track.getTrackTypeContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("trackType", context -> {
+            List<String> res = new ArrayList<>();
+            for(Track.TrackType type : Track.TrackType.values()){
+                res.add(type.name());
+            }
+            return res;
+        });
+
+        manager.getCommandContexts().registerContext(
+                Track.TrackMode.class, Track.getTrackModeContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("trackMode", context -> {
+            List<String> res = new ArrayList<>();
+            for(Track.TrackMode mode : Track.TrackMode.values()){
+                res.add(mode.name());
+            }
+            return res;
+        });
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandHeat());
+        manager.registerCommand(new CommandTrack());
+        manager.registerCommand(new CommandTimeTrial());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
 
@@ -115,7 +136,7 @@ public class TimingSystem extends JavaPlugin {
         logger.info("Version " + getDescription().getVersion() + " disabled.");
         DatabaseTrack.plugin = null;
         Database.plugin = null;
-        CommandRace.plugin = null;
+        CommandTimeTrial.plugin = null;
         CommandTrack.plugin = null;
         TSListener.plugin = null;
         TimeTrial.plugin = null;
