@@ -3,12 +3,8 @@ package me.makkuusen.timing.system;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.ItemBuilder;
 import me.makkuusen.timing.system.heat.FinalHeat;
-import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.FinalDriver;
 import me.makkuusen.timing.system.participant.QualyDriver;
-import me.makkuusen.timing.system.race.Race;
-import me.makkuusen.timing.system.race.RaceController;
-import me.makkuusen.timing.system.race.RaceDriver;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import org.bukkit.Bukkit;
@@ -17,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.Duration;
-import java.time.Instant;
 
 public class PlayerTimer {
     static boolean update = false;
@@ -66,7 +61,7 @@ public class PlayerTimer {
                     }
 
 
-                    for (Race race : RaceController.races.values()) {
+                   /*for (Race race : RaceController.races.values()) {
                         if (!race.getRaceState().equals(HeatState.RACING)) {
                             continue;
                         }
@@ -155,7 +150,7 @@ public class PlayerTimer {
                             } catch (Exception e) {
                             }
                         }
-                    }
+                    }*/
                 }
             }
 
