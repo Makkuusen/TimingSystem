@@ -47,10 +47,10 @@ public class DatabaseTrack {
                 var rTrack = maybeTrack.get();
                 TrackRegion trackRegion = new TrackRegion(region);
                 if (trackRegion.getRegionType().equals(TrackRegion.RegionType.START)) {
-                    rTrack.newStartRegion(trackRegion);
+                    rTrack.setStartRegion(trackRegion);
                     addTrackRegion(trackRegion);
                 } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.END)) {
-                    rTrack.newEndRegion(trackRegion);
+                    rTrack.setEndRegion(trackRegion);
                 } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.CHECKPOINT)) {
                     rTrack.addCheckpoint(trackRegion);
                 } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.RESET)) {
@@ -58,7 +58,7 @@ public class DatabaseTrack {
                 } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.GRID)) {
                     rTrack.addGridRegion(trackRegion);
                 } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.PIT)) {
-                    rTrack.newPitRegion(trackRegion);
+                    rTrack.setPitRegion(trackRegion);
                 }
             }
         }
@@ -85,14 +85,14 @@ public class DatabaseTrack {
             tracks.add(rTrack);
 
             TrackRegion startRegion = trackRegionNew(trackId, TrackRegion.RegionType.START, location);
-            rTrack.newStartRegion(startRegion);
+            rTrack.setStartRegion(startRegion);
             regions.add(startRegion);
 
             TrackRegion endRegion = trackRegionNew(trackId, TrackRegion.RegionType.END, location);
-            rTrack.newEndRegion(endRegion);
+            rTrack.setEndRegion(endRegion);
 
             TrackRegion pitRegion = trackRegionNew(trackId, TrackRegion.RegionType.PIT, location);
-            rTrack.newPitRegion(pitRegion);
+            rTrack.setPitRegion(pitRegion);
 
             return rTrack;
         } catch (SQLException exception) {
@@ -120,7 +120,7 @@ public class DatabaseTrack {
 
     static public Optional<Track> getTrack(String name) {
         for (Track t : tracks) {
-            if (t.getName().equalsIgnoreCase(name)) {
+            if (t.getCommandName().equalsIgnoreCase(name)) {
                 return Optional.of(t);
             }
         }
@@ -148,10 +148,6 @@ public class DatabaseTrack {
         return getTracks();
     }
 
-    static public List<TrackRegion> getTrackRegions() {
-        return regions;
-    }
-
     static public List<TrackRegion> getTrackStartRegions() {
         return regions.stream().filter(r -> r.getRegionType().equals(TrackRegion.RegionType.START)).collect(Collectors.toList());
     }
@@ -159,7 +155,7 @@ public class DatabaseTrack {
     public static boolean trackNameAvailable(String name) {
 
         for (Track rTrack : tracks) {
-            if (rTrack.getName().equalsIgnoreCase(name)) {
+            if (rTrack.getCommandName().equalsIgnoreCase(name.replaceAll(" ", ""))) {
                 return false;
             }
         }
@@ -176,16 +172,14 @@ public class DatabaseTrack {
 
     public static List<String> getTracksAsStrings() {
         List<String> tracks = new ArrayList<>();
-        getTracks().stream().forEach(track -> tracks.add(track.getName()));
+        getTracks().stream().forEach(track -> tracks.add(track.getCommandName()));
         return tracks;
     }
 
     public static ContextResolver<Track, BukkitCommandExecutionContext> getTrackContextResolver() {
         return (c) -> {
-            String[] ts = new String[c.getArgs().size()];
-            c.getArgs().toArray(ts);
-            String trackName = ApiUtilities.concat(ts, 0);
-            var maybeTrack = getTrack(trackName);
+            String name = c.popFirstArg();
+            var maybeTrack = getTrack(name);
             if (maybeTrack.isPresent()) {
                 return maybeTrack.get();
             } else {

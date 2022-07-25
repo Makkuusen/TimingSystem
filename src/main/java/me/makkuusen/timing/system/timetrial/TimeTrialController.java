@@ -21,7 +21,7 @@ public class TimeTrialController {
         if (!TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             return;
         }
-        ApiUtilities.msgConsole(player.getName() + " has cancelled run on " + TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack().getName());
+        ApiUtilities.msgConsole(player.getName() + " has cancelled run on " + TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack().getDisplayName());
         TimeTrialController.timeTrials.remove(player.getUniqueId());
     }
 }

@@ -34,7 +34,7 @@ public class LeaderboardManager {
 
         for (String line : TimingSystem.configuration.leaderboardsFastestTimeLines()) {
 
-            line = line.replace("{mapname}", Track.getName());
+            line = line.replace("{mapname}", Track.getDisplayName());
 
             // Replace stuff
 
