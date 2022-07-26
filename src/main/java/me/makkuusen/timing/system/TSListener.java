@@ -81,7 +81,7 @@ public class TSListener implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
 
         for (me.makkuusen.timing.system.track.Track Track : DatabaseTrack.getTracks()) {
-            if (Track.getSpawnLocation().getWorld() == event.getTo().getWorld()) {
+            if (Track.getSpawnLocation().isWorldLoaded() && Track.getSpawnLocation().getWorld() == event.getTo().getWorld()) {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
                     if (Track.isBoatTrack()) {
                         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {

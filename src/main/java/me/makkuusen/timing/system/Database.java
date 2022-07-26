@@ -4,7 +4,9 @@ import co.aikar.idb.BukkitDB;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.event.EventDatabase;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.UUID;
@@ -39,6 +41,18 @@ public class Database {
                 TimingSystem.players.put(player.getUniqueId(), player);
             }
 
+            for(Player player: Bukkit.getOnlinePlayers()) {
+                TPlayer TPlayer = Database.getPlayer(player.getUniqueId());
+
+                TPlayer.setPlayer(player);
+
+                if (!TPlayer.getName().equals(player.getName())) {
+                    // Update name
+                    TPlayer.setName(player.getName());
+                    TPlayer.updateNameChanges();
+                }
+            }
+
             DatabaseTrack.initDatabaseSynchronize();
             EventDatabase.initDatabaseSynchronize();
             return true;
@@ -47,6 +61,17 @@ public class Database {
             plugin.getLogger().warning("Failed to synchronize database, disabling plugin.");
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             return false;
+        }
+    }
+
+    public static void reload() {
+        DatabaseTrack.unload();
+        try {
+            DatabaseTrack.initDatabaseSynchronize();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            plugin.getLogger().warning("Failed to synchronize database, disabling plugin.");
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
         }
     }
 

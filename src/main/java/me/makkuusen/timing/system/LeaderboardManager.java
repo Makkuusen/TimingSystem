@@ -56,6 +56,9 @@ public class LeaderboardManager {
         Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
             Hologram holo;
             Location leaderBoardLocation = Track.getLeaderboardLocation();
+            if(!leaderBoardLocation.isWorldLoaded()){
+                return;
+            }
 
             if (fastestHolograms.get(id) == null) {
                 holo = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(leaderBoardLocation);

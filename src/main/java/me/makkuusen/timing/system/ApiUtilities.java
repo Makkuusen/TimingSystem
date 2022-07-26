@@ -103,7 +103,7 @@ public class ApiUtilities {
     }
 
     public static String niceLocation(Location location) {
-        return location == null ? "unknown" : "([" + location.getWorld().getName() + "]" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")";
+        return location == null || !location.isWorldLoaded() ? "unknown" : "([" + location.getWorld().getName() + "]" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")";
     }
 
     public static String parseFlagChange(char[] flagsOriginal, String change) {
@@ -282,6 +282,9 @@ public class ApiUtilities {
     }
 
     public static Boat spawnBoat(Player player, Location location) {
+        if (!location.isWorldLoaded()) {
+            return null;
+        }
         Boat boat = location.getWorld().spawn(location, Boat.class);
         boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
         if (player.getName().equalsIgnoreCase("Renokas1") || player.getName().equalsIgnoreCase("AdamsApples")) {

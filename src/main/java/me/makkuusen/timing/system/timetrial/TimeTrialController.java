@@ -24,4 +24,8 @@ public class TimeTrialController {
         ApiUtilities.msgConsole(player.getName() + " has cancelled run on " + TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack().getDisplayName());
         TimeTrialController.timeTrials.remove(player.getUniqueId());
     }
+
+    public static void unload(){
+        timeTrials = new HashMap<>();
+    }
 }

@@ -21,6 +21,10 @@ public class CommandTimeTrial extends BaseCommand {
         if (track == null) {
             GUITrack.openTrackGUI(player);
         } else {
+            if (!track.getSpawnLocation().isWorldLoaded()) {
+                player.sendMessage("§cWorld is not loaded!");
+                return;
+            }
             player.teleport(track.getSpawnLocation());
         }
     }

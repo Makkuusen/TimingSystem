@@ -46,6 +46,10 @@ public class GUIListener implements Listener {
                             var maybeTrack = DatabaseTrack.getTrack(mapName.replaceAll(" ",""));
                             if (maybeTrack.isPresent()) {
                                 var track = maybeTrack.get();
+                                if (!track.getSpawnLocation().isWorldLoaded()) {
+                                    player.sendMessage("§cWorld is not loaded!");
+                                    return;
+                                }
                                 player.teleport(track.getSpawnLocation());
                                 e.getInventory().close();
                             }

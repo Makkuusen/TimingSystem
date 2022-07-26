@@ -19,6 +19,9 @@ public class GridManager {
 
     public void teleportPlayerToGrid(Player player, TrackRegion trackRegion){
         Location loc = trackRegion.getSpawnLocation();
+        if (!trackRegion.getSpawnLocation().isWorldLoaded()) {
+            return;
+        }
         player.teleport(loc);
         ArmorStand ar = (ArmorStand) loc.getWorld().spawnEntity(loc.clone().add(0, -0.7, 0), EntityType.ARMOR_STAND);
         ar.setCanMove(false);

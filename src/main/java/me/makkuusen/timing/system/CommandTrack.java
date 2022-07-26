@@ -28,6 +28,10 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("tp")
     @CommandCompletion("@track")
     public static void onTrackTp(Player player, Track track) {
+        if (!track.getSpawnLocation().isWorldLoaded()) {
+            player.sendMessage("§cWorld is not loaded!");
+            return;
+        }
         player.teleport(track.getSpawnLocation());
     }
 
@@ -188,6 +192,13 @@ public class CommandTrack extends BaseCommand {
             plugin.sendMessage(player, "messages.options.list", "%options%", ApiUtilities.formatPermissions(newOptions.toCharArray()));
         }
         track.setOptions(newOptions);
+    }
+
+    @Subcommand("reload")
+    @CommandPermission("track.admin")
+    public static void onReload(Player player){
+        player.sendMessage("§cYou are doing this on your own risk, everything might break!");
+        Database.reload();
     }
 
     @Subcommand("set")

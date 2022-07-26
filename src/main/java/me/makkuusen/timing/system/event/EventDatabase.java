@@ -31,10 +31,10 @@ import java.util.UUID;
 public class EventDatabase {
 
     public static TimingSystem plugin;
-    private static final Set<Event> events = new HashSet<>();
-    private static final Set<Heat> heats = new HashSet<>();
-    private static final HashMap<UUID, Event> playerSelectedEvent = new HashMap<>();
-    private static final HashMap<UUID, Driver> playerInRunningHeat = new HashMap<>();
+    private static Set<Event> events = new HashSet<>();
+    private static Set<Heat> heats = new HashSet<>();
+    private static HashMap<UUID, Event> playerSelectedEvent = new HashMap<>();
+    private static HashMap<UUID, Driver> playerInRunningHeat = new HashMap<>();
 
     public static void initDatabaseSynchronize() throws SQLException {
         var dbRows = DB.getResults("SELECT * FROM `ts_events` WHERE `isRemoved` = 0;");
@@ -365,5 +365,12 @@ public class EventDatabase {
             return Optional.of(playerInRunningHeat.get(uuid));
         }
         return Optional.empty();
+    }
+
+    public static void unload(){
+        events = new HashSet<>();
+        heats = new HashSet<>();
+        playerSelectedEvent = new HashMap<>();
+        playerInRunningHeat = new HashMap<>();
     }
 }

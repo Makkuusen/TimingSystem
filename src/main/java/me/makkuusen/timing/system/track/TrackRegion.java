@@ -77,6 +77,9 @@ public class TrackRegion {
     }
 
     public String getWorldName() {
+        if(!spawnLocation.isWorldLoaded()){
+            return "Unknown";
+        }
         return spawnLocation.getWorld().getName();
     }
 }

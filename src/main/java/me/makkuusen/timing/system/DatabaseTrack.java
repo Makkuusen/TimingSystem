@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 public class DatabaseTrack {
 
     public static TimingSystem plugin;
-    private static final List<Track> tracks = new ArrayList<>();
-    private static final List<TrackRegion> regions = new ArrayList<>();
+    private static List<Track> tracks = new ArrayList<>();
+    private static List<TrackRegion> regions = new ArrayList<>();
 
     public static void initDatabaseSynchronize() throws SQLException {
         var dbRows = DB.getResults("SELECT * FROM `ts_tracks` WHERE `isRemoved` = 0;");
@@ -187,5 +187,10 @@ public class DatabaseTrack {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
         };
+    }
+
+    public static void unload(){
+        tracks = new ArrayList<>();
+        regions = new ArrayList<>();
     }
 }
