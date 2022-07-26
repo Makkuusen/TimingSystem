@@ -159,6 +159,37 @@ public class CommandTrack extends BaseCommand {
 
     }
 
+    @Subcommand("edit")
+    @CommandCompletion("@track")
+    @CommandPermission("track.admin")
+    public static void onEdit(Player player, @Optional Track track){
+        if (track == null) {
+            TimingSystem.playerEditingSession.remove(player.getUniqueId());
+            player.sendMessage("§aRemoved from editing session");
+            return;
+        }
+        TimingSystem.playerEditingSession.put(player.getUniqueId(), track);
+        plugin.sendMessage(player, "messages.save.generic");
+    }
+
+    @Subcommand("options")
+    @CommandCompletion("@track options")
+    @CommandPermission("track.admin")
+    public static void onOptions(Player player, Track track, String options){
+        String newOptions = ApiUtilities.parseFlagChange(track.getOptions(), options);
+        if (newOptions == null) {
+            plugin.sendMessage(player, "messages.save.generic");
+            return;
+        }
+
+        if (newOptions.length() == 0) {
+            plugin.sendMessage(player, "messages.options.allRemoved");
+        } else {
+            plugin.sendMessage(player, "messages.options.list", "%options%", ApiUtilities.formatPermissions(newOptions.toCharArray()));
+        }
+        track.setOptions(newOptions);
+    }
+
     @Subcommand("set")
     @CommandPermission("track.admin")
     public class Set extends BaseCommand {
@@ -188,6 +219,22 @@ public class CommandTrack extends BaseCommand {
             plugin.sendMessage(player, "messages.save.generic");
         }
 
+        @Subcommand("spawn")
+        @CommandCompletion("@track")
+        public static void onSpawn(Player player, Track track) {
+            track.setSpawnLocation(player.getLocation());
+            plugin.sendMessage(player, "messages.save.generic");
+        }
+
+        @Subcommand("leaderboard")
+        @CommandCompletion("@track")
+        public static void onLeaderboard(Player player, Track track) {
+            Location loc = player.getLocation();
+            loc.setY(loc.getY() + 3);
+            track.setLeaderboardLocation(loc);
+            plugin.sendMessage(player, "messages.save.generic");
+        }
+
         @Subcommand("name")
         @CommandCompletion("@track name")
         public static void onName(Player player, Track track, String name) {
@@ -210,6 +257,30 @@ public class CommandTrack extends BaseCommand {
             plugin.sendMessage(player, "messages.save.generic");
             LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
 
+        }
+
+        @Subcommand("gui")
+        @CommandCompletion("@track")
+        public static void onGui(Player player, Track track) {
+            var item = player.getInventory().getItemInMainHand();
+            if (item.getItemMeta() == null) {
+                plugin.sendMessage(player, "messages.error.missing.item");
+                return;
+            }
+            track.setGuiItem(item);
+            plugin.sendMessage(player, "messages.save.generic");
+        }
+
+        @Subcommand("owner")
+        @CommandCompletion("@track <player>")
+        public static void onOwner(Player player, Track track, String name){
+            TPlayer TPlayer = Database.getPlayer(name);
+            if (TPlayer == null) {
+                plugin.sendMessage(player, "messages.error.missing.player");
+                return;
+            }
+            track.setOwner(TPlayer);
+            plugin.sendMessage(player, "messages.save.generic");
         }
 
         @Subcommand("startregion")

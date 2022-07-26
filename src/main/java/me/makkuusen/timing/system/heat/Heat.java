@@ -17,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Scoreboard;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -40,8 +39,8 @@ public abstract class Heat {
     private GridManager gridManager;
     private List<Driver> startPositions = new ArrayList<>();
     private List<Driver> livePositions = new ArrayList<>();
-    private GenericScoreboard scoreboard;
     private Long fastestLap;
+    private SpectatorScoreboard scoreboard;
 
     public Heat(DbRow data) {
         id = data.getInt("id");
@@ -83,6 +82,7 @@ public abstract class Heat {
             }
         setLivePositions(pos);
         setHeatState(HeatState.LOADED);
+        scoreboard = new SpectatorScoreboard(this);
         updateScoreboard();
         ApiUtilities.msgConsole("Drivers: " + getDrivers().values().size());
         ApiUtilities.msgConsole("StartPositions: " + getStartPositions().size());
@@ -178,15 +178,16 @@ public abstract class Heat {
         }
     }
 
-    public List<Participant> getParticipants() {
-        return event.getParticipants();
+    public List<Participant> getParticipants(){
+        List<Participant> participants = new ArrayList<>();
+        participants.addAll(drivers.values());
+        participants.addAll(getEvent().getSpectators().values());
+        return participants;
     }
 
     public void updateScoreboard() {
-        Scoreboard board = scoreboard.getScoreboard();
-        getEvent().getParticipants().stream()
-                .filter(participant -> participant.getTPlayer().getPlayer() != null)
-                .forEach(participant -> participant.getTPlayer().getPlayer().setScoreboard(board));
+        livePositions.stream().forEach(driver -> driver.updateScoreboard());
+        scoreboard.updateScoreboard();
     }
 
     public boolean allDriversFinished() {

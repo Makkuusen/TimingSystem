@@ -135,33 +135,33 @@ public class Track {
 
     public void setMode(TrackMode mode) {
         this.mode = mode;
-        DB.executeUpdateAsync("UPDATE `tracks` SET `mode` = " + Database.sqlString(mode.toString()) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `mode` = " + Database.sqlString(mode.toString()) + " WHERE `id` = " + id + ";");
     }
 
     public void setName(String name) {
         this.displayName = name;
         this.commandName = name.replaceAll(" ", "");
-        DB.executeUpdateAsync("UPDATE `tracks` SET `name` = '" + name + "' WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `name` = '" + name + "' WHERE `id` = " + id + ";");
     }
 
     public void setGuiItem(ItemStack guiItem) {
         this.guiItem = guiItem;
-        DB.executeUpdateAsync("UPDATE `tracks` SET `guiItem` = " + Database.sqlString(ApiUtilities.itemToString(guiItem)) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `guiItem` = " + Database.sqlString(ApiUtilities.itemToString(guiItem)) + " WHERE `id` = " + id + ";");
     }
 
     public void setSpawnLocation(Location spawn) {
         this.spawnLocation = spawn;
-        DB.executeUpdateAsync("UPDATE `tracks` SET `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + id + ";");
     }
 
     public void setLeaderboardLocation(Location leaderboard) {
         this.leaderboardLocation = leaderboard;
-        DB.executeUpdateAsync("UPDATE `tracks` SET `leaderboard` = '" + ApiUtilities.locationToString(leaderboard) + "' WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `leaderboard` = '" + ApiUtilities.locationToString(leaderboard) + "' WHERE `id` = " + id + ";");
     }
 
     public void setOpen(boolean open) {
         this.open = open;
-        DB.executeUpdateAsync("UPDATE `tracks` SET `toggleOpen` = " + open + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `toggleOpen` = " + open + " WHERE `id` = " + id + ";");
     }
 
     public void updateStartRegion(Location minP, Location maxP) {
@@ -400,7 +400,7 @@ public class Track {
 
     public void setGovernment(boolean government) {
         this.government = government;
-        DB.executeUpdateAsync("UPDATE `tracks` SET `toggleGovernment` = " + government + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `toggleGovernment` = " + government + " WHERE `id` = " + id + ";");
     }
 
     public boolean isElytraTrack() {
@@ -437,17 +437,17 @@ public class Track {
 
     public void setTrackType(TrackType type) {
         this.type = type;
-        DB.executeUpdateAsync("UPDATE `tracks` SET `type` = " + Database.sqlString(type.toString()) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `type` = " + Database.sqlString(type.toString()) + " WHERE `id` = " + id + ";");
     }
 
     public void setOwner(TPlayer owner) {
         this.owner = owner;
-        DB.executeUpdateAsync("UPDATE `tracks` SET `uuid` = '" + owner.getUniqueId() + "' WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `uuid` = '" + owner.getUniqueId() + "' WHERE `id` = " + id + ";");
     }
 
     public void setOptions(String options) {
         this.options = options.toCharArray();
-        DB.executeUpdateAsync("UPDATE `tracks` SET `options` = " + Database.sqlString(options) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `options` = " + Database.sqlString(options) + " WHERE `id` = " + id + ";");
 
     }
 

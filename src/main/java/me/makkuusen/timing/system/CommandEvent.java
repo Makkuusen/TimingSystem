@@ -178,7 +178,7 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("spectate")
     @CommandCompletion("@event")
     public static void onSpectate(Player player, Event event){
-        event.addParticipant(player.getUniqueId());
+        event.addSpectator(player.getUniqueId());
         player.sendMessage("§aYou are now spectating " + event.getDisplayName());
 
     }
