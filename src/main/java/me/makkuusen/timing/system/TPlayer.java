@@ -1,9 +1,14 @@
 package me.makkuusen.timing.system;
 
 
+import co.aikar.commands.BukkitCommandExecutionContext;
+import co.aikar.commands.InvalidCommandArgument;
+import co.aikar.commands.MessageKeys;
+import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import org.bukkit.Bukkit;
+import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,8 +20,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -27,22 +30,12 @@ public class TPlayer implements Comparable<TPlayer> {
     private final UUID uuid;
     private String name;
     private long dateJoin, dateNameChange, dateNameCheck, dateSeen;
+    private TreeSpecies boat;
 
 
     @Override
     public int compareTo(TPlayer other) {
         return name.compareTo(other.name);
-    }
-
-    // From database
-    public TPlayer(TimingSystem plugin, ResultSet data) throws SQLException {
-        this.plugin = plugin;
-        uuid = UUID.fromString(data.getString("uuid"));
-        name = data.getString("name");
-        dateJoin = (data.getString("dateJoin") == null ? 1 : 2);
-        dateNameChange = data.getLong("dateNameChange");
-        dateNameCheck = data.getLong("dateNameCheck");
-        dateSeen = data.getLong("dateSeen");
     }
 
     public TPlayer(TimingSystem plugin, DbRow data) {
@@ -52,6 +45,7 @@ public class TPlayer implements Comparable<TPlayer> {
         if (data.get("dateJoin") != null) dateJoin = data.get("dateJoin");
         if (data.get("dateNameChange") != null) dateNameChange = data.getLong("dateNameChange");
         if (data.get("dateSeen") != null) dateSeen = data.getLong("dateSeen");
+        boat = data.getString("boat") == null ? TreeSpecies.GENERIC : TreeSpecies.valueOf(data.getString("boat"));
     }
 
     public UUID getUniqueId() {
@@ -66,6 +60,10 @@ public class TPlayer implements Comparable<TPlayer> {
         return getName() + "§r";
     }
 
+    public TreeSpecies getBoat() {
+        return boat;
+    }
+
     public void setName(String name) {
         plugin.getLogger().info("Updating name of " + uuid + " from " + this.name + " to " + name + ".");
 
@@ -75,6 +73,12 @@ public class TPlayer implements Comparable<TPlayer> {
         if (player != null) {
             player.setDisplayName(getNameDisplay());
         }
+    }
+
+    public void setBoat(TreeSpecies boat) {
+        this.boat = boat;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
+
     }
 
     public Player getPlayer() {
@@ -163,5 +167,17 @@ public class TPlayer implements Comparable<TPlayer> {
                 }
             }
         });
+    }
+
+    public static ContextResolver<TreeSpecies, BukkitCommandExecutionContext> getBoatContextResolver() {
+        return (c) -> {
+            String name = c.popFirstArg();
+            if (TreeSpecies.valueOf(name) != null) {
+                return TreeSpecies.valueOf(name);
+            } else {
+                // User didn't type an Event, show error!
+                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
+            }
+        };
     }
 }

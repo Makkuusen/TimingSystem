@@ -12,7 +12,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.TreeSpecies;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
@@ -287,13 +286,7 @@ public class ApiUtilities {
         }
         Boat boat = location.getWorld().spawn(location, Boat.class);
         boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
-        if (player.getName().equalsIgnoreCase("Renokas1") || player.getName().equalsIgnoreCase("AdamsApples")) {
-            boat.setWoodType(TreeSpecies.ACACIA);
-        } else if (player.getName().equalsIgnoreCase("Makkuusen") || player.getName().equalsIgnoreCase("TechnoGustav")) {
-            boat.setWoodType(TreeSpecies.JUNGLE);
-        } else if (player.getName().equalsIgnoreCase("JollyTheDuck")) {
-            boat.setWoodType(TreeSpecies.DARK_OAK);
-        }
+        boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
         return boat;
     }
 

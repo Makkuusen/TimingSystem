@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Bukkit;
+import org.bukkit.TreeSpecies;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -101,11 +102,22 @@ public class TimingSystem extends JavaPlugin {
                 Track.TrackMode.class, Track.getTrackModeContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("trackMode", context -> {
             List<String> res = new ArrayList<>();
-            for(Track.TrackMode mode : Track.TrackMode.values()){
+            for (Track.TrackMode mode : Track.TrackMode.values()){
                 res.add(mode.name());
             }
             return res;
         });
+
+        manager.getCommandContexts().registerContext(
+                TreeSpecies.class, TPlayer.getBoatContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("boat", context -> {
+            List<String> res = new ArrayList<>();
+            for (TreeSpecies tree : TreeSpecies.values()){
+                res.add(tree.name());
+            }
+            return res;
+        });
+
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandHeat());
         manager.registerCommand(new CommandTrack());

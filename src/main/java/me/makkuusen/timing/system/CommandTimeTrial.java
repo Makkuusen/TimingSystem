@@ -9,6 +9,7 @@ import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
+import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Player;
 
 @CommandAlias("timetrial|tt")
@@ -48,6 +49,14 @@ public class CommandTimeTrial extends BaseCommand {
             TimingSystem.getPlugin().verbose.add(player.getUniqueId());
             plugin.sendMessage(player, "messages.toggle.race.checkpointsOn");
         }
+    }
+
+    @Subcommand("boat")
+    @CommandCompletion("@boat")
+    public static void onBoat(Player player, TreeSpecies boat){
+        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        tPlayer.setBoat(boat);
+        plugin.sendMessage(player, "messages.save.generic");
     }
 
     @Subcommand("help")
