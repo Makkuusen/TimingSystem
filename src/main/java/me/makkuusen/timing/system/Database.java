@@ -131,6 +131,7 @@ public class Database {
                     "  `dateNameChange` bigint(30) DEFAULT NULL,\n" +
                     "  `dateNameCheck` bigint(30) DEFAULT NULL,\n" +
                     "  `dateSeen` bigint(30) DEFAULT NULL,\n" +
+                    "  `boat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  PRIMARY KEY (`uuid`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
