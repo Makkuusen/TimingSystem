@@ -10,6 +10,7 @@ import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -194,11 +195,50 @@ public class CommandTrack extends BaseCommand {
         track.setOptions(newOptions);
     }
 
+    @Subcommand("override")
+    @CommandPermission("track.admin")
+    public static void onOverride(Player player) {
+        if (TimingSystem.getPlugin().override.contains(player.getUniqueId())) {
+            TimingSystem.getPlugin().override.remove(player.getUniqueId());
+            plugin.sendMessage(player, "messages.remove.override");
+        } else {
+            TimingSystem.getPlugin().override.add(player.getUniqueId());
+            plugin.sendMessage(player, "messages.create.override");
+        }
+    }
+
     @Subcommand("reload")
     @CommandPermission("track.admin")
     public static void onReload(Player player){
         player.sendMessage("§cYou are doing this on your own risk, everything might break!");
         Database.reload();
+    }
+
+    @Subcommand("deletebesttime")
+    @CommandPermission("track.admin")
+    @CommandCompletion("@track <playername>")
+    public static void onDeleteBestTime(Player player, Track track, String name){
+        TPlayer TPlayer = Database.getPlayer(name);
+        if (TPlayer == null) {
+            plugin.sendMessage(player, "messages.error.missing.player");
+            return;
+        }
+
+        TimeTrialFinish bestFinish = track.getBestFinish(TPlayer);
+        if (bestFinish == null) {
+            plugin.sendMessage(player, "messages.error.missing.bestTime");
+            return;
+        }
+        track.deleteBestFinish(TPlayer, bestFinish);
+        plugin.sendMessage(player, "messages.remove.bestTime", "%player%", TPlayer.getName(), "%map%", track.getDisplayName());
+        LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+    }
+
+    @Subcommand("updateleaderboards")
+    @CommandPermission("track.admin")
+    public static void onUpdateLeaderboards(Player player) {
+        Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(player));
+        plugin.sendMessage(player, "messages.update.leaderboards");
     }
 
     @Subcommand("set")
