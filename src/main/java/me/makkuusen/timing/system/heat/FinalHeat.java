@@ -19,7 +19,6 @@ public class FinalHeat extends Heat {
         super(data);
         totalLaps = data.getInt("totalLaps");
         totalPits = data.getInt("totalPitstops");
-        setScoreboard(new FinalScoreboard(this));
     }
 
     @Override

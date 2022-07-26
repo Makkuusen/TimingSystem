@@ -262,7 +262,7 @@ public class ApiUtilities {
         String milis = String.format("%02d", (timeInMillis % 1000) / 10);
 
         if (hours == 0 && minutes == 0) {
-            toReturn = String.format("%01d", seconds) + "." + milis;
+            toReturn = String.format("%02d", seconds) + "." + milis;
         } else if (hours == 0) {
             toReturn = String.format("%d:%02d", minutes, seconds) + "." + milis;
         } else {

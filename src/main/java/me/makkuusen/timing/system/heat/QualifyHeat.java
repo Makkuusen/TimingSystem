@@ -19,7 +19,6 @@ public class QualifyHeat extends Heat {
     public QualifyHeat(DbRow data) {
         super(data);
         timeLimit = data.getInt("timeLimit");
-        setScoreboard(new QualyScoreboard(this));
     }
 
     @Override

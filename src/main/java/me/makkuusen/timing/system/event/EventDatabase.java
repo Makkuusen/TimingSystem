@@ -56,7 +56,6 @@ public class EventDatabase {
                     for (DbRow driverData : driverDbRows) {
                         Driver driver = new FinalDriver(driverData);
                         heat.addDriver(driver);
-                        heat.getEvent().addParticipant(driver.getTPlayer().getUniqueId());
                         List<Lap> laps = new ArrayList<>();
                         var lapsDbRows = DB.getResults("SELECT * FROM `ts_laps` WHERE `heatId` = " + heat.getId() + " AND `uuid` = '" + driverData.getString("uuid") + "';");
                         for (DbRow lapsData : lapsDbRows) {
@@ -76,7 +75,6 @@ public class EventDatabase {
                     for (DbRow driverData : driverDbRows) {
                         Driver driver = new QualyDriver(driverData);
                         heat.addDriver(driver);
-                        heat.getEvent().addParticipant(driver.getTPlayer().getUniqueId());
                         List<Lap> laps = new ArrayList<>();
                         var lapsDbRows = DB.getResults("SELECT * FROM `ts_laps` WHERE `heatId` = " + heat.getId() + " AND `uuid` = '" + driverData.getString("uuid") + "';");
                         for (DbRow lapsData : lapsDbRows) {
@@ -230,7 +228,6 @@ public class EventDatabase {
             var driverDbRow = driverNew(uuid, heat, startPosition);
             var finalDriver = new FinalDriver(driverDbRow);
             heat.addDriver(finalDriver);
-            heat.getEvent().addParticipant(uuid);
             return true;
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -243,7 +240,6 @@ public class EventDatabase {
             var driverDbRow = driverNew(uuid, heat, startPosition);
             var qualyDriver = new QualyDriver(driverDbRow);
             heat.addDriver(qualyDriver);
-            heat.getEvent().addParticipant(uuid);
             return true;
         } catch (SQLException exception) {
             exception.printStackTrace();

@@ -8,6 +8,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.heat.DriverScoreboard;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
     private Instant startTime;
     private Instant endTime;
     private boolean isRunning;
+    private DriverScoreboard scoreboard;
     private List<Lap> laps = new ArrayList<>();
 
     public Driver(DbRow data) {
@@ -43,6 +45,16 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
         endTime = data.getLong("endTime") == null ? null : Instant.ofEpochMilli(data.getLong("endTime"));
         isRunning = false;
+    }
+
+    public void updateScoreboard(){
+        if (getTPlayer().getPlayer() == null) {
+            return;
+        }
+        if (scoreboard == null){
+            scoreboard = new DriverScoreboard(getTPlayer().getPlayer(), this);
+        }
+        scoreboard.setDriverLines(getTPlayer().getPlayer());
     }
 
     public void finish() {

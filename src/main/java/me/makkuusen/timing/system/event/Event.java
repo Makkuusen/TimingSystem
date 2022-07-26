@@ -30,6 +30,7 @@ public class Event {
     private String displayName;
     private long date;
     HashMap<UUID, Participant> participants = new HashMap<>();
+    HashMap<UUID, Spectator> spectators = new HashMap<>();
     private EventSchedule eventSchedule;
     private EventResults eventResults = new EventResults();
     private EventState state;
@@ -93,12 +94,8 @@ public class Event {
         return true;
     }
 
-    public void addParticipant(UUID uuid) {
-        participants.put(uuid, new Spectator(Database.getPlayer(uuid)));
-    }
-
-    public List<Participant> getParticipants() {
-        return participants.values().stream().toList();
+    public void addSpectator(UUID uuid) {
+        spectators.put(uuid, new Spectator(Database.getPlayer(uuid)));
     }
 
     public List<String> getHeatList() {
