@@ -157,10 +157,11 @@ public class EventDatabase {
                     "`state`, " +
                     "`startTime`, " +
                     "`endTime`, " +
-                    "`fastestLap`, " +
+                    "`fastestLapUUID`, " +
                     "`totalLaps`, " +
                     "`totalPitstops`, " +
                     "`timeLimit`, " +
+                    "`startDelay`, " +
                     "`isRemoved`) " +
                     "VALUES (" +
                     event.getId() + "," +
@@ -173,6 +174,7 @@ public class EventDatabase {
                     "NULL," +
                     "NULL," +
                     timeLimit + "," +
+                    "NULL," +
                     "0)");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_heats` WHERE `id` = " + heatId + ";");
             var qualifyHeat = new QualifyHeat(dbRow);
@@ -195,10 +197,11 @@ public class EventDatabase {
                     "`state`, " +
                     "`startTime`, " +
                     "`endTime`, " +
-                    "`fastestLap`, " +
+                    "`fastestLapUUID`, " +
                     "`totalLaps`, " +
                     "`totalPitstops`, " +
                     "`timeLimit`, " +
+                    "`startDelay`, " +
                     "`isRemoved`) " +
                     "VALUES (" +
                     event.getId() + "," +
@@ -210,6 +213,7 @@ public class EventDatabase {
                     "NULL," +
                     totalLaps + "," +
                     pitstops + "," +
+                    "NULL," +
                     "NULL," +
                     "0)");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_heats` WHERE `id` = " + heatId + ";");

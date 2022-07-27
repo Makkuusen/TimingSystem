@@ -197,6 +197,7 @@ public class Database {
                     "  `totalLaps` int(11) DEFAULT NULL,\n" +
                     "  `totalPitstops` int(11) DEFAULT NULL,\n" +
                     "  `timeLimit` int(11) DEFAULT NULL,\n" +
+                    "  `startDelay` int(11) DEFAULT NULL,\n" +
                     "  `isRemoved` tinyint(1) NOT NULL,\n" +
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");

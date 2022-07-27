@@ -55,7 +55,12 @@ public class PlayerTimer {
                         } else if (driver instanceof QualyDriver) {
                             if (driver.getLaps().size() > 0 && driver.isRunning()) {
                                 long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
-                                ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(lapTime), p);
+                                long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
+                                if (timeLeft < 0) {
+                                    ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(lapTime) + "§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §c-" +  ApiUtilities.formatAsTime(timeLeft*-1), p);
+                                } else {
+                                    ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(lapTime) + "§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §e" + ApiUtilities.formatAsTime(timeLeft), p);
+                                }
                             }
                         }
                     }

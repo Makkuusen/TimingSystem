@@ -1,12 +1,15 @@
 package me.makkuusen.timing.system.heat;
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import co.aikar.taskchain.TaskChain;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.EventAnnouncements;
+import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 
 import java.time.Duration;
 
@@ -14,11 +17,31 @@ import java.time.Duration;
 @Getter
 public class QualifyHeat extends Heat {
 
-    private int timeLimit;
-
     public QualifyHeat(DbRow data) {
         super(data);
-        timeLimit = data.getInt("timeLimit");
+    }
+
+    @Override
+    public void startHeat() {
+        setHeatState(HeatState.RACING);
+        updateScoreboard();
+        setStartTime(TimingSystem.currentTime);
+        TaskChain<?> chain = TimingSystem.newSharedChain("STARTING");
+        for (Driver driver : getStartPositions()) {
+            chain.sync(() -> {
+                getGridManager().startPlayerFromGrid(driver.getTPlayer().getUniqueId());
+                driver.setStartTime(TimingSystem.currentTime);
+                EventDatabase.addPlayerToRunningHeat(driver);
+                if (driver.getTPlayer().getPlayer() != null) {
+                    driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+                }
+            });
+            if (getStartDelay() != null && getStartDelay() > 0) {
+                //Start delay in seconds times 20 ticks.
+                chain.delay(getStartDelay() * 20);
+            }
+        }
+        chain.execute();
     }
 
     @Override
@@ -26,7 +49,7 @@ public class QualifyHeat extends Heat {
         if (getHeatState() != HeatState.RACING) {
             return false;
         }
-        if (timeIsOver()) {
+        if (timeIsOver(driver)) {
             updatePositions();
             driver.finish();
             EventAnnouncements.sendFinishSound(driver);
@@ -40,12 +63,7 @@ public class QualifyHeat extends Heat {
         return true;
     }
 
-    private boolean timeIsOver() {
-        return Duration.between(getStartTime(), TimingSystem.currentTime).toMillis() > timeLimit;
-    }
-
-    public void setTimeLimit(int timeLimit) {
-        this.timeLimit = timeLimit;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `timeLimit` = " + timeLimit + " WHERE `id` = " + getId() + ";");
+    private boolean timeIsOver(Driver driver) {
+        return Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis() > getTimeLimit();
     }
 }

@@ -20,7 +20,7 @@ public class DriverScoreboard {
         jScoreboard = new JPerPlayerMethodBasedScoreboard();
         this.driver = driver;
         heat = driver.getHeat();
-        jScoreboard.setTitle(player, "&7&l" + heat.getName() + " - " + heat.getEvent().getDisplayName());
+        jScoreboard.setTitle(player, "&7&l" + heat.getName() + " | " + heat.getEvent().getDisplayName());
         jScoreboard.addPlayer(player);
     }
 
