@@ -92,7 +92,7 @@ public class DriverScoreboard {
                 return ScoreboardUtils.getDriverLineNegativeRaceGap(timeDiff, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition());
             }
 
-            if (comparingDriver.getCurrentLap() != null) {
+            if (comparingDriver.getLaps().size() > 0 && comparingDriver.getCurrentLap() != null) {
                 Instant timeStamp = comparingDriver.getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
                 Instant fasterTimeStamp = driver.getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
                 timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
