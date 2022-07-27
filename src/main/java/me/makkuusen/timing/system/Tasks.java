@@ -53,16 +53,41 @@ public class Tasks {
         Location min = region.getMinP();
         Location max = region.getMaxP();
 
-        for (int x = min.getBlockX(); x <= max.getBlockX() + 1; x++) {
-            for (int y = min.getBlockY(); y <= max.getBlockY() + 1; y++) {
-                for (int z = min.getBlockZ(); z <= max.getBlockZ() + 1; z++) {
-                    if (x == min.getBlockX() || x == max.getBlockX() + 1 || y == min.getBlockY() || y == max.getBlockY() + 1 || z == min.getBlockZ() || z == max.getBlockZ() + 1) {
-                        player.spawnParticle(particle, x, y, z, 1);
-                    }
-                }
-            }
-        }
+        int maxY = max.getBlockY() + 1;
+        int maxX = max.getBlockX() + 1;
+        int maxZ = max.getBlockZ() + 1;
 
+        drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), min.getBlockZ());
+        drawLineX(player, particle, min.getBlockX(), maxX, maxY, min.getBlockZ());
+        drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), maxZ);
+        drawLineX(player, particle, min.getBlockX(), maxX, maxY, maxZ);
+
+        drawLineY(player, particle, min.getBlockX(), min.getBlockY(), maxY, min.getBlockZ());
+        drawLineY(player, particle, min.getBlockX(), min.getBlockY(), maxY, maxZ);
+        drawLineY(player, particle, maxX, min.getBlockY(), maxY, min.getBlockZ());
+        drawLineY(player, particle, maxX, min.getBlockY(), maxY, maxZ);
+
+        drawLineZ(player, particle, min.getBlockX(), min.getBlockY(), min.getBlockZ(), maxZ);
+        drawLineZ(player, particle, min.getBlockX(), maxY, min.getBlockZ(), maxZ);
+        drawLineZ(player, particle, maxX, min.getBlockY(), min.getBlockZ(), maxZ);
+        drawLineZ(player, particle, maxX, maxY, min.getBlockZ(), maxZ);
+
+    }
+
+    private void drawLineX(Player player, Particle particle, int x1, int x2, int y, int z){
+        for (int x = x1; x <= x2; x++){
+            player.spawnParticle(particle, x, y, z, 1);
+        }
+    }
+    private void drawLineY(Player player, Particle particle, int x, int y1, int y2, int z){
+        for (int y = y1; y <= y2; y++){
+            player.spawnParticle(particle, x, y, z, 1);
+        }
+    }
+    private void drawLineZ(Player player, Particle particle, int x, int y, int z1, int z2){
+        for (int z = z1; z <= z2; z++){
+            player.spawnParticle(particle, x, y, z, 1);
+        }
     }
 }
 
