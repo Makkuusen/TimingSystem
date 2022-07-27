@@ -41,16 +41,20 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("info")
     @CommandCompletion("@heat")
     public static void onHeatInfo(Player player, Heat heat) {
-        player.sendMessage("§aHeat: " + heat.getName());
-        player.sendMessage("§aHeatstate: " + heat.getHeatState().name());
+        player.sendMessage("§2Heat: §a" + heat.getName());
+        player.sendMessage("§2Heatstate: §a" + heat.getHeatState().name());
         if (heat instanceof QualifyHeat qualifyHeat) {
-            player.sendMessage("§aTimeLimit: " + (qualifyHeat.getTimeLimit() / 1000) + " seconds.");
+            player.sendMessage("§2TimeLimit: §a" + (qualifyHeat.getTimeLimit() / 1000) + "s");
+            player.sendMessage("§2StartDelay: §a" + (qualifyHeat.getStartDelay() / 20) + "s");
         } else if (heat instanceof FinalHeat finalHeat) {
-            player.sendMessage("§aLaps: " + finalHeat.getTotalLaps());
-            player.sendMessage("§aPits: " + finalHeat.getTotalPits());
+            player.sendMessage("§2Laps: §a" + finalHeat.getTotalLaps());
+            player.sendMessage("§2Pits: §a" + finalHeat.getTotalPits());
         }
-        player.sendMessage("§aFastest lap:" + ApiUtilities.formatAsTime(heat.getFastestLap()));
-        player.sendMessage("§aDrivers:");
+        if(heat.getFastestLapUUID() != null) {
+            Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
+            player.sendMessage("§2Fastest lap: §a" + ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) + " §2by §a" + d.getTPlayer().getName());
+        }
+        player.sendMessage("§2Drivers:");
         for (Driver d : heat.getDrivers().values()) {
             player.sendMessage("  " + d.getTPlayer().getName());
         }
@@ -137,15 +141,10 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("set laps")
     @CommandCompletion("<laps> @heat")
-    public static void onHeatSetLaps(Player player, String laps, Heat heat) {
+    public static void onHeatSetLaps(Player player, Integer laps, Heat heat) {
         if (heat instanceof FinalHeat finalHeat) {
-            try {
-                int lap = Integer.valueOf(laps);
-                finalHeat.setTotalLaps(lap);
+                finalHeat.setTotalLaps(laps);
                 player.sendMessage("§aLaps has been updated");
-            } catch (NumberFormatException e) {
-                player.sendMessage("§cYou must provide a valid integer as laps.");
-            }
         } else {
             player.sendMessage("§cYou can only modify total laps of a final heat.");
         }
@@ -153,17 +152,23 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("set pits")
     @CommandCompletion("<pits> @heat")
-    public static void onHeatSetPits(Player player, String pits, Heat heat) {
+    public static void onHeatSetPits(Player player, Integer pits, Heat heat) {
         if (heat instanceof FinalHeat finalHeat) {
-            try {
-                int pit = Integer.valueOf(pits);
-                finalHeat.setTotalPits(pit);
-                player.sendMessage("§aPits has been updated");
-            } catch (NumberFormatException e) {
-                player.sendMessage("§cYou must provide a valid integer as pits");
-            }
+                finalHeat.setTotalPits(pits);
+
         } else {
             player.sendMessage("§cYou can only modify total pits of a final heat.");
+        }
+    }
+
+    @Subcommand("set startdelay")
+    @CommandCompletion("<startdelay> @heat")
+    public static void onHeatStartDelay(Player player, Integer startDelay, Heat heat) {
+        if (heat instanceof QualifyHeat) {
+                heat.setStartDelay(startDelay);
+            player.sendMessage("§aStart delay has been updated");
+        } else {
+            player.sendMessage("§cYou can only modify the start delay of a qualifying heat.");
         }
     }
 
@@ -223,7 +228,7 @@ public class CommandHeat extends BaseCommand {
                 }
             }
         }
-        sender.sendMessage("§cAll online players has been added");
+        sender.sendMessage("§aAll online players has been added");
     }
 
     @Subcommand("results")

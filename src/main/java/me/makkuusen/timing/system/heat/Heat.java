@@ -39,21 +39,24 @@ public abstract class Heat {
     private GridManager gridManager;
     private List<Driver> startPositions = new ArrayList<>();
     private List<Driver> livePositions = new ArrayList<>();
-    private Long fastestLap;
+    private UUID fastestLapUUID;
+    private Integer timeLimit;
+    private Integer totalLaps;
+    private Integer totalPits;
+    private Integer startDelay = 20*2;
     private SpectatorScoreboard scoreboard;
 
-    public Heat(DbRow data) {
+    public Heat (DbRow data) {
         id = data.getInt("id");
         event = EventDatabase.getEvent(data.getInt("eventId")).get();
         name = data.getString("name");
         heatState = HeatState.valueOf(data.getString("state"));
         startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
         endTime = data.getLong("endTime") == null ? null : Instant.ofEpochMilli(data.getLong("endTime"));
-        if (data.get("fastestLap") == null) {
-            fastestLap = 0L;
-        } else {
-            fastestLap = data.getInt("fastestLap").longValue();
-        }
+        timeLimit = data.get("timeLimit") == null ? null : data.getInt("timeLimit");
+        totalLaps = data.get("totalLaps") == null ? null : data.getInt("totalLaps");
+        totalPits = data.get("totalPitstops") == null ? null : data.getInt("totalPitstops");
+        fastestLapUUID = data.getString("fastestLapUUID") == null ? null : UUID.fromString(data.getString("fastestLapUUID"));
         gridManager = new GridManager();
     }
 
@@ -153,7 +156,7 @@ public abstract class Heat {
         setHeatState(HeatState.SETUP);
         setStartTime(null);
         setEndTime(null);
-        setFastestLap(0);
+        setFastestLapUUID(null);
         setLivePositions(new ArrayList<>());
         gridManager.clearArmorstands();
         getDrivers().values().stream().forEach(driver -> {
@@ -222,8 +225,28 @@ public abstract class Heat {
         }
     }
 
-    public void setFastestLap(long fastestLap) {
-        this.fastestLap = fastestLap;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `fastestLap` = " + fastestLap + " WHERE `id` = " + id + ";");
+    public void setFastestLapUUID(UUID fastestLapUUID) {
+        this.fastestLapUUID = fastestLapUUID;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `fastestLapUUID` = '" + fastestLapUUID + "' WHERE `id` = " + id + ";");
+    }
+
+    public void setTimeLimit(int timeLimit) {
+        this.timeLimit = timeLimit;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `timeLimit` = " + timeLimit + " WHERE `id` = " + getId() + ";");
+    }
+
+    public void setStartDelay(int startDelay) {
+        this.startDelay = startDelay;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `startDelay` = " + startDelay + " WHERE `id` = " + getId() + ";");
+    }
+
+    public void setTotalLaps(int totalLaps){
+        this.totalLaps = totalLaps;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalLaps` = " + totalLaps + " WHERE `id` = " + getId() + ";");
+    }
+
+    public void setTotalPits(int totalPits) {
+        this.totalPits = totalPits;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalPitstops` = " + totalPits + " WHERE `id` = " + getId() + ";");
     }
 }

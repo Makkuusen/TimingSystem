@@ -76,9 +76,9 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
 
     private void finishLap() {
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
-        if (heat.getFastestLap() < 1 || getCurrentLap().getLapTime() < heat.getFastestLap()) {
+        if (heat.getFastestLapUUID() == null || getCurrentLap().getLapTime() < heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get().getLapTime() || getCurrentLap().equals(heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get())) {
             EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap().getLapTime());
-            heat.setFastestLap(getCurrentLap().getLapTime());
+            heat.setFastestLapUUID(getTPlayer().getUniqueId());
         } else {
             EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
         }
