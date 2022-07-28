@@ -45,7 +45,7 @@ public class CommandHeat extends BaseCommand {
         player.sendMessage("§2Heatstate: §a" + heat.getHeatState().name());
         if (heat instanceof QualifyHeat qualifyHeat) {
             player.sendMessage("§2TimeLimit: §a" + (qualifyHeat.getTimeLimit() / 1000) + "s");
-            player.sendMessage("§2StartDelay: §a" + (qualifyHeat.getStartDelay() / 20) + "s");
+            player.sendMessage("§2StartDelay: §a" + (qualifyHeat.getStartDelay()) + "s");
         } else if (heat instanceof FinalHeat finalHeat) {
             player.sendMessage("§2Laps: §a" + finalHeat.getTotalLaps());
             player.sendMessage("§2Pits: §a" + finalHeat.getTotalPits());
