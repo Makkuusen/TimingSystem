@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system;
 
 import co.aikar.commands.PaperCommandManager;
+import co.aikar.idb.DB;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
@@ -56,6 +57,7 @@ public class TimingSystem extends JavaPlugin {
         TSListener.plugin = this;
         TimeTrial.plugin = this;
         Database.plugin = this;
+        ApiUtilities.plugin = this;
         this.languageManager = new LanguageManager(this, "en_us");
 
         PluginManager pm = Bukkit.getPluginManager();
@@ -146,12 +148,14 @@ public class TimingSystem extends JavaPlugin {
     @Override
     public void onDisable() {
         logger.info("Version " + getDescription().getVersion() + " disabled.");
+        DB.close();
         DatabaseTrack.plugin = null;
         Database.plugin = null;
         CommandTimeTrial.plugin = null;
         CommandTrack.plugin = null;
         TSListener.plugin = null;
         TimeTrial.plugin = null;
+        ApiUtilities.plugin = null;
         logger = null;
         plugin = null;
     }

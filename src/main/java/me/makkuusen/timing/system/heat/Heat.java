@@ -12,8 +12,8 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.track.GridManager;
-import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
@@ -43,7 +43,8 @@ public abstract class Heat {
     private Integer timeLimit;
     private Integer totalLaps;
     private Integer totalPits;
-    private Integer startDelay = 20*2;
+    private Integer startDelay;
+    private Integer maxDrivers;
     private SpectatorScoreboard scoreboard;
 
     public Heat (DbRow data) {
@@ -56,6 +57,8 @@ public abstract class Heat {
         timeLimit = data.get("timeLimit") == null ? null : data.getInt("timeLimit");
         totalLaps = data.get("totalLaps") == null ? null : data.getInt("totalLaps");
         totalPits = data.get("totalPitstops") == null ? null : data.getInt("totalPitstops");
+        maxDrivers = data.get("maxDrivers") == null ? null : data.getInt("maxDrivers");
+        startDelay = data.get("startDelay") == null ? 2 : data.getInt("startDelay");
         fastestLapUUID = data.getString("fastestLapUUID") == null ? null : UUID.fromString(data.getString("fastestLapUUID"));
         gridManager = new GridManager();
     }
@@ -72,13 +75,13 @@ public abstract class Heat {
         }
         List<Driver> pos = new ArrayList<>();
         pos.addAll(getStartPositions());
-        if (getEvent().getTrack().getGridRegions().values().size() != 0)
+        if (getEvent().getTrack().getGridLocations().values().size() != 0)
             for (Driver d : getStartPositions()) {
                 Player player = d.getTPlayer().getPlayer();
                 if (player != null) {
-                    TrackRegion gridRegion = getEvent().getTrack().getGridRegions().get(d.getStartPosition());
-                    if (gridRegion != null) {
-                        gridManager.teleportPlayerToGrid(player, gridRegion);
+                    Location grid = getEvent().getTrack().getGridLocation(d.getStartPosition());
+                    if (grid != null) {
+                        gridManager.teleportPlayerToGrid(player, grid);
                     }
                 }
                 EventDatabase.addPlayerToRunningHeat(d);
@@ -132,8 +135,6 @@ public abstract class Heat {
 
         if (this instanceof QualifyHeat) {
             getEvent().getEventResults().reportQualyResults(getLivePositions());
-        } else if (this instanceof FinalHeat) {
-            getEvent().getEventResults().reportFinalResults(getLivePositions());
         }
         getDrivers().values().stream().forEach(driver -> EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId()));
 
@@ -152,7 +153,10 @@ public abstract class Heat {
         updateScoreboard();
     }
 
-    public void resetHeat() {
+    public boolean resetHeat() {
+        if (getHeatState() == HeatState.FINISHED) {
+            return false;
+        }
         setHeatState(HeatState.SETUP);
         setStartTime(null);
         setEndTime(null);
@@ -165,6 +169,7 @@ public abstract class Heat {
         });
         ApiUtilities.clearScoreboards();
         ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
+        return true;
     }
 
     public List<Driver> getResults() {
@@ -172,6 +177,13 @@ public abstract class Heat {
             return List.of();
         }
         return livePositions;
+    }
+
+    public int getMaxDrivers(){
+        if (maxDrivers != null) {
+            return maxDrivers;
+        }
+        return getEvent().getTrack().getGrids().size();
     }
 
     public void addDriver(Driver driver) {
@@ -247,6 +259,11 @@ public abstract class Heat {
     public void setTotalLaps(int totalLaps){
         this.totalLaps = totalLaps;
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalLaps` = " + totalLaps + " WHERE `id` = " + getId() + ";");
+    }
+
+    public void setMaxDrivers(int maxDrivers){
+        this.maxDrivers = maxDrivers;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `maxDrivers` = " + maxDrivers + " WHERE `id` = " + getId() + ";");
     }
 
     public void setTotalPits(int totalPits) {

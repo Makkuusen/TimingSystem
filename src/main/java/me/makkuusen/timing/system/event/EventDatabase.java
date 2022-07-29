@@ -63,9 +63,6 @@ public class EventDatabase {
                         }
                         driver.setLaps(laps);
                     }
-                    if (heat.getEndTime() != null && heat.getEndTime().toEpochMilli() > 0) {
-                        er.reportFinalResults(heat.getDrivers().values().stream().toList());
-                    }
 
                 } else {
                     heat = new QualifyHeat(heatData);
@@ -86,6 +83,9 @@ public class EventDatabase {
                         er.reportQualyResults(heat.getDrivers().values().stream().toList());
                     }
                 }
+            }
+            if(event.getState() == Event.EventState.FINISHED) {
+                er.reportFinalResults(es.getFinalHeatList());
             }
             event.setEventSchedule(es);
             event.setEventResults(er);
@@ -162,6 +162,7 @@ public class EventDatabase {
                     "`totalPitstops`, " +
                     "`timeLimit`, " +
                     "`startDelay`, " +
+                    "`maxDrivers`, " +
                     "`isRemoved`) " +
                     "VALUES (" +
                     event.getId() + "," +
@@ -174,6 +175,7 @@ public class EventDatabase {
                     "NULL," +
                     "NULL," +
                     timeLimit + "," +
+                    "NULL," +
                     "NULL," +
                     "0)");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_heats` WHERE `id` = " + heatId + ";");
@@ -202,6 +204,7 @@ public class EventDatabase {
                     "`totalPitstops`, " +
                     "`timeLimit`, " +
                     "`startDelay`, " +
+                    "`maxDrivers`, " +
                     "`isRemoved`) " +
                     "VALUES (" +
                     event.getId() + "," +
@@ -213,6 +216,7 @@ public class EventDatabase {
                     "NULL," +
                     totalLaps + "," +
                     pitstops + "," +
+                    "NULL," +
                     "NULL," +
                     "NULL," +
                     "0)");

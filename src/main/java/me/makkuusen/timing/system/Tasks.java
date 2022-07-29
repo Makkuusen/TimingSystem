@@ -36,12 +36,15 @@ public class Tasks {
                         setParticles(player, pitRegion, Particle.HEART);
                     }
 
-                    track.getGridRegions().values().forEach(trackRegion -> setParticles(player, trackRegion, Particle.WAX_OFF));
                     track.getCheckpoints().values().forEach(trackRegion -> setParticles(player, trackRegion, Particle.GLOW));
                     track.getResetRegions().values().forEach(trackRegion -> setParticles(player, trackRegion, Particle.WAX_ON));
+                    track.getGridLocations().values().forEach(location -> setParticles(player, location, Particle.WAX_OFF));
                 }
             }
         }, 0, 10);
+    }
+    private void setParticles(Player player, Location location, Particle particle) {
+        player.spawnParticle(particle, location,5);
     }
 
     private void setParticles(Player player, TrackRegion region, Particle particle) {

@@ -50,10 +50,11 @@ public class CommandHeat extends BaseCommand {
             player.sendMessage("§2Laps: §a" + finalHeat.getTotalLaps());
             player.sendMessage("§2Pits: §a" + finalHeat.getTotalPits());
         }
-        if(heat.getFastestLapUUID() != null) {
+        if (heat.getFastestLapUUID() != null) {
             Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
             player.sendMessage("§2Fastest lap: §a" + ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) + " §2by §a" + d.getTPlayer().getName());
         }
+        player.sendMessage("§2MaxDrivers: §a" + heat.getMaxDrivers());
         player.sendMessage("§2Drivers:");
         for (Driver d : heat.getDrivers().values()) {
             player.sendMessage("  " + d.getTPlayer().getName());
@@ -95,8 +96,11 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("reset")
     @CommandCompletion("@heat")
     public static void onHeatReset(Player player, Heat heat) {
-        heat.resetHeat();
-        player.sendMessage("§aReset " + heat.getName());
+        if (heat.resetHeat()){
+            player.sendMessage("§aReset " + heat.getName());
+            return;
+        }
+        player.sendMessage("§cCould not reset " + heat.getName());
         return;
     }
 
@@ -110,6 +114,14 @@ public class CommandHeat extends BaseCommand {
                 player.sendMessage("§cYou have no event selected,/event select <name>");
                 return;
             }
+        }
+        if (event.getTrack() == null) {
+            player.sendMessage("§cYour event needs a track, /event set track <name>");
+            return;
+        }
+        if (event.getState() != Event.EventState.SETUP && event.getState() != Event.EventState.QUALIFICATION) {
+            player.sendMessage("§cYour event is already in finals");
+            return;
         }
         int size = event.getEventSchedule().getQualifyHeatList().size();
         if (EventDatabase.qualifyHeatNew(event, "Q" + ++size, 60000)) {
@@ -131,8 +143,17 @@ public class CommandHeat extends BaseCommand {
                 return;
             }
         }
+        if (event.getTrack() == null) {
+            player.sendMessage("§cYour event needs a track, /event set track <name>");
+            return;
+        }
+        if (event.getState() == Event.EventState.FINISHED) {
+            player.sendMessage("§cYour event is already finished");
+            return;
+        }
+
         int size = event.getEventSchedule().getFinalHeatList().size();
-        if (EventDatabase.finalHeatNew(event, "F" + ++size, 5, 2)) {
+        if (EventDatabase.finalHeatNew(event, "F" + ++size, 5, event.getTrack().getPitRegion().isDefined() ? 2 : 0)) {
             player.sendMessage("§aHeat has been created");
             return;
         }
@@ -154,8 +175,8 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("<pits> @heat")
     public static void onHeatSetPits(Player player, Integer pits, Heat heat) {
         if (heat instanceof FinalHeat finalHeat) {
-                finalHeat.setTotalPits(pits);
-
+            finalHeat.setTotalPits(pits);
+            player.sendMessage("§aPits has been updated");
         } else {
             player.sendMessage("§cYou can only modify total pits of a final heat.");
         }
@@ -165,7 +186,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("<startdelay> @heat")
     public static void onHeatStartDelay(Player player, Integer startDelay, Heat heat) {
         if (heat instanceof QualifyHeat) {
-                heat.setStartDelay(startDelay);
+            heat.setStartDelay(startDelay);
             player.sendMessage("§aStart delay has been updated");
         } else {
             player.sendMessage("§cYou can only modify the start delay of a qualifying heat.");
@@ -174,23 +195,29 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("set time")
     @CommandCompletion("<seconds> @heat")
-    public static void onHeatSetTime(Player player, String seconds, Heat heat) {
+    public static void onHeatSetTime(Player player, Integer seconds, Heat heat) {
         if (heat instanceof QualifyHeat qualifyHeat) {
-            try {
-                int time = Integer.valueOf(seconds);
-                qualifyHeat.setTimeLimit(time * 1000);
-                player.sendMessage("§aTime limit has been updated");
-            } catch (NumberFormatException e) {
-                player.sendMessage("§cYou must provide a valid integer as seconds");
-            }
+            qualifyHeat.setTimeLimit(seconds * 1000);
+            player.sendMessage("§aTime limit has been updated");
         } else {
             player.sendMessage("§cYou can only modify time limit of a qualy heat.");
         }
     }
 
+    @Subcommand("set maxDrivers")
+    @CommandCompletion("<max> @heat")
+    public static void onHeatMaxDrivers(Player player, Integer maxDrivers, Heat heat) {
+        heat.setMaxDrivers(maxDrivers);
+        player.sendMessage("§aMax drivers has been updated");
+    }
+
     @Subcommand("add driver")
     @CommandCompletion("* @heat")
     public static void onHeatAddDriver(Player sender, OnlinePlayer onlinePlayer, Heat heat) {
+        if (heat.getMaxDrivers() < heat.getDrivers().size() + 1) {
+            sender.sendMessage("§cMax allowed amount of drivers have been added");
+            return;
+        }
         if (heat.getDrivers().get(onlinePlayer.getPlayer().getUniqueId()) != null) {
             sender.sendMessage("§cPlayer is already in heat!");
             return;
@@ -212,9 +239,13 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("add alldrivers")
     @CommandCompletion("@heat")
-    public static void onHeatAddDriver(Player sender,  Heat heat) {
+    public static void onHeatAddDriver(Player sender, Heat heat) {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (heat.getMaxDrivers() < heat.getDrivers().size() + 1) {
+                sender.sendMessage("§cMax allowed amount of drivers have been added");
+                return;
+            }
             if (heat.getDrivers().get(player.getUniqueId()) != null) {
                 continue;
             }

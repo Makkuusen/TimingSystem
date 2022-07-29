@@ -27,7 +27,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
     private int id;
     private Heat heat;
     private boolean finished;
-    private int position;
+    private Integer position;
     private int startPosition;
     private Instant startTime;
     private Instant endTime;

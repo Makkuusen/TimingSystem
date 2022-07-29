@@ -15,7 +15,7 @@ public class TrackRegion {
     private Location spawnLocation;
 
     public enum RegionType {
-        START, END, CHECKPOINT, RESET, PIT, GRID
+        START, END, CHECKPOINT, RESET, PIT
     }
 
     public TrackRegion(DbRow data) {
@@ -74,6 +74,13 @@ public class TrackRegion {
         } else {
             return loc.getBlockX() >= this.minP.getBlockX() && loc.getBlockX() <= this.maxP.getBlockX() && loc.getBlockY() >= this.minP.getBlockY() && loc.getBlockY() <= this.maxP.getBlockY() && loc.getBlockZ() >= this.minP.getBlockZ() && loc.getBlockZ() <= this.maxP.getBlockZ();
         }
+    }
+
+    public boolean isDefined(){
+        if (minP == null || maxP == null) {
+            return false;
+        }
+        return true;
     }
 
     public String getWorldName() {

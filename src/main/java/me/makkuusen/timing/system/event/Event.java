@@ -75,11 +75,27 @@ public class Event {
             return false;
         }
         List<Driver> drivers = eventResults.generateFinalStartingPositions();
-        // Ugly way to get finalheat
-        Heat finalHeat = eventSchedule.getFinalHeatList().get(0);
-        int startPos = 1;
-        for (Driver driver : drivers) {
-            EventDatabase.finalDriverNew(driver.getTPlayer().getUniqueId(), finalHeat, startPos++);
+
+        if (eventSchedule.getFinalHeatList().isEmpty()) {
+            int maxDrivers = track.getGridLocations().size();
+            int finalHeats = drivers.size() / maxDrivers;
+            if (drivers.size() % maxDrivers != 0) {
+                finalHeats++;
+            }
+            for (int i = 0; i < finalHeats; i++) {
+                EventDatabase.finalHeatNew(this, "F" + (i + 1), 5, getTrack().getPitRegion().isDefined() ? 2 : 0);
+            }
+        }
+
+        int i = 0;
+        for (Heat finalHeat : eventSchedule.getFinalHeatList()) {
+            int startPos = 1;
+            for (; i < drivers.size(); i++) {
+                if (startPos > track.getGridLocations().size()){
+                    break;
+                }
+                EventDatabase.finalDriverNew(drivers.get(i).getTPlayer().getUniqueId(), finalHeat, startPos++);
+            }
         }
         setState(EventState.FINAL);
         return true;
@@ -89,6 +105,7 @@ public class Event {
         if (state != EventState.FINAL) {
             return false;
         }
+        eventResults.reportFinalResults(eventSchedule.getFinalHeatList());
         ApiUtilities.clearScoreboards();
         setState(EventState.FINISHED);
         return true;

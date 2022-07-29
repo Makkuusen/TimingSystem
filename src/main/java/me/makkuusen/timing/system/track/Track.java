@@ -35,7 +35,7 @@ public class Track {
     private final long dateCreated;
     private final Map<Integer, TrackRegion> checkpoints = new HashMap<>();
     private final Map<Integer, TrackRegion> resetRegions = new HashMap<>();
-    private final Map<Integer, TrackRegion> gridRegions = new HashMap<>();
+    private final Map<Integer, Location> grids = new HashMap<>();
     private final Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
     private TPlayer owner;
     private String displayName;
@@ -237,20 +237,39 @@ public class Track {
         return resetRegions;
     }
 
-    public void setGridRegion(Location minP, Location maxP, Location spawn, int index) {
-        setTrackRegions(gridRegions, TrackRegion.RegionType.GRID, minP, maxP, spawn, index);
+    public void setGridLocation(Location loc, int index) {
+        if (grids.containsKey(index)) {
+            grids.put(index, loc);
+            DB.executeUpdateAsync("UPDATE `ts_locations` SET `location` = '" + ApiUtilities.locationToString(loc) + "' WHERE `trackId` = " + getId() + " AND `index` = " + index + " AND `type` = 'GRID';");
+        } else {
+            try {
+                DB.executeInsert("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + getId() +  ", "  + index + ", 'GRID', '" + ApiUtilities.locationToString(loc) + "');");
+                grids.put(index, loc);
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        }
     }
 
-    public boolean removeGridRegion(int index) {
-        return removeTrackRegion(gridRegions, index);
+    public void addGridLocation(Location location, int index) {
+        grids.put(index, location);
     }
 
-    public void addGridRegion(TrackRegion region) {
-        gridRegions.put(region.getRegionIndex(), region);
+    public boolean removeGridLocation(int index) {
+        if (grids.containsKey(index)) {
+            grids.remove(index);
+            DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = " + getId() + " AND `index` = " + index + " AND `type` = 'GRID';");
+            return true;
+        }
+        return false;
     }
 
-    public Map<Integer, TrackRegion> getGridRegions() {
-        return gridRegions;
+    public Map<Integer, Location> getGridLocations() {
+        return grids;
+    }
+
+    public Location getGridLocation(int index){
+        return grids.get(index);
     }
 
 
@@ -274,8 +293,6 @@ public class Track {
                 TrackRegion region = new TrackRegion(dbRow);
                 if (regionType.equals(TrackRegion.RegionType.CHECKPOINT)) {
                     addCheckpoint(region);
-                } else if (regionType.equals(TrackRegion.RegionType.GRID)) {
-                    addGridRegion(region);
                 } else if (regionType.equals(TrackRegion.RegionType.RESET)) {
                     addResetRegion(region);
                 }

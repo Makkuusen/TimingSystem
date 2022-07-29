@@ -198,6 +198,7 @@ public class Database {
                     "  `totalPitstops` int(11) DEFAULT NULL,\n" +
                     "  `timeLimit` int(11) DEFAULT NULL,\n" +
                     "  `startDelay` int(11) DEFAULT NULL,\n" +
+                    "  `maxDrivers` int(11) DEFAULT NULL,\n" +
                     "  `isRemoved` tinyint(1) NOT NULL,\n" +
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
@@ -223,6 +224,15 @@ public class Database {
                     "  `lapStart` bigint(30) DEFAULT NULL,\n" +
                     "  `lapEnd` bigint(30) DEFAULT NULL,\n" +
                     "  `pitted` tinyint(1) NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_locations` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `trackId` int(11) NOT NULL,\n" +
+                    "  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  `index` int(11) DEFAULT NULL,\n" +
+                    "  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 

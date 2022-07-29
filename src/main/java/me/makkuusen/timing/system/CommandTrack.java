@@ -88,9 +88,13 @@ public class CommandTrack extends BaseCommand {
         plugin.sendMessage(player, "messages.info.track.options", "%options%", ApiUtilities.formatPermissions(track.getOptions()));
         plugin.sendMessage(player, "messages.info.track.mode", "%mode%", track.getModeAsString());
         plugin.sendMessage(player, "messages.info.track.checkpoints", "%size%", String.valueOf(track.getCheckpoints().size()));
+        if (track.getGrids().size() != 0) {
+            player.sendMessage("§2Grids: §a" + track.getGrids().size());
+        }
         plugin.sendMessage(player, "messages.info.track.resets", "%size%", String.valueOf(track.getResetRegions().size()));
         plugin.sendMessage(player, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
         plugin.sendMessage(player, "messages.info.track.leaderboard", "%location%", ApiUtilities.niceLocation(track.getLeaderboardLocation()));
+
     }
 
     @Subcommand("delete")
@@ -400,7 +404,7 @@ public class CommandTrack extends BaseCommand {
             }
         }
 
-        @Subcommand("gridregion")
+        @Subcommand("grid")
         @CommandCompletion("@track <index>")
         public static void onGridRegion(Player player, Track track, @Optional String index) {
             int regionIndex;
@@ -418,17 +422,13 @@ public class CommandTrack extends BaseCommand {
                 return;
             }
             if (remove) {
-                if (track.removeGridRegion(regionIndex)) {
+                if (track.removeGridLocation(regionIndex)) {
                     plugin.sendMessage(player, "messages.remove.region");
                 } else {
                     plugin.sendMessage(player, "messages.error.remove.region");
                 }
             } else {
-                List<Location> positions = ApiUtilities.getPositions(player);
-                if (positions == null) {
-                    return;
-                }
-                track.setGridRegion(positions.get(0), positions.get(1), player.getLocation(), regionIndex);
+                track.setGridLocation(player.getLocation(), regionIndex);
                 plugin.sendMessage(player, "messages.create.region");
             }
         }

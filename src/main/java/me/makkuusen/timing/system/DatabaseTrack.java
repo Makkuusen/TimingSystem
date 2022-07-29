@@ -55,11 +55,19 @@ public class DatabaseTrack {
                     rTrack.addCheckpoint(trackRegion);
                 } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.RESET)) {
                     rTrack.addResetRegion(trackRegion);
-                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.GRID)) {
-                    rTrack.addGridRegion(trackRegion);
                 } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.PIT)) {
                     rTrack.setPitRegion(trackRegion);
                 }
+            }
+        }
+
+        var locations = DB.getResults("SELECT * FROM `ts_locations` WHERE `type` = 'GRID'");
+        for (DbRow dbRow : locations) {
+            Optional<Track> maybeTrack = getTrackById(dbRow.getInt("trackId"));
+            if (maybeTrack.isPresent()) {
+                Location loc = ApiUtilities.stringToLocation(dbRow.getString("location"));
+                Integer index = dbRow.getInt("index");
+                maybeTrack.get().addGridLocation(loc, index);
             }
         }
     }
