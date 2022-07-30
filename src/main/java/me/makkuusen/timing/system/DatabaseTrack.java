@@ -6,6 +6,8 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import me.makkuusen.timing.system.event.Event;
+import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -80,12 +82,12 @@ public class DatabaseTrack {
             leaderboard.setY(leaderboard.getY() + 3);
             // Save the track
             var trackId = DB.executeInsert("INSERT INTO `ts_tracks` " +
-                    "(`uuid`, `name`, `dateCreated`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `toggleGovernment`, `options`, `isRemoved`) " +
+                    "(`uuid`, `name`, `dateCreated`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `isRemoved`) " +
                     "VALUES('" + uuid + "', " +
                     Database.sqlString(name) + ", " + date + ", " +
                     Database.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " +
                     Database.sqlString(type == null ? null : type.toString()) + "," +
-                    Database.sqlString(Track.TrackMode.TIMETRIAL.toString()) + ", 0, 0, NULL , 0);");
+                    Database.sqlString(Track.TrackMode.TIMETRIAL.toString()) + ", 0, NULL , 0);");
 
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_tracks` WHERE `id` = " + trackId + ";");
 
@@ -117,13 +119,17 @@ public class DatabaseTrack {
 
     }
 
-    static public void removeTrack(Track Track) {
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";");
-        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + Track.getId() + ";");
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = " + Track.getId() + ";");
-        regions.removeIf(trackRegion -> trackRegion.getTrackId() == Track.getId());
-        tracks.remove(Track);
-        LeaderboardManager.removeLeaderboard(Track.getId());
+    static public void removeTrack(Track track) {
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `trackId` = " + track.getId() + ";");
+        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + track.getId() + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = " + track.getId() + ";");
+        regions.removeIf(trackRegion -> trackRegion.getTrackId() == track.getId());
+        tracks.remove(track);
+        var events = EventDatabase.getEvents().stream().filter(event -> event.getTrack().equals(track)).collect(Collectors.toList());
+        for (Event event : events) {
+            EventDatabase.removeEvent(event);
+        }
+        LeaderboardManager.removeLeaderboard(track.getId());
     }
 
     static public Optional<Track> getTrack(String name) {

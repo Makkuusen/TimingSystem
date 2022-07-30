@@ -22,11 +22,10 @@ public class GridManager {
             return;
         }
         player.teleport(location);
-        ArmorStand ar = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, -0.7, 0), EntityType.ARMOR_STAND);
+        ArmorStand ar = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, -1.45, 0), EntityType.ARMOR_STAND);
         ar.setCanMove(false);
         ar.setGravity(false);
         ar.setVisible(false);
-        ar.setSmall(true);
         Boat boat = ApiUtilities.spawnBoat(player, location);
         ar.addPassenger(boat);
         boat.addPassenger(player);

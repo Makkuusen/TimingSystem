@@ -18,6 +18,10 @@ public class FinalHeat extends Heat {
 
     }
 
+    public String getName(){
+        return "F" + getHeatNumber();
+    }
+
     @Override
     public boolean passLap(Driver driver){
         if (getHeatState() != HeatState.RACING) {

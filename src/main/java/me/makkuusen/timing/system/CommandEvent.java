@@ -10,6 +10,7 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
 import org.bukkit.command.CommandSender;
@@ -61,14 +62,19 @@ public class CommandEvent extends BaseCommand {
 
     @Subcommand("create")
     @CommandCompletion("<name>")
-    public static void onCreate(Player player, String[] arguments) {
-        if (arguments.length >= 1) {
-            if (EventDatabase.eventNew(player.getUniqueId(), arguments[0])) {
-                player.sendMessage("§aCreated event " + arguments[0]);
-                return;
-            }
-            player.sendMessage("§cCould not create event " + arguments[0]);
+    public static void onCreate(Player player, String name) {
+        if (EventDatabase.eventNew(player.getUniqueId(), name)) {
+            player.sendMessage("§aCreated event " + name);
+            return;
         }
+        player.sendMessage("§cCould not create event with name " + name);
+    }
+
+    @Subcommand("delete")
+    @CommandCompletion("@event")
+    public static void onRemove(Player player, Event event){
+        EventDatabase.removeEvent(event);
+        player.sendMessage("§aThe event was removed");
     }
 
     @Subcommand("select")
@@ -141,12 +147,12 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        List<Driver> finalResults = event.getEventResults().getFinalResults();
+        List<Driver> finalResults = EventResults.generateFinalResults(event.getEventSchedule().getFinalHeatList());
         if (finalResults.size() != 0 && event.getState() == Event.EventState.FINISHED) {
-            player.sendMessage("§aFinal results for event " + event.getDisplayName());
+            player.sendMessage("§2Final results for event §a" + event.getDisplayName());
             int pos = 1;
             for (Driver d : finalResults) {
-                player.sendMessage("§a" + pos++ + ". " + d.getTPlayer().getName());
+                player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName() + "§2 - §a" + d.getLaps().size() + " §2laps in §a" + ApiUtilities.formatAsTime(d.getFinishTime()));
             }
         } else {
             player.sendMessage("§cFinals has not been finished");
@@ -164,15 +170,15 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        List<Driver> qualyResults = event.getEventResults().getQualyResults();
-        if (qualyResults.size() != 0 && (event.getState() == Event.EventState.FINAL || event.getState() == Event.EventState.FINISHED)) {
-            player.sendMessage("§aQualifying results for event " + event.getDisplayName());
+        List<Driver> qualyResults = EventResults.generateQualificationResults(event.getEventSchedule().getQualifyHeatList());
+        if (qualyResults.size() != 0) {
+            player.sendMessage("§2Qualifying results for event §a" + event.getDisplayName());
             int pos = 1;
             for (Driver d : qualyResults) {
-                player.sendMessage("§a" + pos++ + ". " + d.getTPlayer().getName());
+                player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName() + "§2 - §a"  + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0"));
             }
         } else {
-            player.sendMessage("§cQualification has not been finished");
+            player.sendMessage("§cQualification results are empty");
         }
     }
     @Subcommand("spectate")
@@ -180,6 +186,5 @@ public class CommandEvent extends BaseCommand {
     public static void onSpectate(Player player, Event event){
         event.addSpectator(player.getUniqueId());
         player.sendMessage("§aYou are now spectating " + event.getDisplayName());
-
     }
 }

@@ -7,15 +7,18 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
-import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.heat.FinalHeat;
 import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 @CommandAlias("heat")
 @CommandPermission("event.admin")
@@ -56,8 +59,8 @@ public class CommandHeat extends BaseCommand {
         }
         player.sendMessage("§2MaxDrivers: §a" + heat.getMaxDrivers());
         player.sendMessage("§2Drivers:");
-        for (Driver d : heat.getDrivers().values()) {
-            player.sendMessage("  " + d.getTPlayer().getName());
+        for (Driver d : heat.getStartPositions()) {
+            player.sendMessage("  " + d.getStartPosition() + ": "+ d.getTPlayer().getName());
         }
     }
 
@@ -104,6 +107,16 @@ public class CommandHeat extends BaseCommand {
         return;
     }
 
+    @Subcommand("delete")
+    @CommandCompletion("@heat")
+    public static void onHeatRemove(Player player, Heat heat) {
+        if (EventDatabase.removeHeat(heat)){
+            player.sendMessage("§aHeat was removed");
+            return;
+        }
+        player.sendMessage("§cHeat could not be removed. Is the event already finished?");
+    }
+
     @Subcommand("create qualy")
     public static void onHeatCreateQualy(Player player, @Optional Event event) {
         if (event == null) {
@@ -124,7 +137,7 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         int size = event.getEventSchedule().getQualifyHeatList().size();
-        if (EventDatabase.qualifyHeatNew(event, "Q" + ++size, 60000)) {
+        if (EventDatabase.qualifyHeatNew(event, size + 1, TimingSystem.configuration.getTimeLimit() * 1000)) {
             player.sendMessage("§aHeat has been created");
             return;
         }
@@ -152,8 +165,8 @@ public class CommandHeat extends BaseCommand {
             return;
         }
 
-        int size = event.getEventSchedule().getFinalHeatList().size();
-        if (EventDatabase.finalHeatNew(event, "F" + ++size, 5, event.getTrack().getPitRegion().isDefined() ? 2 : 0)) {
+        int size = event.getEventSchedule().getQualifyHeatList().size();
+        if (EventDatabase.finalHeatNew(event, size + 1, TimingSystem.configuration.getLaps(), event.getTrack().getPitRegion().isDefined() ? TimingSystem.configuration.getPits() : 0)) {
             player.sendMessage("§aHeat has been created");
             return;
         }
@@ -212,23 +225,39 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("add driver")
-    @CommandCompletion("* @heat")
-    public static void onHeatAddDriver(Player sender, OnlinePlayer onlinePlayer, Heat heat) {
-        if (heat.getMaxDrivers() < heat.getDrivers().size() + 1) {
+    @CommandCompletion("@players @heat")
+    public static void onHeatAddDriver(Player sender, String playerName, Heat heat) {
+        if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
             sender.sendMessage("§cMax allowed amount of drivers have been added");
             return;
         }
-        if (heat.getDrivers().get(onlinePlayer.getPlayer().getUniqueId()) != null) {
-            sender.sendMessage("§cPlayer is already in heat!");
+        TPlayer tPlayer = Database.getPlayer(playerName);
+        if (tPlayer == null) {
+            sender.sendMessage("§cCould not find player");
             return;
         }
+
+
+        if (heat instanceof QualifyHeat) {
+            for (Heat h : heat.getEvent().getEventSchedule().getQualifyHeatList())
+                if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
+                    sender.sendMessage("§cPlayer is already in a qualification heat!");
+                    return;
+                }
+        } else if (heat instanceof FinalHeat finalHeat) {
+            for (Heat h : heat.getEvent().getEventSchedule().getFinalHeatList())
+                if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
+                    sender.sendMessage("§cPlayer is already in another final heat!");
+                    return;
+                }
+        }
         if (heat instanceof QualifyHeat qualifyHeat) {
-            if (EventDatabase.qualyDriverNew(onlinePlayer.getPlayer().getUniqueId(), heat, heat.getDrivers().size() + 1)) {
+            if (EventDatabase.qualyDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
                 sender.sendMessage("§aAdded driver");
                 return;
             }
         } else if (heat instanceof FinalHeat finalHeat) {
-            if (EventDatabase.finalDriverNew(onlinePlayer.getPlayer().getUniqueId(), heat, heat.getDrivers().size() + 1)) {
+            if (EventDatabase.finalDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
                 sender.sendMessage("§aAdded driver");
                 return;
             }
@@ -236,15 +265,44 @@ public class CommandHeat extends BaseCommand {
         sender.sendMessage("§cCould not add driver to heat");
     }
 
+    @Subcommand("delete driver")
+    @CommandCompletion("@players @heat")
+    public static void onHeatRemoveDriver(Player sender, String playerName, Heat heat){
+        TPlayer tPlayer = Database.getPlayer(playerName);
+        if (tPlayer == null) {
+            sender.sendMessage("§cCould not find player");
+            return;
+        }
+        if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
+            sender.sendMessage("§cPlayer is not in heat!");
+            return;
+        }
+        if (heat.removeDriver(heat.getDrivers().get(tPlayer.getUniqueId()))) {
+            sender.sendMessage("§aDriver has been removed");
+            return;
+        }
+        sender.sendMessage("§cDriver could not be removed");
+    }
+
 
     @Subcommand("add alldrivers")
     @CommandCompletion("@heat")
     public static void onHeatAddDriver(Player sender, Heat heat) {
-
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (heat.getMaxDrivers() < heat.getDrivers().size() + 1) {
+            if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
                 sender.sendMessage("§cMax allowed amount of drivers have been added");
                 return;
+            }
+            if (heat instanceof QualifyHeat) {
+                for (Heat h : heat.getEvent().getEventSchedule().getQualifyHeatList())
+                    if (h.getDrivers().get(player.getUniqueId()) != null) {
+                        continue;
+                    }
+            } else if (heat instanceof FinalHeat finalHeat) {
+                for (Heat h : heat.getEvent().getEventSchedule().getFinalHeatList())
+                    if (h.getDrivers().get(player.getUniqueId()) != null) {
+                        continue;
+                    }
             }
             if (heat.getDrivers().get(player.getUniqueId()) != null) {
                 continue;
@@ -265,11 +323,18 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("results")
     @CommandCompletion("@heat")
     public static void onHeatResults(Player sender, Heat heat) {
-        if (heat.getResults().size() != 0) {
-            sender.sendMessage("§a Results for heat " + heat.getName());
-            int pos = 1;
-            for (Driver d : heat.getResults()) {
-                sender.sendMessage("§a" + pos++ + ". " + d.getTPlayer().getName());
+        if (heat.getHeatState() == HeatState.FINISHED) {
+            sender.sendMessage("§aResults for heat " + heat.getName());
+            if (heat instanceof FinalHeat finalHeat){
+                List<Driver> result = EventResults.generateFinalHeatResults(finalHeat);
+                for (Driver d : result) {
+                    sender.sendMessage("§2" + d.getPosition() + ". §a" + d.getTPlayer().getName() + "§2 - §a" + d.getLaps().size() + " §2laps in §a" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                }
+            } else {
+                List<Driver> result = EventResults.generateQualyHeatResults((QualifyHeat) heat);
+                for (Driver d : result) {
+                    sender.sendMessage("§2" + d.getPosition() + ". §a" + d.getTPlayer().getName() + "§2 - §a"  + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0"));
+                }
             }
         } else {
             sender.sendMessage("§cHeat has not been finished");

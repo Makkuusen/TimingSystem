@@ -322,7 +322,7 @@ public class TSListener implements Listener {
             if (!driver.isRunning()) {
                 driver.start();
                 heat.updatePositions();
-                ApiUtilities.msgConsole("Starting :" + player.getName());
+                ApiUtilities.msgConsole("Starting : " + player.getName() + " in " + heat.getName());
                 return;
             } else if (driver.getCurrentLap().getLatestCheckpoint() != 0) {
 

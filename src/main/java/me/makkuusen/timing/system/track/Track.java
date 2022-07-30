@@ -47,7 +47,6 @@ public class Track {
     private TrackMode mode;
     private char[] options;
     private boolean open;
-    private boolean government;
     private TrackRegion startRegion;
     private TrackRegion endRegion;
     private TrackRegion pitRegion;
@@ -63,7 +62,6 @@ public class Track {
         leaderboardLocation = ApiUtilities.stringToLocation(data.getString("leaderboard"));
         type = data.getString("type") == null ? TrackType.BOAT : TrackType.valueOf(data.getString("type"));
         open = data.get("toggleOpen");
-        government = data.get("toggleGovernment");
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
         mode = data.get("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));
 
@@ -409,15 +407,6 @@ public class Track {
         bestTimes.sort(new TimeTrialFinishComparator());
 
         return bestTimes;
-    }
-
-    public boolean isPersonal() {
-        return !government;
-    }
-
-    public void setGovernment(boolean government) {
-        this.government = government;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `toggleGovernment` = " + government + " WHERE `id` = " + id + ";");
     }
 
     public boolean isElytraTrack() {

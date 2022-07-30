@@ -4,7 +4,6 @@ import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
-import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.TimingSystem;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Getter
@@ -32,7 +32,6 @@ public class Event {
     HashMap<UUID, Participant> participants = new HashMap<>();
     HashMap<UUID, Spectator> spectators = new HashMap<>();
     private EventSchedule eventSchedule;
-    private EventResults eventResults = new EventResults();
     private EventState state;
     Track track;
 
@@ -45,7 +44,8 @@ public class Event {
         displayName = data.getString("name");
         uuid = UUID.fromString(data.getString("uuid"));
         date = data.getLong("date");
-        track = data.get("track") == null ? null : DatabaseTrack.getTrackById(data.getInt("track")).get();
+        Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : DatabaseTrack.getTrackById(data.getInt("track"));
+        track = maybeTrack.isEmpty() ? null : maybeTrack.get();
         state = EventState.valueOf(data.getString("state"));
         eventSchedule = new EventSchedule();
     }
@@ -74,7 +74,11 @@ public class Event {
         if (state != EventState.QUALIFICATION) {
             return false;
         }
-        List<Driver> drivers = eventResults.generateFinalStartingPositions();
+        List<Driver> drivers = EventResults.generateQualificationResults(eventSchedule.getQualifyHeatList());
+        if (eventSchedule.getQualifyHeatList().size() > 1) {
+            EventAnnouncements.broadcastQualificationResults(this, drivers);
+        }
+
 
         if (eventSchedule.getFinalHeatList().isEmpty()) {
             int maxDrivers = track.getGridLocations().size();
@@ -83,7 +87,7 @@ public class Event {
                 finalHeats++;
             }
             for (int i = 0; i < finalHeats; i++) {
-                EventDatabase.finalHeatNew(this, "F" + (i + 1), 5, getTrack().getPitRegion().isDefined() ? 2 : 0);
+                EventDatabase.finalHeatNew(this, i + 1, 5, getTrack().getPitRegion().isDefined() ? 2 : 0);
             }
         }
 
@@ -105,8 +109,10 @@ public class Event {
         if (state != EventState.FINAL) {
             return false;
         }
-        eventResults.reportFinalResults(eventSchedule.getFinalHeatList());
-        ApiUtilities.clearScoreboards();
+        if (eventSchedule.getFinalHeatList().size() > 1) {
+            List<Driver> drivers = EventResults.generateFinalResults(eventSchedule.getFinalHeatList());
+            EventAnnouncements.broadcastFinalResults(this, drivers);
+        }
         setState(EventState.FINISHED);
         return true;
     }

@@ -19,7 +19,7 @@ public class GUIListener implements Listener {
         if (e.getInventory() != null) {
 
             if (e.getView().getTitle() != null) {
-                if (e.getView().getTitle().startsWith(ApiUtilities.color("&3&lPublic")) || e.getView().getTitle().startsWith(ApiUtilities.color("&2&lPrivate"))) {
+                if (e.getView().getTitle().startsWith(ApiUtilities.color("&3&lBoat")) || e.getView().getTitle().startsWith(ApiUtilities.color("&2&lParkour"))) {
                     e.setCancelled(true);
                     Player player = (Player) e.getWhoClicked();
 
@@ -33,10 +33,10 @@ public class GUIListener implements Listener {
 
                         if (e.getClick() == ClickType.LEFT || e.getClick() == ClickType.SHIFT_LEFT) {
 
-                            if (item.getItemMeta().getDisplayName().contains("Private")) {
+                            if (item.getItemMeta().getDisplayName().contains("Parkour")) {
                                 GUITrack.openTrackGUI(player, 1);
                                 return;
-                            } else if (item.getItemMeta().getDisplayName().contains("Public")) {
+                            } else if (item.getItemMeta().getDisplayName().contains("Boat")) {
                                 GUITrack.openTrackGUI(player, 0);
                                 return;
                             }

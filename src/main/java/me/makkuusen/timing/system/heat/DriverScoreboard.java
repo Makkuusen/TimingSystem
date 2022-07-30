@@ -24,6 +24,10 @@ public class DriverScoreboard {
         jScoreboard.addPlayer(player);
     }
 
+    public void removeScoreboard(){
+        jScoreboard.destroy();
+    }
+
     public void setDriverLines(Player player){
             setLines(player);
     }

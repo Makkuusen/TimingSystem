@@ -274,11 +274,6 @@ public class ApiUtilities {
         return Math.round(timeInMillis / 50) * 50;
     }
 
-    public static void clearScoreboards() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-        }
-    }
 
     public static Boat spawnBoat(Player player, Location location) {
         if (!location.isWorldLoaded()) {

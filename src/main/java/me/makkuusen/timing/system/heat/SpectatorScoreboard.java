@@ -26,10 +26,14 @@ public class SpectatorScoreboard {
         jScoreboard.setTitle("&7&l" + heat.getName() + " - " + heat.getEvent().getDisplayName());
     }
 
+    public void removeScoreboard(){
+        jScoreboard.destroy();
+    }
+
     public void updateScoreboard() {
         for (Spectator spec : heat.getEvent().getSpectators().values()) {
-            if (!spectators.contains(spec.getTPlayer().getUniqueId())) {
-                if(spec.getTPlayer().getPlayer() != null) {
+            if (!spectators.contains(spec.getTPlayer().getUniqueId()) && !heat.getDrivers().containsKey(spec.getTPlayer().getUniqueId())) {
+                if (spec.getTPlayer().getPlayer() != null) {
                     jScoreboard.addPlayer(spec.getTPlayer().getPlayer());
                     spectators.add(spec.getTPlayer().getUniqueId());
                 }

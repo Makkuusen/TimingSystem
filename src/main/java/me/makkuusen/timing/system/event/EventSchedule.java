@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.event;
 import lombok.Getter;
 import me.makkuusen.timing.system.heat.FinalHeat;
 import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 
 import java.util.ArrayList;
@@ -39,6 +40,29 @@ public class EventSchedule {
             finalHeatList.add(finalHeat);
         }
 
+        return false;
+    }
+
+    public boolean removeHeat(Heat heat) {
+        if (heat.getHeatState() != HeatState.FINISHED) {
+            if (heat instanceof QualifyHeat qualifyHeat && qualifyHeatList.contains(qualifyHeat)) {
+                qualifyHeatList.remove(qualifyHeat);
+                for (Heat qheat : qualifyHeatList) {
+                    if (heat.getHeatNumber() < qheat.getHeatNumber()){
+                        qheat.setHeatNumber(qheat.getHeatNumber() - 1);
+                    }
+                }
+                return true;
+            } else if (heat instanceof FinalHeat finalHeat && finalHeatList.contains(finalHeat)) {
+                finalHeatList.remove(finalHeat);
+                for (Heat fheat : finalHeatList) {
+                    if (heat.getHeatNumber() < fheat.getHeatNumber()){
+                        fheat.setHeatNumber(fheat.getHeatNumber() - 1);
+                    }
+                }
+                return true;
+            }
+        }
         return false;
     }
 

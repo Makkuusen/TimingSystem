@@ -8,7 +8,9 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TaskChainCountdown;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
+import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.track.GridManager;
@@ -18,6 +20,7 @@ import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +34,7 @@ public abstract class Heat {
 
     private int id;
     private Event event;
-    private String name;
+    private Integer heatNumber;
     private Instant startTime;
     private Instant endTime;
     private HeatState heatState;
@@ -47,21 +50,23 @@ public abstract class Heat {
     private Integer maxDrivers;
     private SpectatorScoreboard scoreboard;
 
-    public Heat (DbRow data) {
+    public Heat(DbRow data) {
         id = data.getInt("id");
         event = EventDatabase.getEvent(data.getInt("eventId")).get();
-        name = data.getString("name");
         heatState = HeatState.valueOf(data.getString("state"));
+        heatNumber = data.getInt("heatNumber");
         startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
         endTime = data.getLong("endTime") == null ? null : Instant.ofEpochMilli(data.getLong("endTime"));
         timeLimit = data.get("timeLimit") == null ? null : data.getInt("timeLimit");
         totalLaps = data.get("totalLaps") == null ? null : data.getInt("totalLaps");
         totalPits = data.get("totalPitstops") == null ? null : data.getInt("totalPitstops");
         maxDrivers = data.get("maxDrivers") == null ? null : data.getInt("maxDrivers");
-        startDelay = data.get("startDelay") == null ? 2 : data.getInt("startDelay");
+        startDelay = data.get("startDelay") == null ? TimingSystem.configuration.getStartDelay() : data.getInt("startDelay");
         fastestLapUUID = data.getString("fastestLapUUID") == null ? null : UUID.fromString(data.getString("fastestLapUUID"));
         gridManager = new GridManager();
     }
+
+    public abstract String getName();
 
     public boolean loadHeat() {
         if (this instanceof QualifyHeat && event.getState() != Event.EventState.QUALIFICATION) {
@@ -128,18 +133,22 @@ public abstract class Heat {
         setEndTime(TimingSystem.currentTime);
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(TimingSystem.getPlugin(), new Runnable() {
             public void run() {
-                ApiUtilities.clearScoreboards();
+                getDrivers().values().forEach(driver -> driver.removeScoreboard());
+                scoreboard.removeScoreboard();
                 ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
             }
         }, 200);
 
-        if (this instanceof QualifyHeat) {
-            getEvent().getEventResults().reportQualyResults(getLivePositions());
-        }
         getDrivers().values().stream().forEach(driver -> EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId()));
 
         //Dump all laps to database
         getDrivers().values().stream().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
+
+        if (this instanceof QualifyHeat qualifyHeat) {
+            EventAnnouncements.broadcastHeatResult(EventResults.generateQualyHeatResults(qualifyHeat), qualifyHeat);
+        } else {
+            EventAnnouncements.broadcastHeatResult(EventResults.generateFinalHeatResults((FinalHeat) this), this);
+        }
 
         return true;
     }
@@ -167,7 +176,7 @@ public abstract class Heat {
             driver.reset();
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
         });
-        ApiUtilities.clearScoreboards();
+        scoreboard.removeScoreboard();
         ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
         return true;
     }
@@ -191,11 +200,34 @@ public abstract class Heat {
         if (driver.getStartPosition() > 0) {
             startPositions.add(driver.getStartPosition() - 1, driver);
         }
+        if (!event.getSpectators().containsKey(driver.getTPlayer().getUniqueId())) {
+            event.addSpectator(driver.getTPlayer().getUniqueId());
+        }
+    }
+
+    public boolean removeDriver(Driver driver) {
+        if (driver.getHeat().getHeatState() != HeatState.SETUP) {
+            return false;
+        }
+        try {
+            DB.executeUpdate("UPDATE `ts_drivers` SET `isRemoved` = 1 WHERE `id` = " + driver.getId() + ";");
+            drivers.remove(driver.getTPlayer().getUniqueId());
+            startPositions.remove(driver);
+            int startPos = driver.getStartPosition();
+            for (Driver d : startPositions) {
+                if (d.getStartPosition() > startPos){
+                    d.setStartPosition(d.getStartPosition() - 1);
+                    d.setPosition(d.getPosition() - 1);
+                }
+            }
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     public List<Participant> getParticipants(){
         List<Participant> participants = new ArrayList<>();
-        participants.addAll(drivers.values());
         participants.addAll(getEvent().getSpectators().values());
         return participants;
     }
@@ -269,5 +301,10 @@ public abstract class Heat {
     public void setTotalPits(int totalPits) {
         this.totalPits = totalPits;
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalPitstops` = " + totalPits + " WHERE `id` = " + getId() + ";");
+    }
+
+    public void setHeatNumber(int heatNumber) {
+        this.heatNumber = heatNumber;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `heatNumber` = " + heatNumber + " WHERE `id` = " + getId() + ";");
     }
 }

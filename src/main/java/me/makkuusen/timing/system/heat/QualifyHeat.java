@@ -44,6 +44,10 @@ public class QualifyHeat extends Heat {
         chain.execute();
     }
 
+    public String getName(){
+        return "Q" + getHeatNumber();
+    }
+
     @Override
     public boolean passLap(Driver driver) {
         if (getHeatState() != HeatState.RACING) {

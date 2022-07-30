@@ -10,6 +10,10 @@ public class TimingSystemConfiguration {
     private final List<String> leaderboardsFastestTimeLines;
     private final boolean lasersItems;
     private final int timesPageSize;
+    private final int laps;
+    private final int pits;
+    private final int timeLimit;
+    private final int startDelay;
     private final String sqlHost;
     private final int sqlPort;
     private final String sqlDatabase;
@@ -23,6 +27,11 @@ public class TimingSystemConfiguration {
         leaderboardsFastestTimeLines = plugin.getConfig().getStringList("leaderboards.fastesttime.lines");
         lasersItems = plugin.getConfig().getBoolean("race.lasersItems");
         timesPageSize = plugin.getConfig().getInt("tracks.timesPageSize");
+
+        laps = plugin.getConfig().getInt("finals.laps");
+        pits = plugin.getConfig().getInt("finals.pits");
+        timeLimit = plugin.getConfig().getInt("qualifying.timeLimitInSeconds");
+        startDelay = plugin.getConfig().getInt("qualifying.startDelayInSeconds");
 
         sqlHost = plugin.getConfig().getString("sql.host");
         sqlPort = plugin.getConfig().getInt("sql.port");

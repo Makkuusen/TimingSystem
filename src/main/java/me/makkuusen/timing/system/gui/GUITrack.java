@@ -20,13 +20,13 @@ public class GUITrack {
 
     private static final HashMap<UUID, Integer> playersPages = new HashMap<>();
 
-    public static final Integer GOVERNMENTPAGE = 0;
+    public static final Integer BOATPAGE = 0;
     public static final Integer PERSONALPAGE = 1;
 
     private static ItemStack borderGlass;
     private static ItemStack lightBorderGlass;
-    private static ItemStack personalPage;
-    private static ItemStack governmentPage;
+    private static ItemStack parkourPage;
+    private static ItemStack boatPage;
     private static ItemStack elytra;
     private static ItemStack boat;
     private static ItemStack parkour;
@@ -38,8 +38,8 @@ public class GUITrack {
 
         borderGlass = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName("§r").build();
         lightBorderGlass = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName("§r").build();
-        governmentPage = new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lPublic tracks").build();
-        personalPage = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§a§lPrivate tracks").build();
+        boatPage = new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lBoat tracks").build();
+        parkourPage = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§a§lParkour tracks").build();
         elytra = new ItemBuilder(Material.ELYTRA).setName("§e§lElytra").build();
         boat = new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat").build();
         parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkours").build();
@@ -47,56 +47,48 @@ public class GUITrack {
 
     public static void openTrackGUI(Player p) {
         if (!playersPages.containsKey(p.getUniqueId())) {
-            playersPages.put(p.getUniqueId(), GOVERNMENTPAGE);
+            playersPages.put(p.getUniqueId(), BOATPAGE);
         }
         openTrackGUI(p, playersPages.get(p.getUniqueId()));
     }
 
     public static void openTrackGUI(Player p, int page) {
         playersPages.put(p.getUniqueId(), page);
-        Inventory inv = Bukkit.createInventory(null, 54, (ApiUtilities.color(page == GOVERNMENTPAGE ? "&3&lPublic" : "&2&lPrivate") + " tracks"));
+        Inventory inv = Bukkit.createInventory(null, 54, (ApiUtilities.color(page == BOATPAGE ? "&3&lBoat" : "&2&lParkour") + " tracks"));
 
-        Integer[] borderSlots = {0, 2, 3, 5, 6, 8, 45, 46, 47, 51, 52, 53};
+        Integer[] borderSlots = {0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 49, 50, 51, 52, 53};
         for (Integer slot : borderSlots) {
             inv.setItem(slot, borderGlass);
         }
 
-        Integer[] lightBorderSlots = {3, 5, 48, 49, 50};
-        for (Integer slot : lightBorderSlots) {
-            inv.setItem(slot, lightBorderGlass);
+        if (page == BOATPAGE) {
+            inv.setItem(4, boat);
+        } else if (page == 1) {
+            inv.setItem(4, parkour);
         }
 
-        inv.setItem(1, boat);
-        inv.setItem(4, parkour);
-        inv.setItem(7, elytra);
-
-        inv.setItem(45, governmentPage);
-        inv.setItem(53, personalPage);
+        inv.setItem(45, boatPage);
+        inv.setItem(53, parkourPage);
 
         List<Track> tracks;
-        if (page == GOVERNMENTPAGE) {
-            tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isGovernment).collect(Collectors.toList());
+        if (page == BOATPAGE) {
+            tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isBoatTrack).collect(Collectors.toList());
         } else {
-            tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isPersonal).collect(Collectors.toList());
+            tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isParkourTrack).collect(Collectors.toList());
         }
 
-        Integer[] boatSlots = {9, 10, 11, 18, 19, 20, 27, 28, 29, 36, 37, 38};
-        Integer[] parkourSlots = {12, 13, 14, 21, 22, 23, 30, 31, 32, 39, 40, 41};
-        Integer[] elytraSlots = {15, 16, 17, 24, 25, 26, 33, 34, 35, 42, 43, 44};
+        Integer[] slots = new Integer[36];
+        int count = 9;
+        for (int i = 0; i < slots.length; i++){
+            slots[i] = count++;
+        }
 
-        int boatCount = 0;
-        int parkourCount = 0;
-        int elytraCount = 0;
+        count = 0;
+
         for (Track track : tracks) {
-            if (track.isBoatTrack() && boatCount < boatSlots.length) {
-                inv.setItem(boatSlots[boatCount], track.getGuiItem(p.getUniqueId()));
-                boatCount++;
-            } else if (track.isElytraTrack() && elytraCount < elytraSlots.length) {
-                inv.setItem(elytraSlots[elytraCount], track.getGuiItem(p.getUniqueId()));
-                elytraCount++;
-            } else if (track.isParkourTrack() && parkourCount < parkourSlots.length) {
-                inv.setItem(parkourSlots[parkourCount], track.getGuiItem(p.getUniqueId()));
-                parkourCount++;
+            if (count < slots.length) {
+                inv.setItem(slots[count], track.getGuiItem(p.getUniqueId()));
+                count++;
             }
         }
 

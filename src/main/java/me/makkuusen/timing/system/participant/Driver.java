@@ -26,7 +26,6 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
 
     private int id;
     private Heat heat;
-    private boolean finished;
     private Integer position;
     private int startPosition;
     private Instant startTime;
@@ -39,7 +38,6 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         super(data);
         id = data.get("id");
         heat = EventDatabase.getHeat(data.getInt("heatId")).get();
-        finished = data.get("isFinished");
         position = data.getInt("position");
         startPosition = data.getInt("startPosition");
         startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
@@ -61,7 +59,6 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         finishLap();
         setEndTime(TimingSystem.currentTime);
         isRunning = false;
-        setFinished(true);
     }
 
     public void start() {
@@ -90,8 +87,19 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         setEndTime(null);
         setStartTime(null);
         laps = new ArrayList<>();
-        setFinished(false);
         setPosition(startPosition);
+        removeScoreboard();
+        scoreboard = null;
+    }
+
+    public void removeScoreboard(){
+        if (scoreboard != null) {
+            scoreboard.removeScoreboard();
+        }
+    }
+
+    public boolean isFinished(){
+        return endTime != null;
     }
 
     private void newLap() {
@@ -102,14 +110,14 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         return Duration.between(startTime, endTime).toMillis();
     }
 
-    public void setFinished(boolean finished) {
-        this.finished = finished;
-        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `isFinished` = " + finished + " WHERE `id` = " + id + ";");
-    }
-
     public void setPosition(int position) {
         this.position = position;
         DB.executeUpdateAsync("UPDATE `ts_drivers` SET `position` = " + position + " WHERE `id` = " + id + ";");
+    }
+
+    public void setStartPosition(int startPosition) {
+        this.startPosition = startPosition;
+        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startPosition` = " + startPosition + " WHERE `id` = " + id + ";");
     }
 
     public void setStartTime(Instant startTime) {

@@ -16,7 +16,13 @@ leaderboards:
 race:
    lasersitems: false
 tracks:
-   timesPageSize: 10
+   timesPageSize: 15
+finals:
+   laps: 5
+   pits: 2
+qualifying:
+   timeLimitInSeconds: 60
+   startDelayInSeconds: 2
 sql:
    host: '127.0.0.1'
    port: 3306
