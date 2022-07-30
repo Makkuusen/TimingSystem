@@ -139,7 +139,13 @@ public abstract class Heat {
             }
         }, 200);
 
-        getDrivers().values().stream().forEach(driver -> EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId()));
+        getDrivers().values().stream().forEach(driver -> {
+            EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
+            if (driver.getEndTime() == null) {
+                driver.setEndTime(TimingSystem.currentTime);
+                driver.setRunning(false);
+            }
+        });
 
         //Dump all laps to database
         getDrivers().values().stream().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));

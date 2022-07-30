@@ -37,6 +37,8 @@ public class SpectatorScoreboard {
                     jScoreboard.addPlayer(spec.getTPlayer().getPlayer());
                     spectators.add(spec.getTPlayer().getUniqueId());
                 }
+            } else if (spectators.contains(spec.getTPlayer().getUniqueId()) && spec.getTPlayer().getPlayer() == null) {
+                spectators.remove(spec.getTPlayer().getUniqueId());
             }
         }
         List<String> lines;

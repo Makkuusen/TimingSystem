@@ -19,7 +19,6 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 @CommandAlias("event")
-@CommandPermission("event.admin")
 public class CommandEvent extends BaseCommand {
 
     @Default
@@ -29,6 +28,7 @@ public class CommandEvent extends BaseCommand {
         player.sendMessage("§2/event help");
     }
 
+    @CommandPermission("event.admin")
     @Subcommand("start")
     public static void onStart(Player player, @Optional Event event) {
         if (event == null) {
@@ -60,6 +60,7 @@ public class CommandEvent extends BaseCommand {
         sender.sendMessage("§aState: " + event.getState());
     }
 
+    @CommandPermission("event.admin")
     @Subcommand("create")
     @CommandCompletion("<name>")
     public static void onCreate(Player player, String name) {
@@ -70,6 +71,7 @@ public class CommandEvent extends BaseCommand {
         player.sendMessage("§cCould not create event with name " + name);
     }
 
+    @CommandPermission("event.admin")
     @Subcommand("delete")
     @CommandCompletion("@event")
     public static void onRemove(Player player, Event event){
@@ -84,6 +86,7 @@ public class CommandEvent extends BaseCommand {
         player.sendMessage("§aSelected new event");
     }
 
+    @CommandPermission("event.admin")
     @Subcommand("set track")
     @CommandCompletion("@track")
     public static void onSetTrack(Player player, Track track) {
@@ -100,6 +103,7 @@ public class CommandEvent extends BaseCommand {
 
     }
 
+    @CommandPermission("event.admin")
     @Subcommand("finish qualification")
     public static void onFinishQualification(Player player, @Optional Event event) {
         if (event == null) {
@@ -118,6 +122,7 @@ public class CommandEvent extends BaseCommand {
         }
     }
 
+    @CommandPermission("event.admin")
     @Subcommand("finish finals")
     public static void onFinishFinals(Player player, @Optional Event event) {
         if (event == null) {

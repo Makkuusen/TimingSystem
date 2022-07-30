@@ -146,7 +146,6 @@ public class Database {
                     "  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `mode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `toggleOpen` tinyint(1) NOT NULL,\n" +
-                    "  `toggleGovernment` tinyint(1) NOT NULL,\n" +
                     "  `options` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  `isRemoved` tinyint(1) NOT NULL,\n" +
                     "  PRIMARY KEY (`id`)\n" +

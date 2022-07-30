@@ -10,6 +10,7 @@ import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import org.bukkit.TreeSpecies;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 @CommandAlias("timetrial|tt")
@@ -53,9 +54,12 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("boat")
     @CommandCompletion("@boat")
-    public static void onBoat(Player player, TreeSpecies boat){
+    public static void onBoat(Player player, TreeSpecies treeSpecies){
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.setBoat(boat);
+        tPlayer.setBoat(treeSpecies);
+        if (player.getVehicle() instanceof Boat boat) {
+            boat.setWoodType(treeSpecies);
+        }
         plugin.sendMessage(player, "messages.save.generic");
     }
 

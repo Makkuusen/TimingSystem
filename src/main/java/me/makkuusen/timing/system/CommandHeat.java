@@ -21,7 +21,6 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 @CommandAlias("heat")
-@CommandPermission("event.admin")
 public class CommandHeat extends BaseCommand {
 
     @Default
@@ -65,6 +64,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("start")
+    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatStart(Player player, Heat heat) {
         if (heat.startCountdown()) {
@@ -75,28 +75,31 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("finish")
+    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatFinish(Player player, Heat heat) {
         if (heat.finishHeat()) {
             player.sendMessage("§aFinished " + heat.getName());
             return;
         }
-        player.sendMessage("§cCouldn't finish" + heat.getName());
+        player.sendMessage("§cCouldn't finish " + heat.getName());
         return;
     }
 
     @Subcommand("load")
+    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatLoad(Player player, Heat heat) {
         if (heat.loadHeat()) {
             player.sendMessage("§aLoaded " + heat.getName());
             return;
         }
-        player.sendMessage("§cCouldn't load" + heat.getName());
+        player.sendMessage("§cCouldn't load " + heat.getName());
 
     }
 
     @Subcommand("reset")
+    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatReset(Player player, Heat heat) {
         if (heat.resetHeat()){
@@ -108,6 +111,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("delete")
+    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatRemove(Player player, Heat heat) {
         if (EventDatabase.removeHeat(heat)){
@@ -118,13 +122,14 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("create qualy")
+    @CommandPermission("event.admin")
     public static void onHeatCreateQualy(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage("§cYou have no event selected,/event select <name>");
+                player.sendMessage("§cYou have no event selected, /event select <name>");
                 return;
             }
         }
@@ -146,6 +151,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("create final")
+    @CommandPermission("event.admin")
     public static void onHeatCreateFinal(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -174,6 +180,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set laps")
+    @CommandPermission("event.admin")
     @CommandCompletion("<laps> @heat")
     public static void onHeatSetLaps(Player player, Integer laps, Heat heat) {
         if (heat instanceof FinalHeat finalHeat) {
@@ -185,6 +192,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set pits")
+    @CommandPermission("event.admin")
     @CommandCompletion("<pits> @heat")
     public static void onHeatSetPits(Player player, Integer pits, Heat heat) {
         if (heat instanceof FinalHeat finalHeat) {
@@ -196,6 +204,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set startdelay")
+    @CommandPermission("event.admin")
     @CommandCompletion("<startdelay> @heat")
     public static void onHeatStartDelay(Player player, Integer startDelay, Heat heat) {
         if (heat instanceof QualifyHeat) {
@@ -206,7 +215,8 @@ public class CommandHeat extends BaseCommand {
         }
     }
 
-    @Subcommand("set time")
+    @Subcommand("set timeLimit")
+    @CommandPermission("event.admin")
     @CommandCompletion("<seconds> @heat")
     public static void onHeatSetTime(Player player, Integer seconds, Heat heat) {
         if (heat instanceof QualifyHeat qualifyHeat) {
@@ -218,6 +228,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set maxDrivers")
+    @CommandPermission("event.admin")
     @CommandCompletion("<max> @heat")
     public static void onHeatMaxDrivers(Player player, Integer maxDrivers, Heat heat) {
         heat.setMaxDrivers(maxDrivers);
@@ -225,6 +236,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("add driver")
+    @CommandPermission("event.admin")
     @CommandCompletion("@players @heat")
     public static void onHeatAddDriver(Player sender, String playerName, Heat heat) {
         if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
@@ -266,6 +278,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("delete driver")
+    @CommandPermission("event.admin")
     @CommandCompletion("@players @heat")
     public static void onHeatRemoveDriver(Player sender, String playerName, Heat heat){
         TPlayer tPlayer = Database.getPlayer(playerName);
@@ -286,6 +299,7 @@ public class CommandHeat extends BaseCommand {
 
 
     @Subcommand("add alldrivers")
+    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatAddDriver(Player sender, Heat heat) {
         for (Player player : Bukkit.getOnlinePlayers()) {

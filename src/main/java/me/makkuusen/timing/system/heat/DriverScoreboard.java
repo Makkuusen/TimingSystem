@@ -46,7 +46,7 @@ public class DriverScoreboard {
     public List<String> individualScoreboard(){
         List<String> lines = new ArrayList<>();
         int count = 0;
-        int last = Math.max(driver.getPosition() + 7, heat.getDrivers().size());
+        int last = Math.min(driver.getPosition() + 7, heat.getDrivers().size());
         int first = last - 14;
         for (Driver driver : heat.getLivePositions()) {
             count++;

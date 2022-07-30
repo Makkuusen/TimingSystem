@@ -33,7 +33,8 @@ public class ScoreboardUtils {
     }
 
     public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos) {
-        return "§7 Lap: §f" + laps + " §7| §f" + paddName(name) + " §7| §7Pits: §f" + pits + "§7| §6" + pos;
+        return "§6" + paddPos(pos) + "§7| Lap:§f " + paddLaps(laps) + " §7| §f" + paddName(name) + "§7Pits: §f" + pits + " ";
+        //return "§7 Lap: §f" + laps + " §7| §f" + paddName(name) + " §7| §7Pits: §f" + pits + "§7| §6" + pos;
     }
 
     public static String getDriverLineRaceGap(long gap, String name, int pits, int pos) {
@@ -75,5 +76,12 @@ public class ScoreboardUtils {
             return time + "  ";
         }
         return time;
+    }
+
+    public static String paddLaps(int laps) {
+        if (laps < 9) {
+            return "0" + laps;
+        }
+        return String.valueOf(laps);
     }
 }

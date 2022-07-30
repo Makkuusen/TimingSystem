@@ -44,7 +44,7 @@ public class EventSchedule {
     }
 
     public boolean removeHeat(Heat heat) {
-        if (heat.getHeatState() != HeatState.FINISHED) {
+        if (heat.getHeatState() != HeatState.FINISHED && heat.getEvent().getState() != Event.EventState.FINISHED) {
             if (heat instanceof QualifyHeat qualifyHeat && qualifyHeatList.contains(qualifyHeat)) {
                 qualifyHeatList.remove(qualifyHeat);
                 for (Heat qheat : qualifyHeatList) {

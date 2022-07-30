@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.FinalDriver;
 import me.makkuusen.timing.system.participant.QualyDriver;
+import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -96,6 +97,25 @@ public class EventDatabase {
             return Optional.of(playerSelectedEvent.get(uuid));
         }
         return Optional.empty();
+    }
+
+    static public Optional<Driver> getClosestDriverForSpectator(Player player){
+        Optional<Driver> closest = Optional.empty();
+        double distance = -1;
+        for (Driver driver : playerInRunningHeat.values()) {
+            if (driver.getTPlayer().getPlayer() != null && driver.getHeat().getEvent().getSpectators().get(player.getUniqueId()) != null){
+                if (closest.isEmpty()){
+                    closest = Optional.of(driver);
+                    distance = player.getLocation().distance(driver.getTPlayer().getPlayer().getLocation());
+                } else {
+                    if (player.getLocation().distance(driver.getTPlayer().getPlayer().getLocation()) < distance) {
+                        closest = Optional.of(driver);
+                        distance = player.getLocation().distance(driver.getTPlayer().getPlayer().getLocation());
+                    }
+                }
+            }
+        }
+        return closest;
     }
 
     static public Optional<Event> getEvent(String name) {

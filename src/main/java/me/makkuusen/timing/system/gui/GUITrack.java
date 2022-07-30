@@ -4,7 +4,6 @@ package me.makkuusen.timing.system.gui;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.track.Track;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,7 +20,7 @@ public class GUITrack {
     private static final HashMap<UUID, Integer> playersPages = new HashMap<>();
 
     public static final Integer BOATPAGE = 0;
-    public static final Integer PERSONALPAGE = 1;
+    public static final Integer PARKOURPAGE = 1;
 
     private static ItemStack borderGlass;
     private static ItemStack lightBorderGlass;
@@ -30,9 +29,6 @@ public class GUITrack {
     private static ItemStack elytra;
     private static ItemStack boat;
     private static ItemStack parkour;
-
-    public static Component governmentTitle;
-    public static Component personalTitle;
 
     public static void init() {
 

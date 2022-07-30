@@ -87,6 +87,9 @@ public class TSListener implements Listener {
                         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
                             Boat boat = ApiUtilities.spawnBoat(event.getPlayer(), Track.getSpawnLocation());
                             boat.addPassenger(event.getPlayer());
+                            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                                boat.setWoodType(Database.getPlayer(event.getPlayer().getUniqueId()).getBoat());
+                            }, 1);
                         }, 1);
                     }
                 }

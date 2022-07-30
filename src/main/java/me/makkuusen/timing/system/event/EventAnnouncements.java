@@ -69,11 +69,12 @@ public class EventAnnouncements {
         for (Spectator s : heat.getEvent().getSpectators().values()) {
             if (s.getTPlayer().getPlayer() != null) {
                 s.getTPlayer().getPlayer().sendMessage("§7Results for §f" + heat.getName());
+                int pos = 1;
                 for (Driver d : drivers) {
                     if (heat instanceof QualifyHeat) {
-                        s.getTPlayer().getPlayer().sendMessage("§7" + d.getPosition() + ". §f" + d.getTPlayer().getName() + "§7 - §f" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-"));
+                        s.getTPlayer().getPlayer().sendMessage("§7" +  pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-"));
                     } else  {
-                        s.getTPlayer().getPlayer().sendMessage("§7" + d.getPosition() + ". §f" + d.getTPlayer().getName() + "§7 - §f" + d.getLaps().size() + " §7laps in §f" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                        s.getTPlayer().getPlayer().sendMessage("§7" +  pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + d.getLaps().size() + " §7laps in §f" + ApiUtilities.formatAsTime(d.getFinishTime()));
                     }
                 }
             }

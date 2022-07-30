@@ -281,7 +281,7 @@ public class ApiUtilities {
         }
         Boat boat = location.getWorld().spawn(location, Boat.class);
         boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
-        boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
+
         return boat;
     }
 

@@ -47,6 +47,8 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
 
     public void updateScoreboard(){
         if (getTPlayer().getPlayer() == null) {
+            scoreboard.removeScoreboard();
+            scoreboard = null;
             return;
         }
         if (scoreboard == null){
