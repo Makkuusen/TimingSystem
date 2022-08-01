@@ -104,6 +104,9 @@ public class EventDatabase {
         double distance = -1;
         for (Driver driver : playerInRunningHeat.values()) {
             if (driver.getTPlayer().getPlayer() != null && driver.getHeat().getEvent().getSpectators().get(player.getUniqueId()) != null){
+                if (player.getLocation().getWorld() != driver.getTPlayer().getPlayer().getWorld()) {
+                    continue;
+                }
                 if (closest.isEmpty()){
                     closest = Optional.of(driver);
                     distance = player.getLocation().distance(driver.getTPlayer().getPlayer().getLocation());
