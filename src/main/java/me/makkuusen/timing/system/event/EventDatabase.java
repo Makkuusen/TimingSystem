@@ -107,6 +107,9 @@ public class EventDatabase {
                 if (player.getLocation().getWorld() != driver.getTPlayer().getPlayer().getWorld()) {
                     continue;
                 }
+                if (driver.isFinished()) {
+                    continue;
+                }
                 if (closest.isEmpty()){
                     closest = Optional.of(driver);
                     distance = player.getLocation().distance(driver.getTPlayer().getPlayer().getLocation());

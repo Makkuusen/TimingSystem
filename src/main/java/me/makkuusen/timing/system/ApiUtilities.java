@@ -233,6 +233,23 @@ public class ApiUtilities {
         return toReturn;
     }
 
+    public static String formatAsHeatTimeCountDown(long timeInMillis) {
+        String toReturn;
+
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
+
+        if (hours == 0 && minutes == 0) {
+            toReturn = String.format("%02d", seconds);
+        } else if (hours == 0) {
+            toReturn = String.format("%d:%02d", minutes, seconds);
+        } else {
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds);
+        }
+        return toReturn;
+    }
+
     // Used by scoreboard and bossbar
     public static String formatAsRacingGap(long timeInMillis) {
         String toReturn;
