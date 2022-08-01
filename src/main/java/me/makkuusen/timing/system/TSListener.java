@@ -6,6 +6,7 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.participant.FinalDriver;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
@@ -21,10 +22,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -80,6 +85,14 @@ public class TSListener implements Listener {
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent event) {
 
+        var maybeDriver = EventDatabase.getDriverFromRunningHeat(event.getPlayer().getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().getState() == DriverState.LOADED) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         for (me.makkuusen.timing.system.track.Track Track : DatabaseTrack.getTracks()) {
             if (Track.getSpawnLocation().isWorldLoaded() && Track.getSpawnLocation().getWorld() == event.getTo().getWorld()) {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
@@ -126,7 +139,7 @@ public class TSListener implements Listener {
             if (event.getExited() instanceof Player player) {
                 var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
                 if (maybeDriver.isPresent()) {
-                    if (maybeDriver.get().getHeat().getHeatState() == HeatState.LOADED) {
+                    if (maybeDriver.get().getState() == DriverState.LOADED) {
                         event.setCancelled(true);
                         return;
                     }
@@ -152,7 +165,72 @@ public class TSListener implements Listener {
     }
 
     @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        var maybeDriver = EventDatabase.getDriverFromRunningHeat(event.getPlayer().getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().getState() == DriverState.LOADED) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+    @EventHandler
+    public void onBlockBreak(BlockPlaceEvent event) {
+        var maybeDriver = EventDatabase.getDriverFromRunningHeat(event.getPlayer().getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().getState() == DriverState.LOADED) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        var maybeDriver = EventDatabase.getDriverFromRunningHeat(event.getPlayer().getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().getState() == DriverState.LOADED) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
+        var maybeDriver = EventDatabase.getDriverFromRunningHeat(event.getPlayer().getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().getState() == DriverState.LOADED) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
+         if (event.getDamager() instanceof Player player) {
+             var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
+             if (maybeDriver.isPresent()) {
+                 if (maybeDriver.get().getState() == DriverState.LOADED) {
+                     event.setCancelled(true);
+                     return;
+                 }
+             }
+         }
+    }
+
+    @EventHandler
     public void onVehicleDestroy(VehicleDestroyEvent event) {
+        if (event.getAttacker() instanceof Player player) {
+            var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
+            if (maybeDriver.isPresent()) {
+                if (maybeDriver.get().getState() == DriverState.LOADED) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
         if (event.getVehicle() instanceof Boat && event.getVehicle().hasMetadata("spawned")) {
             event.getVehicle().remove();
             event.setCancelled(true);
@@ -322,7 +400,7 @@ public class TSListener implements Listener {
         }
         var track = heat.getEvent().getTrack();
         if (track.getStartRegion().contains(player.getLocation())) {
-            if (!driver.isRunning()) {
+            if (driver.getState() == DriverState.STARTING) {
                 driver.start();
                 heat.updatePositions();
                 ApiUtilities.msgConsole("Starting : " + player.getName() + " in " + heat.getName());
@@ -355,7 +433,7 @@ public class TSListener implements Listener {
         }
 
 
-        if (driver.isRunning()) {
+        if (driver.getState() == DriverState.RUNNING) {
             Lap lap = driver.getCurrentLap();
 
             if (driver instanceof FinalDriver finalDriver) {

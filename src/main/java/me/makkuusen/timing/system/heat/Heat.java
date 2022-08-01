@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.track.GridManager;
 import org.bukkit.Bukkit;
@@ -90,6 +91,7 @@ public abstract class Heat {
                     }
                 }
                 EventDatabase.addPlayerToRunningHeat(d);
+                d.setState(DriverState.LOADED);
             }
         setLivePositions(pos);
         setHeatState(HeatState.LOADED);
@@ -116,6 +118,7 @@ public abstract class Heat {
         getDrivers().values().stream().forEach(driver -> {
             gridManager.startPlayerFromGrid(driver.getTPlayer().getUniqueId());
             driver.setStartTime(TimingSystem.currentTime);
+            driver.setState(DriverState.STARTING);
             EventDatabase.addPlayerToRunningHeat(driver);
             if (driver.getTPlayer().getPlayer() != null) {
                 driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
@@ -143,7 +146,7 @@ public abstract class Heat {
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
             if (driver.getEndTime() == null) {
                 driver.setEndTime(TimingSystem.currentTime);
-                driver.setRunning(false);
+                driver.setState(DriverState.FINISHED);
             }
         });
 

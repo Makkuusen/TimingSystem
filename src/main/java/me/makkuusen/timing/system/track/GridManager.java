@@ -4,6 +4,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Boat;
@@ -24,7 +25,13 @@ public class GridManager {
         if (!location.isWorldLoaded()) {
             return;
         }
+        if (player.getVehicle() != null && player.getVehicle() instanceof Boat boat) {
+            boat.remove();
+        }
         player.teleport(location);
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            player.setGameMode(GameMode.SURVIVAL);
+        }
         ArmorStand ar = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, -1.45, 0), EntityType.ARMOR_STAND);
         ar.setCanMove(false);
         ar.setGravity(false);

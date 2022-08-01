@@ -30,7 +30,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
     private int startPosition;
     private Instant startTime;
     private Instant endTime;
-    private boolean isRunning;
+    private DriverState state;
     private DriverScoreboard scoreboard;
     private List<Lap> laps = new ArrayList<>();
 
@@ -42,7 +42,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         startPosition = data.getInt("startPosition");
         startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
         endTime = data.getLong("endTime") == null ? null : Instant.ofEpochMilli(data.getLong("endTime"));
-        isRunning = false;
+        state = isFinished() ? DriverState.FINISHED : DriverState.SETUP;
     }
 
     public void updateScoreboard(){
@@ -62,11 +62,11 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
     public void finish() {
         finishLap();
         setEndTime(TimingSystem.currentTime);
-        isRunning = false;
+        state = DriverState.FINISHED;
     }
 
     public void start() {
-        isRunning = true;
+        state = DriverState.RUNNING;
         newLap();
     }
 
@@ -87,7 +87,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
     }
 
     public void reset() {
-        isRunning = false;
+        state = DriverState.SETUP;
         setEndTime(null);
         setStartTime(null);
         laps = new ArrayList<>();
@@ -140,6 +140,10 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         } else {
             DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = " + endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
         }
+    }
+
+    public void setState(DriverState state) {
+        this.state = state;
     }
 
     public @Nullable Lap getCurrentLap() {

@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.participant.DriverState;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 
@@ -31,7 +31,7 @@ public class QualifyHeat extends Heat {
             chain.sync(() -> {
                 getGridManager().startPlayerFromGrid(driver.getTPlayer().getUniqueId());
                 driver.setStartTime(TimingSystem.currentTime);
-                EventDatabase.addPlayerToRunningHeat(driver);
+                driver.setState(DriverState.STARTING);
                 if (driver.getTPlayer().getPlayer() != null) {
                     driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
                 }

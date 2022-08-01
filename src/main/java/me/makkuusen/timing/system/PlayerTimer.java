@@ -3,6 +3,7 @@ package me.makkuusen.timing.system;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.ItemBuilder;
 import me.makkuusen.timing.system.heat.FinalHeat;
+import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.participant.FinalDriver;
 import me.makkuusen.timing.system.participant.QualyDriver;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
@@ -55,7 +56,7 @@ public class PlayerTimer {
                                 }
                             }
                         } else if (driver instanceof QualyDriver) {
-                            if (driver.getLaps().size() > 0 && driver.isRunning()) {
+                            if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
                                 long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                                 long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                 if (timeLeft < 0) {
@@ -63,7 +64,7 @@ public class PlayerTimer {
                                 } else {
                                     ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(lapTime) + "§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §e" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft), p);
                                 }
-                            } else if (!driver.isFinished()){
+                            } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING){
                                 long timeLeft = driver.getHeat().getTimeLimit();
                                 if (driver.getStartTime() != null) {
                                     timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
@@ -93,7 +94,7 @@ public class PlayerTimer {
                                     }
                                 }
                             } else if (driver instanceof QualyDriver) {
-                                if (driver.getLaps().size() > 0 && driver.isRunning()) {
+                                if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
                                     long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                                     long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                     if (timeLeft < 0) {
@@ -101,7 +102,7 @@ public class PlayerTimer {
                                     } else {
                                         ApiUtilities.sendActionBar("§f" + driver.getTPlayer().getName() + " > §a" + ApiUtilities.formatAsTime(lapTime) + "§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §e" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft), p);
                                     }
-                                } else if (!driver.isFinished()){
+                                } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING){
                                     long timeLeft = driver.getHeat().getTimeLimit();
                                     if (driver.getStartTime() != null) {
                                         timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
