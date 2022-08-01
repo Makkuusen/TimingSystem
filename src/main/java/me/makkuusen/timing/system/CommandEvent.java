@@ -42,6 +42,8 @@ public class CommandEvent extends BaseCommand {
         }
         if (event.start()) {
             player.sendMessage("§aEvent has started");
+            Event finalEvent = event;
+            event.getSpectators().values().stream().forEach(spectator -> EventDatabase.setPlayerSelectedEvent(spectator.getTPlayer().getUniqueId(), finalEvent));
             return;
         }
         player.sendMessage("§cEvent couldn't start. Setup is not finished");
@@ -194,6 +196,7 @@ public class CommandEvent extends BaseCommand {
     @CommandCompletion("@event")
     public static void onSpectate(Player player, Event event){
         event.addSpectator(player.getUniqueId());
+        EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
         player.sendMessage("§aYou are now spectating " + event.getDisplayName());
     }
 }
