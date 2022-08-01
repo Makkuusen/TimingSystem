@@ -95,7 +95,7 @@ public class Event {
         for (Heat finalHeat : eventSchedule.getFinalHeatList()) {
             int startPos = 1;
             for (; i < drivers.size(); i++) {
-                if (startPos > track.getGridLocations().size()){
+                if (startPos > finalHeat.getMaxDrivers()){
                     break;
                 }
                 EventDatabase.finalDriverNew(drivers.get(i).getTPlayer().getUniqueId(), finalHeat, startPos++);
