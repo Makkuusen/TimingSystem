@@ -83,6 +83,13 @@ public class TrackRegion {
         return true;
     }
 
+    public boolean hasEqualBounds(TrackRegion other){
+        if (!isDefined() || !other.isDefined()) {
+            return false;
+        }
+        return getMinP().equals(other.getMinP()) && getMaxP().equals(other.getMaxP());
+    }
+
     public String getWorldName() {
         if(!spawnLocation.isWorldLoaded()){
             return "Unknown";

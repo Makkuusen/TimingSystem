@@ -27,7 +27,7 @@ public class Tasks {
                     setParticles(player, startRegion, Particle.VILLAGER_HAPPY);
 
                     TrackRegion endRegion = track.getEndRegion();
-                    if (!(startRegion.getMinP().equals(endRegion.getMinP()) && startRegion.getMaxP().equals(endRegion.getMaxP()))) {
+                    if (!endRegion.hasEqualBounds(startRegion)) {
                         setParticles(player, endRegion, Particle.VILLAGER_ANGRY);
                     }
 
@@ -49,7 +49,7 @@ public class Tasks {
 
     private void setParticles(Player player, TrackRegion region, Particle particle) {
 
-        if (region.getMinP() == null || region.getMaxP() == null) {
+        if (!region.isDefined()) {
             return;
         }
 
