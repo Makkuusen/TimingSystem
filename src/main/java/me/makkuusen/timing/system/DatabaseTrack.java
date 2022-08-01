@@ -125,7 +125,7 @@ public class DatabaseTrack {
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = " + track.getId() + ";");
         regions.removeIf(trackRegion -> trackRegion.getTrackId() == track.getId());
         tracks.remove(track);
-        var events = EventDatabase.getEvents().stream().filter(event -> event.getTrack().equals(track)).collect(Collectors.toList());
+        var events = EventDatabase.getEvents().stream().filter(event -> event.getTrack() != null).filter(event -> event.getTrack().equals(track.getId())).collect(Collectors.toList());
         for (Event event : events) {
             EventDatabase.removeEvent(event);
         }

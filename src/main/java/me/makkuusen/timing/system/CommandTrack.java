@@ -41,8 +41,6 @@ public class CommandTrack extends BaseCommand {
     @CommandCompletion("@trackType name")
     @CommandPermission("track.admin")
     public static void onCreate(Player player, Track.TrackType trackType, String name) {
-        player.sendMessage(name);
-
         int maxLength = 25;
         if (name.length() > maxLength) {
             plugin.sendMessage(player, "messages.error.nametoLong", "%length%", String.valueOf(maxLength));
