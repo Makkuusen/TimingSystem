@@ -59,7 +59,11 @@ public class EventAnnouncements {
                 s.getTPlayer().getPlayer().sendMessage("§7Final results for §f" + event.getDisplayName());
                 int pos = 1;
                 for (Driver d : drivers) {
-                    s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + d.getLaps().size() + " §7laps in §f" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                    if (d.isFinished()) {
+                        s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + d.getLaps().size() + " §7laps in §f" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                    } else {
+                        s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName());
+                    }
                 }
             }
         }

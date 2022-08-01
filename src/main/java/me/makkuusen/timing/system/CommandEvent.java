@@ -157,7 +157,11 @@ public class CommandEvent extends BaseCommand {
             player.sendMessage("§2Final results for event §a" + event.getDisplayName());
             int pos = 1;
             for (Driver d : finalResults) {
-                player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName() + "§2 - §a" + d.getLaps().size() + " §2laps in §a" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                if (d.isFinished()) {
+                    player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName() + "§2 - §a" + d.getLaps().size() + " §2laps in §a" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                } else {
+                    player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName());
+                }
             }
         } else {
             player.sendMessage("§cFinals has not been finished");
