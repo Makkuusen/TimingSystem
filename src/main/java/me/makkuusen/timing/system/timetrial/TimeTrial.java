@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.timetrial;
 
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
@@ -8,6 +9,7 @@ import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -169,7 +171,13 @@ public class TimeTrial {
                 var checkpoint = track.getCheckpoints().get(lastCheckpoint);
                 TPlayer.getPlayer().teleport(checkpoint.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 if (track.getType() == Track.TrackType.BOAT) {
-                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoat(TPlayer.getPlayer(), checkpoint.getSpawnLocation()), 1);
+                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                        Boat boat = ApiUtilities.spawnBoat(checkpoint.getSpawnLocation());
+                        boat.addPassenger(TPlayer.getPlayer());
+                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                            boat.setWoodType(Database.getPlayer(TPlayer.getUniqueId()).getBoat());
+                        }, 1);
+                    }, 1);
                 }
                 return;
             }

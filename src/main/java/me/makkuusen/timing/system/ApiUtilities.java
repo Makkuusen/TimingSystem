@@ -275,7 +275,7 @@ public class ApiUtilities {
     }
 
 
-    public static Boat spawnBoat(Player player, Location location) {
+    public static Boat spawnBoat(Location location) {
         if (!location.isWorldLoaded()) {
             return null;
         }

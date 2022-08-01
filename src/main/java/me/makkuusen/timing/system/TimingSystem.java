@@ -71,9 +71,6 @@ public class TimingSystem extends JavaPlugin {
         // enable brigadier integration for paper servers
         manager.enableUnstableAPI("brigadier");
 
-        // optional: enable unstable api to use help
-        manager.enableUnstableAPI("help");
-
         manager.getCommandContexts().registerContext(
                 Event.class, EventDatabase.getEventContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("event", context ->
@@ -130,6 +127,8 @@ public class TimingSystem extends JavaPlugin {
         Database.initialize();
         Database.synchronize();
 
+        EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(heat -> heat.resetHeat());
+
 
         tasks = new Tasks(this);
 
@@ -147,6 +146,7 @@ public class TimingSystem extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(heat -> heat.onShutdown());
         logger.info("Version " + getDescription().getVersion() + " disabled.");
         DB.close();
         DatabaseTrack.plugin = null;

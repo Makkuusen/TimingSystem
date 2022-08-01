@@ -130,6 +130,10 @@ public class EventDatabase {
         return heats.stream().filter(heat -> heat.getId() == id).findFirst();
     }
 
+    static public List<Heat> getHeats() {
+        return heats.stream().toList();
+    }
+
     static public boolean eventNew(UUID uuid, String name) {
         try {
             if (getEvent(name).isPresent()) {

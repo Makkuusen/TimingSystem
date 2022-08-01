@@ -1,6 +1,9 @@
 package me.makkuusen.timing.system.track;
 
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.TimingSystem;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Boat;
@@ -26,10 +29,15 @@ public class GridManager {
         ar.setCanMove(false);
         ar.setGravity(false);
         ar.setVisible(false);
-        Boat boat = ApiUtilities.spawnBoat(player, location);
-        ar.addPassenger(boat);
-        boat.addPassenger(player);
-        armorStands.put(player.getUniqueId(), ar);
+        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+            Boat boat = ApiUtilities.spawnBoat(location);
+            ar.addPassenger(boat);
+            boat.addPassenger(player);
+            armorStands.put(player.getUniqueId(), ar);
+            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
+            }, 1);
+        }, 1);
     }
 
     public void startPlayerFromGrid(UUID uuid) {

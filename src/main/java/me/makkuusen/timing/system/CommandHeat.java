@@ -171,7 +171,7 @@ public class CommandHeat extends BaseCommand {
             return;
         }
 
-        int size = event.getEventSchedule().getQualifyHeatList().size();
+        int size = event.getEventSchedule().getFinalHeatList().size();
         if (EventDatabase.finalHeatNew(event, size + 1, TimingSystem.configuration.getLaps(), event.getTrack().getPitRegion().isDefined() ? TimingSystem.configuration.getPits() : 0)) {
             player.sendMessage("§aHeat has been created");
             return;

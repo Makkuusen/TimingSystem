@@ -182,7 +182,9 @@ public abstract class Heat {
             driver.reset();
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
         });
-        scoreboard.removeScoreboard();
+        if (scoreboard != null) {
+            scoreboard.removeScoreboard();
+        }
         ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
         return true;
     }
@@ -312,5 +314,17 @@ public abstract class Heat {
     public void setHeatNumber(int heatNumber) {
         this.heatNumber = heatNumber;
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `heatNumber` = " + heatNumber + " WHERE `id` = " + getId() + ";");
+    }
+
+    public boolean isActive(){
+        return getHeatState() == HeatState.LOADED || getHeatState() == HeatState.RACING || getHeatState() == HeatState.STARTING;
+    }
+
+    public void onShutdown(){
+        gridManager.clearArmorstands();
+        if (scoreboard != null) {
+            scoreboard.removeScoreboard();
+        }
+        drivers.values().forEach(driver -> driver.onShutdown());
     }
 }

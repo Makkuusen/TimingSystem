@@ -47,8 +47,10 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
 
     public void updateScoreboard(){
         if (getTPlayer().getPlayer() == null) {
-            scoreboard.removeScoreboard();
-            scoreboard = null;
+            if (scoreboard != null) {
+                scoreboard.removeScoreboard();
+                scoreboard = null;
+            }
             return;
         }
         if (scoreboard == null){
@@ -163,5 +165,11 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
     @Override
     public int compareTo(@NotNull Driver o) {
         return 0;
+    }
+
+    public void onShutdown(){
+        if (scoreboard != null) {
+            scoreboard.removeScoreboard();
+        }
     }
 }

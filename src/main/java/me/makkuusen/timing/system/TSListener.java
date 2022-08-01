@@ -85,7 +85,7 @@ public class TSListener implements Listener {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
                     if (Track.isBoatTrack()) {
                         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                            Boat boat = ApiUtilities.spawnBoat(event.getPlayer(), Track.getSpawnLocation());
+                            Boat boat = ApiUtilities.spawnBoat(Track.getSpawnLocation());
                             boat.addPassenger(event.getPlayer());
                             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
                                 boat.setWoodType(Database.getPlayer(event.getPlayer().getUniqueId()).getBoat());
@@ -334,7 +334,14 @@ public class TSListener implements Listener {
                     if (track.hasOption('c')) {
                         player.teleport(track.getCheckpoints().get(checkpoint).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                         if (track.isBoatTrack()) {
-                            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoat(player, track.getCheckpoints().get(checkpoint).getSpawnLocation()), 1);
+                            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                                Boat boat = ApiUtilities.spawnBoat(track.getCheckpoints().get(checkpoint).getSpawnLocation());
+                                boat.addPassenger(player);
+                                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                                    boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
+                                }, 1);
+                            }, 1);
+
                         }
                     }
                     plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
