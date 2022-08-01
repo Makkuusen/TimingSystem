@@ -33,6 +33,10 @@ public class EventAnnouncements {
         broadcastAnnouncement(heat, "messages.announcements.finish", "%player%", driver.getTPlayer().getName(), "%position%", String.valueOf(driver.getPosition()), "%time%", ApiUtilities.formatAsTime(time));
     }
 
+    public static void broadcastFinishQualy(Heat heat, Driver driver) {
+        broadcastAnnouncement(heat, "messages.announcements.finishQualy", "%player%", driver.getTPlayer().getName());
+    }
+
     public static void broadcastPit(Heat heat, Driver driver, int pit) {
         broadcastAnnouncement(heat, "messages.announcements.pitstop", "%player%", driver.getTPlayer().getName(), "%pit%", String.valueOf(pit));
     }
@@ -127,6 +131,14 @@ public class EventAnnouncements {
             return;
         }
         Player player = driver.getTPlayer().getPlayer();
-        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§6-- §eP" + driver.getPosition() + " §6--\"}");
+        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§7-- §fP" + driver.getPosition() + " §7--\"}");
+    }
+
+    public static void sendFinishTitleQualy(Driver driver) {
+        if (driver.getTPlayer().getPlayer() == null) {
+            return;
+        }
+        Player player = driver.getTPlayer().getPlayer();
+        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§7-- §fFinished §7--\"}");
     }
 }

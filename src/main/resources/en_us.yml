@@ -95,6 +95,7 @@ messages:
   announcements:
     pitstop: '&f%player% &7completed pitstop: &f&l%pit%'
     finish: '&f%player% &7finished &f&lP%position%&r&7 in &f%time%'
+    finishQualy: '&f%player% &7finished'
     lap: '&7You finished lap in: &f%time%'
     fastestLap: '&f%player% &7set new fastest lap of &f%time%'
   actionbar:
