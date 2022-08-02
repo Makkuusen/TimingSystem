@@ -127,8 +127,7 @@ public class TimeTrial {
             return;
         }
 
-        long mapTime = getTimeSinceStart(endTime);
-        mapTime = Math.round(mapTime / 50) * 50;
+        long mapTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
 
         if (track.getBestFinish(TPlayer) == null) {
             plugin.sendMessage(p, "messages.timer.firstFinish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime));
@@ -211,8 +210,7 @@ public class TimeTrial {
             return;
         }
 
-        long mapTime = getTimeSinceStart(endTime);
-        mapTime = Math.round(mapTime / 50) * 50;
+        long mapTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
 
         if (track.getBestFinish(TPlayer) == null) {
             plugin.sendMessage(p, "messages.timer.firstFinish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime));
@@ -235,8 +233,7 @@ public class TimeTrial {
 
     public void playerPassingCheckpoint(int checkpoint) {
         passCheckpoint(checkpoint);
-        long timeSinceStart = getTimeSinceStart(TimingSystem.currentTime);
-        timeSinceStart = Math.round(timeSinceStart / 50) * 50;
+        long timeSinceStart = ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime));
         if (TimingSystem.getPlugin().verbose.contains(TPlayer.getUniqueId())) {
             plugin.sendMessage(TPlayer.getPlayer(), "messages.timer.checkpoint", "%checkpoint%", String.valueOf(checkpoint), "%time%", ApiUtilities.formatAsTime(timeSinceStart));
         }

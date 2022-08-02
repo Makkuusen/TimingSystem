@@ -50,7 +50,7 @@ public class Lap implements Comparable<Lap> {
             return -1;
         }
         long lapTime = Duration.between(lapStart, lapEnd).toMillis();
-        return ApiUtilities.roundToTick(lapTime);
+        return ApiUtilities.getRoundedToTick(lapTime);
     }
 
     public int getNextCheckpoint() {
