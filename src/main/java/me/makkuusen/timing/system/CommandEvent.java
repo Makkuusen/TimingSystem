@@ -7,6 +7,7 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Optional;
+import co.aikar.commands.annotation.Single;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
@@ -65,7 +66,7 @@ public class CommandEvent extends BaseCommand {
     @CommandPermission("event.admin")
     @Subcommand("create")
     @CommandCompletion("<name>")
-    public static void onCreate(Player player, String name) {
+    public static void onCreate(Player player, @Single String name) {
         if (EventDatabase.eventNew(player.getUniqueId(), name)) {
             player.sendMessage("§aCreated event " + name);
             return;

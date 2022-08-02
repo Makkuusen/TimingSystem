@@ -215,9 +215,9 @@ public class ApiUtilities {
         return ChatColor.translateAlternateColorCodes('&', uncolored);
     }
 
-    public static String formatAsTime(long timeInMillis) {
+    public static String formatAsTime(long time) {
         String toReturn;
-
+        long timeInMillis = getRoundedToTick(time);
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
@@ -233,9 +233,9 @@ public class ApiUtilities {
         return toReturn;
     }
 
-    public static String formatAsHeatTimeCountDown(long timeInMillis) {
+    public static String formatAsHeatTimeCountDown(long time) {
         String toReturn;
-
+        long timeInMillis = getRoundedToTick(time);
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
@@ -251,9 +251,9 @@ public class ApiUtilities {
     }
 
     // Used by scoreboard and bossbar
-    public static String formatAsRacingGap(long timeInMillis) {
+    public static String formatAsRacingGap(long time) {
         String toReturn;
-
+        long timeInMillis = getRoundedToTick(time);
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
@@ -269,9 +269,9 @@ public class ApiUtilities {
         return toReturn;
     }
 
-    public static String formatAsQualyGap(long timeInMillis) {
+    public static String formatAsQualyGap(long time) {
         String toReturn;
-
+        long timeInMillis = getRoundedToTick(time);
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
@@ -286,11 +286,6 @@ public class ApiUtilities {
         }
         return toReturn;
     }
-
-    public static long roundToTick(long timeInMillis) {
-        return Math.round(timeInMillis / 50) * 50;
-    }
-
 
     public static Boat spawnBoat(Location location) {
         if (!location.isWorldLoaded()) {
@@ -324,5 +319,17 @@ public class ApiUtilities {
             plugin.sendMessage(player, "messages.error.selectionException");
             return null;
         }
+    }
+
+    public static long getRoundedToTick(long mapTime){
+        if ( mapTime % 50 == 0) {
+            return mapTime;
+        } else {
+            long mapTime2 = mapTime + 1;
+            if (mapTime2 % 50 == 0) {
+                return mapTime2;
+            }
+        }
+        return mapTime;
     }
 }
