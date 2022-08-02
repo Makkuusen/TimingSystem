@@ -329,6 +329,14 @@ public class ApiUtilities {
             if (mapTime2 % 50 == 0) {
                 return mapTime2;
             }
+            else {
+                long rest = mapTime % 50;
+                if (rest < 25) {
+                    return mapTime - rest;
+                } else {
+                    mapTime = mapTime + (50-rest);
+                }
+            }
         }
         return mapTime;
     }
