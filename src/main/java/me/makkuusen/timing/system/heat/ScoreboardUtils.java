@@ -79,7 +79,7 @@ public class ScoreboardUtils {
     }
 
     public static String paddLaps(int laps) {
-        if (laps < 9) {
+        if (laps < 10) {
             return "0" + laps;
         }
         return String.valueOf(laps);
