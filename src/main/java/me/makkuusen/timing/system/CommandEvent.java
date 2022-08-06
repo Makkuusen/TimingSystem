@@ -17,16 +17,22 @@ import me.makkuusen.timing.system.track.Track;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CommandAlias("event")
 public class CommandEvent extends BaseCommand {
 
     @Default
-    @Subcommand("help")
-    @Description("Displays help")
-    public static void onHelp(Player player) {
-        player.sendMessage("§2/event help");
+    @Description("Active events")
+    public static void onActiveEvents(Player player) {
+        var list = EventDatabase.getEvents().stream().filter(event -> event.isActive()).collect(Collectors.toList());
+        list.sort(Comparator.comparingLong(Event::getDate));
+        player.sendMessage("§aActive events right now:");
+        for (Event event : list) {
+            player.sendMessage("§a" + event.getDisplayName() + " §2(§a" + event.getState().name() + "§2) - §a" + ApiUtilities.niceDate(event.getDate()) + "§2 by §a" + Database.getPlayer(event.getUuid()).getNameDisplay());
+        }
     }
 
     @CommandPermission("event.admin")

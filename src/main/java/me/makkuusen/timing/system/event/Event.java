@@ -165,4 +165,8 @@ public class Event {
     public String toString() {
         return displayName;
     }
+
+    public boolean isActive() {
+        return state != EventState.FINISHED;
+    }
 }
