@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Boat;
@@ -361,18 +362,25 @@ public class TSListener implements Listener {
         // Check for ending current map.
         var track = timeTrial.getTrack();
 
-        if (track.getStartRegion().contains(player.getLocation()) && track.getEndRegion().contains(player.getLocation())) {
+        var startRegion = track.getRegion(TrackRegion.RegionType.START);
+        var endRegion = track.getRegion(TrackRegion.RegionType.END);
+
+        if (startRegion.isEmpty() || endRegion.isEmpty()) {
+            return;
+        }
+
+        if (startRegion.get().contains(player.getLocation()) && endRegion.get().contains(player.getLocation())) {
             if (timeTrial.getLatestCheckpoint() != 0) {
                 timeTrial.playerRestartMap();
                 return;
             }
-        } else if (track.getEndRegion().contains(player.getLocation())) {
+        } else if (endRegion.get().contains(player.getLocation())) {
             timeTrial.playerEndedMap();
             return;
         }
 
         // Check reset regions
-        for (TrackRegion r : track.getResetRegions().values()) {
+        for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
             if (r.contains(player.getLocation())) {
                 timeTrial.playerResetMap();
             }
@@ -382,8 +390,8 @@ public class TSListener implements Listener {
         if (nextCheckpoint == timeTrial.getLatestCheckpoint()) {
             return;
         }
-        var checkpoint = track.getCheckpoints().get(nextCheckpoint);
-        if (checkpoint.contains(player.getLocation())) {
+        var checkpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == nextCheckpoint).findFirst();
+        if (checkpoint.isPresent() && checkpoint.get().contains(player.getLocation())) {
             timeTrial.playerPassingCheckpoint(nextCheckpoint);
         }
     }
@@ -399,27 +407,35 @@ public class TSListener implements Listener {
             return;
         }
         var track = heat.getEvent().getTrack();
-        if (track.getStartRegion().contains(player.getLocation())) {
+
+        var startRegion = track.getRegion(TrackRegion.RegionType.START);
+        if (startRegion.isEmpty()) {
+            return;
+        }
+
+        if (startRegion.get().contains(player.getLocation())) {
             if (driver.getState() == DriverState.STARTING) {
                 driver.start();
                 heat.updatePositions();
                 ApiUtilities.msgConsole("Starting : " + player.getName() + " in " + heat.getName());
                 return;
             } else if (driver.getCurrentLap().getLatestCheckpoint() != 0) {
-
                 if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
                     int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                     if (track.hasOption('c')) {
-                        player.teleport(track.getCheckpoints().get(checkpoint).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                        if (track.isBoatTrack()) {
-                            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                                Boat boat = ApiUtilities.spawnBoat(track.getCheckpoints().get(checkpoint).getSpawnLocation());
-                                boat.addPassenger(player);
+                            var maybeCheckpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
+                            if (maybeCheckpoint.isPresent()) {
+                            player.teleport(maybeCheckpoint.get().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                            if (track.isBoatTrack()) {
                                 Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                                    boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
+                                    Boat boat = ApiUtilities.spawnBoat(maybeCheckpoint.get().getSpawnLocation());
+                                    boat.addPassenger(player);
+                                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                                        boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
+                                    }, 1);
                                 }, 1);
-                            }, 1);
 
+                            }
                         }
                     }
                     plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
@@ -429,7 +445,6 @@ public class TSListener implements Listener {
                 heat.updatePositions();
                 return;
             }
-
         }
 
 
@@ -438,21 +453,60 @@ public class TSListener implements Listener {
 
             if (driver instanceof FinalDriver finalDriver) {
                 // Check for pitstop
-                if (track.getPitRegion() != null && track.getPitRegion().contains(player.getLocation())) {
+                var maybePit = track.getRegion(TrackRegion.RegionType.PIT);
+                if (maybePit.isPresent() && maybePit.get().contains(player.getLocation())) {
                     finalDriver.passPit();
                 }
             }
 
             // Check for next checkpoint in current map
-
             if (lap.hasPassedAllCheckpoints()) {
                 return;
             }
-            var checkpoint = track.getCheckpoints().get(lap.getNextCheckpoint());
-            if (checkpoint.contains(player.getLocation())) {
+
+            var maybeCheckpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.contains(player.getLocation())).findFirst();
+            if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() == lap.getNextCheckpoint()) {
                 lap.passNextCheckpoint(TimingSystem.currentTime);
                 heat.updatePositions();
+            } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() != lap.getLatestCheckpoint()) {
+                if (track.hasOption('c')) {
+                    var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
+                    TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
+                    teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
+                } else {
+                    teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), startRegion.get().getSpawnLocation());
+                }
+                plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
+                return;
             }
+
+            // Check for reset
+            for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
+                if (r.contains(player.getLocation())) {
+                    if (track.hasOption('c')) {
+                        var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
+                        TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
+                        teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
+                        break;
+                    } else {
+                        teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), startRegion.get().getSpawnLocation());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public static void teleportPlayerAndSpawnBoat(Player player, boolean isBoatTrack, Location location){
+        player.teleport(location, PlayerTeleportEvent.TeleportCause.UNKNOWN);
+        if (isBoatTrack) {
+            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                Boat boat = ApiUtilities.spawnBoat(location);
+                boat.addPassenger(player);
+                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                    boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
+                }, 1);
+            }, 1);
         }
     }
 }

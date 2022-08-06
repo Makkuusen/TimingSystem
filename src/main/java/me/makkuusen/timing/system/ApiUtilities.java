@@ -7,11 +7,16 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
+import me.makkuusen.timing.system.track.TrackCuboidRegion;
+import me.makkuusen.timing.system.track.TrackPolyRegion;
+import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
@@ -22,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,6 +62,15 @@ public class ApiUtilities {
     }
 
     public static Location stringToLocation(String string) {
+        if (string == null || string.length() == 0) {
+            return null;
+        }
+
+        String[] split = string.split(" ");
+        return new Location(Bukkit.getWorld(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Float.parseFloat(split[4]), Float.parseFloat(split[5]));
+    }
+
+    public static Location stringToBlockVector3(String string) {
         if (string == null || string.length() == 0) {
             return null;
         }
@@ -315,10 +330,26 @@ public class ApiUtilities {
             BlockVector3 p2 = selection.getMaximumPoint();
             locations.add(new Location(player.getWorld(), p2.getBlockX(), p2.getBlockY(), p2.getBlockZ()));
             return locations;
+        }  else if (selection instanceof Polygonal2DRegion) {
+            return null;
         } else {
             plugin.sendMessage(player, "messages.error.selectionException");
             return null;
         }
+    }
+
+    public static Optional<Region> getSelection(Player player) {
+        BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
+        LocalSession session = WorldEdit.getInstance().getSessionManager().get(bPlayer);
+        try {
+            return Optional.of(session.getSelection(bPlayer.getWorld()));
+        } catch (IncompleteRegionException e) {
+            return Optional.empty();
+        }
+    }
+
+    public static Location getLocationFromBlockVector3(World world, BlockVector3 v) {
+        return new Location(world, v.getBlockX(), v.getBlockY(), v.getBlockZ());
     }
 
     public static long getRoundedToTick(long mapTime){
@@ -339,5 +370,14 @@ public class ApiUtilities {
             }
         }
         return mapTime;
+    }
+
+    public static boolean isRegionMatching(TrackRegion trackRegion, Region selection){
+        if (trackRegion instanceof TrackCuboidRegion && selection instanceof CuboidRegion) {
+            return true;
+        } else if (trackRegion instanceof TrackPolyRegion && selection instanceof Polygonal2DRegion) {
+            return true;
+        }
+        return false;
     }
 }

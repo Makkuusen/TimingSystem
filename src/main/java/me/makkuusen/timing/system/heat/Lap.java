@@ -10,6 +10,7 @@ import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackRegion;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -54,14 +55,14 @@ public class Lap implements Comparable<Lap> {
     }
 
     public int getNextCheckpoint() {
-        if (track.getCheckpoints().size() >= checkpoints.size()) {
+        if (track.getRegions(TrackRegion.RegionType.CHECKPOINT).size() >= checkpoints.size()) {
             return checkpoints.size() + 1;
         }
         return checkpoints.size();
     }
 
     public boolean hasPassedAllCheckpoints() {
-        return checkpoints.size() == track.getCheckpoints().size();
+        return checkpoints.size() == track.getRegions(TrackRegion.RegionType.CHECKPOINT).size();
     }
 
     public void passNextCheckpoint(Instant timeStamp) {

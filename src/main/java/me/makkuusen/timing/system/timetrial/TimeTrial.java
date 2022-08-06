@@ -6,6 +6,7 @@ import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -29,7 +30,7 @@ public class TimeTrial {
     public TimeTrial(Track track, TPlayer player) {
         this.track = track;
         this.startTime = TimingSystem.currentTime;
-        this.checkpoints = new boolean[track.getCheckpoints().size()];
+        this.checkpoints = new boolean[track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()];
         this.bestFinish = getBestFinish(track.getBestFinish(player));
         this.TPlayer = player;
 
@@ -122,6 +123,16 @@ public class TimeTrial {
         Instant endTime = TimingSystem.currentTime;
         Player p = TPlayer.getPlayer();
 
+        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(TPlayer.getUniqueId())) {
+            TimeTrialController.timeTrials.remove(p.getUniqueId());
+            return;
+        }
+
+        if (!p.isInsideVehicle() && track.isBoatTrack()) {
+            TimeTrialController.timeTrials.remove(p.getUniqueId());
+            return;
+        }
+
         if (!hasPassedAllCheckpoints()) {
             plugin.sendMessage(p, "messages.error.timer.missedCheckpoints");
             return;
@@ -148,26 +159,16 @@ public class TimeTrial {
 
         ApiUtilities.msgConsole(p.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(mapTime));
 
-        Player player = TPlayer.getPlayer();
-
-        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(TPlayer.getUniqueId())) {
-            return;
-        }
-
-        if (!player.isInsideVehicle() && track.isBoatTrack()) {
-            return;
-        }
-
         ApiUtilities.msgConsole(TPlayer.getName() + " started on " + track.getDisplayName());
         this.startTime = TimingSystem.currentTime;
-        this.checkpoints = new boolean[track.getCheckpoints().size()];
+        this.checkpoints = new boolean[track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()];
     }
 
     public void playerResetMap() {
         if (track.hasOption('c')) {
             int lastCheckpoint = getLatestCheckpoint();
             if (lastCheckpoint != 0) {
-                var checkpoint = track.getCheckpoints().get(lastCheckpoint);
+                var checkpoint = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lastCheckpoint).get();
                 TPlayer.getPlayer().teleport(checkpoint.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 if (track.getType() == Track.TrackType.BOAT) {
                     Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {

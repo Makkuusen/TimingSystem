@@ -165,7 +165,8 @@ public class Database {
                     "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
                     "  `trackId` int(11) NOT NULL,\n" +
                     "  `regionIndex` int(11) DEFAULT NULL,\n" +
-                    "  `regionType` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  `regionType` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
+                    "  `regionShape` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `minP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  `maxP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
@@ -233,6 +234,14 @@ public class Database {
                     "  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `index` int(11) DEFAULT NULL,\n" +
                     "  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_points` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `regionId` int(11) NOT NULL,\n" +
+                    "  `x` int(11) DEFAULT NULL,\n" +
+                    "  `z` int(11) DEFAULT NULL,\n" +
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 

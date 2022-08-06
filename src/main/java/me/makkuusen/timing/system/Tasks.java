@@ -1,6 +1,8 @@
 package me.makkuusen.timing.system;
 
+import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,21 +25,8 @@ public class Tasks {
                     Player player = Bukkit.getPlayer(uuid);
                     if (player == null) continue;
                     Track track = TimingSystem.playerEditingSession.get(uuid);
-                    TrackRegion startRegion = track.getStartRegion();
-                    setParticles(player, startRegion, Particle.VILLAGER_HAPPY);
 
-                    TrackRegion endRegion = track.getEndRegion();
-                    if (!endRegion.hasEqualBounds(startRegion)) {
-                        setParticles(player, endRegion, Particle.VILLAGER_ANGRY);
-                    }
-
-                    TrackRegion pitRegion = track.getPitRegion();
-                    if (pitRegion != null) {
-                        setParticles(player, pitRegion, Particle.HEART);
-                    }
-
-                    track.getCheckpoints().values().forEach(trackRegion -> setParticles(player, trackRegion, Particle.GLOW));
-                    track.getResetRegions().values().forEach(trackRegion -> setParticles(player, trackRegion, Particle.WAX_ON));
+                    track.getRegions().stream().forEach(trackRegion -> setParticles(player, trackRegion));
                     track.getGridLocations().values().forEach(location -> setParticles(player, location, Particle.WAX_OFF));
                 }
             }
@@ -47,11 +36,27 @@ public class Tasks {
         player.spawnParticle(particle, location,5);
     }
 
-    private void setParticles(Player player, TrackRegion region, Particle particle) {
+    private void setParticles(Player player, TrackRegion region) {
 
         if (!region.isDefined()) {
             return;
         }
+        Particle particle;
+
+        if (region.getRegionType().equals(TrackRegion.RegionType.CHECKPOINT)) {
+            particle = Particle.GLOW;
+        } else if (region.getRegionType().equals(TrackRegion.RegionType.RESET)) {
+            particle = Particle.WAX_ON;
+        } else if (region.getRegionType().equals(TrackRegion.RegionType.START)) {
+            particle = Particle.VILLAGER_HAPPY;
+        } else if (region.getRegionType().equals(TrackRegion.RegionType.END)) {
+            particle = Particle.VILLAGER_ANGRY;
+        } else if (region.getRegionType().equals(TrackRegion.RegionType.PIT)) {
+            particle = Particle.HEART;
+        }else {
+            particle = Particle.WAX_OFF;
+        }
+
 
         Location min = region.getMinP();
         Location max = region.getMaxP();
@@ -60,20 +65,30 @@ public class Tasks {
         int maxX = max.getBlockX() + 1;
         int maxZ = max.getBlockZ() + 1;
 
-        drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), min.getBlockZ());
-        drawLineX(player, particle, min.getBlockX(), maxX, maxY, min.getBlockZ());
-        drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), maxZ);
-        drawLineX(player, particle, min.getBlockX(), maxX, maxY, maxZ);
 
-        drawLineY(player, particle, min.getBlockX(), min.getBlockY(), maxY, min.getBlockZ());
-        drawLineY(player, particle, min.getBlockX(), min.getBlockY(), maxY, maxZ);
-        drawLineY(player, particle, maxX, min.getBlockY(), maxY, min.getBlockZ());
-        drawLineY(player, particle, maxX, min.getBlockY(), maxY, maxZ);
+        if (region instanceof TrackPolyRegion polyRegion) {
+            for (BlockVector2 point : polyRegion.getPolygonal2DRegion().getPoints()) {
+                var loc = new Location(region.getSpawnLocation().getWorld(), point.getBlockX(), maxY, point.getBlockZ());
+                setParticles(player, loc, particle);
+                loc.setY(min.getBlockY());
+                setParticles(player, loc, particle);
+            }
+        } else {
+            drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), min.getBlockZ());
+            drawLineX(player, particle, min.getBlockX(), maxX, maxY, min.getBlockZ());
+            drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), maxZ);
+            drawLineX(player, particle, min.getBlockX(), maxX, maxY, maxZ);
 
-        drawLineZ(player, particle, min.getBlockX(), min.getBlockY(), min.getBlockZ(), maxZ);
-        drawLineZ(player, particle, min.getBlockX(), maxY, min.getBlockZ(), maxZ);
-        drawLineZ(player, particle, maxX, min.getBlockY(), min.getBlockZ(), maxZ);
-        drawLineZ(player, particle, maxX, maxY, min.getBlockZ(), maxZ);
+            drawLineY(player, particle, min.getBlockX(), min.getBlockY(), maxY, min.getBlockZ());
+            drawLineY(player, particle, min.getBlockX(), min.getBlockY(), maxY, maxZ);
+            drawLineY(player, particle, maxX, min.getBlockY(), maxY, min.getBlockZ());
+            drawLineY(player, particle, maxX, min.getBlockY(), maxY, maxZ);
+
+            drawLineZ(player, particle, min.getBlockX(), min.getBlockY(), min.getBlockZ(), maxZ);
+            drawLineZ(player, particle, min.getBlockX(), maxY, min.getBlockZ(), maxZ);
+            drawLineZ(player, particle, maxX, min.getBlockY(), min.getBlockZ(), maxZ);
+            drawLineZ(player, particle, maxX, maxY, min.getBlockZ(), maxZ);
+        }
 
     }
 

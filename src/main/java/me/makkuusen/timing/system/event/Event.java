@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackRegion;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,7 +88,12 @@ public class Event {
                 finalHeats++;
             }
             for (int i = 0; i < finalHeats; i++) {
-                EventDatabase.finalHeatNew(this, i + 1, 5, getTrack().getPitRegion().isDefined() ? 2 : 0);
+                int pits = 0;
+                var maybePit = getTrack().getRegion(TrackRegion.RegionType.PIT);
+                if (maybePit.isPresent() && maybePit.get().isDefined()) {
+                    pits = TimingSystem.configuration.getPits();
+                }
+                EventDatabase.finalHeatNew(this, i + 1, TimingSystem.configuration.getLaps(), pits);
             }
         }
 

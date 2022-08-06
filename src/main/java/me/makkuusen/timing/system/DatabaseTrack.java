@@ -6,10 +6,16 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector2;
+import com.sk89q.worldedit.regions.Polygonal2DRegion;
+import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackCuboidRegion;
+import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -47,19 +53,22 @@ public class DatabaseTrack {
             Optional<Track> maybeTrack = getTrackById(region.getInt("trackId"));
             if (maybeTrack.isPresent()) {
                 var rTrack = maybeTrack.get();
-                TrackRegion trackRegion = new TrackRegion(region);
-                if (trackRegion.getRegionType().equals(TrackRegion.RegionType.START)) {
-                    rTrack.setStartRegion(trackRegion);
-                    addTrackRegion(trackRegion);
-                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.END)) {
-                    rTrack.setEndRegion(trackRegion);
-                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.CHECKPOINT)) {
-                    rTrack.addCheckpoint(trackRegion);
-                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.RESET)) {
-                    rTrack.addResetRegion(trackRegion);
-                } else if (trackRegion.getRegionType().equals(TrackRegion.RegionType.PIT)) {
-                    rTrack.setPitRegion(trackRegion);
+                TrackRegion trackRegion;
+
+                if (region.getString("regionShape") != null && TrackRegion.RegionShape.POLY.name().equalsIgnoreCase(region.getString("regionShape"))) {
+                    var pointRows = DB.getResults("SELECT * FROM `ts_points` WHERE `regionId` = " + region.getInt("id") + ";");
+                    List<BlockVector2> points = new ArrayList<>();
+                    for (DbRow pointData : pointRows) {
+                        points.add(BlockVector2.at(pointData.get("x"), pointData.get("z")));
+                    }
+                    trackRegion = new TrackPolyRegion(region, points);
+                } else {
+                    trackRegion = new TrackCuboidRegion(region);
                 }
+                if (trackRegion.getRegionType().equals(TrackRegion.RegionType.START)) {
+                    addTrackRegion(trackRegion);
+                }
+                rTrack.addRegion(trackRegion);
             }
         }
 
@@ -94,16 +103,6 @@ public class DatabaseTrack {
             Track rTrack = new Track(dbRow);
             tracks.add(rTrack);
 
-            TrackRegion startRegion = trackRegionNew(trackId, TrackRegion.RegionType.START, location);
-            rTrack.setStartRegion(startRegion);
-            regions.add(startRegion);
-
-            TrackRegion endRegion = trackRegionNew(trackId, TrackRegion.RegionType.END, location);
-            rTrack.setEndRegion(endRegion);
-
-            TrackRegion pitRegion = trackRegionNew(trackId, TrackRegion.RegionType.PIT, location);
-            rTrack.setPitRegion(pitRegion);
-
             return rTrack;
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -111,12 +110,26 @@ public class DatabaseTrack {
         }
     }
 
-    public static TrackRegion trackRegionNew(long trackId, TrackRegion.RegionType type, Location location) throws SQLException {
-        var regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", 0, " +
-                Database.sqlString(type.toString()) + ", NULL, NULL, '" + ApiUtilities.locationToString(location) + "', 0);");
-        var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
-        return new TrackRegion(dbRow);
+    public static TrackRegion trackRegionNew(Region selection, long trackId, int index, TrackRegion.RegionType type, Location location) throws SQLException {
+        Long regionId;
+        String minP = ApiUtilities.locationToString(BukkitAdapter.adapt(location.getWorld(), selection.getMinimumPoint()));
+        String maxP = ApiUtilities.locationToString(BukkitAdapter.adapt(location.getWorld(), selection.getMaximumPoint()));
 
+        if (selection instanceof Polygonal2DRegion polySelection) {
+            regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", " + index + ", " +
+                    Database.sqlString(type.toString()) + ", " + Database.sqlString(TrackRegion.RegionShape.POLY.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
+            var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
+            for (BlockVector2 v : polySelection.getPoints()) {
+                DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(" + regionId + ", " + v.getBlockX() + ", " + v.getBlockZ() + ");" );
+            }
+            return new TrackPolyRegion(dbRow, polySelection.getPoints());
+
+        } else {
+            regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + "," + index + ", " +
+                    Database.sqlString(type.toString()) + ", " + Database.sqlString(TrackRegion.RegionShape.CUBOID.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
+            var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
+            return new TrackCuboidRegion(dbRow);
+        }
     }
 
     static public void removeTrack(Track track) {
