@@ -75,6 +75,10 @@ public class Event {
         if (state != EventState.QUALIFICATION) {
             return false;
         }
+        if (eventSchedule.getQualifyHeatList().stream().anyMatch(Heat::isActive)){
+            return false;
+        }
+
         List<Driver> drivers = EventResults.generateQualificationResults(eventSchedule.getQualifyHeatList());
         if (eventSchedule.getQualifyHeatList().size() > 1) {
             EventAnnouncements.broadcastQualificationResults(this, drivers);
@@ -113,6 +117,9 @@ public class Event {
 
     public boolean finishFinals() {
         if (state != EventState.FINAL) {
+            return false;
+        }
+        if (eventSchedule.getFinalHeatList().stream().anyMatch(Heat::isActive)){
             return false;
         }
         if (eventSchedule.getFinalHeatList().size() > 1) {

@@ -146,7 +146,7 @@ public class CommandEvent extends BaseCommand {
         if (event.finishFinals()) {
             player.sendMessage("§aFinals and the event has been finished. It's podium time!");
         } else {
-            player.sendMessage("§cEvent is not in finals mode");
+            player.sendMessage("§cEvent could not be finished");
         }
     }
 
