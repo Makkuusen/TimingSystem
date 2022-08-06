@@ -15,6 +15,7 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -172,7 +173,12 @@ public class CommandHeat extends BaseCommand {
         }
 
         int size = event.getEventSchedule().getFinalHeatList().size();
-        if (EventDatabase.finalHeatNew(event, size + 1, TimingSystem.configuration.getLaps(), event.getTrack().getPitRegion().isDefined() ? TimingSystem.configuration.getPits() : 0)) {
+        int pits = 0;
+        var maybePit = event.getTrack().getRegion(TrackRegion.RegionType.PIT);
+        if (maybePit.isPresent() && maybePit.get().isDefined()) {
+            pits = TimingSystem.configuration.getPits();
+        }
+        if (EventDatabase.finalHeatNew(event, size + 1, TimingSystem.configuration.getLaps(), pits)) {
             player.sendMessage("§aHeat has been created");
             return;
         }

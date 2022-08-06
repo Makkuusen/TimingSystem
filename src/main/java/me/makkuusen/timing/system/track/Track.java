@@ -6,6 +6,8 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import com.sk89q.worldedit.regions.Polygonal2DRegion;
+import com.sk89q.worldedit.regions.Region;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
@@ -24,8 +26,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -33,8 +38,7 @@ import java.util.stream.Collectors;
 public class Track {
     private final int id;
     private final long dateCreated;
-    private final Map<Integer, TrackRegion> checkpoints = new HashMap<>();
-    private final Map<Integer, TrackRegion> resetRegions = new HashMap<>();
+    private final Set<TrackRegion> regions = new HashSet<>();
     private final Map<Integer, Location> grids = new HashMap<>();
     private final Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
     private TPlayer owner;
@@ -47,9 +51,6 @@ public class Track {
     private TrackMode mode;
     private char[] options;
     private boolean open;
-    private TrackRegion startRegion;
-    private TrackRegion endRegion;
-    private TrackRegion pitRegion;
 
     public Track(DbRow data) {
         id = data.getInt("id");
@@ -162,77 +163,80 @@ public class Track {
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `toggleOpen` = " + open + " WHERE `id` = " + id + ";");
     }
 
-    public void updateStartRegion(Location minP, Location maxP) {
-        startRegion.setMinP(minP);
-        startRegion.setMaxP(maxP);
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + startRegion.getId() + ";");
+    public void addRegion(TrackRegion trackRegion){
+        regions.add(trackRegion);
     }
 
-    public void updateEndRegion(Location minP, Location maxP) {
-        endRegion.setMinP(minP);
-        endRegion.setMaxP(maxP);
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + endRegion.getId() + ";");
+    public boolean hasRegion(TrackRegion.RegionType regionType){
+        return regions.stream().anyMatch(trackRegion -> trackRegion.getRegionType().equals(regionType));
     }
 
-    public void setPitRegion(Location minP, Location maxP, Location spawn) {
-        if (pitRegion == null) {
+    public boolean hasRegion(TrackRegion.RegionType regionType, int index){
+        return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).anyMatch(trackRegion -> trackRegion.getRegionIndex() == index);
+    }
 
-            try {
-                var regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", 0, " + Database.sqlString(TrackRegion.RegionType.PIT.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);");
+    public List<TrackRegion> getRegions(TrackRegion.RegionType regionType) {
+        return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).collect(Collectors.toList());
+    }
 
-                var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
-                TrackRegion pitRegion = new TrackRegion(dbRow);
-                setPitRegion(pitRegion);
-                return;
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-                return;
+    public Optional<TrackRegion> getRegion(TrackRegion.RegionType regionType){
+        return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).findFirst();
+    }
+
+    public Optional<TrackRegion> getRegion(TrackRegion.RegionType regionType, int index){
+        return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).filter(trackRegion -> trackRegion.getRegionIndex() == index).findFirst();
+    }
+
+    public boolean updateRegion(TrackRegion.RegionType regionType, Region selection, Location location) {
+        var startRegion = getRegion(regionType).get();
+        return updateRegion(startRegion, selection, location);
+    }
+
+    public boolean updateRegion(TrackRegion region, Region selection, Location location) {
+        if (ApiUtilities.isRegionMatching(region, selection)) {
+            region.setMaxP(ApiUtilities.getLocationFromBlockVector3(location.getWorld(), selection.getMaximumPoint()));
+            region.setMinP(ApiUtilities.getLocationFromBlockVector3(location.getWorld(), selection.getMinimumPoint()));
+            region.setSpawn(location);
+            if (region instanceof TrackPolyRegion trackPolyRegion) {
+                trackPolyRegion.updateRegion(((Polygonal2DRegion)selection).getPoints());
             }
+        } else {
+            removeRegion(region);
+            return createRegion(region.getRegionType(), selection, location);
         }
-
-        pitRegion.setMinP(minP);
-        pitRegion.setMaxP(maxP);
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + pitRegion.getId() + ";");
+        return true;
     }
 
-    public void setStartRegion(TrackRegion region) {
-        this.startRegion = region;
+    public boolean createRegion(TrackRegion.RegionType regionType, Region selection, Location location){
+        return createRegion(regionType, 0, selection,  location);
     }
 
-    public void setEndRegion(TrackRegion region) {
-        this.endRegion = region;
+    public boolean createRegion(TrackRegion.RegionType regionType, int index, Region selection, Location location){
+        try {
+            var region = DatabaseTrack.trackRegionNew(selection, getId(), index, regionType, location);
+            addRegion(region);
+            if (regionType.equals(TrackRegion.RegionType.START)) {
+                DatabaseTrack.addTrackRegion(region);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
-    public void setPitRegion(TrackRegion region) {
-        this.pitRegion = region;
-    }
-
-    public void addCheckpoint(TrackRegion region) {
-        checkpoints.put(region.getRegionIndex(), region);
-    }
-
-    public void setCheckpoint(Location minP, Location maxP, Location spawn, int index) {
-        setTrackRegions(checkpoints, TrackRegion.RegionType.CHECKPOINT, minP, maxP, spawn, index);
-    }
-
-    public boolean removeCheckpoint(int index) {
-        return removeTrackRegion(checkpoints, index);
-    }
-
-    public void setResetRegion(Location minP, Location maxP, Location spawn, int index) {
-        setTrackRegions(resetRegions, TrackRegion.RegionType.RESET, minP, maxP, spawn, index);
-    }
-
-    public boolean removeResetRegion(int index) {
-        return removeTrackRegion(resetRegions, index);
-    }
-
-    public void addResetRegion(TrackRegion region) {
-        resetRegions.put(region.getRegionIndex(), region);
-    }
-
-    public Map<Integer, TrackRegion> getResetRegions() {
-        return resetRegions;
+    public boolean removeRegion(TrackRegion region) {
+        if (regions.contains(region)) {
+            var regionId = region.getId();
+            DatabaseTrack.removeTrackRegion(region);
+            regions.remove(region);
+            DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `id` = " + regionId + ";");
+            if (region instanceof TrackPolyRegion) {
+                DB.executeUpdateAsync("DELETE FROM `ts_points` WHERE `regionId` = " + regionId + ";");
+            }
+            return true;
+        }
+        return false;
     }
 
     public void setGridLocation(Location loc, int index) {
@@ -268,49 +272,6 @@ public class Track {
 
     public Location getGridLocation(int index){
         return grids.get(index);
-    }
-
-
-    private void setTrackRegions(Map<Integer, TrackRegion> map, TrackRegion.RegionType regionType, Location minP, Location maxP, Location spawn, int index) {
-
-        if (map.containsKey(index)) {
-            // Modify checkpoint
-            TrackRegion region = map.get(index);
-            region.setMinP(minP);
-            region.setMaxP(maxP);
-            region.setSpawnLocation(spawn);
-
-            DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "', `maxP` = '" + ApiUtilities.locationToString(maxP) + "', `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + region.getId() + ";");
-
-        } else {
-            try {
-
-                var regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + id + ", " + index + ", " + Database.sqlString(regionType.toString()) + ", '" + ApiUtilities.locationToString(minP) + "', '" + ApiUtilities.locationToString(maxP) + "', '" + ApiUtilities.locationToString(spawn) + "', 0);");
-                var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
-
-                TrackRegion region = new TrackRegion(dbRow);
-                if (regionType.equals(TrackRegion.RegionType.CHECKPOINT)) {
-                    addCheckpoint(region);
-                } else if (regionType.equals(TrackRegion.RegionType.RESET)) {
-                    addResetRegion(region);
-                }
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-            }
-        }
-    }
-
-    private boolean removeTrackRegion(Map<Integer, TrackRegion> map, int index) {
-        if (map.containsKey(index)) {
-            var region = map.get(index);
-            var regionId = region.getId();
-            DatabaseTrack.removeTrackRegion(region);
-            map.remove(index);
-
-            DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `id` = " + regionId + ";");
-            return true;
-        }
-        return false;
     }
 
     public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish) {

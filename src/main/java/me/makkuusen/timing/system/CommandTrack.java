@@ -10,11 +10,10 @@ import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
@@ -85,11 +84,11 @@ public class CommandTrack extends BaseCommand {
         plugin.sendMessage(player, "messages.info.track.created", "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
         plugin.sendMessage(player, "messages.info.track.options", "%options%", ApiUtilities.formatPermissions(track.getOptions()));
         plugin.sendMessage(player, "messages.info.track.mode", "%mode%", track.getModeAsString());
-        plugin.sendMessage(player, "messages.info.track.checkpoints", "%size%", String.valueOf(track.getCheckpoints().size()));
+        plugin.sendMessage(player, "messages.info.track.checkpoints", "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()));
         if (track.getGrids().size() != 0) {
             player.sendMessage("§2Grids: §a" + track.getGrids().size());
         }
-        plugin.sendMessage(player, "messages.info.track.resets", "%size%", String.valueOf(track.getResetRegions().size()));
+        plugin.sendMessage(player, "messages.info.track.resets", "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.RESET).size()));
         plugin.sendMessage(player, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
         plugin.sendMessage(player, "messages.info.track.leaderboard", "%location%", ApiUtilities.niceLocation(track.getLeaderboardLocation()));
 
@@ -326,7 +325,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("owner")
         @CommandCompletion("@track <player>")
-        public static void onOwner(Player player, Track track, String name){
+        public static void onOwner(Player player, Track track, String name) {
             TPlayer TPlayer = Database.getPlayer(name);
             if (TPlayer == null) {
                 plugin.sendMessage(player, "messages.error.missing.player");
@@ -339,67 +338,34 @@ public class CommandTrack extends BaseCommand {
         @Subcommand("startregion")
         @CommandCompletion("@track")
         public static void onStartRegion(Player player, Track track) {
-            List<Location> positions = ApiUtilities.getPositions(player);
-            if (positions == null) {
+            if (createOrUpdateRegion(track, TrackRegion.RegionType.START, player)) {
+                plugin.sendMessage(player, "messages.create.region");
                 return;
             }
-            track.updateStartRegion(positions.get(0), positions.get(1));
-            plugin.sendMessage(player, "messages.create.region");
         }
 
         @Subcommand("endregion")
         @CommandCompletion("@track")
         public static void onEndRegion(Player player, Track track) {
-            List<Location> positions = ApiUtilities.getPositions(player);
-            if (positions == null) {
+            if (createOrUpdateRegion(track, TrackRegion.RegionType.END, player)) {
+                plugin.sendMessage(player, "messages.create.region");
                 return;
             }
-            track.updateEndRegion(positions.get(0), positions.get(1));
-            plugin.sendMessage(player, "messages.create.region");
         }
 
         @Subcommand("pitregion")
         @CommandCompletion("@track")
         public static void onPitRegion(Player player, Track track) {
-            List<Location> positions = ApiUtilities.getPositions(player);
-            if (positions == null) {
+            if (createOrUpdateRegion(track, TrackRegion.RegionType.PIT, player)) {
+                plugin.sendMessage(player, "messages.create.region");
                 return;
             }
-            track.setPitRegion(positions.get(0), positions.get(1), player.getLocation());
-            plugin.sendMessage(player, "messages.create.region");
         }
 
         @Subcommand("resetregion")
         @CommandCompletion("@track <index>")
         public static void onResetRegion(Player player, Track track, @Optional String index) {
-            int regionIndex;
-            boolean remove = false;
-            if (index.startsWith("-")) {
-                index = index.substring(1);
-                remove = true;
-            } else if (index.startsWith("+")) {
-                index = index.substring(1);
-            }
-            try {
-                regionIndex = Integer.parseInt(index);
-            } catch (NumberFormatException exception) {
-                plugin.sendMessage(player, "messages.error.numberException");
-                return;
-            }
-            if (remove) {
-                if (track.removeResetRegion(regionIndex)) {
-                    plugin.sendMessage(player, "messages.remove.region");
-                } else {
-                    plugin.sendMessage(player, "messages.error.remove.region");
-                }
-            } else {
-                List<Location> positions = ApiUtilities.getPositions(player);
-                if (positions == null) {
-                    return;
-                }
-                track.setResetRegion(positions.get(0), positions.get(1), player.getLocation(), regionIndex);
-                plugin.sendMessage(player, "messages.create.region");
-            }
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.RESET, index, player);
         }
 
         @Subcommand("grid")
@@ -407,17 +373,15 @@ public class CommandTrack extends BaseCommand {
         public static void onGridRegion(Player player, Track track, @Optional String index) {
             int regionIndex;
             boolean remove = false;
-            if (index.startsWith("-")) {
-                index = index.substring(1);
-                remove = true;
-            } else if (index.startsWith("+")) {
-                index = index.substring(1);
-            }
-            try {
-                regionIndex = Integer.parseInt(index);
-            } catch (NumberFormatException exception) {
-                plugin.sendMessage(player, "messages.error.numberException");
-                return;
+            if (index != null) {
+                remove = getParsedRemoveFlag(index);
+                if (getParsedIndex(index) == null) {
+                    plugin.sendMessage(player, "messages.error.numberException");
+                    return;
+                }
+                regionIndex = getParsedIndex(index);
+            } else {
+                regionIndex = track.getGridLocations().size() + 1;
             }
             if (remove) {
                 if (track.removeGridLocation(regionIndex)) {
@@ -434,35 +398,90 @@ public class CommandTrack extends BaseCommand {
         @Subcommand("checkpoint")
         @CommandCompletion("@track <index>")
         public static void onCheckpoint(Player player, Track track, @Optional String index) {
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.CHECKPOINT, index, player);
+        }
+
+        private static boolean createOrUpdateRegion(Track track, TrackRegion.RegionType regionType, Player player) {
+            var maybeSelection = ApiUtilities.getSelection(player);
+            if (maybeSelection.isEmpty()) {
+                plugin.sendMessage(player, "messages.error.missing.selection");
+                return false;
+            }
+            var selection = maybeSelection.get();
+
+            if (track.hasRegion(regionType)) {
+                return track.updateRegion(regionType, selection, player.getLocation());
+            } else {
+                return track.createRegion(regionType, selection, player.getLocation());
+            }
+        }
+
+        private static boolean createOrUpdateRegion(Track track, TrackRegion.RegionType regionType, int index, Player player) {
+            var maybeSelection = ApiUtilities.getSelection(player);
+            if (maybeSelection.isEmpty()) {
+                plugin.sendMessage(player, "messages.error.missing.selection");
+                return false;
+            }
+            var selection = maybeSelection.get();
+
+            if (track.hasRegion(regionType, index)) {
+                return track.updateRegion(track.getRegion(regionType, index).get(), selection, player.getLocation());
+            } else {
+                return track.createRegion(regionType, index, selection, player.getLocation());
+            }
+        }
+
+        private static boolean createOrUpdateIndexRegion(Track track, TrackRegion.RegionType regionType, String index, Player player) {
             int regionIndex;
+
             boolean remove = false;
+            if (index != null) {
+                remove = getParsedRemoveFlag(index);
+                if (getParsedIndex(index) == null) {
+                    plugin.sendMessage(player, "messages.error.numberException");
+                    return false;
+                }
+                regionIndex = getParsedIndex(index);
+            } else {
+                regionIndex = track.getRegions(regionType).size() + 1;
+            }
+            if (remove) {
+                var maybeRegion = track.getRegion(regionType, regionIndex);
+                if (maybeRegion.isPresent()) {
+                    if (track.removeRegion(maybeRegion.get())) {
+                        plugin.sendMessage(player, "messages.remove.region");
+                        return true;
+                    } else {
+                        plugin.sendMessage(player, "messages.error.remove.region");
+                        return false;
+                    }
+                } else {
+                    player.sendMessage("§cRegion doesn't currently exist");
+                    return false;
+                }
+            }
+            if (createOrUpdateRegion(track, regionType, regionIndex, player)) {
+                plugin.sendMessage(player, "messages.create.region");
+                return true;
+            }
+            player.sendMessage("§cRegion could not be created/updated");
+            return false;
+        }
+
+        private static boolean getParsedRemoveFlag(String index) {
+            return index.startsWith("-");
+        }
+
+        private static Integer getParsedIndex(String index) {
             if (index.startsWith("-")) {
                 index = index.substring(1);
-                remove = true;
             } else if (index.startsWith("+")) {
                 index = index.substring(1);
             }
-
             try {
-                regionIndex = Integer.parseInt(index);
+                return Integer.parseInt(index);
             } catch (NumberFormatException exception) {
-                plugin.sendMessage(player, "messages.error.numberException");
-                return;
-            }
-
-            if (remove) {
-                if (track.removeCheckpoint(regionIndex)) {
-                    plugin.sendMessage(player, "messages.remove.checkpoint");
-                } else {
-                    plugin.sendMessage(player, "messages.error.remove.checkpoint");
-                }
-            } else {
-                List<Location> positions = ApiUtilities.getPositions(player);
-                if (positions == null) {
-                    return;
-                }
-                track.setCheckpoint(positions.get(0), positions.get(1), player.getLocation(), regionIndex);
-                plugin.sendMessage(player, "messages.create.checkpoint");
+                return null;
             }
         }
     }

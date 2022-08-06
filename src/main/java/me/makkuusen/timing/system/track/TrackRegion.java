@@ -1,21 +1,31 @@
 package me.makkuusen.timing.system.track;
 
+import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import lombok.Getter;
+import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import org.bukkit.Location;
 
-public class TrackRegion {
+@Getter
+@Setter
+public abstract class TrackRegion {
 
     private final int id;
     private final int trackId;
     private final int regionIndex;
     private final RegionType regionType;
+    private RegionShape shape;
+    private Location spawnLocation;
     private Location minP;
     private Location maxP;
-    private Location spawnLocation;
 
     public enum RegionType {
         START, END, CHECKPOINT, RESET, PIT
+    }
+
+    public enum RegionShape {
+        POLY, CUBOID
     }
 
     public TrackRegion(DbRow data) {
@@ -23,25 +33,9 @@ public class TrackRegion {
         trackId = data.getInt("trackId");
         regionIndex = data.getInt("regionIndex");
         regionType = data.getString("regionType") == null ? null : TrackRegion.RegionType.valueOf(data.getString("regionType"));
+        spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         minP = ApiUtilities.stringToLocation(data.getString("minP"));
         maxP = ApiUtilities.stringToLocation(data.getString("maxP"));
-        spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
-    }
-
-    public void setMinP(Location minP) {
-        this.minP = minP;
-    }
-
-    public void setMaxP(Location maxP) {
-        this.maxP = maxP;
-    }
-
-    public Location getMinP() {
-        return minP;
-    }
-
-    public Location getMaxP() {
-        return maxP;
     }
 
     public Location getSpawnLocation() {
@@ -68,32 +62,29 @@ public class TrackRegion {
         return regionType;
     }
 
-    public boolean contains(Location loc) {
-        if (loc == null || minP == null || maxP == null) {
-            return false;
-        } else {
-            return loc.getBlockX() >= this.minP.getBlockX() && loc.getBlockX() <= this.maxP.getBlockX() && loc.getBlockY() >= this.minP.getBlockY() && loc.getBlockY() <= this.maxP.getBlockY() && loc.getBlockZ() >= this.minP.getBlockZ() && loc.getBlockZ() <= this.maxP.getBlockZ();
-        }
-    }
+    public abstract boolean contains(Location loc);
 
-    public boolean isDefined(){
-        if (minP == null || maxP == null) {
-            return false;
-        }
-        return true;
-    }
-
-    public boolean hasEqualBounds(TrackRegion other){
-        if (!isDefined() || !other.isDefined()) {
-            return false;
-        }
-        return getMinP().equals(other.getMinP()) && getMaxP().equals(other.getMaxP());
-    }
+    public abstract boolean isDefined();
 
     public String getWorldName() {
         if(!spawnLocation.isWorldLoaded()){
             return "Unknown";
         }
         return spawnLocation.getWorld().getName();
+    }
+
+    public void setMinP(Location minP) {
+        this.minP = minP;
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "' WHERE `id` = " + getId() + ";");
+    }
+
+    public void setMaxP(Location maxP) {
+        this.maxP = maxP;
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + getId() + ";");
+    }
+
+    public void setSpawn(Location spawn) {
+        this.spawnLocation = spawn;
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + getId() + ";");
     }
 }

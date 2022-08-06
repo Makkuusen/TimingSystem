@@ -96,7 +96,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         scoreboard = null;
     }
 
-    public void removeScoreboard(){
+    public void removeScoreboard() {
         if (scoreboard != null) {
             scoreboard.removeScoreboard();
         }
