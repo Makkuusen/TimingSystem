@@ -449,6 +449,16 @@ public class TSListener implements Listener {
                 }
             }
 
+            // Check for reset
+            for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
+                if (r.contains(player.getLocation())) {
+                    var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
+                    TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
+                    teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
+                    break;
+                }
+            }
+
             // Check for next checkpoint in current map
             if (lap.hasPassedAllCheckpoints()) {
                 return;
@@ -458,22 +468,12 @@ public class TSListener implements Listener {
             if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() == lap.getNextCheckpoint()) {
                 lap.passNextCheckpoint(TimingSystem.currentTime);
                 heat.updatePositions();
-            } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getLatestCheckpoint()) {
+            } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
                 var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
                 TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
                 teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
                 plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
                 return;
-            }
-
-            // Check for reset
-            for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
-                if (r.contains(player.getLocation())) {
-                    var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-                    TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
-                    teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
-                    break;
-                }
             }
         }
     }
