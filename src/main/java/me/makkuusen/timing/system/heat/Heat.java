@@ -145,6 +145,7 @@ public abstract class Heat {
         getDrivers().values().stream().forEach(driver -> {
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
             if (driver.getEndTime() == null) {
+                driver.removeUnfinishedLap();
                 driver.setEndTime(TimingSystem.currentTime);
                 driver.setState(DriverState.FINISHED);
             }
@@ -192,13 +193,6 @@ public abstract class Heat {
         return true;
     }
 
-    public List<Driver> getResults() {
-        if (heatState != HeatState.FINISHED) {
-            return List.of();
-        }
-        return livePositions;
-    }
-
     public int getMaxDrivers(){
         if (maxDrivers != null) {
             return maxDrivers;
@@ -235,6 +229,17 @@ public abstract class Heat {
         } catch (SQLException e) {
             return false;
         }
+    }
+
+    public boolean disqualifyDriver(Driver driver){
+        if (!driver.getHeat().isActive()) {
+            return false;
+        }
+        driver.disqualify();
+        if (allDriversFinished()) {
+            finishHeat();
+        }
+        return true;
     }
 
     public List<Participant> getParticipants(){

@@ -65,6 +65,12 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         state = DriverState.FINISHED;
     }
 
+    public void disqualify(){
+        removeUnfinishedLap();
+        setEndTime(TimingSystem.currentTime);
+        state = DriverState.FINISHED;
+    }
+
     public void start() {
         state = DriverState.RUNNING;
         newLap();
@@ -148,6 +154,12 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
 
     public @Nullable Lap getCurrentLap() {
         return laps.get(laps.size() - 1);
+    }
+
+    public void removeUnfinishedLap(){
+        if(getCurrentLap() != null && getCurrentLap().getLapEnd() == null) {
+            laps.remove(getCurrentLap());
+        }
     }
 
     public Optional<Lap> getBestLap() {

@@ -17,6 +17,8 @@ import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -241,7 +243,7 @@ public class CommandHeat extends BaseCommand {
         player.sendMessage("§aMax drivers has been updated");
     }
 
-    @Subcommand("add driver")
+    @Subcommand("add")
     @CommandPermission("event.admin")
     @CommandCompletion("@players @heat")
     public static void onHeatAddDriver(Player sender, String playerName, Heat heat) {
@@ -296,11 +298,44 @@ public class CommandHeat extends BaseCommand {
             sender.sendMessage("§cPlayer is not in heat!");
             return;
         }
-        if (heat.removeDriver(heat.getDrivers().get(tPlayer.getUniqueId()))) {
-            sender.sendMessage("§aDriver has been removed");
+        if (heat.isActive()) {
+            if (heat.disqualifyDriver(heat.getDrivers().get(tPlayer.getUniqueId()))) {
+                if (tPlayer.getPlayer() != null) {
+                    if (tPlayer.getPlayer().getVehicle() != null && tPlayer.getPlayer().getVehicle() instanceof Boat boat) {
+                        boat.remove();
+                    }
+                    Location loc = tPlayer.getPlayer().getBedSpawnLocation() == null ? tPlayer.getPlayer().getWorld().getSpawnLocation() : tPlayer.getPlayer().getBedSpawnLocation();
+                    tPlayer.getPlayer().teleport(loc);
+                }
+                sender.sendMessage("§aDriver has been disqualifed");
+                return;
+            }
+            sender.sendMessage("§cDriver could not be disqualified");
+        } else {
+            if (heat.removeDriver(heat.getDrivers().get(tPlayer.getUniqueId()))) {
+                sender.sendMessage("§aDriver has been removed");
+                return;
+            }
+            sender.sendMessage("§cDriver could not be removed");
+        }
+    }
+    @Subcommand("quit")
+    public static void onHeatDriverQuit(Player player) {
+        if (EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).isEmpty()) {
+            player.sendMessage("§cYou are not in a running heat!");
             return;
         }
-        sender.sendMessage("§cDriver could not be removed");
+        Driver driver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).get();
+        if (driver.getHeat().disqualifyDriver(driver)) {
+            if (player.getVehicle() != null && player.getVehicle() instanceof Boat boat) {
+                boat.remove();
+            }
+            Location loc = player.getBedSpawnLocation() == null ? player.getWorld().getSpawnLocation() : player.getBedSpawnLocation();
+            player.teleport(loc);
+            player.sendMessage("§aYou have aborted the heat");
+            return;
+        }
+        player.sendMessage("§cYou could not abort the event.");
     }
 
 
