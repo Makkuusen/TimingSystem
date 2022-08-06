@@ -157,7 +157,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
     }
 
     public void removeUnfinishedLap(){
-        if(getCurrentLap() != null && getCurrentLap().getLapEnd() == null) {
+        if(laps.size() > 0 && getCurrentLap().getLapEnd() == null) {
             laps.remove(getCurrentLap());
         }
     }
