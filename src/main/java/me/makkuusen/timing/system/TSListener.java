@@ -423,19 +423,9 @@ public class TSListener implements Listener {
                 if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
                     int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                     if (track.hasOption('c')) {
-                            var maybeCheckpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
-                            if (maybeCheckpoint.isPresent()) {
-                            player.teleport(maybeCheckpoint.get().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                            if (track.isBoatTrack()) {
-                                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                                    Boat boat = ApiUtilities.spawnBoat(maybeCheckpoint.get().getSpawnLocation());
-                                    boat.addPassenger(player);
-                                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                                        boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
-                                    }, 1);
-                                }, 1);
-
-                            }
+                        var maybeCheckpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
+                        if (maybeCheckpoint.isPresent()) {
+                            teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), maybeCheckpoint.get().getSpawnLocation());
                         }
                     }
                     plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
@@ -468,14 +458,10 @@ public class TSListener implements Listener {
             if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() == lap.getNextCheckpoint()) {
                 lap.passNextCheckpoint(TimingSystem.currentTime);
                 heat.updatePositions();
-            } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() != lap.getLatestCheckpoint()) {
-                if (track.hasOption('c')) {
-                    var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-                    TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
-                    teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
-                } else {
-                    teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), startRegion.get().getSpawnLocation());
-                }
+            } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getLatestCheckpoint()) {
+                var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
+                TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
+                teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
                 plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
                 return;
             }
@@ -483,15 +469,10 @@ public class TSListener implements Listener {
             // Check for reset
             for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
                 if (r.contains(player.getLocation())) {
-                    if (track.hasOption('c')) {
-                        var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-                        TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
-                        teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
-                        break;
-                    } else {
-                        teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), startRegion.get().getSpawnLocation());
-                        break;
-                    }
+                    var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
+                    TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
+                    teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
+                    break;
                 }
             }
         }
