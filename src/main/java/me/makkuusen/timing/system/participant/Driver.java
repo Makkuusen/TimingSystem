@@ -66,8 +66,6 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
     }
 
     public void disqualify(){
-        removeUnfinishedLap();
-        setEndTime(TimingSystem.currentTime);
         state = DriverState.FINISHED;
     }
 
@@ -110,6 +108,10 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
 
     public boolean isFinished(){
         return endTime != null;
+    }
+
+    public boolean isRunning(){
+        return state == DriverState.RUNNING || state == DriverState.LOADED || state == DriverState.STARTING;
     }
 
     private void newLap() {

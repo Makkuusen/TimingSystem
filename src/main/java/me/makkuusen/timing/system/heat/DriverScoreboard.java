@@ -4,6 +4,8 @@ import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.FinalDriver;
 import me.makkuusen.timing.system.participant.QualyDriver;
+import me.makkuusen.timing.system.track.TrackRegion;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.time.Duration;
@@ -88,6 +90,18 @@ public class DriverScoreboard {
             return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPosition());
         }
         long timeDiff;
+
+        if (driver.getTPlayer().getPlayer() == null) {
+            return ScoreboardUtils.getDriverLineRaceOffline(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition());
+        }
+        Location playerLoc = driver.getTPlayer().getPlayer().getLocation();
+
+        var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
+        for (TrackRegion trackRegion : inPitRegions) {
+            if (trackRegion.contains(playerLoc)){
+                return ScoreboardUtils.getDriverLineRaceInPit(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition());
+            }
+        }
 
         if (driver.getPosition() < comparingDriver.getPosition()) {
 

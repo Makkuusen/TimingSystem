@@ -5,6 +5,8 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.FinalDriver;
 import me.makkuusen.timing.system.participant.QualyDriver;
 import me.makkuusen.timing.system.participant.Spectator;
+import me.makkuusen.timing.system.track.TrackRegion;
+import org.bukkit.Location;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -51,6 +53,7 @@ public class SpectatorScoreboard {
         int count = 0;
         int last = 15;
         Driver prevDriver = null;
+        boolean compareToFirst = true;
         for (Driver driver : heat.getLivePositions()) {
             count++;
             if (count > last) {
@@ -58,7 +61,10 @@ public class SpectatorScoreboard {
             }
             if (heat instanceof QualifyHeat) {
                 lines.add(getDriverRow((QualyDriver) driver, (QualyDriver) prevDriver));
-                prevDriver = driver;
+                if (compareToFirst) {
+                    prevDriver = driver;
+                    compareToFirst = false;
+                }
 
             } else if (heat instanceof FinalHeat) {
                 lines.add(getDriverRow((FinalDriver) driver, (FinalDriver) prevDriver));
@@ -73,6 +79,18 @@ public class SpectatorScoreboard {
             return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPosition());
         }
         long timeDiff;
+
+        if (driver.getTPlayer().getPlayer() == null) {
+            return ScoreboardUtils.getDriverLineRaceOffline(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition());
+        }
+        Location playerLoc = driver.getTPlayer().getPlayer().getLocation();
+
+        var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
+        for (TrackRegion trackRegion : inPitRegions) {
+            if (trackRegion.contains(playerLoc)){
+                return ScoreboardUtils.getDriverLineRaceInPit(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition());
+            }
+        }
 
         if (comparingDriver == null) {
             return ScoreboardUtils.getDriverLineRaceLaps(driver.getLaps().size(), driver.getTPlayer().getName(), driver.getPits(), driver.getPosition());

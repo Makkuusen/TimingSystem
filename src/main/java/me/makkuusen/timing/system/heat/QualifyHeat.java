@@ -59,7 +59,7 @@ public class QualifyHeat extends Heat {
             EventAnnouncements.sendFinishSound(driver);
             EventAnnouncements.sendFinishTitleQualy(driver);
             EventAnnouncements.broadcastFinishQualy(this, driver);
-            if (allDriversFinished()) {
+            if (noDriversRunning()) {
                 finishHeat();
             }
             return true;

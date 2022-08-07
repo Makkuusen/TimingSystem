@@ -53,6 +53,8 @@ public class Tasks {
             particle = Particle.VILLAGER_ANGRY;
         } else if (region.getRegionType().equals(TrackRegion.RegionType.PIT)) {
             particle = Particle.HEART;
+        } else if (region.getRegionType().equals(TrackRegion.RegionType.INPIT)) {
+            particle = Particle.SPELL_WITCH;
         }else {
             particle = Particle.WAX_OFF;
         }

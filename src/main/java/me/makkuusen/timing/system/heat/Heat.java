@@ -146,7 +146,11 @@ public abstract class Heat {
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
             if (driver.getEndTime() == null) {
                 driver.removeUnfinishedLap();
-                driver.setEndTime(TimingSystem.currentTime);
+                if (driver.getLaps().size() > 0) {
+                    driver.setEndTime(driver.getCurrentLap().getLapEnd());
+                } else {
+                    driver.setEndTime(TimingSystem.currentTime);
+                }
                 driver.setState(DriverState.FINISHED);
             }
         });
@@ -236,7 +240,7 @@ public abstract class Heat {
             return false;
         }
         driver.disqualify();
-        if (allDriversFinished()) {
+        if (noDriversRunning()) {
             finishHeat();
         }
         return true;
@@ -253,9 +257,9 @@ public abstract class Heat {
         scoreboard.updateScoreboard();
     }
 
-    public boolean allDriversFinished() {
+    public boolean noDriversRunning() {
         for (Driver d : getDrivers().values()) {
-            if (!d.isFinished()) {
+            if (d.isRunning()) {
                 return false;
             }
         }
