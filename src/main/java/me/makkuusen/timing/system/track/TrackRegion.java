@@ -21,7 +21,7 @@ public abstract class TrackRegion {
     private Location maxP;
 
     public enum RegionType {
-        START, END, CHECKPOINT, RESET, PIT
+        START, END, CHECKPOINT, RESET, PIT, INPIT
     }
 
     public enum RegionShape {
@@ -40,10 +40,6 @@ public abstract class TrackRegion {
 
     public Location getSpawnLocation() {
         return spawnLocation;
-    }
-
-    public void setSpawnLocation(Location spawnLocation) {
-        this.spawnLocation = spawnLocation;
     }
 
     public int getId() {

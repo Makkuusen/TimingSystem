@@ -135,6 +135,9 @@ public class TimeTrial {
 
         if (!hasPassedAllCheckpoints()) {
             plugin.sendMessage(p, "messages.error.timer.missedCheckpoints");
+            ApiUtilities.msgConsole(TPlayer.getName() + " started on " + track.getDisplayName());
+            this.startTime = TimingSystem.currentTime;
+            this.checkpoints = new boolean[track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()];
             return;
         }
 

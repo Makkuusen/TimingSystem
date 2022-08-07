@@ -368,6 +368,12 @@ public class CommandTrack extends BaseCommand {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.RESET, index, player);
         }
 
+        @Subcommand("inpit")
+        @CommandCompletion("@track <index>")
+        public static void onInPit(Player player, Track track, @Optional String index) {
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.INPIT, index, player);
+        }
+
         @Subcommand("grid")
         @CommandCompletion("@track <index>")
         public static void onGridRegion(Player player, Track track, @Optional String index) {

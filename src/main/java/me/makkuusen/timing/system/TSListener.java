@@ -40,11 +40,15 @@ import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.UUID;
 
 public class TSListener implements Listener {
 
     static TimingSystem plugin;
+    static Set<UUID> inPits = new HashSet();
 
     @EventHandler
     public void onTick(ServerTickStartEvent e) {
@@ -303,7 +307,7 @@ public class TSListener implements Listener {
 
             var maybeDriver = EventDatabase.getDriverFromRunningHeat(tPlayer.getUniqueId());
             if (maybeDriver.isPresent()) {
-                handleHeat(maybeDriver.get(), player);
+                handleHeat(maybeDriver.get(), player, e.getFrom());
                 return;
             }
 
@@ -396,7 +400,7 @@ public class TSListener implements Listener {
         }
     }
 
-    private void handleHeat(Driver driver, Player player) {
+    private void handleHeat(Driver driver, Player player, Location from) {
         Heat heat = driver.getHeat();
 
         if (!heat.getHeatState().equals(HeatState.RACING)) {
@@ -446,6 +450,8 @@ public class TSListener implements Listener {
                 var maybePit = track.getRegion(TrackRegion.RegionType.PIT);
                 if (maybePit.isPresent() && maybePit.get().contains(player.getLocation())) {
                     finalDriver.passPit();
+                    heat.updatePositions();
+                    return;
                 }
             }
 
@@ -456,6 +462,19 @@ public class TSListener implements Listener {
                     TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
                     teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
                     break;
+                }
+            }
+
+            // Update if in pit
+            var inPitRegions = track.getRegions(TrackRegion.RegionType.INPIT);
+            for (TrackRegion trackRegion : inPitRegions) {
+                if (trackRegion.contains(player.getLocation()) && !inPits.contains(player.getUniqueId())){
+                    inPits.add(player.getUniqueId());
+                    heat.updatePositions();
+                } else if (!trackRegion.contains(player.getLocation()) && inPits.contains(player.getUniqueId())) {
+                    inPits.remove(player.getUniqueId());
+                    heat.updatePositions();
+                    return;
                 }
             }
 
