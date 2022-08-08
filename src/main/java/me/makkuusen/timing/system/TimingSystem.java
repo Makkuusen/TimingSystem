@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.track.Track;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.TreeSpecies;
 import org.bukkit.command.CommandSender;
@@ -141,6 +142,9 @@ public class TimingSystem extends JavaPlugin {
         }
 
         logger.info("Version " + getDescription().getVersion() + " enabled.");
+
+        int pluginId = 16012;
+        Metrics metrics = new Metrics(this, pluginId);
 
     }
 
