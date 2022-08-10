@@ -9,10 +9,8 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
-import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.heat.FinalHeat;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -20,8 +18,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 @CommandAlias("heat")
 public class CommandHeat extends BaseCommand {
@@ -38,7 +34,7 @@ public class CommandHeat extends BaseCommand {
                 return;
             }
         }
-        var messages = event.getHeatList();
+        var messages = event.eventSchedule.getHeatList(event);
         messages.forEach(message -> player.sendMessage(message));
         return;
     }
@@ -140,15 +136,16 @@ public class CommandHeat extends BaseCommand {
             player.sendMessage("§cYour event needs a track, /event set track <name>");
             return;
         }
+        /*
         if (event.getState() != Event.EventState.SETUP && event.getState() != Event.EventState.QUALIFICATION) {
             player.sendMessage("§cYour event is already in finals");
             return;
-        }
-        int size = event.getEventSchedule().getQualifyHeatList().size();
+        }*/
+       /* int size = event.getEventSchedule().getQualifyHeatList().size();
         if (EventDatabase.qualifyHeatNew(event, size + 1, TimingSystem.configuration.getTimeLimit() * 1000)) {
             player.sendMessage("§aHeat has been created");
             return;
-        }
+        }*/
 
         player.sendMessage("§cHeat could not be created");
     }
@@ -173,7 +170,7 @@ public class CommandHeat extends BaseCommand {
             player.sendMessage("§cYour event is already finished");
             return;
         }
-
+/*
         int size = event.getEventSchedule().getFinalHeatList().size();
         int pits = 0;
         var maybePit = event.getTrack().getRegion(TrackRegion.RegionType.PIT);
@@ -183,7 +180,7 @@ public class CommandHeat extends BaseCommand {
         if (EventDatabase.finalHeatNew(event, size + 1, TimingSystem.configuration.getLaps(), pits)) {
             player.sendMessage("§aHeat has been created");
             return;
-        }
+        }*/
         player.sendMessage("§cHeat could not be created");
     }
 
@@ -375,13 +372,15 @@ public class CommandHeat extends BaseCommand {
         sender.sendMessage("§aAll online players has been added");
     }
 
+    /*
+
     @Subcommand("results")
     @CommandCompletion("@heat")
     public static void onHeatResults(Player sender, Heat heat) {
         if (heat.getHeatState() == HeatState.FINISHED) {
             sender.sendMessage("§aResults for heat " + heat.getName());
             if (heat instanceof FinalHeat finalHeat){
-                List<Driver> result = EventResults.generateFinalHeatResults(finalHeat);
+                List<Driver> result = EventResults.generateHeatResults(finalHeat);
                 for (Driver d : result) {
                     sender.sendMessage("§2" + d.getPosition() + ". §a" + d.getTPlayer().getName() + "§2 - §a" + d.getLaps().size() + " §2laps in §a" + ApiUtilities.formatAsTime(d.getFinishTime()));
                 }
@@ -394,6 +393,6 @@ public class CommandHeat extends BaseCommand {
         } else {
             sender.sendMessage("§cHeat has not been finished");
         }
-    }
+    }*/
 }
 

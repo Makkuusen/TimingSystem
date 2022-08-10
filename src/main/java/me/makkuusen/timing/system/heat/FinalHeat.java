@@ -3,9 +3,11 @@ package me.makkuusen.timing.system.heat;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
+import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.FinalDriver;
+import me.makkuusen.timing.system.round.Round;
 
 @Getter
 @Setter
@@ -13,8 +15,8 @@ public class FinalHeat extends Heat {
 
 
 
-    public FinalHeat(DbRow data) {
-        super(data);
+    public FinalHeat(DbRow data, Round round) {
+        super(data, round);
 
     }
 

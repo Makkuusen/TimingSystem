@@ -17,6 +17,10 @@ import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.FinalDriver;
 import me.makkuusen.timing.system.participant.QualyDriver;
+import me.makkuusen.timing.system.round.FinalRound;
+import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.round.Round;
+import me.makkuusen.timing.system.round.RoundType;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
@@ -45,46 +49,55 @@ public class EventDatabase {
             events.add(event);
             EventSchedule es = new EventSchedule();
 
-            var heatDbRows = DB.getResults("SELECT * FROM `ts_heats` WHERE `eventId` = " + event.getId() + " AND `isRemoved` = 0;");
-            for (DbRow heatData : heatDbRows) {
-                Heat heat;
-                if (heatData.getString("type").equalsIgnoreCase("Final")) {
-                    heat = new FinalHeat(heatData);
-                    heats.add(heat);
-                    es.addHeat(heat);
-                    var driverDbRows = DB.getResults("SELECT * FROM `ts_drivers` WHERE `heatId` = " + heat.getId() + " AND `isRemoved` = 0;");
-                    for (DbRow driverData : driverDbRows) {
-                        Driver driver = new FinalDriver(driverData);
-                        heat.addDriver(driver);
-                        List<Lap> laps = new ArrayList<>();
-                        var lapsDbRows = DB.getResults("SELECT * FROM `ts_laps` WHERE `heatId` = " + heat.getId() + " AND `uuid` = '" + driverData.getString("uuid") + "' AND `isRemoved` = 0;");
-                        for (DbRow lapsData : lapsDbRows) {
-                            laps.add(new Lap(lapsData));
-                        }
-                        driver.setLaps(laps);
-                    }
+            var roundDbRows = DB.getResults("SELECT * FROM `ts_rounds` WHERE `eventId` = " + event.getId() + " AND `isRemoved` = 0;");
+            for (DbRow roundData : roundDbRows) {
+                Round round;
+                var type = RoundType.valueOf(roundData.getString("type"));
+                if (type == RoundType.FINAL) {
+                    round = new FinalRound(roundData);
 
                 } else {
-                    heat = new QualifyHeat(heatData);
-                    es.addHeat(heat);
-                    heats.add(heat);
-                    var driverDbRows = DB.getResults("SELECT * FROM `ts_drivers` WHERE `heatId` = " + heat.getId() + " AND `isRemoved` = 0;");
-                    for (DbRow driverData : driverDbRows) {
-                        Driver driver = new QualyDriver(driverData);
-                        heat.addDriver(driver);
-                        List<Lap> laps = new ArrayList<>();
-                        var lapsDbRows = DB.getResults("SELECT * FROM `ts_laps` WHERE `heatId` = " + heat.getId() + " AND `uuid` = '" + driverData.getString("uuid") + "' AND `isRemoved` = 0;");
-                        for (DbRow lapsData : lapsDbRows) {
-                            laps.add(new Lap(lapsData));
-                        }
-                        driver.setLaps(laps);
-                    }
-                    if (heat.getEndTime() != null && heat.getEndTime().toEpochMilli() > 0) {
-                    }
+                    round = new QualificationRound(roundData);
                 }
+                var heatDbRows = DB.getResults("SELECT * FROM `ts_heats` WHERE `roundId` = " + round.getId() + " AND `isRemoved` = 0;");
+                for (DbRow heatData : heatDbRows) {
+                    initHeat(round, heatData);
+                }
+                es.addRound(round);
             }
             event.setEventSchedule(es);
         }
+    }
+
+    private static void initHeat(Round round, DbRow heatData) throws SQLException {
+        Heat heat;
+        if (round.getType().equals(RoundType.FINAL)) {
+            heat = new FinalHeat(heatData, round);
+        } else {
+            heat = new QualifyHeat(heatData, round);
+        }
+        heats.add(heat);
+        round.addHeat(heat);
+        var driverDbRows = DB.getResults("SELECT * FROM `ts_drivers` WHERE `heatId` = " + heat.getId() + " AND `isRemoved` = 0;");
+        for (DbRow driverData : driverDbRows) {
+            initDriver(heat, driverData);
+        }
+    }
+
+    private static void initDriver(Heat heat, DbRow driverData) throws SQLException {
+        Driver driver;
+        if (heat instanceof FinalHeat) {
+            driver = new FinalDriver(driverData);
+        } else {
+            driver = new QualyDriver(driverData);
+        }
+        heat.addDriver(driver);
+        List<Lap> laps = new ArrayList<>();
+        var lapsDbRows = DB.getResults("SELECT * FROM `ts_laps` WHERE `heatId` = " + heat.getId() + " AND `uuid` = '" + driverData.getString("uuid") + "' AND `isRemoved` = 0;");
+        for (DbRow lapsData : lapsDbRows) {
+            laps.add(new Lap(lapsData));
+        }
+        driver.setLaps(laps);
     }
 
 
@@ -171,11 +184,11 @@ public class EventDatabase {
         }
     }
 
-    static public boolean qualifyHeatNew(Event event, int heatNumber, int timeLimit) {
+    static public boolean qualifyHeatNew(Round round, int heatNumber, int timeLimit) {
 
         try {
             var heatId = DB.executeInsert("INSERT INTO `ts_heats`(" +
-                    "`eventId`, " +
+                    "`roundId`, " +
                     "`heatNumber`, " +
                     "`type`, " +
                     "`state`, " +
@@ -189,7 +202,7 @@ public class EventDatabase {
                     "`maxDrivers`, " +
                     "`isRemoved`) " +
                     "VALUES (" +
-                    event.getId() + "," +
+                    round.getId() + "," +
                     heatNumber + "," +
                     "'QUALIFICATION'," +
                     "'" + HeatState.SETUP.name() + "'," +
@@ -203,9 +216,9 @@ public class EventDatabase {
                     "NULL," +
                     "0)");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_heats` WHERE `id` = " + heatId + ";");
-            var qualifyHeat = new QualifyHeat(dbRow);
+            var qualifyHeat = new QualifyHeat(dbRow, round);
             heats.add(qualifyHeat);
-            event.getEventSchedule().addHeat(qualifyHeat);
+            round.addHeat(qualifyHeat);
             return true;
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -247,7 +260,7 @@ public class EventDatabase {
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_heats` WHERE `id` = " + heatId + ";");
             var finalHeat = new FinalHeat(dbRow);
             heats.add(finalHeat);
-            event.getEventSchedule().addHeat(finalHeat);
+            round.addHeat(finalHeat);
             return true;
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -351,7 +364,9 @@ public class EventDatabase {
         if (maybeEvent.isEmpty()) {
             return List.of();
         }
-        return maybeEvent.get().getRawHeatList();
+        List<String> roundList = new ArrayList<>();
+        maybeEvent.get().eventSchedule.getRounds().forEach(round -> roundList.addAll(round.getRawHeats()));
+        return roundList;
 
     }
 

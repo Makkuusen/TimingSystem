@@ -187,9 +187,8 @@ public class Database {
 
             DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_heats` (\n" +
                     "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                    "  `eventId` int(11) NOT NULL,\n" +
+                    "  `roundId` int(11) NOT NULL,\n" +
                     "  `heatNumber` int(11) NOT NULL,\n" +
-                    "  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `startTime` bigint(30) DEFAULT NULL,\n" +
                     "  `endTime` bigint(30) DEFAULT NULL,\n" +
@@ -244,6 +243,17 @@ public class Database {
                     "  `z` int(11) DEFAULT NULL,\n" +
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_rounds` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `eventId` int(11) NOT NULL,\n" +
+                    "  `roundIndex` int(11) NOT NULL DEFAULT 1,\n" +
+                    "  `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
+                    "  `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  `isRemoved` tinyint(4) NOT NULL DEFAULT 0,\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n");
 
             return true;
 

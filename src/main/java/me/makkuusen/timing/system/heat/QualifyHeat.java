@@ -5,9 +5,11 @@ import co.aikar.taskchain.TaskChain;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
+import me.makkuusen.timing.system.round.Round;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 
@@ -17,8 +19,8 @@ import java.time.Duration;
 @Getter
 public class QualifyHeat extends Heat {
 
-    public QualifyHeat(DbRow data) {
-        super(data);
+    public QualifyHeat(DbRow data, Round round) {
+        super(data, round);
     }
 
     @Override

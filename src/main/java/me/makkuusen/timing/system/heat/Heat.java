@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.participant.Participant;
+import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.track.GridManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -35,6 +36,7 @@ public abstract class Heat {
 
     private int id;
     private Event event;
+    private Round round;
     private Integer heatNumber;
     private Instant startTime;
     private Instant endTime;
@@ -51,9 +53,10 @@ public abstract class Heat {
     private Integer maxDrivers;
     private SpectatorScoreboard scoreboard;
 
-    public Heat(DbRow data) {
+    public Heat(DbRow data, Round round) {
         id = data.getInt("id");
-        event = EventDatabase.getEvent(data.getInt("eventId")).get();
+        this.event = round.getEvent();
+        this.round = round;
         heatState = HeatState.valueOf(data.getString("state"));
         heatNumber = data.getInt("heatNumber");
         startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
@@ -70,10 +73,7 @@ public abstract class Heat {
     public abstract String getName();
 
     public boolean loadHeat() {
-        if (this instanceof QualifyHeat && event.getState() != Event.EventState.QUALIFICATION) {
-            return false;
-        }
-        if (this instanceof FinalHeat && event.getState() != Event.EventState.FINAL) {
+        if (event.getEventSchedule().getCurrentRound() != round.getRoundIndex()) {
             return false;
         }
         if (getHeatState() != HeatState.SETUP) {
@@ -158,11 +158,9 @@ public abstract class Heat {
         //Dump all laps to database
         getDrivers().values().stream().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
 
-        if (this instanceof QualifyHeat qualifyHeat) {
-            EventAnnouncements.broadcastHeatResult(EventResults.generateQualyHeatResults(qualifyHeat), qualifyHeat);
-        } else {
-            EventAnnouncements.broadcastHeatResult(EventResults.generateFinalHeatResults((FinalHeat) this), this);
-        }
+
+        var heatResults = EventResults.generateHeatResults(this);
+        EventAnnouncements.broadcastHeatResult(heatResults,this);
 
         return true;
     }

@@ -113,8 +113,8 @@ public class CommandEvent extends BaseCommand {
     }
 
     @CommandPermission("event.admin")
-    @Subcommand("finish qualification")
-    public static void onFinishQualification(Player player, @Optional Event event) {
+    @Subcommand("finish round")
+    public static void onFinishRound(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -124,16 +124,17 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        if (event.finishQualification()) {
-            player.sendMessage("§aQualification has been finished. Get ready for finals!");
+        if (event.eventSchedule.getRound().get().finish(event,event.getEventSchedule().getNextRound().get())) {
+            event.getEventSchedule().nextRound();
+            player.sendMessage("§aRound has been finished. Get ready for finals!");
         } else {
             player.sendMessage("§cEvent is not in qualification mode");
         }
     }
 
-    @CommandPermission("event.admin")
-    @Subcommand("finish finals")
-    public static void onFinishFinals(Player player, @Optional Event event) {
+    @Subcommand("results")
+    @CommandCompletion("<roundNumber>")
+    public static void onRoundResults(Player player, Integer index, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -143,10 +144,16 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        if (event.finishFinals()) {
-            player.sendMessage("§aFinals and the event has been finished. It's podium time!");
+        List<Driver> results = EventResults.generateRoundResults(event.getEventSchedule().getRound(index).get().getHeats());
+        if (results.size() != 0) {
+            player.sendMessage("§2Round results for event §a" + event.getDisplayName());
+            int pos = 1;
+            for (Driver d : results) {
+                player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName());
+
+            }
         } else {
-            player.sendMessage("§cEvent could not be finished");
+            player.sendMessage("§cRound has not been finished");
         }
     }
 
@@ -161,7 +168,7 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        List<Driver> finalResults = EventResults.generateFinalResults(event.getEventSchedule().getFinalHeatList());
+        List<Driver> finalResults =  EventResults.generateRoundResults(event.getEventSchedule().getRound(0).get().getHeats());
         if (finalResults.size() != 0 && event.getState() == Event.EventState.FINISHED) {
             player.sendMessage("§2Final results for event §a" + event.getDisplayName());
             int pos = 1;
@@ -188,7 +195,7 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        List<Driver> qualyResults = EventResults.generateQualificationResults(event.getEventSchedule().getQualifyHeatList());
+        List<Driver> qualyResults = EventResults.generateRoundResults(event.getEventSchedule().getRound(0).get().getHeats());
         if (qualyResults.size() != 0) {
             player.sendMessage("§2Qualifying results for event §a" + event.getDisplayName());
             int pos = 1;
