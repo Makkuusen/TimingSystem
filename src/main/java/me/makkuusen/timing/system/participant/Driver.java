@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.DriverScoreboard;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
+import me.makkuusen.timing.system.round.QualificationRound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,12 +23,13 @@ import java.util.Optional;
 
 @Getter
 @Setter
-public abstract class Driver extends Participant implements Comparable<Driver> {
+public class Driver extends Participant implements Comparable<Driver> {
 
     private int id;
     private Heat heat;
     private Integer position;
     private int startPosition;
+    private int pits;
     private Instant startTime;
     private Instant endTime;
     private DriverState state;
@@ -42,6 +44,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         startPosition = data.getInt("startPosition");
         startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
         endTime = data.getLong("endTime") == null ? null : Instant.ofEpochMilli(data.getLong("endTime"));
+        pits = data.getInt("pitstops");
         state = isFinished() ? DriverState.FINISHED : DriverState.SETUP;
     }
 
@@ -79,6 +82,14 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         newLap();
     }
 
+    public void passPit() {
+        if (!getCurrentLap().isPitted()) {
+            setPits(pits + 1);
+            EventAnnouncements.broadcastPit(getHeat(), this, pits);
+            getCurrentLap().setPitted(true);
+        }
+    }
+
     private void finishLap() {
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
         if (heat.getFastestLapUUID() == null || getCurrentLap().getLapTime() < heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get().getLapTime() || getCurrentLap().equals(heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get())) {
@@ -98,6 +109,7 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         setPosition(startPosition);
         removeScoreboard();
         scoreboard = null;
+        setPits(0);
     }
 
     public void removeScoreboard() {
@@ -150,6 +162,11 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         }
     }
 
+    public void setPits(int pits) {
+        this.pits = pits;
+        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `pitstops` = " + pits + " WHERE `id` = " + getId() + ";");
+    }
+
     public void setState(DriverState state) {
         this.state = state;
     }
@@ -180,14 +197,90 @@ public abstract class Driver extends Participant implements Comparable<Driver> {
         return Optional.of(bestLap);
     }
 
-    @Override
-    public int compareTo(@NotNull Driver o) {
-        return 0;
-    }
 
     public void onShutdown(){
         if (scoreboard != null) {
             scoreboard.removeScoreboard();
         }
+    }
+
+    public Instant getTimeStamp(int lap, int checkpoint) {
+        var heat = getHeat();
+        if (lap > heat.getTotalLaps()) {
+            return getLaps().get(heat.getTotalLaps() - 1).getLapEnd();
+        }
+
+        return getLaps().get(lap - 1).getCheckpointTime(checkpoint);
+    }
+
+
+    @Override
+    public int compareTo(@NotNull Driver o) {
+        if (heat.getRound() instanceof QualificationRound) {
+            return compareToQualification(o);
+        } else {
+            return compareToFinaldriver(o);
+        }
+    }
+
+    private int compareToQualification(Driver o){
+        var bestLap = getBestLap();
+        var oBestLap = o.getBestLap();
+        if (bestLap.isEmpty() && oBestLap.isEmpty()) {
+            return 0;
+        } else if (bestLap.isPresent() && oBestLap.isEmpty()) {
+            return -1;
+        } else if (bestLap.isEmpty() && oBestLap.isPresent()) {
+            return 1;
+        }
+
+        var lapTime = bestLap.get().getLapTime();
+        var oLapTime = oBestLap.get().getLapTime();
+        if (lapTime < oLapTime) {
+            return -1;
+        } else if (lapTime > oLapTime) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    private int compareToFinaldriver(Driver o){
+        if (isFinished() && !o.isFinished()) {
+            return -1;
+        } else if (!isFinished() && o.isFinished()) {
+            return 1;
+        } else if (isFinished() && o.isFinished()) {
+            return getEndTime().compareTo(o.getEndTime());
+        }
+
+        if (getLaps().size() > o.getLaps().size()) {
+            return -1;
+        } else if (getLaps().size() < o.getLaps().size()) {
+            return 1;
+        }
+
+        if (getLaps().size() == 0) {
+            return 0;
+        }
+
+        Lap lap = getCurrentLap();
+        Lap oLap = o.getCurrentLap();
+
+        if (lap.getLatestCheckpoint() > oLap.getLatestCheckpoint()) {
+            return -1;
+        } else if (lap.getLatestCheckpoint() < oLap.getLatestCheckpoint()) {
+            return 1;
+        }
+
+        if (lap.getLatestCheckpoint() == 0) {
+            return 0;
+        } else if (lap.getLatestCheckpoint() == 0) {
+            return lap.getLapStart().compareTo(oLap.getLapStart());
+        }
+
+        Instant last = lap.getCheckpointTime(lap.getLatestCheckpoint());
+        Instant oLast = oLap.getCheckpointTime(lap.getLatestCheckpoint());
+        return last.compareTo(oLast);
     }
 }

@@ -3,10 +3,10 @@ package me.makkuusen.timing.system.event;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
+import me.makkuusen.timing.system.round.QualificationRound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -79,7 +79,7 @@ public class EventAnnouncements {
                 s.getTPlayer().getPlayer().sendMessage("§7Results for §f" + heat.getName());
                 int pos = 1;
                 for (Driver d : drivers) {
-                    if (heat instanceof QualifyHeat) {
+                    if (heat.getRound() instanceof QualificationRound) {
                         s.getTPlayer().getPlayer().sendMessage("§7" +  pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-"));
                     } else  {
                         s.getTPlayer().getPlayer().sendMessage("§7" +  pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + d.getLaps().size() + " §7laps in §f" + ApiUtilities.formatAsTime(d.getFinishTime()));

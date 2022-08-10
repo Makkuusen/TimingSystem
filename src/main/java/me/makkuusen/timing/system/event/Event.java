@@ -9,6 +9,7 @@ import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
+import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.track.Track;
 
 import java.util.HashMap;
@@ -68,6 +69,11 @@ public class Event {
     public void setState(EventState state) {
         this.state = state;
         DB.executeUpdateAsync("UPDATE `ts_events` SET `state` = '" + state.name() + "' WHERE `id` = " + id + ";");
+    }
+
+    public void quickCreate(){
+        EventDatabase.roundNew(this, RoundType.QUALIFICATION, 1);
+        EventDatabase.roundNew(this, RoundType.FINAL, 2);
     }
 
     @Override

@@ -2,10 +2,9 @@ package me.makkuusen.timing.system;
 
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.ItemBuilder;
-import me.makkuusen.timing.system.heat.FinalHeat;
 import me.makkuusen.timing.system.participant.DriverState;
-import me.makkuusen.timing.system.participant.FinalDriver;
-import me.makkuusen.timing.system.participant.QualyDriver;
+import me.makkuusen.timing.system.round.FinalRound;
+import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import org.bukkit.Bukkit;
@@ -40,22 +39,20 @@ public class PlayerTimer {
                     var maybeDriver = EventDatabase.getDriverFromRunningHeat(p.getUniqueId());
                     if (maybeDriver.isPresent()) {
                         var driver = maybeDriver.get();
-                        if (driver instanceof FinalDriver finalDriver) {
-                            if (driver.getHeat() instanceof FinalHeat finalHeat) {
-                                if (!driver.isFinished()) {
-                                    String message = TimingSystem.getPlugin().getLocalizedMessage(
-                                            p,
-                                            "messages.actionbar.race",
-                                            "%laps%", String.valueOf(finalDriver.getLaps().size()),
-                                            "%totalLaps%", String.valueOf(finalHeat.getTotalLaps()),
-                                            "%pos%", String.valueOf(finalDriver.getPosition()),
-                                            "%pits%", String.valueOf(finalDriver.getPits()),
-                                            "%totalPits%", String.valueOf(finalHeat.getTotalPits())
-                                    );
-                                    ApiUtilities.sendActionBar(message, p);
-                                }
+                        if (driver.getHeat().getRound() instanceof FinalRound) {
+                            if (!driver.isFinished()) {
+                                String message = TimingSystem.getPlugin().getLocalizedMessage(
+                                        p,
+                                        "messages.actionbar.race",
+                                        "%laps%", String.valueOf(driver.getLaps().size()),
+                                        "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()),
+                                        "%pos%", String.valueOf(driver.getPosition()),
+                                        "%pits%", String.valueOf(driver.getPits()),
+                                        "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())
+                                );
+                                ApiUtilities.sendActionBar(message, p);
                             }
-                        } else if (driver instanceof QualyDriver) {
+                        } else if (driver.getHeat().getRound() instanceof QualificationRound) {
                             if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
                                 long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                                 long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
@@ -77,23 +74,22 @@ public class PlayerTimer {
                         if (mightBeDriver.isPresent()) {
 
                             var driver = mightBeDriver.get();
-                            if (driver instanceof FinalDriver finalDriver) {
-                                if (driver.getHeat() instanceof FinalHeat finalHeat) {
+                            if (driver.getHeat().getRound() instanceof FinalRound) {
                                     if (!driver.isFinished()) {
                                         String message = TimingSystem.getPlugin().getLocalizedMessage(
                                                 p,
                                                 "messages.actionbar.raceSpectator",
-                                                "%name%", finalDriver.getTPlayer().getName(),
-                                                "%laps%", String.valueOf(finalDriver.getLaps().size()),
-                                                "%totalLaps%", String.valueOf(finalHeat.getTotalLaps()),
-                                                "%pos%", String.valueOf(finalDriver.getPosition()),
-                                                "%pits%", String.valueOf(finalDriver.getPits()),
-                                                "%totalPits%", String.valueOf(finalHeat.getTotalPits())
+                                                "%name%", driver.getTPlayer().getName(),
+                                                "%laps%", String.valueOf(driver.getLaps().size()),
+                                                "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()),
+                                                "%pos%", String.valueOf(driver.getPosition()),
+                                                "%pits%", String.valueOf(driver.getPits()),
+                                                "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())
                                         );
                                         ApiUtilities.sendActionBar(message, p);
-                                    }
+
                                 }
-                            } else if (driver instanceof QualyDriver) {
+                            } else if (driver.getHeat().getRound() instanceof QualificationRound) {
                                 if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
                                     long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                                     long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();

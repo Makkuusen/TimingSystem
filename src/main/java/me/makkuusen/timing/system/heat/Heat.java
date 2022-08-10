@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.heat;
 
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import co.aikar.taskchain.TaskChain;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
@@ -14,6 +15,7 @@ import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.participant.Participant;
+import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.track.GridManager;
 import org.bukkit.Bukkit;
@@ -32,7 +34,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public abstract class Heat {
+public class Heat {
 
     private int id;
     private Event event;
@@ -70,7 +72,13 @@ public abstract class Heat {
         gridManager = new GridManager();
     }
 
-    public abstract String getName();
+    public String getName(){
+        if (round instanceof QualificationRound) {
+            return "Q" + getHeatNumber()+ "_R" + round.getRoundIndex();
+        } else {
+            return "F" + getHeatNumber() + "_R" + round.getRoundIndex();
+        }
+    }
 
     public boolean loadHeat() {
         if (event.getEventSchedule().getCurrentRound() != round.getRoundIndex()) {
@@ -112,21 +120,47 @@ public abstract class Heat {
     }
 
     public void startHeat() {
+
+        if (round instanceof QualificationRound) {
+            startWithDelay(getStartDelay() * 20, true);
+            return;
+        }
+
         setHeatState(HeatState.RACING);
         updateScoreboard();
         setStartTime(TimingSystem.currentTime);
-        getDrivers().values().stream().forEach(driver -> {
-            gridManager.startPlayerFromGrid(driver.getTPlayer().getUniqueId());
-            driver.setStartTime(TimingSystem.currentTime);
-            driver.setState(DriverState.STARTING);
-            EventDatabase.addPlayerToRunningHeat(driver);
-            if (driver.getTPlayer().getPlayer() != null) {
-                driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
-            }
-        });
+        getDrivers().values().stream().forEach(driver -> driver.setStartTime(TimingSystem.currentTime));
+        startWithDelay(1, false);
     }
 
-    public abstract boolean passLap(Driver driver);
+    private void startWithDelay(int startDelayTicks, boolean setStartTime){
+        TaskChain<?> chain = TimingSystem.newSharedChain("STARTING");
+        for (Driver driver : getStartPositions()) {
+            chain.sync(() -> {
+                getGridManager().startPlayerFromGrid(driver.getTPlayer().getUniqueId());
+                if (setStartTime) {
+                    driver.setStartTime(TimingSystem.currentTime);
+                }
+                driver.setState(DriverState.STARTING);
+                if (driver.getTPlayer().getPlayer() != null) {
+                    driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+                }
+            });
+            if (startDelayTicks > 0) {
+                //Start delay in seconds times 20 ticks.
+                chain.delay(startDelayTicks);
+            }
+        }
+        chain.execute();
+    }
+
+    public boolean passLap(Driver driver) {
+        if (round instanceof QualificationRound) {
+            return QualifyHeat.passQualyLap(driver);
+        } else {
+            return FinalHeat.passLap(driver);
+        }
+    }
 
     public boolean finishHeat() {
         if (getHeatState() != HeatState.RACING) {
@@ -157,7 +191,6 @@ public abstract class Heat {
 
         //Dump all laps to database
         getDrivers().values().stream().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
-
 
         var heatResults = EventResults.generateHeatResults(this);
         EventAnnouncements.broadcastHeatResult(heatResults,this);

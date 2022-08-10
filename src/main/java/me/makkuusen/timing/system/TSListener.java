@@ -7,7 +7,7 @@ import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
-import me.makkuusen.timing.system.participant.FinalDriver;
+import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
@@ -445,11 +445,11 @@ public class TSListener implements Listener {
         if (driver.getState() == DriverState.RUNNING) {
             Lap lap = driver.getCurrentLap();
 
-            if (driver instanceof FinalDriver finalDriver) {
+            if (driver.getHeat().getRound() instanceof FinalRound) {
                 // Check for pitstop
                 var maybePit = track.getRegion(TrackRegion.RegionType.PIT);
                 if (maybePit.isPresent() && maybePit.get().contains(player.getLocation())) {
-                    finalDriver.passPit();
+                    driver.passPit();
                     heat.updatePositions();
                     return;
                 }

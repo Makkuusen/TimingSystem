@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.event;
 
 import lombok.Getter;
+import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
 
 import java.util.ArrayList;
@@ -29,8 +30,9 @@ public class EventSchedule {
         rounds.add(round);
     }
 
-    public void removeRound(Round round) {
+    public boolean removeRound(Round round) {
         rounds.remove(round);
+        return true;
     }
 
     public Integer getCurrentRound(){
@@ -56,11 +58,11 @@ public class EventSchedule {
     }
 
     public Optional<Round> getRound(){
-        return Optional.of(rounds.get(currentRound));
+        return Optional.of(rounds.get(currentRound - 1));
     }
 
     public Optional<Round> getNextRound(){
-        return Optional.of(rounds.get(currentRound++));
+        return Optional.of(rounds.get(currentRound));
     }
 
 
@@ -71,6 +73,15 @@ public class EventSchedule {
         return message;
     }
 
+    public Optional<Heat> getHeat(String name){
+        for (Round round : rounds) {
+            if (round.getHeat(name).isPresent()){
+                return round.getHeat(name);
+            }
+        }
+        return Optional.empty();
+    }
+
     public List<String> listHeats() {
         List<String> message = new ArrayList<>();
 
@@ -78,6 +89,16 @@ public class EventSchedule {
             round.getHeats().stream().forEach(heat -> message.add("§a - " + heat.getName()));
         }
         return message;
+    }
+
+    public void setCurrentRound(){
+        int lastRound = 1;
+        for (Round round : rounds) {
+            if (round.getState() == Round.RoundState.FINISHED){
+                lastRound++;
+            }
+        }
+        currentRound = lastRound;
     }
 
 

@@ -9,11 +9,9 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
-import me.makkuusen.timing.system.heat.FinalHeat;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.round.QualificationRound;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Boat;
@@ -44,12 +42,18 @@ public class CommandHeat extends BaseCommand {
     public static void onHeatInfo(Player player, Heat heat) {
         player.sendMessage("§2Heat: §a" + heat.getName());
         player.sendMessage("§2Heatstate: §a" + heat.getHeatState().name());
-        if (heat instanceof QualifyHeat qualifyHeat) {
-            player.sendMessage("§2TimeLimit: §a" + (qualifyHeat.getTimeLimit() / 1000) + "s");
-            player.sendMessage("§2StartDelay: §a" + (qualifyHeat.getStartDelay()) + "s");
-        } else if (heat instanceof FinalHeat finalHeat) {
-            player.sendMessage("§2Laps: §a" + finalHeat.getTotalLaps());
-            player.sendMessage("§2Pits: §a" + finalHeat.getTotalPits());
+        if (heat.getTimeLimit() != null) {
+            player.sendMessage("§2TimeLimit: §a" + (heat.getTimeLimit() / 1000) + "s");
+        }
+        if (heat.getStartDelay() != null) {
+            player.sendMessage("§2StartDelay: §a" + (heat.getStartDelay()) + "s");
+        }
+
+        if (heat.getTotalLaps() != null) {
+            player.sendMessage("§2Laps: §a" + heat.getTotalLaps());
+        }
+        if (heat.getTotalPits() != null) {
+            player.sendMessage("§2Pits: §a" + heat.getTotalPits());
         }
         if (heat.getFastestLapUUID() != null) {
             Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
@@ -120,9 +124,9 @@ public class CommandHeat extends BaseCommand {
         player.sendMessage("§cHeat could not be removed. Is the event already finished?");
     }
 
-    @Subcommand("create qualy")
+    @Subcommand("create")
     @CommandPermission("event.admin")
-    public static void onHeatCreateQualy(Player player, @Optional Event event) {
+    public static void onHeatCreate(Player player, @Optional Event event){
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -136,75 +140,30 @@ public class CommandHeat extends BaseCommand {
             player.sendMessage("§cYour event needs a track, /event set track <name>");
             return;
         }
-        /*
-        if (event.getState() != Event.EventState.SETUP && event.getState() != Event.EventState.QUALIFICATION) {
-            player.sendMessage("§cYour event is already in finals");
-            return;
-        }*/
-       /* int size = event.getEventSchedule().getQualifyHeatList().size();
-        if (EventDatabase.qualifyHeatNew(event, size + 1, TimingSystem.configuration.getTimeLimit() * 1000)) {
-            player.sendMessage("§aHeat has been created");
-            return;
-        }*/
-
-        player.sendMessage("§cHeat could not be created");
-    }
-
-    @Subcommand("create final")
-    @CommandPermission("event.admin")
-    public static void onHeatCreateFinal(Player player, @Optional Event event) {
-        if (event == null) {
-            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
-            if (maybeEvent.isPresent()) {
-                event = maybeEvent.get();
-            } else {
-                player.sendMessage("§cYou have no event selected, /event select <name>");
-                return;
-            }
+        if (event.getEventSchedule().getRound().isPresent()) {
+            var round = event.getEventSchedule().getRound().get();
+            round.createHeat(round.getHeats().size() + 1);
         }
-        if (event.getTrack() == null) {
-            player.sendMessage("§cYour event needs a track, /event set track <name>");
-            return;
-        }
-        if (event.getState() == Event.EventState.FINISHED) {
-            player.sendMessage("§cYour event is already finished");
-            return;
-        }
-/*
-        int size = event.getEventSchedule().getFinalHeatList().size();
-        int pits = 0;
-        var maybePit = event.getTrack().getRegion(TrackRegion.RegionType.PIT);
-        if (maybePit.isPresent() && maybePit.get().isDefined()) {
-            pits = TimingSystem.configuration.getPits();
-        }
-        if (EventDatabase.finalHeatNew(event, size + 1, TimingSystem.configuration.getLaps(), pits)) {
-            player.sendMessage("§aHeat has been created");
-            return;
-        }*/
-        player.sendMessage("§cHeat could not be created");
     }
 
     @Subcommand("set laps")
     @CommandPermission("event.admin")
     @CommandCompletion("<laps> @heat")
     public static void onHeatSetLaps(Player player, Integer laps, Heat heat) {
-        if (heat instanceof FinalHeat finalHeat) {
-                finalHeat.setTotalLaps(laps);
-                player.sendMessage("§aLaps has been updated");
-        } else {
-            player.sendMessage("§cYou can only modify total laps of a final heat.");
-        }
+        heat.setTotalLaps(laps);
+        player.sendMessage("§aLaps has been updated");
     }
 
     @Subcommand("set pits")
     @CommandPermission("event.admin")
     @CommandCompletion("<pits> @heat")
     public static void onHeatSetPits(Player player, Integer pits, Heat heat) {
-        if (heat instanceof FinalHeat finalHeat) {
-            finalHeat.setTotalPits(pits);
-            player.sendMessage("§aPits has been updated");
-        } else {
+        if (heat.getRound() instanceof QualificationRound) {
             player.sendMessage("§cYou can only modify total pits of a final heat.");
+            return;
+        } else {
+            heat.setTotalPits(pits);
+            player.sendMessage("§aPits has been updated");
         }
     }
 
@@ -212,24 +171,17 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     @CommandCompletion("<startdelay> @heat")
     public static void onHeatStartDelay(Player player, Integer startDelay, Heat heat) {
-        if (heat instanceof QualifyHeat) {
-            heat.setStartDelay(startDelay);
-            player.sendMessage("§aStart delay has been updated");
-        } else {
-            player.sendMessage("§cYou can only modify the start delay of a qualifying heat.");
-        }
+        heat.setStartDelay(startDelay);
+        player.sendMessage("§aStart delay has been updated");
+
     }
 
     @Subcommand("set timeLimit")
     @CommandPermission("event.admin")
     @CommandCompletion("<seconds> @heat")
     public static void onHeatSetTime(Player player, Integer seconds, Heat heat) {
-        if (heat instanceof QualifyHeat qualifyHeat) {
-            qualifyHeat.setTimeLimit(seconds * 1000);
+            heat.setTimeLimit(seconds * 1000);
             player.sendMessage("§aTime limit has been updated");
-        } else {
-            player.sendMessage("§cYou can only modify time limit of a qualy heat.");
-        }
     }
 
     @Subcommand("set maxDrivers")
@@ -254,33 +206,22 @@ public class CommandHeat extends BaseCommand {
             return;
         }
 
+        for (Heat h : heat.getRound().getHeats()) {
+            if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
+                sender.sendMessage("§cPlayer is already in this round!");
+                return;
+            }
+        }
 
-        if (heat instanceof QualifyHeat) {
-            for (Heat h : heat.getEvent().getEventSchedule().getQualifyHeatList())
-                if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
-                    sender.sendMessage("§cPlayer is already in a qualification heat!");
-                    return;
-                }
-        } else if (heat instanceof FinalHeat finalHeat) {
-            for (Heat h : heat.getEvent().getEventSchedule().getFinalHeatList())
-                if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
-                    sender.sendMessage("§cPlayer is already in another final heat!");
-                    return;
-                }
+        if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
+            sender.sendMessage("§aAdded driver");
+            return;
         }
-        if (heat instanceof QualifyHeat qualifyHeat) {
-            if (EventDatabase.qualyDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
-                sender.sendMessage("§aAdded driver");
-                return;
-            }
-        } else if (heat instanceof FinalHeat finalHeat) {
-            if (EventDatabase.finalDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
-                sender.sendMessage("§aAdded driver");
-                return;
-            }
-        }
+
         sender.sendMessage("§cCould not add driver to heat");
     }
+
+
 
     @Subcommand("delete driver")
     @CommandPermission("event.admin")
@@ -345,28 +286,16 @@ public class CommandHeat extends BaseCommand {
                 sender.sendMessage("§cMax allowed amount of drivers have been added");
                 return;
             }
-            if (heat instanceof QualifyHeat) {
-                for (Heat h : heat.getEvent().getEventSchedule().getQualifyHeatList())
-                    if (h.getDrivers().get(player.getUniqueId()) != null) {
-                        continue;
-                    }
-            } else if (heat instanceof FinalHeat finalHeat) {
-                for (Heat h : heat.getEvent().getEventSchedule().getFinalHeatList())
-                    if (h.getDrivers().get(player.getUniqueId()) != null) {
-                        continue;
-                    }
+            for (Heat h : heat.getRound().getHeats()) {
+                if (h.getDrivers().get(player.getUniqueId()) != null) {
+                    continue;
+                }
             }
             if (heat.getDrivers().get(player.getUniqueId()) != null) {
                 continue;
             }
-            if (heat instanceof QualifyHeat qualifyHeat) {
-                if (EventDatabase.qualyDriverNew(player.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
-                    continue;
-                }
-            } else if (heat instanceof FinalHeat finalHeat) {
-                if (EventDatabase.finalDriverNew(player.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
-                    continue;
-                }
+            if (EventDatabase.heatDriverNew(player.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
+                continue;
             }
         }
         sender.sendMessage("§aAll online players has been added");

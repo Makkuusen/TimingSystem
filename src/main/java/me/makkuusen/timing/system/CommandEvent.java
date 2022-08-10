@@ -65,6 +65,9 @@ public class CommandEvent extends BaseCommand {
         } else {
             sender.sendMessage("§aTrack: " + event.getTrack().getDisplayName());
         }
+        if (event.getEventSchedule().getCurrentRound() != null){
+            sender.sendMessage("§aRound: " + event.getEventSchedule().getCurrentRound());
+        }
 
         sender.sendMessage("§aState: " + event.getState());
     }
@@ -113,8 +116,8 @@ public class CommandEvent extends BaseCommand {
     }
 
     @CommandPermission("event.admin")
-    @Subcommand("finish round")
-    public static void onFinishRound(Player player, @Optional Event event) {
+    @Subcommand("round finish")
+    public static void onRoundFinish(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -124,15 +127,14 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
         }
-        if (event.eventSchedule.getRound().get().finish(event,event.getEventSchedule().getNextRound().get())) {
-            event.getEventSchedule().nextRound();
-            player.sendMessage("§aRound has been finished. Get ready for finals!");
+        if (event.eventSchedule.getRound().get().finish(event)) {
+            player.sendMessage("§aRound has been finished!");
         } else {
-            player.sendMessage("§cEvent is not in qualification mode");
+            player.sendMessage("§cRound could not be finished");
         }
     }
 
-    @Subcommand("results")
+    @Subcommand("round results")
     @CommandCompletion("<roundNumber>")
     public static void onRoundResults(Player player, Integer index, @Optional Event event) {
         if (event == null) {
@@ -157,60 +159,27 @@ public class CommandEvent extends BaseCommand {
         }
     }
 
-    @Subcommand("results finals")
-    public static void onResultsFinals(Player player, @Optional Event event) {
-        if (event == null) {
-            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
-            if (maybeEvent.isPresent()) {
-                event = maybeEvent.get();
-            } else {
-                player.sendMessage("§cYou have no event selected");
-                return;
-            }
-        }
-        List<Driver> finalResults =  EventResults.generateRoundResults(event.getEventSchedule().getRound(0).get().getHeats());
-        if (finalResults.size() != 0 && event.getState() == Event.EventState.FINISHED) {
-            player.sendMessage("§2Final results for event §a" + event.getDisplayName());
-            int pos = 1;
-            for (Driver d : finalResults) {
-                if (d.isFinished()) {
-                    player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName() + "§2 - §a" + d.getLaps().size() + " §2laps in §a" + ApiUtilities.formatAsTime(d.getFinishTime()));
-                } else {
-                    player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName());
-                }
-            }
-        } else {
-            player.sendMessage("§cFinals has not been finished");
-        }
-    }
-
-    @Subcommand("results qualification")
-    public static void onResultsQualification(Player player, @Optional Event event) {
-        if (event == null) {
-            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
-            if (maybeEvent.isPresent()) {
-                event = maybeEvent.get();
-            } else {
-                player.sendMessage("§cYou have no event selected");
-                return;
-            }
-        }
-        List<Driver> qualyResults = EventResults.generateRoundResults(event.getEventSchedule().getRound(0).get().getHeats());
-        if (qualyResults.size() != 0) {
-            player.sendMessage("§2Qualifying results for event §a" + event.getDisplayName());
-            int pos = 1;
-            for (Driver d : qualyResults) {
-                player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName() + "§2 - §a"  + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0"));
-            }
-        } else {
-            player.sendMessage("§cQualification results are empty");
-        }
-    }
     @Subcommand("spectate")
     @CommandCompletion("@event")
-    public static void onSpectate(Player player, Event event){
+    public static void onSpectate(Player player, Event event) {
         event.addSpectator(player.getUniqueId());
         EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
         player.sendMessage("§aYou are now spectating " + event.getDisplayName());
+    }
+
+    @Subcommand("quick")
+    public static void onQuickCreate(Player player, @Optional Event event) {
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                player.sendMessage("§cYou have no event selected");
+                return;
+            }
+        }
+        event.quickCreate();
+        player.sendMessage("§aYou have made a quickEvent");
+
     }
 }

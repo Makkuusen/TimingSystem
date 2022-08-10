@@ -4,8 +4,10 @@ import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
+import me.makkuusen.timing.system.participant.Driver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,7 @@ public abstract class Round {
     private RoundState state;
 
 
-    enum RoundState{
+    public enum RoundState{
         SETUP, RUNNING, FINISHED
     }
 
@@ -42,11 +44,11 @@ public abstract class Round {
         heats.add(heat);
     }
 
-    public boolean removeHeat(Heat IHeat) {
-        if (IHeat.getHeatState() != HeatState.FINISHED && IHeat.getEvent().getState() != Event.EventState.FINISHED && heats.contains(IHeat)) {
-            heats.remove(IHeat);
+    public boolean removeHeat(Heat heat) {
+        if (heat.getHeatState() != HeatState.FINISHED && heat.getEvent().getState() != Event.EventState.FINISHED && heats.contains(heat)) {
+            heats.remove(heat);
             for (Heat _heat : heats) {
-                if (IHeat.getHeatNumber() < _heat.getHeatNumber()) {
+                if (heat.getHeatNumber() < _heat.getHeatNumber()) {
                     _heat.setHeatNumber(_heat.getHeatNumber() - 1);
                 }
             }
@@ -56,7 +58,7 @@ public abstract class Round {
     }
 
     public Optional<Heat> getHeat(String heatName) {
-        return heats.stream().filter(IHeat -> heatName.equalsIgnoreCase(IHeat.getName())).findFirst();
+        return heats.stream().filter(Heat -> heatName.equalsIgnoreCase(Heat.getName())).findFirst();
     }
 
     public List<String> getRawHeats() {
@@ -65,7 +67,57 @@ public abstract class Round {
         return heatList;
     }
 
-    public abstract boolean finish(Event event, Round nextRound);
+    public void initRound(List<Driver> drivers) {
+        if (getHeats().isEmpty()) {
+            int maxDrivers = getEvent().getTrack().getGridLocations().size();
+            int heats = drivers.size() / maxDrivers;
+            if (drivers.size() % maxDrivers != 0) {
+                heats++;
+            }
+            for (int i = 0; i < heats; i++) {
+                createHeat(i+1);
+            }
+        }
+        addDriversToHeats(drivers);
+    }
 
+    public abstract void createHeat(int heatNumber);
 
+    public boolean finish(Event event) {
+        if (event.getState() != Event.EventState.RUNNING) {
+            return false;
+        }
+        if (getHeats().stream().anyMatch(Heat::isActive)){
+            return false;
+        }
+
+        List<Driver> drivers = EventResults.generateRoundResults(getHeats());
+        if (getHeats().size() > 1) {
+            broadcastResults(event, drivers);
+        }
+
+        if (getEvent().getEventSchedule().isLastRound()) {
+            return true;
+        }
+
+        getEvent().getEventSchedule().getNextRound().get().initRound(drivers);
+
+        event.eventSchedule.nextRound();
+        return true;
+    }
+
+    public abstract void broadcastResults(Event event, List<Driver> drivers);
+
+    public void addDriversToHeats(List<Driver> drivers){
+        int i = 0;
+        for (Heat heat : getHeats()) {
+            int startPos = 1;
+            for (; i < drivers.size(); i++) {
+                if (startPos > heat.getMaxDrivers()){
+                    break;
+                }
+                EventDatabase.heatDriverNew(drivers.get(i).getTPlayer().getUniqueId(), heat, startPos++);
+            }
+        }
+    }
 }

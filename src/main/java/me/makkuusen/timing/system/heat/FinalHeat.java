@@ -1,44 +1,21 @@
 package me.makkuusen.timing.system.heat;
 
-import co.aikar.idb.DbRow;
-import lombok.Getter;
-import lombok.Setter;
-import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
-import me.makkuusen.timing.system.participant.FinalDriver;
-import me.makkuusen.timing.system.round.Round;
-
-@Getter
-@Setter
-public class FinalHeat extends Heat {
 
 
+public class FinalHeat{
 
-    public FinalHeat(DbRow data, Round round) {
-        super(data, round);
-
-    }
-
-    public String getName(){
-        return "F" + getHeatNumber();
-    }
-
-    @Override
-    public boolean passLap(Driver driver){
-        if (getHeatState() != HeatState.RACING) {
+    public static boolean passLap(Driver driver){
+        if (driver.getHeat().getHeatState() != HeatState.RACING) {
             return false;
         }
-        if (!(driver instanceof FinalDriver))
+
+        if (driver.getHeat().getTotalLaps() <= driver.getLaps().size() && driver.getHeat().getTotalPits() <= driver.getPits())
         {
-            return false;
-        }
-        FinalDriver fDriver = (FinalDriver) driver;
-        if (getTotalLaps() <= fDriver.getLaps().size() && getTotalPits() <= fDriver.getPits())
-        {
-            finishDriver(fDriver);
-            if (noDriversRunning()){
-                finishHeat();
+            finishDriver(driver);
+            if (driver.getHeat().noDriversRunning()){
+                driver.getHeat().finishHeat();
             }
             return true;
         }
@@ -46,11 +23,11 @@ public class FinalHeat extends Heat {
         return true;
     }
 
-    private void finishDriver(FinalDriver driver) {
+    private static void finishDriver(Driver driver) {
         driver.finish();
-        updatePositions();
+        driver.getHeat().updatePositions();
         EventAnnouncements.sendFinishSound(driver);
         EventAnnouncements.sendFinishTitle(driver);
-        EventAnnouncements.broadcastFinish(this, driver, driver.getFinishTime());
+        EventAnnouncements.broadcastFinish(driver.getHeat(), driver, driver.getFinishTime());
     }
 }
