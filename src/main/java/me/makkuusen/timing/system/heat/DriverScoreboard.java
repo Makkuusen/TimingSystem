@@ -2,8 +2,7 @@ package me.makkuusen.timing.system.heat;
 
 import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.participant.Driver;
-import me.makkuusen.timing.system.participant.FinalDriver;
-import me.makkuusen.timing.system.participant.QualyDriver;
+import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -57,11 +56,11 @@ public class DriverScoreboard {
             } else if (count > last) {
                 break;
             }
-            if (heat instanceof QualifyHeat) {
-                lines.add(getDriverRow((QualyDriver) driver, (QualyDriver) this.driver));
+            if (heat.getRound() instanceof QualificationRound) {
+                lines.add(getDriverRowQualy(driver, this.driver));
 
-            } else if (heat instanceof FinalHeat) {
-                lines.add(getDriverRow((FinalDriver) driver, (FinalDriver) this.driver));
+            } else {
+                lines.add(getDriverRowFinal(driver,this.driver));
             }
         }
         return lines;
@@ -75,17 +74,17 @@ public class DriverScoreboard {
             if (count > last) {
                 break;
             }
-            if (heat instanceof QualifyHeat) {
-                lines.add(getDriverRow((QualyDriver) driver, (QualyDriver) this.driver));
+            if (heat.getRound() instanceof QualificationRound) {
+                lines.add(getDriverRowQualy(driver, this.driver));
 
-            } else if (heat instanceof FinalHeat) {
-                lines.add(getDriverRow((FinalDriver) driver, (FinalDriver) this.driver));
+            } else {
+                lines.add(getDriverRowFinal(driver,this.driver));
             }
         }
         return lines;
     }
 
-    private String getDriverRow(FinalDriver driver, FinalDriver comparingDriver){
+    private String getDriverRowFinal(Driver driver, Driver comparingDriver){
         if (driver.getLaps().size() < 1) {
             return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPosition());
         }
@@ -140,7 +139,7 @@ public class DriverScoreboard {
         return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition());
     }
 
-    private String getDriverRow(QualyDriver driver, QualyDriver comparingDriver) {
+    private String getDriverRowQualy(Driver driver, Driver comparingDriver) {
         if (driver.getBestLap().isEmpty()) {
             return ScoreboardUtils.getDriverLine(driver.getTPlayer().getName(), driver.getPosition());
         }

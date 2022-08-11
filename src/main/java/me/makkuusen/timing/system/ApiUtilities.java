@@ -182,6 +182,42 @@ public class ApiUtilities {
         return flagsNew.toString();
     }
 
+    public static Integer parseDurationToMillis(String input)
+    {
+        long duration = 0;
+        String tmp = "";
+
+        for (Character character : input.toCharArray())
+        {
+            if (character.toString().matches("[0-9]"))
+            {
+                tmp += character;
+            }
+
+            else
+            {
+                if (tmp.length() == 0) { return null; }
+
+                if (character == 's') { duration += Integer.parseInt(tmp) * 1000; }
+                else if (character == 'm') { duration += Integer.parseInt(tmp) * 60 * 1000; }
+                else if (character == 'h') { duration += Integer.parseInt(tmp) * 3600 * 1000; }
+                else if (character == 'd') { duration += Integer.parseInt(tmp) * 86400 * 1000; }
+                else { return null; }
+
+                tmp = "";
+            }
+        }
+
+        // default to milliseconds
+        if (tmp.length() != 0)
+        {
+            try { duration += Integer.parseInt(tmp); }
+            catch (Exception exception) { return null; }
+        }
+
+        return Integer.valueOf(String.valueOf(duration));
+    }
+
     public static String formatPermissions(char[] permissions) {
         if (permissions.length == 0) {
             return "(inga)";

@@ -18,6 +18,9 @@ commands:
    heat:
       description: Command for heats.
       aliases: []
+   round:
+      description: Command for rounds.
+      aliases: []
 
 permissions:
 

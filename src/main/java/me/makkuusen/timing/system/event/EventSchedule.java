@@ -1,10 +1,8 @@
 package me.makkuusen.timing.system.event;
 
 import lombok.Getter;
-import me.makkuusen.timing.system.heat.FinalHeat;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.heat.HeatState;
-import me.makkuusen.timing.system.heat.QualifyHeat;
+import me.makkuusen.timing.system.round.Round;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,84 +10,113 @@ import java.util.Optional;
 
 @Getter
 public class EventSchedule {
-
-    private final List<QualifyHeat> qualifyHeatList = new ArrayList<>();
-    private final List<FinalHeat> finalHeatList = new ArrayList<>();
+    private List<Round> rounds = new ArrayList<>();
+    private Integer currentRound = null;
 
     public EventSchedule() {
 
     }
 
-    public void createQuickSchedule(List<QualifyHeat> qualifyHeats, List<FinalHeat> finalHeats) {
-        qualifyHeatList.addAll(qualifyHeats);
-        finalHeatList.addAll(finalHeats);
-    }
-
-    public List<Heat> getHeats() {
-        List<Heat> heats = new ArrayList<>();
-        heats.addAll(getQualifyHeatList());
-        heats.addAll(getFinalHeatList());
-        return heats;
-    }
-
-    public boolean addHeat(Heat heat) {
-        if (heat instanceof QualifyHeat qualifyHeat && !qualifyHeatList.contains(qualifyHeat)) {
-            qualifyHeatList.add(qualifyHeat);
+    public boolean start(Event event){
+        if (rounds.size() > 0){
+            event.setState(Event.EventState.RUNNING);
+            currentRound = 1;
+            getRound().get().setState(Round.RoundState.RUNNING);
             return true;
-        } else if (heat instanceof FinalHeat finalHeat && !finalHeatList.contains(finalHeat)) {
-            finalHeatList.add(finalHeat);
         }
-
         return false;
     }
 
-    public boolean removeHeat(Heat heat) {
-        if (heat.getHeatState() != HeatState.FINISHED && heat.getEvent().getState() != Event.EventState.FINISHED) {
-            if (heat instanceof QualifyHeat qualifyHeat && qualifyHeatList.contains(qualifyHeat)) {
-                qualifyHeatList.remove(qualifyHeat);
-                for (Heat qheat : qualifyHeatList) {
-                    if (heat.getHeatNumber() < qheat.getHeatNumber()){
-                        qheat.setHeatNumber(qheat.getHeatNumber() - 1);
-                    }
-                }
-                return true;
-            } else if (heat instanceof FinalHeat finalHeat && finalHeatList.contains(finalHeat)) {
-                finalHeatList.remove(finalHeat);
-                for (Heat fheat : finalHeatList) {
-                    if (heat.getHeatNumber() < fheat.getHeatNumber()){
-                        fheat.setHeatNumber(fheat.getHeatNumber() - 1);
-                    }
-                }
-                return true;
+    public void addRound(Round round){
+        rounds.add(round);
+    }
+
+    public boolean removeRound(Round round) {
+        rounds.remove(round);
+        return true;
+    }
+
+    public Integer getCurrentRound(){
+        if (currentRound != null) {
+            return currentRound;
+        }
+        return null;
+    }
+
+    public void nextRound(){
+        currentRound++;
+    }
+
+    public boolean isLastRound(){
+        return currentRound >= rounds.size();
+    }
+
+    public Optional<Round> getRound(int index){
+        if (index > 0 && index <= rounds.size()) {
+            return Optional.of(rounds.get(index - 1));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Round> getRound(){
+        return Optional.of(rounds.get(currentRound - 1));
+    }
+
+    public Optional<Round> getNextRound(){
+        return Optional.of(rounds.get(currentRound));
+    }
+
+
+    public List<String> getHeatList(Event event) {
+        List<String> message = new ArrayList<>();
+        message.add("§2--- Heats for §a" + event.getDisplayName() + " §2---");
+        message.addAll(listHeats());
+        return message;
+    }
+
+    public List<String> getRoundList(Event event) {
+        List<String> message = new ArrayList<>();
+        message.add("§2--- Rounds for §a" + event.getDisplayName() + " §2---");
+        message.addAll(listRounds());
+
+        return message;
+    }
+
+    public Optional<Heat> getHeat(String name){
+        for (Round round : rounds) {
+            if (round.getHeat(name).isPresent()){
+                return round.getHeat(name);
             }
         }
-        return false;
+        return Optional.empty();
+    }
+
+    public Optional<Round> getRound(String name){
+        return rounds.stream().filter(round -> name.equalsIgnoreCase(round.getName())).findFirst();
+    }
+
+    public List<String> listRounds(){
+        List<String> message = new ArrayList<>();
+        rounds.stream().forEach(round -> message.add("§a - " + round.getName()));
+        return message;
     }
 
     public List<String> listHeats() {
         List<String> message = new ArrayList<>();
 
-        if (!getQualifyHeatList().isEmpty()) {
-            message.add("§2Qualification Heats:");
-            getQualifyHeatList().stream().forEach(heat -> message.add("§a - " + heat.getName()));
-        }
-
-        if (!getFinalHeatList().isEmpty()) {
-            message.add("§2Final Heats:");
-            getFinalHeatList().stream().forEach(heat -> message.add("§a - " + heat.getName()));
+        for (Round round : rounds) {
+            round.getHeats().stream().forEach(heat -> message.add("§a - " + heat.getName()));
         }
         return message;
     }
 
-    public List<String> getRawHeats() {
-        List<String> heats = new ArrayList<>();
-        getQualifyHeatList().stream().forEach(heat -> heats.add(heat.getName()));
-        getFinalHeatList().stream().forEach(heat -> heats.add(heat.getName()));
-        return heats;
-    }
-
-    public Optional<Heat> getHeat(String heatName) {
-        var heats = getHeats();
-        return heats.stream().filter(heat -> heatName.equalsIgnoreCase(heat.getName())).findFirst();
+    public void setCurrentRound(){
+        int lastRound = 1;
+        for (Round round : rounds) {
+            if (round.getState() == Round.RoundState.FINISHED){
+                lastRound++;
+            }
+        }
+        currentRound = lastRound;
     }
 }

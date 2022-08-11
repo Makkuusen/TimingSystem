@@ -20,9 +20,10 @@ tracks:
 finals:
    laps: 5
    pits: 2
+   startDelay: 50
 qualifying:
-   timeLimitInSeconds: 60
-   startDelayInSeconds: 2
+   timeLimit: 60s
+   startDelay: 2s
 sql:
    host: '127.0.0.1'
    port: 3306

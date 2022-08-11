@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.heat;
 
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import co.aikar.taskchain.TaskChain;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
@@ -14,6 +15,10 @@ import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.participant.Participant;
+import me.makkuusen.timing.system.round.BCCSprintRace;
+import me.makkuusen.timing.system.round.FinalRound;
+import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.track.GridManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,16 +30,18 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
-public abstract class Heat {
+public class Heat {
 
     private int id;
     private Event event;
+    private Round round;
     private Integer heatNumber;
     private Instant startTime;
     private Instant endTime;
@@ -51,9 +58,10 @@ public abstract class Heat {
     private Integer maxDrivers;
     private SpectatorScoreboard scoreboard;
 
-    public Heat(DbRow data) {
+    public Heat(DbRow data, Round round) {
         id = data.getInt("id");
-        event = EventDatabase.getEvent(data.getInt("eventId")).get();
+        this.event = round.getEvent();
+        this.round = round;
         heatState = HeatState.valueOf(data.getString("state"));
         heatNumber = data.getInt("heatNumber");
         startTime = data.getLong("startTime") == null ? null : Instant.ofEpochMilli(data.getLong("startTime"));
@@ -62,18 +70,23 @@ public abstract class Heat {
         totalLaps = data.get("totalLaps") == null ? null : data.getInt("totalLaps");
         totalPits = data.get("totalPitstops") == null ? null : data.getInt("totalPitstops");
         maxDrivers = data.get("maxDrivers") == null ? null : data.getInt("maxDrivers");
-        startDelay = data.get("startDelay") == null ? TimingSystem.configuration.getStartDelay() : data.getInt("startDelay");
+        startDelay = data.get("startDelay") == null ? round instanceof FinalRound ? TimingSystem.configuration.getFinalStartDelayInMS() : TimingSystem.configuration.getQualyStartDelayInMS() : data.getInt("startDelay");
         fastestLapUUID = data.getString("fastestLapUUID") == null ? null : UUID.fromString(data.getString("fastestLapUUID"));
         gridManager = new GridManager();
     }
 
-    public abstract String getName();
+    public String getName(){
+        if (round instanceof QualificationRound) {
+            return "R" + round.getRoundIndex() + "Q" + getHeatNumber();
+        } else if (round instanceof BCCSprintRace){
+            return "R" + round.getRoundIndex() + "SR" + getHeatNumber();
+        } else {
+            return "R" + round.getRoundIndex() + "F" + getHeatNumber();
+        }
+    }
 
     public boolean loadHeat() {
-        if (this instanceof QualifyHeat && event.getState() != Event.EventState.QUALIFICATION) {
-            return false;
-        }
-        if (this instanceof FinalHeat && event.getState() != Event.EventState.FINAL) {
+        if (event.getEventSchedule().getCurrentRound() != round.getRoundIndex()) {
             return false;
         }
         if (getHeatState() != HeatState.SETUP) {
@@ -112,26 +125,52 @@ public abstract class Heat {
     }
 
     public void startHeat() {
+
         setHeatState(HeatState.RACING);
         updateScoreboard();
         setStartTime(TimingSystem.currentTime);
-        getDrivers().values().stream().forEach(driver -> {
-            gridManager.startPlayerFromGrid(driver.getTPlayer().getUniqueId());
-            driver.setStartTime(TimingSystem.currentTime);
-            driver.setState(DriverState.STARTING);
-            EventDatabase.addPlayerToRunningHeat(driver);
-            if (driver.getTPlayer().getPlayer() != null) {
-                driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
-            }
-        });
+        if (round instanceof QualificationRound) {
+            startWithDelay(getStartDelay(), true);
+            return;
+        }
+        getDrivers().values().stream().forEach(driver -> driver.setStartTime(TimingSystem.currentTime));
+        startWithDelay(getStartDelay(), false);
     }
 
-    public abstract boolean passLap(Driver driver);
+    private void startWithDelay(long startDelayMS, boolean setStartTime){
+        TaskChain<?> chain = TimingSystem.newSharedChain("STARTING");
+        for (Driver driver : getStartPositions()) {
+            chain.sync(() -> {
+                getGridManager().startPlayerFromGrid(driver.getTPlayer().getUniqueId());
+                if (setStartTime) {
+                    driver.setStartTime(TimingSystem.currentTime);
+                }
+                driver.setState(DriverState.STARTING);
+                if (driver.getTPlayer().getPlayer() != null) {
+                    driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+                }
+            });
+            if (startDelayMS > 0) {
+                //Start delay in ms divided by 50ms to get ticks
+                chain.delay((int)(startDelayMS / 50));
+            }
+        }
+        chain.execute();
+    }
+
+    public boolean passLap(Driver driver) {
+        if (round instanceof QualificationRound) {
+            return QualifyHeat.passQualyLap(driver);
+        } else {
+            return FinalHeat.passLap(driver);
+        }
+    }
 
     public boolean finishHeat() {
         if (getHeatState() != HeatState.RACING) {
             return false;
         }
+        updatePositions();
         setHeatState(HeatState.FINISHED);
         setEndTime(TimingSystem.currentTime);
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(TimingSystem.getPlugin(), new Runnable() {
@@ -158,11 +197,8 @@ public abstract class Heat {
         //Dump all laps to database
         getDrivers().values().stream().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
 
-        if (this instanceof QualifyHeat qualifyHeat) {
-            EventAnnouncements.broadcastHeatResult(EventResults.generateQualyHeatResults(qualifyHeat), qualifyHeat);
-        } else {
-            EventAnnouncements.broadcastHeatResult(EventResults.generateFinalHeatResults((FinalHeat) this), this);
-        }
+        var heatResults = EventResults.generateHeatResults(this);
+        EventAnnouncements.broadcastHeatResult(heatResults,this);
 
         return true;
     }
@@ -207,7 +243,8 @@ public abstract class Heat {
     public void addDriver(Driver driver) {
         drivers.put(driver.getTPlayer().getUniqueId(), driver);
         if (driver.getStartPosition() > 0) {
-            startPositions.add(driver.getStartPosition() - 1, driver);
+            startPositions.add(driver);
+            Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
         }
         if (!event.getSpectators().containsKey(driver.getTPlayer().getUniqueId())) {
             event.addSpectator(driver.getTPlayer().getUniqueId());
@@ -303,7 +340,7 @@ public abstract class Heat {
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `timeLimit` = " + timeLimit + " WHERE `id` = " + getId() + ";");
     }
 
-    public void setStartDelay(int startDelay) {
+    public void setStartDelayInTicks(int startDelay) {
         this.startDelay = startDelay;
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `startDelay` = " + startDelay + " WHERE `id` = " + getId() + ";");
     }
