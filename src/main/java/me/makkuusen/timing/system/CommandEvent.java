@@ -53,6 +53,25 @@ public class CommandEvent extends BaseCommand {
         player.sendMessage("§cEvent couldn't start. Setup is not finished");
     }
 
+    @CommandPermission("event.admin")
+    @Subcommand("finish")
+    public static void onFinish(Player player, @Optional Event event) {
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                player.sendMessage("§cYou have no event selected");
+                return;
+            }
+        }
+        if (event.finish()) {
+            player.sendMessage("§aEvent has finished");
+            return;
+        }
+        player.sendMessage("§cEvent couldn't finish");
+    }
+
     @Subcommand("info")
     @CommandCompletion("@event")
     public static void onInfo(CommandSender sender, Event event) {

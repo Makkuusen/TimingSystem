@@ -9,6 +9,7 @@ import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
+import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.track.Track;
 
@@ -56,6 +57,19 @@ public class Event {
         }
         return eventSchedule.start(this);
     }
+
+    public boolean finish() {
+        if (state == EventState.FINISHED || state == EventState.SETUP) {
+            return false;
+        }
+        if (eventSchedule.isLastRound() && eventSchedule.getRound().isPresent() && eventSchedule.getRound().get().getState() == Round.RoundState.FINISHED) {
+            setState(EventState.FINISHED);
+            return true;
+        }
+
+        return false;
+    }
+
 
     public void addSpectator(UUID uuid) {
         spectators.put(uuid, new Spectator(Database.getPlayer(uuid)));

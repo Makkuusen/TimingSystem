@@ -170,6 +170,7 @@ public class Heat {
         if (getHeatState() != HeatState.RACING) {
             return false;
         }
+        updatePositions();
         setHeatState(HeatState.FINISHED);
         setEndTime(TimingSystem.currentTime);
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(TimingSystem.getPlugin(), new Runnable() {
