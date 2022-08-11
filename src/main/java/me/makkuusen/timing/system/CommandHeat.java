@@ -9,13 +9,19 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.round.Round;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 @CommandAlias("heat")
 public class CommandHeat extends BaseCommand {
@@ -46,7 +52,7 @@ public class CommandHeat extends BaseCommand {
             player.sendMessage("§2TimeLimit: §a" + (heat.getTimeLimit() / 1000) + "s");
         }
         if (heat.getStartDelay() != null) {
-            player.sendMessage("§2StartDelay: §a" + (heat.getStartDelay()) + "s");
+            player.sendMessage("§2StartDelay: §a" + (heat.getStartDelay()) + "ms");
         }
 
         if (heat.getTotalLaps() != null) {
@@ -125,8 +131,9 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("create")
+    @CommandCompletion("@round")
     @CommandPermission("event.admin")
-    public static void onHeatCreate(Player player, @Optional Event event){
+    public static void onHeatCreate(Player player, Round round, @Optional Event event){
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -140,10 +147,8 @@ public class CommandHeat extends BaseCommand {
             player.sendMessage("§cYour event needs a track, /event set track <name>");
             return;
         }
-        if (event.getEventSchedule().getRound().isPresent()) {
-            var round = event.getEventSchedule().getRound().get();
-            round.createHeat(round.getHeats().size() + 1);
-        }
+        round.createHeat(round.getHeats().size() + 1);
+        player.sendMessage("§aCreated heat for " + round.getDisplayName());
     }
 
     @Subcommand("set laps")
@@ -169,19 +174,29 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("set startdelay")
     @CommandPermission("event.admin")
-    @CommandCompletion("<startdelay> @heat")
-    public static void onHeatStartDelay(Player player, Integer startDelay, Heat heat) {
-        heat.setStartDelay(startDelay);
+    @CommandCompletion("<h/m/s> @heat")
+    public static void onHeatStartDelay(Player player, String startDelay, Heat heat) {
+        Integer delay = ApiUtilities.parseDurationToMillis(startDelay);
+        if (delay == null){
+            player.sendMessage("§cYou need to format the time correctly, e.g. 2s");
+            return;
+        }
+        heat.setStartDelayInTicks(delay);
         player.sendMessage("§aStart delay has been updated");
 
     }
 
     @Subcommand("set timeLimit")
     @CommandPermission("event.admin")
-    @CommandCompletion("<seconds> @heat")
-    public static void onHeatSetTime(Player player, Integer seconds, Heat heat) {
-            heat.setTimeLimit(seconds * 1000);
-            player.sendMessage("§aTime limit has been updated");
+    @CommandCompletion("<h/m/s> @heat")
+    public static void onHeatSetTime(Player player, String time, Heat heat) {
+        Integer timeLimit = ApiUtilities.parseDurationToMillis(time);
+        if (timeLimit == null){
+            player.sendMessage("§cYou need to format the time correctly, e.g. 2m");
+            return;
+        }
+        heat.setTimeLimit(timeLimit);
+        player.sendMessage("§aTime limit has been updated");
     }
 
     @Subcommand("set maxDrivers")
@@ -301,20 +316,19 @@ public class CommandHeat extends BaseCommand {
         sender.sendMessage("§aAll online players has been added");
     }
 
-    /*
+
 
     @Subcommand("results")
     @CommandCompletion("@heat")
     public static void onHeatResults(Player sender, Heat heat) {
         if (heat.getHeatState() == HeatState.FINISHED) {
-            sender.sendMessage("§aResults for heat " + heat.getName());
-            if (heat instanceof FinalHeat finalHeat){
-                List<Driver> result = EventResults.generateHeatResults(finalHeat);
+            sender.sendMessage("§2Results for heat §a" + heat.getName());
+            List<Driver> result = EventResults.generateHeatResults(heat);
+            if (heat.getRound() instanceof FinalRound){
                 for (Driver d : result) {
                     sender.sendMessage("§2" + d.getPosition() + ". §a" + d.getTPlayer().getName() + "§2 - §a" + d.getLaps().size() + " §2laps in §a" + ApiUtilities.formatAsTime(d.getFinishTime()));
                 }
             } else {
-                List<Driver> result = EventResults.generateQualyHeatResults((QualifyHeat) heat);
                 for (Driver d : result) {
                     sender.sendMessage("§2" + d.getPosition() + ". §a" + d.getTPlayer().getName() + "§2 - §a"  + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0"));
                 }
@@ -322,6 +336,6 @@ public class CommandHeat extends BaseCommand {
         } else {
             sender.sendMessage("§cHeat has not been finished");
         }
-    }*/
+    }
 }
 

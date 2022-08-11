@@ -32,7 +32,7 @@ public class LeaderboardManager {
         var topTen = Track.getTopList(10);
         List<String> textLines = new ArrayList<>();
 
-        for (String line : TimingSystem.configuration.leaderboardsFastestTimeLines()) {
+        for (String line : TimingSystem.configuration.getLeaderboardsFastestTimeLines()) {
 
             line = line.replace("{mapname}", Track.getDisplayName());
 
@@ -111,6 +111,6 @@ public class LeaderboardManager {
     }
 
     public static void startUpdateTask() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(TimingSystem.getPlugin(), (@NotNull Runnable) LeaderboardManager::updateAllFastestTimeLeaderboard, 30 * 20, TimingSystem.configuration.leaderboardsUpdateTick());
+        Bukkit.getScheduler().runTaskTimerAsynchronously(TimingSystem.getPlugin(), (@NotNull Runnable) LeaderboardManager::updateAllFastestTimeLeaderboard, 30 * 20, TimingSystem.configuration.getLeaderboardsUpdateTick());
     }
 }

@@ -11,14 +11,11 @@ import co.aikar.commands.annotation.Single;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
-import me.makkuusen.timing.system.event.EventResults;
-import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @CommandAlias("event")
@@ -112,51 +109,6 @@ public class CommandEvent extends BaseCommand {
         }
         event.setTrack(track);
         player.sendMessage("§aTrack has been updated");
-
-    }
-
-    @CommandPermission("event.admin")
-    @Subcommand("round finish")
-    public static void onRoundFinish(Player player, @Optional Event event) {
-        if (event == null) {
-            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
-            if (maybeEvent.isPresent()) {
-                event = maybeEvent.get();
-            } else {
-                player.sendMessage("§cYou have no event selected");
-                return;
-            }
-        }
-        if (event.eventSchedule.getRound().get().finish(event)) {
-            player.sendMessage("§aRound has been finished!");
-        } else {
-            player.sendMessage("§cRound could not be finished");
-        }
-    }
-
-    @Subcommand("round results")
-    @CommandCompletion("<roundNumber>")
-    public static void onRoundResults(Player player, Integer index, @Optional Event event) {
-        if (event == null) {
-            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
-            if (maybeEvent.isPresent()) {
-                event = maybeEvent.get();
-            } else {
-                player.sendMessage("§cYou have no event selected");
-                return;
-            }
-        }
-        List<Driver> results = EventResults.generateRoundResults(event.getEventSchedule().getRound(index).get().getHeats());
-        if (results.size() != 0) {
-            player.sendMessage("§2Round results for event §a" + event.getDisplayName());
-            int pos = 1;
-            for (Driver d : results) {
-                player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName());
-
-            }
-        } else {
-            player.sendMessage("§cRound has not been finished");
-        }
     }
 
     @Subcommand("spectate")

@@ -17,6 +17,14 @@ public class FinalRound extends Round {
     }
 
 
+    public String getName(){
+        return "R" + getRoundIndex() + "-Final";
+    }
+
+    public String getDisplayName(){
+        return "Round " + getRoundIndex() + " - Final";
+    }
+
     public void broadcastResults(Event event, List<Driver> drivers){
         EventAnnouncements.broadcastFinalResults(event, drivers);
     }

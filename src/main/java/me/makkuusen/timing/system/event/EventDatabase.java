@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.round.BCCSprintRace;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
@@ -51,7 +52,8 @@ public class EventDatabase {
                 var type = RoundType.valueOf(roundData.getString("type"));
                 if (type == RoundType.FINAL) {
                     round = new FinalRound(roundData);
-
+                } else if (type == RoundType.BCCSprintRace) {
+                    round = new BCCSprintRace(roundData);
                 } else {
                     round = new QualificationRound(roundData);
                 }
@@ -189,7 +191,9 @@ public class EventDatabase {
             Round round;
             if (roundType == RoundType.QUALIFICATION) {
                  round = new QualificationRound(dbRow);
-            } else {
+            } else if (roundType == RoundType.BCCSprintRace) {
+                round = new BCCSprintRace(dbRow);
+            } else  {
                 round = new FinalRound(dbRow);
             }
             event.eventSchedule.addRound(round);
@@ -316,6 +320,17 @@ public class EventDatabase {
         return eventStrings;
     }
 
+    static public List<String> getRoundsAsStrings(UUID uuid) {
+        var maybeEvent = getPlayerSelectedEvent(uuid);
+        if (maybeEvent.isEmpty()) {
+            return List.of();
+        }
+        List<String> roundList = new ArrayList<>();
+        maybeEvent.get().eventSchedule.getRounds().forEach(round -> roundList.add(round.getName()));
+        return roundList;
+
+    }
+
     static public List<String> getHeatsAsStrings(UUID uuid) {
         var maybeEvent = getPlayerSelectedEvent(uuid);
         if (maybeEvent.isEmpty()) {
@@ -337,6 +352,22 @@ public class EventDatabase {
                 // User didn't type an Event, show error!
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
+        };
+    }
+
+    public static ContextResolver<Round, BukkitCommandExecutionContext> getRoundContextResolver() {
+        return (c) -> {
+            String roundName = c.popFirstArg();
+            var maybeEvent = getPlayerSelectedEvent(c.getPlayer().getUniqueId());
+            if (maybeEvent.isPresent()) {
+                Event event = maybeEvent.get();
+                var maybeRound = event.getEventSchedule().getRound(roundName);
+                if (maybeRound.isPresent()) {
+                    return maybeRound.get();
+                }
+            }
+            // User didn't type a heat, show error!
+            throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
         };
     }
 

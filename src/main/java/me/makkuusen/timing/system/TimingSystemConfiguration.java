@@ -12,8 +12,9 @@ public class TimingSystemConfiguration {
     private final int timesPageSize;
     private final int laps;
     private final int pits;
-    private final int timeLimit;
-    private final int startDelay;
+    private final Integer timeLimit;
+    private final Integer qualyStartDelayInMS;
+    private final Integer finalStartDelayInMS;
     private final String sqlHost;
     private final int sqlPort;
     private final String sqlDatabase;
@@ -30,29 +31,15 @@ public class TimingSystemConfiguration {
 
         laps = plugin.getConfig().getInt("finals.laps");
         pits = plugin.getConfig().getInt("finals.pits");
-        timeLimit = plugin.getConfig().getInt("qualifying.timeLimitInSeconds");
-        startDelay = plugin.getConfig().getInt("qualifying.startDelayInSeconds");
+        timeLimit = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("qualifying.timeLimit"));
+
+        qualyStartDelayInMS = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("qualifying.startDelay"));
+        finalStartDelayInMS = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("finals.startDelay"));
 
         sqlHost = plugin.getConfig().getString("sql.host");
         sqlPort = plugin.getConfig().getInt("sql.port");
         sqlDatabase = plugin.getConfig().getString("sql.database");
         sqlUsername = plugin.getConfig().getString("sql.username");
         sqlPassword = plugin.getConfig().getString("sql.password");
-    }
-
-    public int leaderboardsUpdateTick() {
-        return leaderboardsUpdateTick;
-    }
-
-    public List<String> leaderboardsFastestTimeLines() {
-        return leaderboardsFastestTimeLines;
-    }
-
-    public boolean isLasersItems() {
-        return lasersItems;
-    }
-
-    public int getTimesPageSize() {
-        return timesPageSize;
     }
 }

@@ -1,5 +1,10 @@
 package me.makkuusen.timing.system.round;
 
+import co.aikar.commands.BukkitCommandExecutionContext;
+import co.aikar.commands.InvalidCommandArgument;
+import co.aikar.commands.MessageKeys;
+import co.aikar.commands.contexts.ContextResolver;
+import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.event.Event;
@@ -33,8 +38,11 @@ public abstract class Round {
         event = EventDatabase.getEvent(data.getInt("eventId")).get();
         roundIndex = data.getInt("roundIndex");
         type = RoundType.valueOf(data.getString("type"));
-        state = data.get("state") != null ? RoundState.valueOf(data.getString("state")) : RoundState.SETUP;
+        state = RoundState.valueOf(data.getString("state"));
     }
+
+    public abstract String getName();
+    public abstract String getDisplayName();
 
     public List<Heat> getHeats() {
         return heats;
@@ -79,6 +87,7 @@ public abstract class Round {
             }
         }
         addDriversToHeats(drivers);
+        setState(RoundState.RUNNING);
     }
 
     public abstract void createHeat(int heatNumber);
@@ -91,6 +100,8 @@ public abstract class Round {
             return false;
         }
 
+        setState(RoundState.FINISHED);
+
         List<Driver> drivers = EventResults.generateRoundResults(getHeats());
         if (getHeats().size() > 1) {
             broadcastResults(event, drivers);
@@ -101,7 +112,6 @@ public abstract class Round {
         }
 
         getEvent().getEventSchedule().getNextRound().get().initRound(drivers);
-
         event.eventSchedule.nextRound();
         return true;
     }
@@ -119,5 +129,21 @@ public abstract class Round {
                 EventDatabase.heatDriverNew(drivers.get(i).getTPlayer().getUniqueId(), heat, startPos++);
             }
         }
+    }
+
+    public static ContextResolver<RoundType, BukkitCommandExecutionContext> getRoundTypeContextResolver() {
+        return (c) -> {
+            String name = c.popFirstArg();
+            try {
+                return RoundType.valueOf(name);
+            } catch (IllegalArgumentException e) {
+                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
+            }
+        };
+    }
+
+    public void setState(RoundState state){
+        this.state = state;
+        DB.executeUpdateAsync("UPDATE `ts_rounds` SET `state` = '" + state.name() + "' WHERE `id` = " + getId() + ";");
     }
 }

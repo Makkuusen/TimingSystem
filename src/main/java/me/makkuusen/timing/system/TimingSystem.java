@@ -10,6 +10,8 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.round.Round;
+import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.track.Track;
 import org.bstats.bukkit.Metrics;
@@ -78,6 +80,11 @@ public class TimingSystem extends JavaPlugin {
                 EventDatabase.getEventsAsStrings()
         );
         manager.getCommandContexts().registerContext(
+                Round.class, EventDatabase.getRoundContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("round", context ->
+                EventDatabase.getRoundsAsStrings(context.getPlayer().getUniqueId())
+        );
+        manager.getCommandContexts().registerContext(
                 Heat.class, EventDatabase.getHeatContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("heat", context ->
                 EventDatabase.getHeatsAsStrings(context.getPlayer().getUniqueId())
@@ -88,11 +95,22 @@ public class TimingSystem extends JavaPlugin {
                 DatabaseTrack.getTracksAsStrings()
         );
 
+
         manager.getCommandContexts().registerContext(
                 Track.TrackType.class, Track.getTrackTypeContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("trackType", context -> {
             List<String> res = new ArrayList<>();
             for(Track.TrackType type : Track.TrackType.values()){
+                res.add(type.name());
+            }
+            return res;
+        });
+
+        manager.getCommandContexts().registerContext(
+                RoundType.class, Round.getRoundTypeContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("roundType", context -> {
+            List<String> res = new ArrayList<>();
+            for(RoundType type : RoundType.values()){
                 res.add(type.name());
             }
             return res;
@@ -119,6 +137,7 @@ public class TimingSystem extends JavaPlugin {
         });
 
         manager.registerCommand(new CommandEvent());
+        manager.registerCommand(new CommandRound());
         manager.registerCommand(new CommandHeat());
         manager.registerCommand(new CommandTrack());
         manager.registerCommand(new CommandTimeTrial());

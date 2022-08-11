@@ -15,6 +15,14 @@ public class QualificationRound extends Round {
         super(data);
     }
 
+    public String getName(){
+        return "R" + getRoundIndex() + "-Qualy";
+    }
+
+    public String getDisplayName(){
+        return "Round " + getRoundIndex() + " - Qualification";
+    }
+
     public void broadcastResults(Event event, List<Driver> drivers){
         EventAnnouncements.broadcastQualificationResults(event, drivers);
     }
@@ -24,7 +32,7 @@ public class QualificationRound extends Round {
         if (maybeHeat.isPresent()) {
             var nextHeat = maybeHeat.get();
             nextHeat.setTimeLimit(TimingSystem.configuration.getTimeLimit());
-            nextHeat.setStartDelay(TimingSystem.configuration.getStartDelay());
+            nextHeat.setStartDelayInTicks(TimingSystem.configuration.getQualyStartDelayInMS());
         }
     }
 }

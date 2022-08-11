@@ -21,6 +21,7 @@ public class EventSchedule {
         if (rounds.size() > 0){
             event.setState(Event.EventState.RUNNING);
             currentRound = 1;
+            getRound().get().setState(Round.RoundState.RUNNING);
             return true;
         }
         return false;
@@ -73,6 +74,14 @@ public class EventSchedule {
         return message;
     }
 
+    public List<String> getRoundList(Event event) {
+        List<String> message = new ArrayList<>();
+        message.add("§2--- Rounds for §a" + event.getDisplayName() + " §2---");
+        message.addAll(listRounds());
+
+        return message;
+    }
+
     public Optional<Heat> getHeat(String name){
         for (Round round : rounds) {
             if (round.getHeat(name).isPresent()){
@@ -80,6 +89,16 @@ public class EventSchedule {
             }
         }
         return Optional.empty();
+    }
+
+    public Optional<Round> getRound(String name){
+        return rounds.stream().filter(round -> name.equalsIgnoreCase(round.getName())).findFirst();
+    }
+
+    public List<String> listRounds(){
+        List<String> message = new ArrayList<>();
+        rounds.stream().forEach(round -> message.add("§a - " + round.getName()));
+        return message;
     }
 
     public List<String> listHeats() {
@@ -100,6 +119,4 @@ public class EventSchedule {
         }
         currentRound = lastRound;
     }
-
-
 }
