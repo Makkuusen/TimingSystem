@@ -8,7 +8,7 @@ import me.makkuusen.timing.system.participant.Driver;
 
 import java.util.List;
 
-public class BCCSprintRace extends FinalRound{
+public class BCCSprintRace extends FinalRound {
 
     public BCCSprintRace(DbRow data) {
         super(data);

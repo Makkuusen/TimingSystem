@@ -37,7 +37,7 @@ public class Lap implements Comparable<Lap> {
         this.pitted = false;
     }
 
-    public Lap(DbRow data) {
+    public Lap (DbRow data) {
         player = Database.getPlayer(data.getString("uuid"));
         heatId = data.getInt("heatId");
         track = DatabaseTrack.getTrackById(data.getInt("trackId")).get();

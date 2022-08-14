@@ -7,9 +7,11 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
+import me.makkuusen.timing.system.heat.BCCQualyHeat;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Driver;
@@ -76,11 +78,46 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatStart(Player player, Heat heat) {
+        if (heat instanceof BCCQualyHeat bccQualyHeat) {
+            if (bccQualyHeat.initHeat()){
+                player.sendMessage("§aStarted " + heat.getName());
+                return;
+            }
+            player.sendMessage("§cCould not start " + heat.getName());
+            return;
+        }
         if (heat.startCountdown()) {
             player.sendMessage("§aStarted countdown for " + heat.getName());
             return;
         }
         player.sendMessage("§cCouldn't start " + heat.getName());
+    }
+
+    @Subcommand("start driver")
+    @CommandPermission("event.admin")
+    @CommandCompletion("@players @heat")
+    public static void onHeatStartDriver(Player sender, OnlinePlayer onlinePlayer, Heat heat) {
+        if (heat instanceof BCCQualyHeat bccQualyHeat) {
+            TPlayer tPlayer = Database.getPlayer(onlinePlayer.getPlayer());
+            if (tPlayer == null) {
+                sender.sendMessage("§cCould not find player");
+                return;
+            }
+            for (Heat h : heat.getRound().getHeats()) {
+                if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
+                    sender.sendMessage("§cPlayer is already in this round!");
+                    return;
+                }
+            }
+            if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
+                bccQualyHeat.startDriver(tPlayer.getUniqueId());
+                sender.sendMessage("§aStarting " + tPlayer.getNameDisplay());
+                return;
+            }
+            sender.sendMessage("§cCould not start driver");
+            return;
+        }
+        sender.sendMessage("§cThis is not a BCCQualyHeat " + heat.getName());
     }
 
     @Subcommand("finish")
@@ -99,6 +136,10 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatLoad(Player player, Heat heat) {
+        if (heat instanceof BCCQualyHeat) {
+            player.sendMessage("§cYou should not load this type of heat. Start instead.");
+            return;
+        }
         if (heat.loadHeat()) {
             player.sendMessage("§aLoaded " + heat.getName());
             return;

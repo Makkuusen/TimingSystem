@@ -125,7 +125,6 @@ public class Heat {
     }
 
     public void startHeat() {
-
         setHeatState(HeatState.RACING);
         updateScoreboard();
         setStartTime(TimingSystem.currentTime);

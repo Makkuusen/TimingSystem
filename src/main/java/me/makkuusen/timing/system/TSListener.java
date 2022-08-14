@@ -13,7 +13,6 @@ import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -98,7 +97,7 @@ public class TSListener implements Listener {
             }
         }
 
-        for (me.makkuusen.timing.system.track.Track Track : DatabaseTrack.getTracks()) {
+        /*for (me.makkuusen.timing.system.track.Track Track : DatabaseTrack.getTracks()) {
             if (Track.getSpawnLocation().isWorldLoaded() && Track.getSpawnLocation().getWorld() == event.getTo().getWorld()) {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
                     if (Track.isBoatTrack()) {
@@ -112,7 +111,7 @@ public class TSListener implements Listener {
                     }
                 }
             }
-        }
+        }*/
 
         if (!event.getCause().equals(PlayerTeleportEvent.TeleportCause.UNKNOWN)) {
             TimeTrialController.playerLeavingMap(event.getPlayer().getUniqueId());
