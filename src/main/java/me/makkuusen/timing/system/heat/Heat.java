@@ -138,7 +138,7 @@ public class Heat {
     }
 
     private void startWithDelay(long startDelayMS, boolean setStartTime){
-        TaskChain<?> chain = TimingSystem.newSharedChain("STARTING");
+        TaskChain<?> chain = TimingSystem.newChain();
         for (Driver driver : getStartPositions()) {
             chain.sync(() -> {
                 getGridManager().startPlayerFromGrid(driver.getTPlayer().getUniqueId());
