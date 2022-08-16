@@ -10,6 +10,7 @@ import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -51,7 +52,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        if (!DatabaseTrack.trackNameAvailable(name)) {
+        if (!TrackDatabase.trackNameAvailable(name)) {
             plugin.sendMessage(player, "messages.error.trackExists");
             return;
         }
@@ -61,11 +62,12 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        Track track = DatabaseTrack.trackNew(name, player.getUniqueId(), player.getLocation(), trackType, player.getInventory().getItemInMainHand());
+        Track track = TrackDatabase.trackNew(name, player.getUniqueId(), player.getLocation(), trackType, player.getInventory().getItemInMainHand());
         if (track == null) {
             plugin.sendMessage(player, "messages.error.generic");
             return;
         }
+        track.setOptions("b");
 
         plugin.sendMessage(player, "messages.create.name", "%name%", name);
         LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
@@ -98,7 +100,7 @@ public class CommandTrack extends BaseCommand {
     @CommandCompletion("@track")
     @CommandPermission("track.admin")
     public static void onDelete(Player player, Track track) {
-        DatabaseTrack.removeTrack(track);
+        TrackDatabase.removeTrack(track);
         plugin.sendMessage(player, "messages.remove.track");
     }
 
@@ -132,7 +134,7 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("list")
     @CommandCompletion("@track <page>")
     public static void onList(Player player, @Optional Integer pageStart) {
-        if (DatabaseTrack.getTracks().size() == 0) {
+        if (TrackDatabase.getTracks().size() == 0) {
             plugin.sendMessage(player, "messages.error.missing.tracks");
             return;
         }
@@ -145,22 +147,22 @@ public class CommandTrack extends BaseCommand {
         int start = (pageStart * itemsPerPage) - itemsPerPage;
         int stop = pageStart * itemsPerPage;
 
-        if (start >= DatabaseTrack.getTracks().size()) {
+        if (start >= TrackDatabase.getTracks().size()) {
             plugin.sendMessage(player, "messages.error.missing.page");
             return;
         }
 
         for (int i = start; i < stop; i++) {
-            if (i == DatabaseTrack.getTracks().size()) {
+            if (i == TrackDatabase.getTracks().size()) {
                 break;
             }
 
-            Track track = DatabaseTrack.getTracks().get(i);
+            Track track = TrackDatabase.getTracks().get(i);
 
             tmpMessage.append(track.getDisplayName()).append(", ");
 
         }
-        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) DatabaseTrack.getTracks().size()) / ((double) itemsPerPage))));
+        plugin.sendMessage(player, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) TrackDatabase.getTracks().size()) / ((double) itemsPerPage))));
         player.sendMessage("§2" + tmpMessage.substring(0, tmpMessage.length() - 2));
 
     }
@@ -235,6 +237,18 @@ public class CommandTrack extends BaseCommand {
         LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
     }
 
+    @Subcommand("deletealltimes")
+    @CommandPermission("track.admin")
+    @CommandCompletion("@track")
+    public static void onDeleteAllTimes(Player player, Track track){
+        if (track.deleteAllFinishes()){
+            player.sendMessage("§aAll finishes has been reset");
+            LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+            return;
+        }
+        player.sendMessage("§cFailed to delete all finishes");
+    }
+
     @Subcommand("updateleaderboards")
     @CommandPermission("track.admin")
     public static void onUpdateLeaderboards(Player player) {
@@ -301,7 +315,7 @@ public class CommandTrack extends BaseCommand {
                 return;
             }
 
-            if (!DatabaseTrack.trackNameAvailable(name)) {
+            if (!TrackDatabase.trackNameAvailable(name)) {
                 plugin.sendMessage(player, "messages.error.trackExists");
                 return;
             }

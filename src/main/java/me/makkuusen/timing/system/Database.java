@@ -4,6 +4,7 @@ import co.aikar.idb.BukkitDB;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.TreeSpecies;
 import org.bukkit.command.CommandSender;
@@ -54,7 +55,7 @@ public class Database {
                 }
             }
 
-            DatabaseTrack.initDatabaseSynchronize();
+            TrackDatabase.initDatabaseSynchronize();
             EventDatabase.initDatabaseSynchronize();
             return true;
         } catch (Exception exception) {
@@ -66,9 +67,9 @@ public class Database {
     }
 
     public static void reload() {
-        DatabaseTrack.unload();
+        TrackDatabase.unload();
         try {
-            DatabaseTrack.initDatabaseSynchronize();
+            TrackDatabase.initDatabaseSynchronize();
         } catch (Exception exception) {
             exception.printStackTrace();
             plugin.getLogger().warning("Failed to synchronize database, disabling plugin.");

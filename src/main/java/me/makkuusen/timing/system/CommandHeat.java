@@ -266,6 +266,17 @@ public class CommandHeat extends BaseCommand {
             sender.sendMessage("§cDriver could not be disqualified");
         } else {
             if (heat.removeDriver(heat.getDrivers().get(tPlayer.getUniqueId()))) {
+                boolean removeSpectator = true;
+                for (Round round : heat.getEvent().getEventSchedule().getRounds()) {
+                    for (Heat h : round.getHeats()) {
+                        if (h.getDrivers().containsKey(tPlayer.getUniqueId())) {
+                            removeSpectator = false;
+                        }
+                    }
+                }
+                if (removeSpectator) {
+                    heat.getEvent().removeSpectator(tPlayer.getUniqueId());
+                }
                 sender.sendMessage("§aDriver has been removed");
                 return;
             }

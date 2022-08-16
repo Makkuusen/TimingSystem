@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -98,7 +99,7 @@ public class TSListener implements Listener {
             }
         }
 
-        for (me.makkuusen.timing.system.track.Track Track : DatabaseTrack.getTracks()) {
+        for (me.makkuusen.timing.system.track.Track Track : TrackDatabase.getTracks()) {
             if (Track.getSpawnLocation().isWorldLoaded() && Track.getSpawnLocation().getWorld() == event.getTo().getWorld()) {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
                     if (Track.isBoatTrack()) {
@@ -318,7 +319,7 @@ public class TSListener implements Listener {
             }
 
             // Check for starting new tracks
-            Iterator regions = DatabaseTrack.getTrackStartRegions().iterator();
+            Iterator regions = TrackDatabase.getTrackStartRegions().iterator();
             while (true) {
                 Integer regionId;
                 TrackRegion region;
@@ -340,7 +341,7 @@ public class TSListener implements Listener {
                 } while (PlayerRegionData.instanceOf(player).getEntered().contains(regionId));
 
                 //Entering region
-                var maybeTrack = DatabaseTrack.getTrackById(region.getTrackId());
+                var maybeTrack = TrackDatabase.getTrackById(region.getTrackId());
                 if (maybeTrack.isPresent()) {
                     Track track_ = maybeTrack.get();
 

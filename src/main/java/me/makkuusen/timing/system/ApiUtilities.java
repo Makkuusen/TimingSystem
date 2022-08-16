@@ -142,8 +142,7 @@ public class ApiUtilities {
                 continue;
             }
 
-            // check for invalid flags
-            if (currentChar != 'b' && currentChar != 'c' && currentChar != 'g' && currentChar != 'e' && currentChar != 'p' && currentChar != 't' && currentChar != 's' && currentChar != 'u') {
+            if (!isValidFlag(currentChar)) {
                 return null;
             }
 
@@ -180,6 +179,13 @@ public class ApiUtilities {
         }
 
         return flagsNew.toString();
+    }
+
+    private static boolean isValidFlag(char currentChar){
+        if (currentChar != 'b' && currentChar != 'c' && currentChar != 'g' && currentChar != 'e' && currentChar != 'p' && currentChar != 't' && currentChar != 's' && currentChar != 'u') {
+            return false;
+        }
+        return true;
     }
 
     public static Integer parseDurationToMillis(String input)
@@ -220,7 +226,7 @@ public class ApiUtilities {
 
     public static String formatPermissions(char[] permissions) {
         if (permissions.length == 0) {
-            return "(inga)";
+            return "(none)";
         }
 
         StringBuilder output = new StringBuilder();

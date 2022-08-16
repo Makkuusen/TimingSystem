@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.TreeSpecies;
@@ -54,7 +55,7 @@ public class TimingSystem extends JavaPlugin {
         plugin = this;
         this.logger = getLogger();
         configuration = new TimingSystemConfiguration(this);
-        DatabaseTrack.plugin = this;
+        TrackDatabase.plugin = this;
         CommandTimeTrial.plugin = this;
         CommandTrack.plugin = this;
         TSListener.plugin = this;
@@ -90,9 +91,9 @@ public class TimingSystem extends JavaPlugin {
                 EventDatabase.getHeatsAsStrings(context.getPlayer().getUniqueId())
         );
         manager.getCommandContexts().registerContext(
-                Track.class, DatabaseTrack.getTrackContextResolver());
+                Track.class, TrackDatabase.getTrackContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("track", context ->
-                DatabaseTrack.getTracksAsStrings()
+                TrackDatabase.getTracksAsStrings()
         );
 
 
@@ -172,7 +173,7 @@ public class TimingSystem extends JavaPlugin {
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(heat -> heat.onShutdown());
         logger.info("Version " + getDescription().getVersion() + " disabled.");
         DB.close();
-        DatabaseTrack.plugin = null;
+        TrackDatabase.plugin = null;
         Database.plugin = null;
         CommandTimeTrial.plugin = null;
         CommandTrack.plugin = null;

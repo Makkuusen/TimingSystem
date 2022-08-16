@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system;
+package me.makkuusen.timing.system.track;
 
 import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.InvalidCommandArgument;
@@ -10,13 +10,13 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
+import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.LeaderboardManager;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
-import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackCuboidRegion;
-import me.makkuusen.timing.system.track.TrackPolyRegion;
-import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class DatabaseTrack {
+public class TrackDatabase {
 
     public static TimingSystem plugin;
     private static List<Track> tracks = new ArrayList<>();
@@ -169,7 +169,7 @@ public class DatabaseTrack {
 
     static public List<Track> getAvailableTracks(Player player) {
         if (!player.hasPermission("track.admin") && !player.isOp()) {
-            return DatabaseTrack.getTracks().stream().filter(Track::isOpen).toList();
+            return TrackDatabase.getTracks().stream().filter(Track::isOpen).toList();
         }
 
         return getTracks();

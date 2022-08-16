@@ -54,11 +54,11 @@
                         </relocation>
                         <relocation>
                             <pattern>co.aikar.taskchain</pattern>
-                            <shadedPattern>me.makkuusen.timing.system.taskchain</shadedPattern> <!-- Replace this -->
+                            <shadedPattern>me.makkuusen.timing.system.taskchain</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>co.aikar.idb</pattern>
-                            <shadedPattern>me.makkuusen.timing.system.idb</shadedPattern> <!-- Replace this -->
+                            <shadedPattern>me.makkuusen.timing.system.idb</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
@@ -110,14 +110,14 @@
 
         <dependency>
             <groupId>co.aikar</groupId>
-            <artifactId>acf-paper</artifactId> <!-- Don't forget to replace this -->
-            <version>0.5.1-SNAPSHOT</version> <!-- Replace this as well -->
+            <artifactId>acf-paper</artifactId>
+            <version>0.5.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>co.aikar</groupId>
             <artifactId>taskchain-bukkit</artifactId>
-            <version>3.7.2</version> <!-- Replace this with the version from TaskChain -->
+            <version>3.7.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

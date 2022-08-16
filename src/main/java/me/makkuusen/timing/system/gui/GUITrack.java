@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.DatabaseTrack;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -68,9 +68,9 @@ public class GUITrack {
 
         List<Track> tracks;
         if (page == BOATPAGE) {
-            tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isBoatTrack).collect(Collectors.toList());
+            tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isBoatTrack).collect(Collectors.toList());
         } else {
-            tracks = DatabaseTrack.getAvailableTracks(p).stream().filter(Track::isParkourTrack).collect(Collectors.toList());
+            tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isParkourTrack).collect(Collectors.toList());
         }
 
         Integer[] slots = new Integer[36];

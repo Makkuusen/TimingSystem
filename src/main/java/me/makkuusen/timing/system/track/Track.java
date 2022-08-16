@@ -11,7 +11,6 @@ import com.sk89q.worldedit.regions.Region;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.gui.ItemBuilder;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -40,7 +39,7 @@ public class Track {
     private final long dateCreated;
     private final Set<TrackRegion> regions = new HashSet<>();
     private final Map<Integer, Location> grids = new HashMap<>();
-    private final Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
+    private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
     private TPlayer owner;
     private String displayName;
     private String commandName;
@@ -213,10 +212,10 @@ public class Track {
 
     public boolean createRegion(TrackRegion.RegionType regionType, int index, Region selection, Location location){
         try {
-            var region = DatabaseTrack.trackRegionNew(selection, getId(), index, regionType, location);
+            var region = TrackDatabase.trackRegionNew(selection, getId(), index, regionType, location);
             addRegion(region);
             if (regionType.equals(TrackRegion.RegionType.START)) {
-                DatabaseTrack.addTrackRegion(region);
+                TrackDatabase.addTrackRegion(region);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -228,7 +227,7 @@ public class Track {
     public boolean removeRegion(TrackRegion region) {
         if (regions.contains(region)) {
             var regionId = region.getId();
-            DatabaseTrack.removeTrackRegion(region);
+            TrackDatabase.removeTrackRegion(region);
             regions.remove(region);
             DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `id` = " + regionId + ";");
             if (region instanceof TrackPolyRegion) {
@@ -326,6 +325,17 @@ public class Track {
 
         } catch (SQLException exception) {
             exception.printStackTrace();
+        }
+    }
+
+    public boolean deleteAllFinishes() {
+        try {
+            DB.executeUpdate("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + ";");
+            timeTrialFinishes = new HashMap<>();
+            return true;
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            return false;
         }
     }
 

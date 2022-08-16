@@ -5,13 +5,12 @@ import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.DatabaseTrack;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.Round;
-import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -42,7 +41,7 @@ public class Event {
         displayName = data.getString("name");
         uuid = UUID.fromString(data.getString("uuid"));
         date = data.getLong("date");
-        Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : DatabaseTrack.getTrackById(data.getInt("track"));
+        Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : TrackDatabase.getTrackById(data.getInt("track"));
         track = maybeTrack.isEmpty() ? null : maybeTrack.get();
         state = EventState.valueOf(data.getString("state"));
         eventSchedule = new EventSchedule();
@@ -75,6 +74,16 @@ public class Event {
         spectators.put(uuid, new Spectator(Database.getPlayer(uuid)));
     }
 
+    public boolean isSpectating(UUID uuid) {
+        return spectators.containsKey(uuid);
+    }
+
+    public void removeSpectator(UUID uuid) {
+        if (spectators.containsKey(uuid)){
+            spectators.remove(uuid);
+        }
+    }
+
     public void setTrack(Track track) {
         this.track = track;
         DB.executeUpdateAsync("UPDATE `ts_events` SET `track` = " + track.getId() + " WHERE `id` = " + id + ";");
@@ -83,11 +92,6 @@ public class Event {
     public void setState(EventState state) {
         this.state = state;
         DB.executeUpdateAsync("UPDATE `ts_events` SET `state` = '" + state.name() + "' WHERE `id` = " + id + ";");
-    }
-
-    public void quickCreate(){
-        EventDatabase.roundNew(this, RoundType.QUALIFICATION, 1);
-        EventDatabase.roundNew(this, RoundType.FINAL, 2);
     }
 
     @Override

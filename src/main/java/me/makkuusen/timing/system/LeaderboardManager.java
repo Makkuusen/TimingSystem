@@ -4,6 +4,7 @@ import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.HologramLines;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -22,7 +23,7 @@ public class LeaderboardManager {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
-        var maybeTrack = DatabaseTrack.getTrackById(id);
+        var maybeTrack = TrackDatabase.getTrackById(id);
         if (maybeTrack.isEmpty()) {
             ApiUtilities.msgConsole("Leaderboard couldn't update, track not found");
             return;
@@ -85,7 +86,7 @@ public class LeaderboardManager {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
-        for (Track t : DatabaseTrack.getTracks()) {
+        for (Track t : TrackDatabase.getTracks()) {
             updateFastestTimeLeaderboard(t.getId());
         }
     }
@@ -94,7 +95,7 @@ public class LeaderboardManager {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
-        for (Track rTrack : DatabaseTrack.getTracks()) {
+        for (Track rTrack : TrackDatabase.getTracks()) {
             updateFastestTimeLeaderboard(rTrack.getId());
         }
         toNotify.sendMessage("§aFinished updating all of the fastest time leaderboards.");

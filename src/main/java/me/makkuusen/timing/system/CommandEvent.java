@@ -133,24 +133,13 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("spectate")
     @CommandCompletion("@event")
     public static void onSpectate(Player player, Event event) {
-        event.addSpectator(player.getUniqueId());
-        EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
-        player.sendMessage("§aYou are now spectating " + event.getDisplayName());
-    }
-
-    @Subcommand("quick")
-    public static void onQuickCreate(Player player, @Optional Event event) {
-        if (event == null) {
-            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
-            if (maybeEvent.isPresent()) {
-                event = maybeEvent.get();
-            } else {
-                player.sendMessage("§cYou have no event selected");
-                return;
-            }
+        if (event.isSpectating(player.getUniqueId())) {
+            event.removeSpectator(player.getUniqueId());
+            player.sendMessage("§aYou no longer spectating " + event.getDisplayName());
+        } else {
+            event.addSpectator(player.getUniqueId());
+            EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
+            player.sendMessage("§aYou are now spectating " + event.getDisplayName());
         }
-        event.quickCreate();
-        player.sendMessage("§aYou have made a quickEvent");
-
     }
 }
