@@ -15,7 +15,6 @@ import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.participant.Participant;
-import me.makkuusen.timing.system.round.BCCSprintRace;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
@@ -27,6 +26,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,6 +57,8 @@ public class Heat {
     private Integer startDelay;
     private Integer maxDrivers;
     private SpectatorScoreboard scoreboard;
+    private Instant lastScoreboardUpdate = Instant.now();
+    private long updateScoreboardDelay = 300;
 
     public Heat(DbRow data, Round round) {
         id = data.getInt("id");
@@ -78,8 +80,6 @@ public class Heat {
     public String getName(){
         if (round instanceof QualificationRound) {
             return "R" + round.getRoundIndex() + "Q" + getHeatNumber();
-        } else if (round instanceof BCCSprintRace){
-            return "R" + round.getRoundIndex() + "SR" + getHeatNumber();
         } else {
             return "R" + round.getRoundIndex() + "F" + getHeatNumber();
         }
@@ -290,8 +290,11 @@ public class Heat {
     }
 
     public void updateScoreboard() {
-        livePositions.stream().forEach(driver -> driver.updateScoreboard());
-        scoreboard.updateScoreboard();
+        if (Duration.between(lastScoreboardUpdate, TimingSystem.currentTime).toMillis() > updateScoreboardDelay) {
+            livePositions.stream().forEach(driver -> driver.updateScoreboard());
+            scoreboard.updateScoreboard();
+            lastScoreboardUpdate = TimingSystem.currentTime;
+        }
     }
 
     public boolean noDriversRunning() {

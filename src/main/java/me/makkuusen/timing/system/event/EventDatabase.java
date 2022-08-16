@@ -13,7 +13,6 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
-import me.makkuusen.timing.system.round.BCCSprintRace;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
@@ -52,8 +51,6 @@ public class EventDatabase {
                 var type = RoundType.valueOf(roundData.getString("type"));
                 if (type == RoundType.FINAL) {
                     round = new FinalRound(roundData);
-                } else if (type == RoundType.BCCSprintRace) {
-                    round = new BCCSprintRace(roundData);
                 } else {
                     round = new QualificationRound(roundData);
                 }
@@ -191,8 +188,6 @@ public class EventDatabase {
             Round round;
             if (roundType == RoundType.QUALIFICATION) {
                  round = new QualificationRound(dbRow);
-            } else if (roundType == RoundType.BCCSprintRace) {
-                round = new BCCSprintRace(dbRow);
             } else  {
                 round = new FinalRound(dbRow);
             }
@@ -396,7 +391,9 @@ public class EventDatabase {
     }
 
     public static boolean removeEvent(Event event){
-        for (UUID uuid : playerSelectedEvent.keySet()){
+        List<UUID> uuids = new ArrayList<>();
+        uuids.addAll(playerSelectedEvent.keySet());
+        for (UUID uuid : uuids){
             if (playerSelectedEvent.get(uuid).equals(event)){
                 playerSelectedEvent.remove(uuid);
             }
