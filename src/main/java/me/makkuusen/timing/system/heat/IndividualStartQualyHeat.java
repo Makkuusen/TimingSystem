@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.heat;
 
 import co.aikar.idb.DbRow;
 import co.aikar.taskchain.TaskChain;
+import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
@@ -17,11 +18,12 @@ import org.bukkit.SoundCategory;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class BCCQualyHeat extends Heat {
+public class IndividualStartQualyHeat extends Heat {
 
-    public BCCQualyHeat(DbRow data, Round round) {
+    public IndividualStartQualyHeat(DbRow data, Round round) {
         super(data, round);
     }
 
@@ -30,8 +32,9 @@ public class BCCQualyHeat extends Heat {
         if (driver.getHeat().getHeatState() != HeatState.RACING) {
             return false;
         }
-        driver.getHeat().updatePositions();
+
         driver.finish();
+        driver.getHeat().updatePositions();
         EventAnnouncements.sendFinishSound(driver);
         EventAnnouncements.sendFinishTitleQualy(driver);
         EventAnnouncements.broadcastFinishQualy(driver.getHeat(), driver);
@@ -91,5 +94,27 @@ public class BCCQualyHeat extends Heat {
                 driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
             }
         });
+    }
+
+    @Override
+    public boolean resetHeat() {
+        if (getHeatState() == HeatState.FINISHED) {
+            return false;
+        }
+        setHeatState(HeatState.SETUP);
+        setStartTime(null);
+        setEndTime(null);
+        setFastestLapUUID(null);
+        setLivePositions(new ArrayList<>());
+        getGridManager().clearArmorstands();
+        List<Driver> drivers = new ArrayList<>();
+        drivers.addAll(getDrivers().values());
+        drivers.stream().forEach(driver -> {
+            driver.reset();
+            EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
+            removeDriver(driver);
+        });
+        ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
+        return true;
     }
 }

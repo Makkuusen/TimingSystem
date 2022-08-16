@@ -4,9 +4,9 @@ import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.EventDatabase;
 
-public class BCCQualy extends QualificationRound {
+public class IndividualStartQualy extends QualificationRound {
 
-    public BCCQualy(DbRow data) {
+    public IndividualStartQualy(DbRow data) {
         super(data);
     }
 

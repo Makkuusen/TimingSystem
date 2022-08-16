@@ -9,12 +9,12 @@ import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.heat.BCCQualyHeat;
+import me.makkuusen.timing.system.heat.IndividualStartQualyHeat;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
-import me.makkuusen.timing.system.round.BCCQualy;
+import me.makkuusen.timing.system.round.IndividualStartQualy;
 import me.makkuusen.timing.system.round.BCCSprintRace;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
@@ -57,7 +57,7 @@ public class EventDatabase {
                 } else if (type == RoundType.BCCSprintRace) {
                     round = new BCCSprintRace(roundData);
                 } else if (type == RoundType.BCCQualy) {
-                    round = new BCCQualy(roundData);
+                    round = new IndividualStartQualy(roundData);
                 } else {
                     round = new QualificationRound(roundData);
                 }
@@ -74,8 +74,8 @@ public class EventDatabase {
 
     private static void initHeat(Round round, DbRow heatData) throws SQLException {
         Heat heat;
-        if (round instanceof BCCQualy) {
-            heat = new BCCQualyHeat(heatData, round);
+        if (round instanceof IndividualStartQualy) {
+            heat = new IndividualStartQualyHeat(heatData, round);
         } else {
             heat = new Heat(heatData, round);
         }
@@ -203,7 +203,7 @@ public class EventDatabase {
             } else if (roundType == RoundType.BCCSprintRace) {
                 round = new BCCSprintRace(dbRow);
             } else if (roundType == RoundType.BCCQualy) {
-                round = new BCCQualy(dbRow);
+                round = new IndividualStartQualy(dbRow);
             } else  {
                 round = new FinalRound(dbRow);
             }
@@ -247,8 +247,8 @@ public class EventDatabase {
                     "0)");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_heats` WHERE `id` = " + heatId + ";");
             Heat heat;
-            if (round instanceof BCCQualy) {
-                heat = new BCCQualyHeat(dbRow, round);
+            if (round instanceof IndividualStartQualy) {
+                heat = new IndividualStartQualyHeat(dbRow, round);
             } else {
                 heat = new Heat(dbRow, round);
             }
@@ -262,7 +262,7 @@ public class EventDatabase {
     }
 
     public static boolean heatDriverNew(UUID uuid, Heat heat, int startPosition) {
-        if (heat.getHeatState() != HeatState.SETUP && !(heat instanceof BCCQualyHeat)) {
+        if (heat.getHeatState() != HeatState.SETUP && !(heat instanceof IndividualStartQualyHeat)) {
             return false;
         }
         try {
@@ -412,7 +412,9 @@ public class EventDatabase {
     }
 
     public static boolean removeEvent(Event event){
-        for (UUID uuid : playerSelectedEvent.keySet()){
+        List<UUID> uuids = new ArrayList<>();
+        uuids.addAll(playerSelectedEvent.keySet());
+        for (UUID uuid : uuids){
             if (playerSelectedEvent.get(uuid).equals(event)){
                 playerSelectedEvent.remove(uuid);
             }

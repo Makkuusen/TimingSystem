@@ -27,6 +27,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,6 +58,8 @@ public class Heat {
     private Integer startDelay;
     private Integer maxDrivers;
     private SpectatorScoreboard scoreboard;
+    private Instant lastScoreboardUpdate = Instant.now();
+    private long updateScoreboardDelay = 300;
 
     public Heat(DbRow data, Round round) {
         id = data.getInt("id");
@@ -77,11 +80,11 @@ public class Heat {
 
     public String getName(){
         if (round instanceof QualificationRound) {
-            return "R" + round.getRoundIndex() + "Q" + getHeatNumber();
+            return "Qualy";
         } else if (round instanceof BCCSprintRace){
-            return "R" + round.getRoundIndex() + "SR" + getHeatNumber();
+            return "Sprint";
         } else {
-            return "R" + round.getRoundIndex() + "F" + getHeatNumber();
+            return "Final";
         }
     }
 
@@ -289,8 +292,11 @@ public class Heat {
     }
 
     public void updateScoreboard() {
-        livePositions.stream().forEach(driver -> driver.updateScoreboard());
-        scoreboard.updateScoreboard();
+        if (Duration.between(lastScoreboardUpdate, TimingSystem.currentTime).toMillis() > updateScoreboardDelay) {
+            livePositions.stream().forEach(driver -> driver.updateScoreboard());
+            scoreboard.updateScoreboard();
+            lastScoreboardUpdate = TimingSystem.currentTime;
+        }
     }
 
     public boolean noDriversRunning() {
