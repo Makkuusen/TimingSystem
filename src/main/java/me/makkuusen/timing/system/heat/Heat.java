@@ -120,7 +120,7 @@ public class Heat {
         if (getHeatState() != HeatState.LOADED) {
             return false;
         }
-        TaskChainCountdown.countdown(this);
+        TaskChainCountdown.countdown(this, 5);
         return true;
     }
 

@@ -6,31 +6,17 @@ import me.makkuusen.timing.system.heat.Heat;
 
 public class TaskChainCountdown {
 
-    public static void countdown(Heat heat) {
-        TaskChain<?> chain = TimingSystem.newSharedChain("COUNTDOWN");
-        chain
-                .sync(() -> {
-                    EventAnnouncements.broadcastCountdown(heat, 5);
-                })
-                .delay(20)
-                .sync(() -> {
-                    EventAnnouncements.broadcastCountdown(heat, 4);
-                })
-                .delay(20)
-                .sync(() -> {
-                    EventAnnouncements.broadcastCountdown(heat, 3);
-                })
-                .delay(20)
-                .sync(() -> {
-                    EventAnnouncements.broadcastCountdown(heat, 2);
-                })
-                .delay(20)
-                .sync(() -> {
-                    EventAnnouncements.broadcastCountdown(heat, 1);
-                })
-                .delay(20)
-                .execute((finished) -> {
-                    heat.startHeat();
-                });
+    public static void countdown(Heat heat, int count) {
+        TaskChain<?> chain = TimingSystem.newChain();
+
+        for (int i = count; i > 0; i--) {
+            int finalI = i;
+            chain.sync(() -> {
+                EventAnnouncements.broadcastCountdown(heat, finalI);
+            }).delay(20);
+        }
+        chain.execute((finished) -> {
+            heat.startHeat();
+        });
     }
 }
