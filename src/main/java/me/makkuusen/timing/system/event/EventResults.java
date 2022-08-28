@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.event;
 import lombok.Getter;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.round.QualificationRound;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,12 @@ public class EventResults {
             Collections.sort(newList, Comparator.comparingInt(Driver::getPosition));
             results.addAll(newList);
         }
+        if (results.size() > 0) {
+            if (results.get(0).getHeat().getRound() instanceof QualificationRound) {
+                Collections.sort(results, Driver::compareTo);
+            }
+        }
+
         return results;
     }
 }
