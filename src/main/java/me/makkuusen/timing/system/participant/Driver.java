@@ -251,7 +251,12 @@ public class Driver extends Participant implements Comparable<Driver> {
         } else if (!isFinished() && o.isFinished()) {
             return 1;
         } else if (isFinished() && o.isFinished()) {
-            return getEndTime().compareTo(o.getEndTime());
+            // Make sure a disqualified driver don't rank better on endtime with fewer laps.
+            if (getLaps().size() < o.getLaps().size()) {
+                return 1;
+            } else {
+                return getEndTime().compareTo(o.getEndTime());
+            }
         }
 
         if (getLaps().size() > o.getLaps().size()) {
