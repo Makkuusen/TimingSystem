@@ -79,7 +79,6 @@ public class TSListener implements Listener {
         if (!TPlayer.getName().equals(event.getPlayer().getName())) {
             // Update name
             TPlayer.setName(event.getPlayer().getName());
-            TPlayer.updateNameChanges();
         }
     }
 
