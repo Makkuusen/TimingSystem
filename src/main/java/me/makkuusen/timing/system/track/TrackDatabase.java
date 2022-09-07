@@ -40,6 +40,7 @@ public class TrackDatabase {
         for (DbRow dbRow : dbRows) {
             Track rTrack = new Track(dbRow);
             tracks.add(rTrack);
+            plugin.getLogger().info("LOADING IN " + rTrack.getDisplayName());
 
             var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
             for (DbRow finish : resultFinishes) {
@@ -51,9 +52,15 @@ public class TrackDatabase {
         var trackRegions = DB.getResults("SELECT * FROM `ts_regions` WHERE `isRemoved` = 0;");
         for (DbRow region : trackRegions) {
             Optional<Track> maybeTrack = getTrackById(region.getInt("trackId"));
+
+
             if (maybeTrack.isPresent()) {
                 var rTrack = maybeTrack.get();
                 TrackRegion trackRegion;
+                if (!rTrack.getSpawnLocation().isWorldLoaded()) {
+                    continue;
+                }
+
 
                 if (region.getString("regionShape") != null && TrackRegion.RegionShape.POLY.name().equalsIgnoreCase(region.getString("regionShape"))) {
                     var pointRows = DB.getResults("SELECT * FROM `ts_points` WHERE `regionId` = " + region.getInt("id") + ";");
