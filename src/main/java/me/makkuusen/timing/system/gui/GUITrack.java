@@ -2,14 +2,15 @@ package me.makkuusen.timing.system.gui;
 
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -20,12 +21,14 @@ public class GUITrack {
     private static final HashMap<UUID, Integer> playersPages = new HashMap<>();
 
     public static final Integer BOATPAGE = 0;
-    public static final Integer PARKOURPAGE = 1;
+    public static final Integer PARKOURPAGE = 8;
+    public static final Integer ELYTRAPAGE = 7;
 
     private static ItemStack borderGlass;
     private static ItemStack lightBorderGlass;
     private static ItemStack parkourPage;
-    private static ItemStack boatPage;
+    private static ItemStack elytraPage;
+    private static List<ItemStack> boatPages = new ArrayList<>();
     private static ItemStack elytra;
     private static ItemStack boat;
     private static ItemStack parkour;
@@ -34,7 +37,10 @@ public class GUITrack {
 
         borderGlass = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName("§r").build();
         lightBorderGlass = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName("§r").build();
-        boatPage = new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lBoat tracks").build();
+        for (int i = 0; i < 4; i++){
+            boatPages.add(new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lBoat tracks " + (i+1)).build());
+        }
+        elytraPage = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§lElytra tracks").build();
         parkourPage = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§a§lParkour tracks").build();
         elytra = new ItemBuilder(Material.ELYTRA).setName("§e§lElytra").build();
         boat = new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat").build();
@@ -50,27 +56,20 @@ public class GUITrack {
 
     public static void openTrackGUI(Player p, int page) {
         playersPages.put(p.getUniqueId(), page);
-        Inventory inv = Bukkit.createInventory(null, 54, (ApiUtilities.color(page == BOATPAGE ? "&3&lBoat" : "&2&lParkour") + " tracks"));
-
-        Integer[] borderSlots = {0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 49, 50, 51, 52, 53};
-        for (Integer slot : borderSlots) {
-            inv.setItem(slot, borderGlass);
-        }
-
-        if (page == BOATPAGE) {
-            inv.setItem(4, boat);
-        } else if (page == 1) {
-            inv.setItem(4, parkour);
-        }
-
-        inv.setItem(45, boatPage);
-        inv.setItem(53, parkourPage);
+        Inventory inv = createGUI(p, page);
 
         List<Track> tracks;
-        if (page == BOATPAGE) {
-            tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isBoatTrack).collect(Collectors.toList());
-        } else {
+        if (page == ELYTRAPAGE) {
+            tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isElytraTrack).collect(Collectors.toList());
+        } else if (page == PARKOURPAGE) {
             tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isParkourTrack).collect(Collectors.toList());
+        } else {
+            List<Track> tempTracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isBoatTrack).collect(Collectors.toList());
+            int start = 36 * page;
+            tracks = new ArrayList<>();
+            for (int i = start; i < Math.min(start + 36, tempTracks.size()); i++) {
+                tracks.add(tempTracks.get(i));
+            }
         }
 
         Integer[] slots = new Integer[36];
@@ -89,5 +88,41 @@ public class GUITrack {
         }
 
         p.openInventory(inv);
+    }
+
+    public static Inventory createGUI(Player p, int page) {
+        playersPages.put(p.getUniqueId(), page);
+        String name;
+        if (page == PARKOURPAGE) {
+            name = ApiUtilities.color("&2&lParkour tracks");
+        } else if (page == ELYTRAPAGE) {
+            name = ApiUtilities.color("&c&lElytra tracks");
+        } else {
+            name = ApiUtilities.color("&3&lBoat tracks " + (page+1));
+        }
+        Inventory inv = Bukkit.createInventory(null, 54, name);
+
+        Integer[] borderSlots = {0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 49, 50, 51, 52, 53};
+        for (Integer slot : borderSlots) {
+            inv.setItem(slot, borderGlass);
+        }
+
+        if (page == PARKOURPAGE) {
+            inv.setItem(4, parkour);
+        } else if (page == ELYTRAPAGE) {
+            inv.setItem(4, elytra);
+        } else {
+            inv.setItem(4, boat);
+        }
+
+        int slot = 45;
+        for (ItemStack item : boatPages){
+            inv.setItem(slot, item);
+            slot++;
+        }
+        inv.setItem(52, elytraPage);
+        inv.setItem(53, parkourPage);
+
+        return inv;
     }
 }
