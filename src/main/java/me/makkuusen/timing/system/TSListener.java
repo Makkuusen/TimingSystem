@@ -461,7 +461,7 @@ public class TSListener implements Listener {
                     var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
                     TrackRegion region = maybeRegion.isEmpty() ? startRegion.get() : maybeRegion.get();
                     teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), region.getSpawnLocation());
-                    break;
+                    return;
                 }
             }
 
@@ -474,7 +474,6 @@ public class TSListener implements Listener {
                 } else if (!trackRegion.contains(player.getLocation()) && inPits.contains(player.getUniqueId())) {
                     inPits.remove(player.getUniqueId());
                     heat.updatePositions();
-                    return;
                 }
             }
 
