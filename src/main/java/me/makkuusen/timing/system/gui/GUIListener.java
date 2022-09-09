@@ -19,7 +19,7 @@ public class GUIListener implements Listener {
         if (e.getInventory() != null) {
 
             if (e.getView().getTitle() != null) {
-                if (e.getView().getTitle().startsWith(ApiUtilities.color("&3&lBoat")) || e.getView().getTitle().startsWith(ApiUtilities.color("&2&lParkour"))) {
+                if (e.getView().getTitle().startsWith(ApiUtilities.color("&3&lBoat")) || e.getView().getTitle().startsWith(ApiUtilities.color("&2&lParkour")) || e.getView().getTitle().startsWith(ApiUtilities.color("&c&lElytra"))) {
                     e.setCancelled(true);
                     Player player = (Player) e.getWhoClicked();
 
@@ -32,12 +32,22 @@ public class GUIListener implements Listener {
                         }
 
                         if (e.getClick() == ClickType.LEFT || e.getClick() == ClickType.SHIFT_LEFT) {
-
                             if (item.getItemMeta().getDisplayName().contains("Parkour")) {
-                                GUITrack.openTrackGUI(player, 1);
+                                GUITrack.openTrackGUI(player, GUITrack.PARKOURPAGE);
+                                return;
+                            } else if (item.getItemMeta().getDisplayName().contains("Elytra")) {
+                                GUITrack.openTrackGUI(player, GUITrack.ELYTRAPAGE);
                                 return;
                             } else if (item.getItemMeta().getDisplayName().contains("Boat")) {
-                                GUITrack.openTrackGUI(player, 0);
+                                int page = 0;
+                                try {
+                                    String pageNumber = item.getItemMeta().getDisplayName().substring(item.getItemMeta().getDisplayName().length()-1);
+                                    page = Integer.valueOf(pageNumber) - 1;
+                                } catch (NumberFormatException exception){
+                                    // default to standard
+                                    exception.printStackTrace();
+                                }
+                                GUITrack.openTrackGUI(player, page);
                                 return;
                             }
 
