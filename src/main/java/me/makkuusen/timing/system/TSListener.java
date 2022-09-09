@@ -449,9 +449,9 @@ public class TSListener implements Listener {
                 // Check for pitstop
                 var maybePit = track.getRegion(TrackRegion.RegionType.PIT);
                 if (maybePit.isPresent() && maybePit.get().contains(player.getLocation())) {
-                    driver.passPit();
-                    heat.updatePositions();
-                    return;
+                    if (driver.passPit()) {
+                        heat.updatePositions();
+                    }
                 }
             }
 

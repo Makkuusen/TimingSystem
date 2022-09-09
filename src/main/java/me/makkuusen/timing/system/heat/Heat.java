@@ -272,6 +272,33 @@ public class Heat {
         }
     }
 
+    public boolean setDriverPosition(Driver driver, int newStartPosition){
+        if (driver.getHeat().getHeatState() != HeatState.SETUP) {
+            return false;
+        }
+
+        int prevPos = driver.getStartPosition();
+        for (Driver d : startPositions) {
+            if (newStartPosition < prevPos) {
+                if (d.getStartPosition() >= newStartPosition && d.getStartPosition() < prevPos) {
+                    d.setStartPosition(d.getStartPosition() + 1);
+                    d.setPosition(d.getPosition() + 1);
+                }
+            } else if (newStartPosition > prevPos){
+                if (d.getStartPosition() > prevPos && d.getStartPosition() <= newStartPosition) {
+                    d.setStartPosition(d.getStartPosition() - 1);
+                    d.setPosition(d.getPosition() - 1);
+                }
+            } else {
+                return false;
+            }
+        }
+        driver.setStartPosition(newStartPosition);
+        driver.setPosition(newStartPosition);
+        Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
+        return true;
+    }
+
     public boolean disqualifyDriver(Driver driver){
         if (!driver.getHeat().isActive()) {
             return false;
