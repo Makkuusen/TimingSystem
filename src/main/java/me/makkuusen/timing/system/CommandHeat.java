@@ -186,7 +186,7 @@ public class CommandHeat extends BaseCommand {
 
     }
 
-    @Subcommand("set timeLimit")
+    @Subcommand("set timelimit")
     @CommandPermission("event.admin")
     @CommandCompletion("<h/m/s> @heat")
     public static void onHeatSetTime(Player player, String time, Heat heat) {
@@ -199,12 +199,67 @@ public class CommandHeat extends BaseCommand {
         player.sendMessage("§aTime limit has been updated");
     }
 
-    @Subcommand("set maxDrivers")
+    @Subcommand("set maxdrivers")
     @CommandPermission("event.admin")
     @CommandCompletion("<max> @heat")
     public static void onHeatMaxDrivers(Player player, Integer maxDrivers, Heat heat) {
         heat.setMaxDrivers(maxDrivers);
         player.sendMessage("§aMax drivers has been updated");
+    }
+
+    @Subcommand("set driverposition")
+    @CommandPermission("event.admin")
+    @CommandCompletion("@players <[+/-]pos> @heat")
+    public static void onHeatSetDriverPosition(Player sender,String playerName, String position, Heat heat){
+        TPlayer tPlayer = Database.getPlayer(playerName);
+        if (tPlayer == null) {
+            sender.sendMessage("§cCould not find player");
+            return;
+        }
+        if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
+            sender.sendMessage("§cPlayer is not in heat!");
+            return;
+        }
+        Driver driver = heat.getDrivers().get(tPlayer.getUniqueId());
+        if (heat.isActive()) {
+            sender.sendMessage("§cHeat is currently running");
+            return;
+        }
+        if (getParsedIndex(position) == null) {
+            TimingSystem.getPlugin().sendMessage(sender, "messages.error.numberException");
+            return;
+        }
+        int pos;
+        if (getParsedRemoveFlag(position)) {
+            pos = driver.getStartPosition() - getParsedIndex(position);
+        } else if (getParsedAddFlag(position)) {
+            pos = driver.getStartPosition() + getParsedIndex(position);
+        } else {
+            pos = getParsedIndex(position);
+        }
+
+        if (pos > heat.getDrivers().size()) {
+            sender.sendMessage("§cYou can't start further back than there are drivers");
+            return;
+        }
+
+        if (pos < 1) {
+            sender.sendMessage("§cYou can't start further forward than 1");
+            return;
+        }
+
+        if (pos == driver.getStartPosition()) {
+            sender.sendMessage("§cYou can't move the driver to the same position");
+            return;
+        }
+
+
+        if (heat.setDriverPosition(driver, pos)) {
+            sender.sendMessage("§a" + driver.getTPlayer().getName() + " is now starting " + pos );
+            return;
+        }
+        sender.sendMessage("§cCould not change position of driver");
+
     }
 
     @Subcommand("add")
@@ -346,6 +401,27 @@ public class CommandHeat extends BaseCommand {
             }
         } else {
             sender.sendMessage("§cHeat has not been finished");
+        }
+    }
+
+    private static boolean getParsedRemoveFlag(String index) {
+        return index.startsWith("-");
+    }
+
+    private static boolean getParsedAddFlag(String index) {
+        return index.startsWith("+");
+    }
+
+    private static Integer getParsedIndex(String index) {
+        if (index.startsWith("-")) {
+            index = index.substring(1);
+        } else if (index.startsWith("+")) {
+            index = index.substring(1);
+        }
+        try {
+            return Integer.parseInt(index);
+        } catch (NumberFormatException exception) {
+            return null;
         }
     }
 }

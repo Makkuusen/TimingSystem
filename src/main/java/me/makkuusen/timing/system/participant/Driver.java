@@ -82,12 +82,14 @@ public class Driver extends Participant implements Comparable<Driver> {
         newLap();
     }
 
-    public void passPit() {
+    public boolean passPit() {
         if (!getCurrentLap().isPitted()) {
             setPits(pits + 1);
             EventAnnouncements.broadcastPit(getHeat(), this, pits);
             getCurrentLap().setPitted(true);
+            return true;
         }
+        return false;
     }
 
     private void finishLap() {
