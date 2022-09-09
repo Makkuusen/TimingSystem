@@ -51,7 +51,6 @@ public class Database {
                 if (!TPlayer.getName().equals(player.getName())) {
                     // Update name
                     TPlayer.setName(player.getName());
-                    TPlayer.updateNameChanges();
                 }
             }
 
@@ -128,10 +127,6 @@ public class Database {
             DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_players` (\n" +
                     "  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',\n" +
                     "  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
-                    "  `dateJoin` bigint(30) DEFAULT NULL,\n" +
-                    "  `dateNameChange` bigint(30) DEFAULT NULL,\n" +
-                    "  `dateNameCheck` bigint(30) DEFAULT NULL,\n" +
-                    "  `dateSeen` bigint(30) DEFAULT NULL,\n" +
                     "  `boat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  PRIMARY KEY (`uuid`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
