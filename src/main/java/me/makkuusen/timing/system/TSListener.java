@@ -367,20 +367,20 @@ public class TSListener implements Listener {
         var track = timeTrial.getTrack();
 
         var startRegion = track.getRegion(TrackRegion.RegionType.START);
-        var endRegion = track.getRegion(TrackRegion.RegionType.END);
+        /*var endRegion = track.getRegion(TrackRegion.RegionType.END);*/
 
-        if (startRegion.isEmpty() || endRegion.isEmpty()) {
+        if (startRegion.isEmpty() /*|| endRegion.isEmpty()*/) {
             return;
         }
 
-        if (startRegion.get().contains(player.getLocation()) && endRegion.get().contains(player.getLocation())) {
+        if (startRegion.get().contains(player.getLocation())/* && endRegion.get().contains(player.getLocation())*/) {
             if (timeTrial.getLatestCheckpoint() != 0) {
                 timeTrial.playerRestartMap();
                 return;
+            } else if (timeTrial.hasPassedAllCheckpoints()) {
+                timeTrial.playerEndedMap();
+                return;
             }
-        } else if (endRegion.get().contains(player.getLocation())) {
-            timeTrial.playerEndedMap();
-            return;
         }
 
         // Check reset regions
