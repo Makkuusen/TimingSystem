@@ -64,7 +64,7 @@ public class TSListener implements Listener {
             TPlayer TPlayer = Database.getPlayer(event.getUniqueId(), event.getName());
 
             if (TPlayer == null) {
-                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Din spelarprofil kunde inte laddas.");
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Your player profile could not be loaded. Notify the server owner!");
                 return;
             }
         }

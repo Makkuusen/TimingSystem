@@ -85,7 +85,7 @@ public class Database {
             }
 
             try {
-                DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `dateJoin`, `dateNameChange`, `dateNameCheck`, `dateSeen`, `boat`) VALUES('" + uuid + "', " + sqlString(name) + ", " + ApiUtilities.getTimestamp() + ", -1, 0, 0, '" + TreeSpecies.GENERIC.name() + "');");
+                DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES('" + uuid + "', " + sqlString(name) + ", '" + TreeSpecies.GENERIC.name() + "');");
                 var dbRow = DB.getFirstRow("SELECT * FROM `ts_players` WHERE `uuid` = '" + uuid + "';");
 
                 TPlayer = new TPlayer(plugin, dbRow);
