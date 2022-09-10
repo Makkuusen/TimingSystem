@@ -367,21 +367,39 @@ public class TSListener implements Listener {
         var track = timeTrial.getTrack();
 
         var startRegion = track.getRegion(TrackRegion.RegionType.START);
-        /*var endRegion = track.getRegion(TrackRegion.RegionType.END);*/
+        var endRegion = track.getRegion(TrackRegion.RegionType.END);
 
         if (startRegion.isEmpty() /*|| endRegion.isEmpty()*/) {
             return;
         }
 
-        if (startRegion.get().contains(player.getLocation())/* && endRegion.get().contains(player.getLocation())*/) {
-            if (timeTrial.getLatestCheckpoint() != 0) {
-                timeTrial.playerRestartMap();
-                return;
-            } else if (timeTrial.hasPassedAllCheckpoints()) {
+        if (endRegion.isEmpty()){
+            if (startRegion.get().contains(player.getLocation())) {
+                if (timeTrial.getLatestCheckpoint() != 0) {
+                    timeTrial.playerRestartMap();
+                    return;
+                }
+            }
+        } else {
+            if (startRegion.get().contains(player.getLocation()) && endRegion.get().contains(player.getLocation())) {
+                if (timeTrial.getLatestCheckpoint() != 0) {
+                    timeTrial.playerRestartMap();
+                    return;
+                }
+            } else if (endRegion.get().contains(player.getLocation())){
                 timeTrial.playerEndedMap();
                 return;
             }
         }
+
+        /*if (startRegion.get().contains(player.getLocation()) || endRegion.get().contains(player.getLocation())) {
+            if (timeTrial.getLatestCheckpoint() != 0) {
+                timeTrial.playerRestartMap();
+            } else if(timeTrial.getLatestCheckpoint() >= 1){
+                timeTrial.playerEndedMap();
+            }
+            return;
+        }*/
 
         // Check reset regions
         for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
