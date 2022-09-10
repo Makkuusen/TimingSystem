@@ -392,15 +392,6 @@ public class TSListener implements Listener {
             }
         }
 
-        /*if (startRegion.get().contains(player.getLocation()) || endRegion.get().contains(player.getLocation())) {
-            if (timeTrial.getLatestCheckpoint() != 0) {
-                timeTrial.playerRestartMap();
-            } else if(timeTrial.getLatestCheckpoint() >= 1){
-                timeTrial.playerEndedMap();
-            }
-            return;
-        }*/
-
         // Check reset regions
         for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
             if (r.contains(player.getLocation())) {
