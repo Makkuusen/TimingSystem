@@ -65,7 +65,7 @@ public class TimeTrial {
         }
     }
 
-    public boolean hasPassedAllCheckpoints() {
+    private boolean hasPassedAllCheckpoints() {
         for (boolean b : checkpoints) {
             if (!b) {
                 return false;
