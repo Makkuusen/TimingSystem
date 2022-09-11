@@ -506,6 +506,7 @@ public class TSListener implements Listener {
     }
 
     public static void teleportPlayerAndSpawnBoat(Player player, boolean isBoatTrack, Location location){
+        location.setPitch(player.getLocation().getPitch());
         player.teleport(location, PlayerTeleportEvent.TeleportCause.UNKNOWN);
         if (isBoatTrack) {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
