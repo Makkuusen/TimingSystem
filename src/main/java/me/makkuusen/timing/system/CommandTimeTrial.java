@@ -27,6 +27,7 @@ public class CommandTimeTrial extends BaseCommand {
                 player.sendMessage("§cWorld is not loaded!");
                 return;
             }
+            track.getSpawnLocation().setPitch(player.getLocation().getPitch());
             player.teleport(track.getSpawnLocation());
         }
     }
