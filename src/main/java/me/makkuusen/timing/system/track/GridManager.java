@@ -22,6 +22,7 @@ public class GridManager {
     }
 
     public void teleportPlayerToGrid(Player player, Location location){
+        location.setPitch(player.getLocation().getPitch());
         if (!location.isWorldLoaded()) {
             return;
         }
