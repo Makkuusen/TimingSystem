@@ -9,9 +9,12 @@ import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
+
+import java.util.Random;
 
 @CommandAlias("timetrial|tt")
 public class CommandTimeTrial extends BaseCommand {
@@ -71,5 +74,17 @@ public class CommandTimeTrial extends BaseCommand {
         player.sendMessage("§2/tt");
         player.sendMessage("§2/tt cancel");
         player.sendMessage("§2/tt verbose");
+    }
+
+    @Subcommand("random|r")
+    public static void onRandom(Player player){
+        Track t = TrackDatabase.getAvailableTracks(player).get(new Random().nextInt(TrackDatabase.getAvailableTracks(player).size()));
+
+        if (!t.getSpawnLocation().isWorldLoaded()) {
+            player.sendMessage("§cWorld is not loaded!");
+            return;
+        }
+        t.getSpawnLocation().setPitch(player.getLocation().getPitch());
+        player.teleport(t.getSpawnLocation());
     }
 }
