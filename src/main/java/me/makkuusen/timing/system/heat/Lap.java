@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -40,7 +41,8 @@ public class Lap implements Comparable<Lap> {
     public Lap(DbRow data) {
         player = Database.getPlayer(data.getString("uuid"));
         heatId = data.getInt("heatId");
-        track = TrackDatabase.getTrackById(data.getInt("trackId")).get();
+        Optional<Track> maybeTrack = TrackDatabase.getTrackById(data.getInt("trackId"));
+        track = maybeTrack.isEmpty() ? null : maybeTrack.get();
         lapStart = Instant.ofEpochMilli(data.getLong("lapStart"));
         lapEnd = data.getLong("lapEnd") == null ? null : Instant.ofEpochMilli(data.getLong("lapEnd"));
         pitted = data.get("pitted");

@@ -201,7 +201,7 @@ public class Track {
             }
         } else {
             removeRegion(region);
-            return createRegion(region.getRegionType(), selection, location);
+            return createRegion(region.getRegionType(), region.getRegionIndex(), selection, location);
         }
         return true;
     }
