@@ -52,7 +52,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        if (!TrackDatabase.trackNameAvailable(name) || name.equalsIgnoreCase("random")) {
+        if (!TrackDatabase.trackNameAvailable(name) || name.equalsIgnoreCase("random") || name.equalsIgnoreCase("help") || name.equalsIgnoreCase("boat") || name.equalsIgnoreCase("verbose") || name.equalsIgnoreCase("c") || name.equalsIgnoreCase("r")) {
             plugin.sendMessage(player, "messages.error.trackExists");
             return;
         }
