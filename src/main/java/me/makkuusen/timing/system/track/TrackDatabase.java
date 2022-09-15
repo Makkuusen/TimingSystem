@@ -182,6 +182,10 @@ public class TrackDatabase {
         return getTracks();
     }
 
+    static public List<Track> getOpenTracks() {
+        return TrackDatabase.getTracks().stream().filter(Track::isOpen).toList();
+    }
+
     static public List<TrackRegion> getTrackStartRegions() {
         return regions.stream().filter(r -> r.getRegionType().equals(TrackRegion.RegionType.START)).collect(Collectors.toList());
     }

@@ -78,7 +78,7 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("random|r")
     public static void onRandom(Player player){
-        Track t = TrackDatabase.getAvailableTracks(player).get(new Random().nextInt(TrackDatabase.getAvailableTracks(player).size()));
+        Track t = TrackDatabase.getOpenTracks().get(new Random().nextInt(TrackDatabase.getOpenTracks().size()));
 
         if (!t.getSpawnLocation().isWorldLoaded()) {
             player.sendMessage("§cWorld is not loaded!");
