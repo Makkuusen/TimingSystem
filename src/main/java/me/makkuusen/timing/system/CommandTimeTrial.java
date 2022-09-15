@@ -76,7 +76,7 @@ public class CommandTimeTrial extends BaseCommand {
         player.sendMessage("§2/tt verbose");
     }
 
-    @Subcommand("random")
+    @Subcommand("random|r")
     public static void onRandom(Player player){
         Track t = TrackDatabase.getAvailableTracks(player).get(new Random().nextInt(TrackDatabase.getAvailableTracks(player).size()));
 
