@@ -84,9 +84,13 @@ public class CommandTimeTrial extends BaseCommand {
             player.sendMessage("§cWorld is not loaded!");
             return;
         }
-        player.sendMessage(plugin.getLocalizedMessage(player, "messages.timer.randomTrack", "%track%", t.getDisplayName(),
-                "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())))
-        ));
+        if(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1){
+            player.sendMessage(plugin.getLocalizedMessage(player, "messages.timer.randomTrack", "%track%", t.getDisplayName(),
+                    "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())))
+            ));
+        } else {
+            player.sendMessage(plugin.getLocalizedMessage(player, "messages.timer.randomTrackNoPos", "%track%", t.getDisplayName()));
+        }
 
         t.getSpawnLocation().setPitch(player.getLocation().getPitch());
         player.teleport(t.getSpawnLocation());
