@@ -16,6 +16,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+import java.util.List;
+
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
 
@@ -52,7 +55,15 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        if (!TrackDatabase.trackNameAvailable(name) || name.equalsIgnoreCase("random") || name.equalsIgnoreCase("help") || name.equalsIgnoreCase("boat") || name.equalsIgnoreCase("verbose") || name.equalsIgnoreCase("c") || name.equalsIgnoreCase("r")) {
+        List<String> rejectedWords = Arrays.asList("random", "r", "cancel", "c", "help", "verbose");
+        for(String rejected : rejectedWords){
+            if(name.equalsIgnoreCase(rejected)){
+                plugin.sendMessage(player, "messages.error.trackExists");
+                return;
+            }
+        }
+
+        if (!TrackDatabase.trackNameAvailable(name)) {
             plugin.sendMessage(player, "messages.error.trackExists");
             return;
         }
