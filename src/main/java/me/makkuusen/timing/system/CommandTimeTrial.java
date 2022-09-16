@@ -84,7 +84,10 @@ public class CommandTimeTrial extends BaseCommand {
             player.sendMessage("§cWorld is not loaded!");
             return;
         }
-        player.sendMessage("§2Teleported you to §a" + t.getDisplayName() + "§2. You are currently §a#" + t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())));
+        player.sendMessage(plugin.getLocalizedMessage(player, "messages.timer.randomTrack", "%track%", t.getDisplayName(),
+                "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())))
+        ));
+
         t.getSpawnLocation().setPitch(player.getLocation().getPitch());
         player.teleport(t.getSpawnLocation());
     }
