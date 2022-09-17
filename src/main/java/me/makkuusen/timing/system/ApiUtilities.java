@@ -37,7 +37,7 @@ public class ApiUtilities {
     static TimingSystem plugin;
     private static final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     private static final Pattern niceLocation = Pattern.compile("^\\(\\[([A-Za-z0-9_]+)\\]([\\-]{0,1}[0-9]+),[ ]{0,1}([\\-]{0,1}[0-9]+),[ ]{0,1}([\\-]{0,1}[0-9]+)\\)$");
-
+    private static final List<String> rejectedWords = Arrays.asList("random", "r", "cancel", "c", "help", "verbose");
     public static long getTimestamp() {
         return System.currentTimeMillis() / 1000L;
     }
@@ -419,6 +419,15 @@ public class ApiUtilities {
             return true;
         } else if (trackRegion instanceof TrackPolyRegion && selection instanceof Polygonal2DRegion) {
             return true;
+        }
+        return false;
+    }
+
+    public static boolean checkTrackName(String name){
+        for(String rejected : rejectedWords){
+            if(name.equalsIgnoreCase(rejected)){
+                return true;
+            }
         }
         return false;
     }

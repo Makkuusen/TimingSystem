@@ -16,9 +16,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.List;
-
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
 
@@ -55,12 +52,9 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        List<String> rejectedWords = Arrays.asList("random", "r", "cancel", "c", "help", "verbose");
-        for(String rejected : rejectedWords){
-            if(name.equalsIgnoreCase(rejected)){
-                plugin.sendMessage(player, "messages.error.trackExists");
-                return;
-            }
+        if(ApiUtilities.checkTrackName(name)){
+            TimingSystem.getPlugin().sendMessage(player, "messages.error.trackExists");
+            return;
         }
 
         if (!TrackDatabase.trackNameAvailable(name)) {
@@ -318,6 +312,11 @@ public class CommandTrack extends BaseCommand {
             int maxLength = 25;
             if (name.length() > maxLength) {
                 plugin.sendMessage(player, "messages.error.nametoLong", "%length%", String.valueOf(maxLength));
+                return;
+            }
+
+            if(ApiUtilities.checkTrackName(name)){
+                plugin.sendMessage(player, "messages.error.trackExists");
                 return;
             }
 
