@@ -87,6 +87,10 @@ messages:
     list: '&aAlternativen är nu: %options%'
   help: '&2---&a Hjälp: /%command% &2---'
   cancel: '&aAvbröt tidtagningen.'
+  randomTrack:
+    teleport: '🐷'
+    teleportNoPos: 'swede'
+    noTracks: 'swedish'
   timer:
     firstFinish: '&eNytt rekord!&6 Du klarade &e%map%&6 på &e%time%&6.'
     newRecord: '&eNytt rekord!&6 Du klarade &e%map%&6 på &e%time%&6. Tidigare rekord var &e%oldTime%&6.'

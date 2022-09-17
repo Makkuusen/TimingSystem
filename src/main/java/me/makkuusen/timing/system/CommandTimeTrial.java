@@ -78,6 +78,11 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("random|r")
     public static void onRandom(Player player){
+        if(TrackDatabase.getOpenTracks().isEmpty()){
+            player.sendMessage(plugin.getLocalizedMessage(player, "messages.randomTrack.noTracks"));
+            return;
+        }
+
         Track t = TrackDatabase.getOpenTracks().get(new Random().nextInt(TrackDatabase.getOpenTracks().size()));
 
         if (!t.getSpawnLocation().isWorldLoaded()) {
