@@ -79,7 +79,7 @@ public class CommandTimeTrial extends BaseCommand {
     @Subcommand("random|r")
     public static void onRandom(Player player){
         if(TrackDatabase.getOpenTracks().isEmpty()){
-            player.sendMessage(plugin.getLocalizedMessage(player, "messages.randomTrack.noTracks"));
+            plugin.sendMessage(player, "messages.randomTrack.noTracks");
             return;
         }
 
@@ -91,11 +91,11 @@ public class CommandTimeTrial extends BaseCommand {
         }
 
         if(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1){
-            player.sendMessage(plugin.getLocalizedMessage(player, "messages.randomTrack.teleport", "%track%", t.getDisplayName(),
+            plugin.sendMessage(player, "messages.randomTrack.teleport", "%track%", t.getDisplayName(),
                     "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())))
-            ));
+            );
         } else {
-            player.sendMessage(plugin.getLocalizedMessage(player, "messages.randomTrack.teleportNoPos", "%track%", t.getDisplayName()));
+            plugin.sendMessage(player, "messages.randomTrack.teleportNoPos", "%track%", t.getDisplayName());
         }
 
         t.getSpawnLocation().setPitch(player.getLocation().getPitch());
