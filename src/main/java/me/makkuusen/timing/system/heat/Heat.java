@@ -406,4 +406,37 @@ public class Heat {
         }
         drivers.values().forEach(driver -> driver.onShutdown());
     }
+
+    public void reverseGrid(){
+        if(getHeatState() != HeatState.SETUP) return;
+        int heatSize = getStartPositions().size();
+
+        heatSize = 2;
+
+        for(Driver driver : getStartPositions()){
+            int driverPos = driver.getStartPosition();
+            int newPos = driverPos - heatSize;
+            newPos *= -1;
+            newPos += 1;
+
+            driver.setStartPosition(newPos);
+            System.out.println(heatSize);
+            System.out.println(newPos);
+        }
+
+        /**
+         * heatSize = 10 drivers
+         * 1st place (1) -> 10th place
+         * 2nd place (2) -> 9th place
+         * -> 1 - 10: -9
+         * -> 2 - 10: -8
+         * -> 3 - 10: -7
+         * -> 4 - 10: -6
+         * etc.
+         * multiply new pos by -1
+         * -> -9 * -1: 9
+         * -> 9 + 1 = 10
+         * set new pos
+         **/
+    }
 }
