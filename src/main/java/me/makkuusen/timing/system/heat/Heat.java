@@ -411,8 +411,6 @@ public class Heat {
         if(getHeatState() != HeatState.SETUP) return;
         int heatSize = getStartPositions().size();
 
-        heatSize = 2;
-
         for(Driver driver : getStartPositions()){
             int driverPos = driver.getStartPosition();
             int newPos = driverPos - heatSize;
