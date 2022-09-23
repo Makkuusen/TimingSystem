@@ -262,7 +262,7 @@ public class CommandHeat extends BaseCommand {
 
     }
 
-    @Subcommand("set reverseGrid")
+    @Subcommand("reversegrid")
     @CommandCompletion("@heat")
     public static void onReverseGrid(Player player, Heat heat){
         heat.reverseGrid();
