@@ -263,16 +263,24 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set reversegrid")
-    @CommandCompletion("@heat")
-    public static void onReverseGrid(Player player, Heat heat){
-        heat.reverseGrid();
-        player.sendMessage("§aReversed the grid");
+    @CommandCompletion("@heat <%>")
+    public static void onReverseGrid(Player player, Heat heat, @Optional Integer percentage){
+        if (percentage == null) {
+            percentage = 100;
+        }
+        heat.reverseGrid(percentage);
+        player.sendMessage("§aReversed the first "+ percentage +"% of the grid");
     }
 
     @Subcommand("add")
     @CommandPermission("event.admin")
     @CommandCompletion("@players @heat")
     public static void onHeatAddDriver(Player sender, String playerName, Heat heat) {
+        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound()){
+            sender.sendMessage("§cYou can't add driver to a future round before the current round has finished");
+            return;
+        }
+
         if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
             sender.sendMessage("§cMax allowed amount of drivers have been added");
             return;
@@ -368,7 +376,11 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("add alldrivers")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
-    public static void onHeatAddDriver(Player sender, Heat heat) {
+    public static void onHeatAddDrivers(Player sender, Heat heat) {
+        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound()){
+            sender.sendMessage("§cYou can't add drivers to a future round before the current round has finished");
+            return;
+        }
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
                 sender.sendMessage("§cMax allowed amount of drivers have been added");

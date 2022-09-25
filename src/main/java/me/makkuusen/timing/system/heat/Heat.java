@@ -407,17 +407,27 @@ public class Heat {
         drivers.values().forEach(driver -> driver.onShutdown());
     }
 
-    public void reverseGrid() {
-        if(getHeatState() != HeatState.SETUP) return;
-        int heatSize = getStartPositions().size();
-
-        for(Driver driver : getStartPositions()){
-            int driverPos = driver.getStartPosition();
-            int newPos = heatSize - (driverPos - 1);
-
-            driver.setStartPosition(newPos);
-            System.out.println(heatSize);
-            System.out.println(newPos);
+    public void reverseGrid(Integer percentage) {
+        if (getHeatState() != HeatState.SETUP) {
+            return;
         }
+        int reverseSize = Math.min((getStartPositions().size() * percentage)/100, getStartPositions().size());
+
+        if (reverseSize == 0) {
+            return;
+        }
+
+        for (Driver driver : getStartPositions()) {
+
+            int driverPos = driver.getStartPosition();
+            if (driverPos > reverseSize) {
+                break;
+            }
+            int newPos = reverseSize - (driverPos - 1);
+            driver.setStartPosition(newPos);
+            driver.setPosition(newPos);
+        }
+        Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
+        Collections.sort(livePositions, Comparator.comparingInt(Driver::getPosition));
     }
 }
