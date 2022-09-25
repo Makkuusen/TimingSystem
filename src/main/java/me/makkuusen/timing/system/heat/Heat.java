@@ -395,15 +395,29 @@ public class Heat {
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `heatNumber` = " + heatNumber + " WHERE `id` = " + getId() + ";");
     }
 
-    public boolean isActive(){
+    public boolean isActive() {
         return getHeatState() == HeatState.LOADED || getHeatState() == HeatState.RACING || getHeatState() == HeatState.STARTING;
     }
 
-    public void onShutdown(){
+    public void onShutdown() {
         gridManager.clearArmorstands();
         if (scoreboard != null) {
             scoreboard.removeScoreboard();
         }
         drivers.values().forEach(driver -> driver.onShutdown());
+    }
+
+    public void reverseGrid() {
+        if(getHeatState() != HeatState.SETUP) return;
+        int heatSize = getStartPositions().size();
+
+        for(Driver driver : getStartPositions()){
+            int driverPos = driver.getStartPosition();
+            int newPos = heatSize - (driverPos - 1);
+
+            driver.setStartPosition(newPos);
+            System.out.println(heatSize);
+            System.out.println(newPos);
+        }
     }
 }
