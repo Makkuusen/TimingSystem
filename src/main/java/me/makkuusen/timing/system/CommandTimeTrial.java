@@ -67,6 +67,13 @@ public class CommandTimeTrial extends BaseCommand {
         plugin.sendMessage(player, "messages.save.generic");
     }
 
+    @Subcommand("sound")
+    public static void onTTSound(Player player){
+        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        tPlayer.setTTSound(!tPlayer.getTTSound());
+        player.sendMessage("§2Switched sounds to: §a" + tPlayer.getTTSound());
+    }
+
     @Subcommand("help")
     public static void onHelp(Player player) {
         player.sendMessage("");
@@ -74,6 +81,7 @@ public class CommandTimeTrial extends BaseCommand {
         player.sendMessage("§2/tt");
         player.sendMessage("§2/tt cancel");
         player.sendMessage("§2/tt verbose");
+        player.sendMessage("§2/tt sound");
     }
 
     @Subcommand("random|r")

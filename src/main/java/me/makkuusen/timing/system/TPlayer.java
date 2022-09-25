@@ -19,6 +19,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private final UUID uuid;
     private String name;
     private TreeSpecies boat;
+    private Boolean ttSound;
 
 
     @Override
@@ -31,6 +32,7 @@ public class TPlayer implements Comparable<TPlayer> {
         uuid = UUID.fromString(data.getString("uuid"));
         name = data.getString("name");
         boat = data.getString("boat") == null ? TreeSpecies.GENERIC : TreeSpecies.valueOf(data.getString("boat"));
+        ttSound = Boolean.parseBoolean(data.getString("ttSound"));
     }
 
     public UUID getUniqueId() {
@@ -64,6 +66,16 @@ public class TPlayer implements Comparable<TPlayer> {
         this.boat = boat;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
 
+    }
+
+    public void setTTSound(Boolean sounds) {
+        this.ttSound = sounds;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `ttSounds` = " + Database.sqlString(Database.sqlString(String.valueOf(sounds))) + " WHERE `uuid` = '" + uuid + "';");
+
+    }
+
+    public Boolean getTTSound() {
+        return ttSound;
     }
 
     public Player getPlayer() {
