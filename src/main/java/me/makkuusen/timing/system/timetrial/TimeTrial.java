@@ -147,7 +147,7 @@ public class TimeTrial {
             plugin.sendMessage(p, "messages.timer.firstFinish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime));
             track.newTimeTrialFinish(mapTime, p.getUniqueId());
             this.bestFinish = getBestFinish(track.getBestFinish(TPlayer));
-            p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
+            if(TPlayer.getToggleSound()) p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
             LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
         } else if (mapTime < track.getBestFinish(TPlayer).getTime()) {
             plugin.sendMessage(p, "messages.timer.newRecord", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(TPlayer).getTime()));
