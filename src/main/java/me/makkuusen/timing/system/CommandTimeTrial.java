@@ -67,11 +67,11 @@ public class CommandTimeTrial extends BaseCommand {
         plugin.sendMessage(player, "messages.save.generic");
     }
 
-    @Subcommand("sound")
+    @Subcommand("toggleSound")
     public static void onTTSound(Player player){
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.setTTSound(!tPlayer.getTTSound());
-        player.sendMessage("§2Switched sounds to: §a" + tPlayer.getTTSound());
+        tPlayer.switchToggleSound();
+        player.sendMessage("§2Switched sounds to §a" + (tPlayer.getToggleSound() ? "on" : "off") + "§2.");
     }
 
     @Subcommand("help")

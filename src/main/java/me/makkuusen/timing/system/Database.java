@@ -128,7 +128,7 @@ public class Database {
                     "  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',\n" +
                     "  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `boat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
-                    " `ttSound` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT 'true',\n" +
+                    " `toggleSound` tinyint(1) DEFAULT 1 NOT NULL,\n" +
                     "  PRIMARY KEY (`uuid`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
