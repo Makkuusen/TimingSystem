@@ -102,6 +102,9 @@ messages:
     finishQualy: '&f%player% &7finished'
     lap: '&7You finished lap in: &f%time%'
     fastestLap: '&f%player% &7set new fastest lap of &f%time%'
+  heatJoinMessage:
+    message: ''
+    onJoin: ''
   actionbar:
     race: '&8Lap: &f&l%laps%/%totalLaps%&r&8 |&f&l P%pos%&r&8 |&f&l %pits%/%totalPits%&r&8 Pits'
     raceSpectator: '&f%name% > &8Lap: &f&l%laps%/%totalLaps%&r&8 |&f&l P%pos%&r&8 |&f&l %pits%/%totalPits%&r&8 Pits'

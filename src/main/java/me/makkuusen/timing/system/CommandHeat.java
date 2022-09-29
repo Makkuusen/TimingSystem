@@ -428,7 +428,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("join")
     @CommandCompletion("@heat")
-    public static void onJoin(Player player, Heat heat) {
+    public static void onSelfJoin(Player player, Heat heat) {
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound()){
             player.sendMessage("§cYou can't add yourself to a future round before the current round has finished");
             return;
@@ -454,12 +454,62 @@ public class CommandHeat extends BaseCommand {
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             player.sendMessage("§aAdded yourself to " + heat.getName());
             Bukkit.getOnlinePlayers().forEach(p -> {
-                p.sendMessage("§a" + player.getName() + " has joined " + heat.getName() + ". §2(" + heat.getDrivers().size() + "/" + heat.getMaxDrivers() + ")");
+                p.sendMessage(TimingSystem.getPlugin().getLocalizedMessage(player,
+                        "messages.heatJoinMessage.onJoin",
+                        "%player%", player.getName(),
+                        "%heat%", heat.getName(),
+                        "%drivers%", String.valueOf(heat.getDrivers().size()),
+                        "%maxdrivers%", String.valueOf(heat.getMaxDrivers())));
             });
             return;
         }
 
         player.sendMessage("§cCould not add yourself to heat");
+    }
+
+    @Subcommand("leave")
+    @CommandCompletion("@heat")
+    public static void onSelfLeave(Player player, Heat heat){
+        TPlayer tPlayer = Database.getPlayer(player);
+        if (tPlayer == null) {
+            player.sendMessage("§cCould not find yourself");
+            return;
+        }
+        if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
+            player.sendMessage("§cYou are not in this heat!");
+            return;
+        }
+        if (heat.isActive()) {
+            if (heat.disqualifyDriver(heat.getDrivers().get(tPlayer.getUniqueId()))) {
+                if (tPlayer.getPlayer() != null) {
+                    if (tPlayer.getPlayer().getVehicle() != null && tPlayer.getPlayer().getVehicle() instanceof Boat boat) {
+                        boat.remove();
+                    }
+                    Location loc = tPlayer.getPlayer().getBedSpawnLocation() == null ? tPlayer.getPlayer().getWorld().getSpawnLocation() : tPlayer.getPlayer().getBedSpawnLocation();
+                    tPlayer.getPlayer().teleport(loc);
+                }
+                player.sendMessage("§aYou have been disqualifed");
+                return;
+            }
+            player.sendMessage("§cYou could not be disqualified");
+        } else {
+            if (heat.removeDriver(heat.getDrivers().get(tPlayer.getUniqueId()))) {
+                boolean removeSpectator = true;
+                for (Round round : heat.getEvent().getEventSchedule().getRounds()) {
+                    for (Heat h : round.getHeats()) {
+                        if (h.getDrivers().containsKey(tPlayer.getUniqueId())) {
+                            removeSpectator = false;
+                        }
+                    }
+                }
+                if (removeSpectator) {
+                    heat.getEvent().removeSpectator(tPlayer.getUniqueId());
+                }
+                player.sendMessage("§aYou have left the heat");
+                return;
+            }
+            player.sendMessage("§cYou could not be removed from heat");
+        }
     }
 
     @Subcommand("sendjoinmessage")
@@ -469,8 +519,12 @@ public class CommandHeat extends BaseCommand {
         sender.sendMessage("§2Sent join message for §a" + heat.getName() + "§2.");
         Bukkit.getOnlinePlayers().forEach(p -> {
             EventDatabase.setPlayerSelectedEvent(p.getUniqueId(), EventDatabase.getPlayerSelectedEvent(sender.getUniqueId()).get());
-            p.sendMessage("§2Click below to join §a" + heat.getName());
-            p.sendMessage(Component.text("§aJOIN").clickEvent(ClickEvent.runCommand("/heat join " + heat.getName())));
+            p.sendMessage("");
+            p.sendMessage(Component.text(
+                    TimingSystem.getPlugin().getLocalizedMessage(
+                            p, "messages.heatJoinMessage.message", "%heat%", heat.getName()))
+                    .clickEvent(ClickEvent.runCommand("/heat join " + heat.getName())));
+            p.sendMessage("");
         });
     }
 
