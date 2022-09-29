@@ -16,6 +16,8 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Boat;
@@ -263,6 +265,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set reversegrid")
+    @CommandPermission("event.admin")
     @CommandCompletion("@heat <%>")
     public static void onReverseGrid(Player player, Heat heat, @Optional Integer percentage){
         if (percentage == null) {
@@ -421,6 +424,54 @@ public class CommandHeat extends BaseCommand {
         } else {
             sender.sendMessage("§cHeat has not been finished");
         }
+    }
+
+    @Subcommand("join")
+    @CommandCompletion("@heat")
+    public static void onJoin(Player player, Heat heat) {
+        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound()){
+            player.sendMessage("§cYou can't add yourself to a future round before the current round has finished");
+            return;
+        }
+
+        if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
+            player.sendMessage("§cMax allowed amount of drivers have been added");
+            return;
+        }
+        TPlayer tPlayer = Database.getPlayer(player.getName());
+        if (tPlayer == null) {
+            player.sendMessage("§cCould not find youself");
+            return;
+        }
+
+        for (Heat h : heat.getRound().getHeats()) {
+            if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
+                player.sendMessage("§cYou are already in this round!");
+                return;
+            }
+        }
+
+        if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
+            player.sendMessage("§aAdded yourself to " + heat.getName());
+            Bukkit.getOnlinePlayers().forEach(p -> {
+                p.sendMessage("§a" + player.getName() + " has joined " + heat.getName() + ". §2(" + heat.getDrivers().size() + "/" + heat.getMaxDrivers() + ")");
+            });
+            return;
+        }
+
+        player.sendMessage("§cCould not add yourself to heat");
+    }
+
+    @Subcommand("sendjoinmessage")
+    @CommandPermission("event.admin")
+    @CommandCompletion("@heat")
+    public static void onSendJoinMessage(Player sender, Heat heat) {
+        sender.sendMessage("§2Sent join message for §a" + heat.getName() + "§2.");
+        Bukkit.getOnlinePlayers().forEach(p -> {
+            EventDatabase.setPlayerSelectedEvent(p.getUniqueId(), EventDatabase.getPlayerSelectedEvent(sender.getUniqueId()).get());
+            p.sendMessage("§2Click below to join §a" + heat.getName());
+            p.sendMessage(Component.text("§aJOIN").clickEvent(ClickEvent.runCommand("/heat join " + heat.getName())));
+        });
     }
 
     private static boolean getParsedRemoveFlag(String index) {
