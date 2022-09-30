@@ -428,7 +428,11 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("join")
     @CommandCompletion("@heat")
-    public static void onSelfJoin(Player player, Heat heat) {
+    public static void onSelfJoin(Player player, Heat heat, @Optional Player host) {
+        if(!host.isEmpty()) {
+            EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), EventDatabase.getPlayerSelectedEvent(host.getUniqueId()).get());
+        }
+
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound()){
             player.sendMessage("§cYou can't add yourself to a future round before the current round has finished");
             return;
@@ -518,12 +522,11 @@ public class CommandHeat extends BaseCommand {
     public static void onSendJoinMessage(Player sender, Heat heat) {
         sender.sendMessage("§2Sent join message for §a" + heat.getName() + "§2.");
         Bukkit.getOnlinePlayers().forEach(p -> {
-            EventDatabase.setPlayerSelectedEvent(p.getUniqueId(), EventDatabase.getPlayerSelectedEvent(sender.getUniqueId()).get());
             p.sendMessage("");
             p.sendMessage(Component.text(
                     TimingSystem.getPlugin().getLocalizedMessage(
                             p, "messages.heatJoinMessage.message", "%heat%", heat.getName()))
-                    .clickEvent(ClickEvent.runCommand("/heat join " + heat.getName())));
+                    .clickEvent(ClickEvent.runCommand("/heat join " + heat.getName() + " " + sender.getName())));
             p.sendMessage("");
         });
     }
