@@ -103,7 +103,7 @@ messages:
     lap: '&7You finished lap in: &f%time%'
     fastestLap: '&f%player% &7set new fastest lap of &f%time%'
   heatJoinMessage:
-    message: '&2Click here to join &a%heat%&2.'
+    message: '&2Click here to join &a%heat%&2 on &a%track%&2. (&a%event%&2)'
     onJoin: '&a%player% &2has joined &a%heat%&2. (&a%drivers%&2/&a%maxdrivers%&2)'
   actionbar:
     race: '&8Lap: &f&l%laps%/%totalLaps%&r&8 |&f&l P%pos%&r&8 |&f&l %pits%/%totalPits%&r&8 Pits'

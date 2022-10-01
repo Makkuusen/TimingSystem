@@ -525,7 +525,10 @@ public class CommandHeat extends BaseCommand {
             p.sendMessage("");
             p.sendMessage(Component.text(
                     TimingSystem.getPlugin().getLocalizedMessage(
-                            p, "messages.heatJoinMessage.message", "%heat%", heat.getName()))
+                            p, "messages.heatJoinMessage.message",
+                            "%heat%", heat.getName(),
+                            "%track%", heat.getEvent().getTrack().getDisplayName(),
+                            "%event%", heat.getEvent().getDisplayName()))
                     .clickEvent(ClickEvent.runCommand("/heat join " + heat.getName() + " " + sender.getName())));
             p.sendMessage("");
         });
