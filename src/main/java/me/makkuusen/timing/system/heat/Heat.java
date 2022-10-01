@@ -59,6 +59,7 @@ public class Heat {
     private SpectatorScoreboard scoreboard;
     private Instant lastScoreboardUpdate = Instant.now();
     private long updateScoreboardDelay = 300;
+    private boolean selfJoinAllowed = false;
 
     public Heat(DbRow data, Round round) {
         id = data.getInt("id");
@@ -429,5 +430,13 @@ public class Heat {
         }
         Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
         Collections.sort(livePositions, Comparator.comparingInt(Driver::getPosition));
+    }
+
+    public Boolean canSelfJoin(){
+        return selfJoinAllowed;
+    }
+
+    public void setCanSelfJoin(Boolean update){
+        selfJoinAllowed = update;
     }
 }

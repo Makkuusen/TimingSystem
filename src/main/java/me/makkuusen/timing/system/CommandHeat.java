@@ -433,6 +433,11 @@ public class CommandHeat extends BaseCommand {
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), EventDatabase.getPlayerSelectedEvent(host.getUniqueId()).get());
         }
 
+        if(!heat.canSelfJoin()) {
+            player.sendMessage("§cYou cannot join this heat yet");
+            return;
+        }
+
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound()){
             player.sendMessage("§cYou can't add yourself to a future round before the current round has finished");
             return;
@@ -521,6 +526,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     public static void onSendJoinMessage(Player sender, Heat heat) {
         sender.sendMessage("§2Sent join message for §a" + heat.getName() + "§2.");
+        heat.setCanSelfJoin(true);
         Bukkit.getOnlinePlayers().forEach(p -> {
             p.sendMessage("");
             p.sendMessage(Component.text(
