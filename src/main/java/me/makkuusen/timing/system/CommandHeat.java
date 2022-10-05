@@ -210,7 +210,7 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("set driverposition")
     @CommandPermission("event.admin")
     @CommandCompletion("@players <[+/-]pos> @heat")
-    public static void onHeatSetDriverPosition(Player sender,String playerName, String position, Heat heat){
+    public static void onHeatSetDriverPosition(Player sender, String playerName, String position, Heat heat){
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
             sender.sendMessage("§cCould not find player");

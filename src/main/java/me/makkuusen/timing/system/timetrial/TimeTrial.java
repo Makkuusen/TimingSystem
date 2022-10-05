@@ -20,7 +20,7 @@ import java.time.Instant;
 public class TimeTrial {
 
     public static TimingSystem plugin;
-    private final me.makkuusen.timing.system.TPlayer TPlayer;
+    private final me.makkuusen.timing.system.TPlayer tPlayer;
     private final Track track;
     private Instant startTime;
     private boolean[] checkpoints;
@@ -32,7 +32,7 @@ public class TimeTrial {
         this.startTime = TimingSystem.currentTime;
         this.checkpoints = new boolean[track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()];
         this.bestFinish = getBestFinish(track.getBestFinish(player));
-        this.TPlayer = player;
+        this.tPlayer = player;
 
     }
 
@@ -121,9 +121,9 @@ public class TimeTrial {
 
     public void playerRestartMap() {
         Instant endTime = TimingSystem.currentTime;
-        Player p = TPlayer.getPlayer();
+        Player p = tPlayer.getPlayer();
 
-        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(TPlayer.getUniqueId())) {
+        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(tPlayer.getUniqueId())) {
             TimeTrialController.timeTrials.remove(p.getUniqueId());
             return;
         }
@@ -135,7 +135,7 @@ public class TimeTrial {
 
         if (!hasPassedAllCheckpoints()) {
             plugin.sendMessage(p, "messages.error.timer.missedCheckpoints");
-            ApiUtilities.msgConsole(TPlayer.getName() + " started on " + track.getDisplayName());
+            ApiUtilities.msgConsole(tPlayer.getName() + " started on " + track.getDisplayName());
             this.startTime = TimingSystem.currentTime;
             this.checkpoints = new boolean[track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()];
             return;
@@ -143,26 +143,20 @@ public class TimeTrial {
 
         long mapTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
 
-        if (track.getBestFinish(TPlayer) == null) {
+        if (track.getBestFinish(tPlayer) == null) {
             plugin.sendMessage(p, "messages.timer.firstFinish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime));
-            track.newTimeTrialFinish(mapTime, p.getUniqueId());
-            this.bestFinish = getBestFinish(track.getBestFinish(TPlayer));
-            if(TPlayer.getToggleSound()) p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
-            LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
-        } else if (mapTime < track.getBestFinish(TPlayer).getTime()) {
-            plugin.sendMessage(p, "messages.timer.newRecord", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(TPlayer).getTime()));
-            track.newTimeTrialFinish(mapTime, p.getUniqueId());
-            this.bestFinish = getBestFinish(track.getBestFinish(TPlayer));
-            p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
-            LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+            newBestFinish(p, mapTime);
+        } else if (mapTime < track.getBestFinish(tPlayer).getTime()) {
+            plugin.sendMessage(p, "messages.timer.newRecord", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
+            newBestFinish(p, mapTime);
         } else {
-            plugin.sendMessage(p, "messages.timer.finish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(TPlayer).getTime()));
+            plugin.sendMessage(p, "messages.timer.finish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
             track.newTimeTrialFinish(mapTime, p.getUniqueId());
         }
 
         ApiUtilities.msgConsole(p.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(mapTime));
 
-        ApiUtilities.msgConsole(TPlayer.getName() + " started on " + track.getDisplayName());
+        ApiUtilities.msgConsole(tPlayer.getName() + " started on " + track.getDisplayName());
         this.startTime = TimingSystem.currentTime;
         this.checkpoints = new boolean[track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()];
     }
@@ -172,41 +166,41 @@ public class TimeTrial {
             int lastCheckpoint = getLatestCheckpoint();
             if (lastCheckpoint != 0) {
                 var checkpoint = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lastCheckpoint).get();
-                TPlayer.getPlayer().teleport(checkpoint.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                tPlayer.getPlayer().teleport(checkpoint.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 if (track.getType() == Track.TrackType.BOAT) {
                     Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
                         Boat boat = ApiUtilities.spawnBoat(checkpoint.getSpawnLocation());
-                        boat.addPassenger(TPlayer.getPlayer());
+                        boat.addPassenger(tPlayer.getPlayer());
                         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                            boat.setWoodType(Database.getPlayer(TPlayer.getUniqueId()).getBoat());
+                            boat.setWoodType(Database.getPlayer(tPlayer.getUniqueId()).getBoat());
                         }, 1);
                     }, 1);
                 }
                 return;
             }
         }
-        TPlayer.getPlayer().teleport(track.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-        TimeTrialController.timeTrials.remove(TPlayer.getUniqueId());
-        ApiUtilities.msgConsole(TPlayer.getName() + " has been reset on " + track.getDisplayName());
+        tPlayer.getPlayer().teleport(track.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+        TimeTrialController.timeTrials.remove(tPlayer.getUniqueId());
+        ApiUtilities.msgConsole(tPlayer.getName() + " has been reset on " + track.getDisplayName());
     }
 
     public void playerStartingMap() {
-        Player player = TPlayer.getPlayer();
+        Player player = tPlayer.getPlayer();
 
-        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(TPlayer.getUniqueId())) {
+        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(tPlayer.getUniqueId())) {
             return;
         }
 
         if (!player.isInsideVehicle() && track.isBoatTrack()) {
             return;
         }
-        TimeTrialController.timeTrials.put(TPlayer.getUniqueId(), this);
-        ApiUtilities.msgConsole(TPlayer.getName() + " started on " + track.getDisplayName());
+        TimeTrialController.timeTrials.put(tPlayer.getUniqueId(), this);
+        ApiUtilities.msgConsole(tPlayer.getName() + " started on " + track.getDisplayName());
     }
 
     public void playerEndedMap() {
         Instant endTime = TimingSystem.currentTime;
-        Player p = TPlayer.getPlayer();
+        Player p = tPlayer.getPlayer();
 
         if (!hasPassedAllCheckpoints()) {
             plugin.sendMessage(p, "messages.error.timer.missedCheckpoints");
@@ -216,18 +210,14 @@ public class TimeTrial {
 
         long mapTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
 
-        if (track.getBestFinish(TPlayer) == null) {
+        if (track.getBestFinish(tPlayer) == null) {
             plugin.sendMessage(p, "messages.timer.firstFinish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime));
-            track.newTimeTrialFinish(mapTime, p.getUniqueId());
-            p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
-            LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
-        } else if (mapTime < track.getBestFinish(TPlayer).getTime()) {
-            plugin.sendMessage(p, "messages.timer.newRecord", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(TPlayer).getTime()));
-            track.newTimeTrialFinish(mapTime, p.getUniqueId());
-            p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
-            LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+            newBestFinish(p, mapTime);
+        } else if (mapTime < track.getBestFinish(tPlayer).getTime()) {
+            plugin.sendMessage(p, "messages.timer.newRecord", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
+            newBestFinish(p, mapTime);
         } else {
-            plugin.sendMessage(p, "messages.timer.finish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(TPlayer).getTime()));
+            plugin.sendMessage(p, "messages.timer.finish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
             track.newTimeTrialFinish(mapTime, p.getUniqueId());
         }
 
@@ -238,9 +228,18 @@ public class TimeTrial {
     public void playerPassingCheckpoint(int checkpoint) {
         passCheckpoint(checkpoint);
         long timeSinceStart = ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime));
-        if (TimingSystem.getPlugin().verbose.contains(TPlayer.getUniqueId())) {
-            plugin.sendMessage(TPlayer.getPlayer(), "messages.timer.checkpoint", "%checkpoint%", String.valueOf(checkpoint), "%time%", ApiUtilities.formatAsTime(timeSinceStart));
+        if (TimingSystem.getPlugin().verbose.contains(tPlayer.getUniqueId())) {
+            plugin.sendMessage(tPlayer.getPlayer(), "messages.timer.checkpoint", "%checkpoint%", String.valueOf(checkpoint), "%time%", ApiUtilities.formatAsTime(timeSinceStart));
         }
-        ApiUtilities.msgConsole(TPlayer.getName() + " passed checkpoint " + checkpoint + " on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeSinceStart));
+        ApiUtilities.msgConsole(tPlayer.getName() + " passed checkpoint " + checkpoint + " on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeSinceStart));
+    }
+
+    private void newBestFinish(Player p, long mapTime){
+        track.newTimeTrialFinish(mapTime, p.getUniqueId());
+        this.bestFinish = getBestFinish(track.getBestFinish(tPlayer));
+        if (tPlayer.getToggleSound()) {
+            p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
+        }
+        LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
     }
 }
