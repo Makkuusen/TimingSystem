@@ -341,19 +341,15 @@ public class ApiUtilities {
         }
         return toReturn;
     }
-    //type can be null will default to Generic
     public static Boat spawnBoat(Location location, TreeSpecies type) {
         if (!location.isWorldLoaded()) {
             return null;
         }
-        if (type == null) {
-            type = TreeSpecies.GENERIC;
-        }
         Boat boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
         boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
-        //Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
             boat.setWoodType(type);
-        //}, 1);
+        }, 1);
 
         return boat;
     }
