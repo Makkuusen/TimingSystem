@@ -6,8 +6,8 @@ import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
-import org.bukkit.TreeSpecies;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
@@ -85,7 +85,7 @@ public class Database {
             }
 
             try {
-                DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES('" + uuid + "', " + sqlString(name) + ", '" + TreeSpecies.GENERIC.name() + "');");
+                DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES('" + uuid + "', " + sqlString(name) + ", '" + Boat.Type.OAK.name() + "');");
                 var dbRow = DB.getFirstRow("SELECT * FROM `ts_players` WHERE `uuid` = '" + uuid + "';");
 
                 TPlayer = new TPlayer(plugin, dbRow);

@@ -341,14 +341,14 @@ public class ApiUtilities {
         }
         return toReturn;
     }
-    public static Boat spawnBoat(Location location, TreeSpecies type) {
+    public static Boat spawnBoat(Location location, Boat.Type type) {
         if (!location.isWorldLoaded()) {
             return null;
         }
         Boat boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
         boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-            boat.setWoodType(type);
+            boat.setBoatType(type);
         }, 1);
 
         return boat;

@@ -1,16 +1,11 @@
 package me.makkuusen.timing.system;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Optional;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
-import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
@@ -58,11 +53,11 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("boat")
     @CommandCompletion("@boat")
-    public static void onBoat(Player player, TreeSpecies treeSpecies){
+    public static void onBoat(Player player, Boat.Type type){
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.setBoat(treeSpecies);
+        tPlayer.setBoat(type);
         if (player.getVehicle() instanceof Boat boat) {
-            boat.setWoodType(treeSpecies);
+            boat.setBoatType(type);
         }
         plugin.sendMessage(player, "messages.save.generic");
     }

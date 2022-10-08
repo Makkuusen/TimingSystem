@@ -17,8 +17,8 @@ import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.TreeSpecies;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,13 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class TimingSystem extends JavaPlugin {
@@ -128,10 +122,10 @@ public class TimingSystem extends JavaPlugin {
         });
 
         manager.getCommandContexts().registerContext(
-                TreeSpecies.class, TPlayer.getBoatContextResolver());
+                Boat.Type.class, TPlayer.getBoatContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("boat", context -> {
             List<String> res = new ArrayList<>();
-            for (TreeSpecies tree : TreeSpecies.values()){
+            for (Boat.Type tree : Boat.Type.values()){
                 res.add(tree.name());
             }
             return res;
