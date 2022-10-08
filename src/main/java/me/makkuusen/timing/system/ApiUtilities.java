@@ -13,12 +13,10 @@ import me.makkuusen.timing.system.track.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -343,13 +341,19 @@ public class ApiUtilities {
         }
         return toReturn;
     }
-
-    public static Boat spawnBoat(Location location) {
+    //type can be null will default to Generic
+    public static Boat spawnBoat(Location location, TreeSpecies type) {
         if (!location.isWorldLoaded()) {
             return null;
         }
-        Boat boat = location.getWorld().spawn(location, Boat.class);
+        if (type == null) {
+            type = TreeSpecies.GENERIC;
+        }
+        Boat boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
         boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
+        //Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+            boat.setWoodType(type);
+        //}, 1);
 
         return boat;
     }

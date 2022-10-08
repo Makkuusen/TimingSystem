@@ -103,11 +103,11 @@ public class TSListener implements Listener {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
                     if (Track.isBoatTrack()) {
                         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                            Boat boat = ApiUtilities.spawnBoat(Track.getSpawnLocation());
+                            Boat boat = ApiUtilities.spawnBoat(Track.getSpawnLocation(), Database.getPlayer(event.getPlayer().getUniqueId()).getBoat());
                             boat.addPassenger(event.getPlayer());
-                            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                                boat.setWoodType(Database.getPlayer(event.getPlayer().getUniqueId()).getBoat());
-                            }, 1);
+      //                      Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+      //                          boat.setWoodType(Database.getPlayer(event.getPlayer().getUniqueId()).getBoat());
+      //                      }, 1);
                         }, 1);
                     }
                 }
@@ -510,11 +510,11 @@ public class TSListener implements Listener {
         player.teleport(location, PlayerTeleportEvent.TeleportCause.UNKNOWN);
         if (isBoatTrack) {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                Boat boat = ApiUtilities.spawnBoat(location);
+                Boat boat = ApiUtilities.spawnBoat(location, Database.getPlayer(player.getUniqueId()).getBoat());
                 boat.addPassenger(player);
-                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                    boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
-                }, 1);
+//                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+//                    boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
+//                }, 1);
             }, 1);
         }
     }
