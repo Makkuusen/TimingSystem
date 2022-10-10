@@ -84,8 +84,8 @@ public class TPlayer implements Comparable<TPlayer> {
 
     void setPlayer(Player player) {
         // Player came online
-		// Player disconnected
-		this.player = player;
+        // Player disconnected
+        this.player = player;
     }
 
     public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {
@@ -93,15 +93,20 @@ public class TPlayer implements Comparable<TPlayer> {
             String name = c.popFirstArg();
             try {
                 return Boat.Type.valueOf(name);
-                } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 //no matching boat types
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
         };
     }
+
     private Boat.Type stringToType(String boatType) {
-        try {return Boat.Type.valueOf(boatType);}
-        catch (IllegalArgumentException e) {
+        if (boatType == null) {
+            return Boat.Type.OAK;
+        }
+        try {
+            return Boat.Type.valueOf(boatType);
+        } catch (IllegalArgumentException e) {
             return boatMigration(boatType);
         }
     }
