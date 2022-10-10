@@ -4,7 +4,7 @@ version: ${project.version}
 authors: [Markus Hellquist (Makkuusen)]
 depend: [WorldEdit]
 softdepend: [HolographicDisplays, Multiverse-Core]
-api-version: 1.17
+api-version: 1.19
 commands:
    track:
       description: Command for managing tracks.

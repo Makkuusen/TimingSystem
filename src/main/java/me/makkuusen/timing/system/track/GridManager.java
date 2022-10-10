@@ -38,13 +38,13 @@ public class GridManager {
         ar.setGravity(false);
         ar.setVisible(false);
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-            Boat boat = ApiUtilities.spawnBoat(location);
+            Boat boat = ApiUtilities.spawnBoat(location, Database.getPlayer(player.getUniqueId()).getBoat());
             ar.addPassenger(boat);
             boat.addPassenger(player);
             armorStands.put(player.getUniqueId(), ar);
-            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
-            }, 1);
+//            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+//                boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
+//            }, 1);
         }, 1);
     }
 

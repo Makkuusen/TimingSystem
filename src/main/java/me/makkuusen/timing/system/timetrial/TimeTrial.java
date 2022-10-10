@@ -169,11 +169,11 @@ public class TimeTrial {
                 tPlayer.getPlayer().teleport(checkpoint.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 if (track.getType() == Track.TrackType.BOAT) {
                     Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                        Boat boat = ApiUtilities.spawnBoat(checkpoint.getSpawnLocation());
+                        Boat boat = ApiUtilities.spawnBoat(checkpoint.getSpawnLocation(), Database.getPlayer(tPlayer.getUniqueId()).getBoat());
                         boat.addPassenger(tPlayer.getPlayer());
-                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                            boat.setWoodType(Database.getPlayer(tPlayer.getUniqueId()).getBoat());
-                        }, 1);
+//                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+//                            boat.setWoodType(Database.getPlayer(tPlayer.getUniqueId()).getBoat());
+//                        }, 1);
                     }, 1);
                 }
                 return;
