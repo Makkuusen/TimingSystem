@@ -12,6 +12,9 @@ This plugin is still in early development. Although the plugin works and is used
 
 
 
+## DISCORD
+If you need support. Look for #support in our discord.
 
+www.discord.boatlabs.net
 
 Plugin originally forked from EpicIceTrack.
