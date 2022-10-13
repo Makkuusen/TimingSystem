@@ -6,6 +6,7 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import com.google.errorprone.annotations.Var;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
@@ -391,6 +392,9 @@ public class EventDatabase {
     }
 
     public static boolean removeEvent(Event event){
+        if (event.hasRunningHeat()){
+            return false;
+        }
         List<UUID> uuids = new ArrayList<>();
         uuids.addAll(playerSelectedEvent.keySet());
         for (UUID uuid : uuids){
