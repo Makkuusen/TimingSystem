@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.Round;
@@ -66,6 +67,18 @@ public class Event {
             return true;
         }
 
+        return false;
+    }
+
+    public boolean hasRunningHeat(){
+        if (getState() == Event.EventState.RUNNING) {
+            var maybeRound = getEventSchedule().getRound();
+            if (maybeRound.isPresent()) {
+                if (maybeRound.get().getHeats().stream().anyMatch(Heat::isActive)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 

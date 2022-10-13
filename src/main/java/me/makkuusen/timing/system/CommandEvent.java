@@ -103,8 +103,11 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("delete")
     @CommandCompletion("@event")
     public static void onRemove(Player player, Event event){
-        EventDatabase.removeEvent(event);
-        player.sendMessage("§aThe event was removed");
+        if (EventDatabase.removeEvent(event)){
+            player.sendMessage("§aThe event was removed");
+            return;
+        }
+        player.sendMessage("§cThe event could not be removed, is there any heat running?");
     }
 
     @Subcommand("select")
