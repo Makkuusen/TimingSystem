@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.heat;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.event.EventDatabase;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 public class ScoreboardUtils {
     public static String getDriverLine(String name, int pos) {
@@ -49,8 +50,7 @@ public class ScoreboardUtils {
 
     public static String paddName(String name){
         StringBuilder sb = new StringBuilder();
-        sb.append(getNameColour(name));
-        sb.append(name);
+        sb.append(getNameFormat(name) + name + ChatColor.RESET);
         int spaces = 16 - name.length();
         for(int i = 0; i < spaces; i++) {
             sb.append(" ");
@@ -101,10 +101,10 @@ public class ScoreboardUtils {
         else return "§f" + pits;
     }
 
-    private static String getNameColour(String name) {
+    private static ChatColor getNameFormat(String name) {
         var driver = EventDatabase.getDriverFromRunningHeat(Bukkit.getPlayer(name).getUniqueId());
-        if(!driver.isPresent()) return "§f";
-        if(driver.get().isFinished()) return "§a";
-        else return "§f";
+        if(!driver.isPresent()) return ChatColor.RESET;
+        if(driver.get().isFinished()) return ChatColor.UNDERLINE;
+        else return ChatColor.RESET;
     }
 }
