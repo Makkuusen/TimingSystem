@@ -368,8 +368,28 @@ public class CommandTrack extends BaseCommand {
         }
 
         @Subcommand("startregion")
-        @CommandCompletion("@track")
-        public static void onStartRegion(Player player, Track track) {
+        @CommandCompletion("@track <->")
+        public static void onStartRegion(Player player, Track track, @Optional String remove) {
+            boolean toRemove = false;
+            if (remove != null) {
+                toRemove = getParsedRemoveFlag(remove);
+            }
+
+            if (toRemove) {
+                var maybeRegion = track.getRegion(TrackRegion.RegionType.START);
+                if (maybeRegion.isPresent()) {
+                    if (track.removeRegion(maybeRegion.get())) {
+                        plugin.sendMessage(player, "messages.remove.region");
+                        return;
+                    } else {
+                        plugin.sendMessage(player, "messages.error.remove.region");
+                        return;
+                    }
+                } else {
+                    player.sendMessage("§cRegion doesn't currently exist");
+                    return;
+                }
+            }
             if (createOrUpdateRegion(track, TrackRegion.RegionType.START, player)) {
                 plugin.sendMessage(player, "messages.create.region");
                 return;
@@ -377,8 +397,28 @@ public class CommandTrack extends BaseCommand {
         }
 
         @Subcommand("endregion")
-        @CommandCompletion("@track")
-        public static void onEndRegion(Player player, Track track) {
+        @CommandCompletion("@track <->")
+        public static void onEndRegion(Player player, Track track, @Optional String remove) {
+            boolean toRemove = false;
+            if (remove != null) {
+                toRemove = getParsedRemoveFlag(remove);
+            }
+
+            if (toRemove) {
+                var maybeRegion = track.getRegion(TrackRegion.RegionType.END);
+                if (maybeRegion.isPresent()) {
+                    if (track.removeRegion(maybeRegion.get())) {
+                        plugin.sendMessage(player, "messages.remove.region");
+                        return;
+                    } else {
+                        plugin.sendMessage(player, "messages.error.remove.region");
+                        return;
+                    }
+                } else {
+                    player.sendMessage("§cRegion doesn't currently exist");
+                    return;
+                }
+            }
             if (createOrUpdateRegion(track, TrackRegion.RegionType.END, player)) {
                 plugin.sendMessage(player, "messages.create.region");
                 return;
@@ -386,8 +426,29 @@ public class CommandTrack extends BaseCommand {
         }
 
         @Subcommand("pitregion")
-        @CommandCompletion("@track")
-        public static void onPitRegion(Player player, Track track) {
+        @CommandCompletion("@track <->")
+        public static void onPitRegion(Player player, Track track, @Optional String remove) {
+            boolean toRemove = false;
+            if (remove != null) {
+                toRemove = getParsedRemoveFlag(remove);
+            }
+
+            if (toRemove) {
+                var maybeRegion = track.getRegion(TrackRegion.RegionType.PIT);
+                if (maybeRegion.isPresent()) {
+                    if (track.removeRegion(maybeRegion.get())) {
+                        plugin.sendMessage(player, "messages.remove.region");
+                        return;
+                    } else {
+                        plugin.sendMessage(player, "messages.error.remove.region");
+                        return;
+                    }
+                } else {
+                    player.sendMessage("§cRegion doesn't currently exist");
+                    return;
+                }
+            }
+
             if (createOrUpdateRegion(track, TrackRegion.RegionType.PIT, player)) {
                 plugin.sendMessage(player, "messages.create.region");
                 return;
