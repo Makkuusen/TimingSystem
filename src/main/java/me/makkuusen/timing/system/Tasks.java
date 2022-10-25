@@ -1,6 +1,8 @@
 package me.makkuusen.timing.system;
 
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.math.BlockVector2;
+import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -9,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.mozilla.javascript.ast.Block;
 
 import java.util.UUID;
 
@@ -69,13 +72,9 @@ public class Tasks {
 
 
         if (region instanceof TrackPolyRegion polyRegion) {
-            for (BlockVector2 point : polyRegion.getPolygonal2DRegion().getPoints()) {
-                var loc = new Location(region.getSpawnLocation().getWorld(), point.getBlockX(), maxY, point.getBlockZ());
-                setParticles(player, loc, particle);
-                loc.setY(min.getBlockY());
-                setParticles(player, loc, particle);
-            }
+            drawPolyRegion(polyRegion, player, particle, 0.03);
         } else {
+
             drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), min.getBlockZ());
             drawLineX(player, particle, min.getBlockX(), maxX, maxY, min.getBlockZ());
             drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), maxZ);
@@ -109,6 +108,52 @@ public class Tasks {
             player.spawnParticle(particle, x, y, z, 1);
         }
     }
+
+    private void drawLine(Player player, Particle particle, Location minP, Location maxP, double density){
+        var newP = maxP.clone();
+        newP.subtract(minP);
+        var distance = newP.distance(maxP) * density;
+        double x = newP.getX()/distance;
+        double z = newP.getZ()/distance;
+        double y = newP.getY()/distance;
+
+        var p = maxP.clone();
+        for (int i = 0; i < distance - 1; i++){
+            p.subtract(x, y, z);
+            player.spawnParticle(particle, p, 1);
+        }
+    }
+
+    private void drawPolyRegion(TrackPolyRegion polyRegion, Player player, Particle particle, double density){
+
+        int maxY = polyRegion.getMaxP().getBlockY() + 1;
+        Location firstLocation = null;
+        Location lastLocation = null;
+        for (BlockVector2 point : polyRegion.getPolygonal2DRegion().getPoints()) {
+            var loc = new Location(polyRegion.getSpawnLocation().getWorld(), point.getX() + 0.5, maxY, point.getZ() + 0.5);
+            // Draw top
+            if (lastLocation != null) {
+                drawLine(player, particle, lastLocation, loc, density);
+            }
+
+            var bottomLocation = loc.clone();
+            bottomLocation.setY(polyRegion.getMinP().getY());
+            // Draw bottom
+            if (lastLocation != null) {
+                var lastBottomLocation = lastLocation.clone();
+                lastBottomLocation.setY(polyRegion.getMinP().getY());
+                drawLine(player, particle, lastBottomLocation, bottomLocation, density);
+            }
+
+            //Draw edge
+            drawLine(player, particle, bottomLocation, loc, density/3);
+
+            if (lastLocation == null){
+                firstLocation = loc.clone();
+            }
+            lastLocation = loc.clone();
+        }
+        drawLine(player, particle, lastLocation,  firstLocation, density);}
 }
 
 

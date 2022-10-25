@@ -27,13 +27,21 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("tp")
-    @CommandCompletion("@track")
-    public static void onTrackTp(Player player, Track track) {
+    @CommandPermission("track.admin")
+    @CommandCompletion("@track @region")
+    public static void onTrackTp(Player player, Track track, @Optional TrackRegion region) {
         if (!track.getSpawnLocation().isWorldLoaded()) {
             player.sendMessage("§cWorld is not loaded!");
             return;
         }
-        player.teleport(track.getSpawnLocation());
+
+        if (region != null) {
+            player.teleport(region.getSpawnLocation());
+            player.sendMessage("§aYou have been teleported to " + region.getRegionType().name() + " : " + region.getRegionIndex());
+        } else {
+            player.teleport(track.getSpawnLocation());
+            player.sendMessage("§aYou have been teleported to " + track.getDisplayName());
+        }
     }
 
 

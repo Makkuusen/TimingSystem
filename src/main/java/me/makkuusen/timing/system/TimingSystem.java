@@ -15,6 +15,7 @@ import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
+import me.makkuusen.timing.system.track.TrackRegion;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -88,6 +89,11 @@ public class TimingSystem extends JavaPlugin {
                 Track.class, TrackDatabase.getTrackContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("track", context ->
                 TrackDatabase.getTracksAsStrings()
+        );
+        manager.getCommandContexts().registerContext(
+                TrackRegion.class, TrackDatabase.getRegionContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("region", context ->
+                TrackDatabase.getRegionsAsStrings(context)
         );
 
 
