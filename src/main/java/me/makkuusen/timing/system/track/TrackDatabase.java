@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system.track;
 
+import co.aikar.commands.BukkitCommandCompletionContext;
 import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.MessageKeys;
@@ -214,6 +215,17 @@ public class TrackDatabase {
         return tracks;
     }
 
+    public static List<String> getRegionsAsStrings(BukkitCommandCompletionContext c) {
+        List<String> regions = new ArrayList<>();
+        var maybeTrack = plugin.playerEditingSession.get(c.getPlayer().getUniqueId());
+        if (maybeTrack == null) {
+            return regions;
+        }
+        maybeTrack.getRegions().stream().forEach(region -> regions.add(region.getRegionType().name() + "-" + region.getRegionIndex()));
+
+        return regions;
+    }
+
     public static ContextResolver<Track, BukkitCommandExecutionContext> getTrackContextResolver() {
         return (c) -> {
             String name = c.popFirstArg();
@@ -224,6 +236,27 @@ public class TrackDatabase {
                 // User didn't type an Event, show error!
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
+        };
+    }
+
+    public static ContextResolver<TrackRegion, BukkitCommandExecutionContext> getRegionContextResolver() {
+        return (c) -> {
+            String region = c.popFirstArg();
+            var maybeTrack = plugin.playerEditingSession.get(c.getPlayer().getUniqueId());
+            if (maybeTrack != null) {
+                try {
+                    String[] regionName = region.split("-");
+                    int index = Integer.valueOf(regionName[1]);
+                    String regionType = regionName[0];
+                    var maybeRegion = maybeTrack.getRegion(TrackRegion.RegionType.valueOf(regionType), index);
+                    if (maybeRegion.isPresent()){
+                        return maybeRegion.get();
+                    }
+                } catch (Exception e){
+
+                }
+            }
+            throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
         };
     }
 
