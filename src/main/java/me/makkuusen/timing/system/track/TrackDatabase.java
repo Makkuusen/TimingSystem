@@ -33,7 +33,7 @@ public class TrackDatabase {
 
     public static TimingSystem plugin;
     private static List<Track> tracks = new ArrayList<>();
-    private static List<TrackRegion> regions = new ArrayList<>();
+    private static List<TrackRegion> startRegions = new ArrayList<>();
 
     public static void initDatabaseSynchronize() throws SQLException {
         var dbRows = DB.getResults("SELECT * FROM `ts_tracks` WHERE `isRemoved` = 0;");
@@ -144,7 +144,7 @@ public class TrackDatabase {
         DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `trackId` = " + track.getId() + ";");
         DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + track.getId() + ";");
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = " + track.getId() + ";");
-        regions.removeIf(trackRegion -> trackRegion.getTrackId() == track.getId());
+        startRegions.removeIf(trackRegion -> trackRegion.getTrackId() == track.getId());
         tracks.remove(track);
         var events = EventDatabase.getEvents().stream().filter(event -> event.getTrack() != null).filter(event -> event.getTrack().equals(track.getId())).collect(Collectors.toList());
         for (Event event : events) {
@@ -188,7 +188,7 @@ public class TrackDatabase {
     }
 
     static public List<TrackRegion> getTrackStartRegions() {
-        return regions.stream().filter(r -> r.getRegionType().equals(TrackRegion.RegionType.START)).collect(Collectors.toList());
+        return startRegions.stream().filter(r -> r.getRegionType().equals(TrackRegion.RegionType.START)).collect(Collectors.toList());
     }
 
     public static boolean trackNameAvailable(String name) {
@@ -202,11 +202,11 @@ public class TrackDatabase {
     }
 
     static public void addTrackRegion(TrackRegion region) {
-        regions.add(region);
+        startRegions.add(region);
     }
 
     static public void removeTrackRegion(TrackRegion region) {
-        regions.remove(region);
+        startRegions.remove(region);
     }
 
     public static List<String> getTracksAsStrings() {
@@ -262,6 +262,6 @@ public class TrackDatabase {
 
     public static void unload(){
         tracks = new ArrayList<>();
-        regions = new ArrayList<>();
+        startRegions = new ArrayList<>();
     }
 }
