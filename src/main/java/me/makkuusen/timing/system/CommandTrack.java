@@ -16,6 +16,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
 
@@ -107,6 +110,23 @@ public class CommandTrack extends BaseCommand {
         plugin.sendMessage(player, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
         plugin.sendMessage(player, "messages.info.track.leaderboard", "%location%", ApiUtilities.niceLocation(track.getLeaderboardLocation()));
 
+    }
+
+    @Subcommand("here")
+    public static void onHere(Player player) {
+        boolean inRegion = false;
+        for (Track track : TrackDatabase.getTracks()) {
+            for (TrackRegion region : track.getRegions()) {
+                if (region.contains(player.getLocation())) {
+                    inRegion = true;
+                    player.sendMessage("§a" + track.getDisplayName() + " - " + region.getRegionType() + " : " + region.getRegionIndex());
+                }
+            }
+        }
+
+        if (!inRegion) {
+            player.sendMessage("§cThere are no regions here.");
+        }
     }
 
     @Subcommand("delete")
