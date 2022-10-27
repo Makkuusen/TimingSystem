@@ -42,10 +42,7 @@ public class GridManager {
             ar.addPassenger(boat);
             boat.addPassenger(player);
             armorStands.put(player.getUniqueId(), ar);
-//            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-//                boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
-//            }, 1);
-        }, 1);
+        }, 2);
     }
 
     public void startPlayerFromGrid(UUID uuid) {

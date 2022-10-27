@@ -349,7 +349,7 @@ public class ApiUtilities {
         boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
             boat.setBoatType(type);
-        }, 1);
+        }, 2);
 
         return boat;
     }

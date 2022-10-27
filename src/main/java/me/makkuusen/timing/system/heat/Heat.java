@@ -87,7 +87,12 @@ public class Heat {
 
     public boolean loadHeat() {
         if (event.getEventSchedule().getCurrentRound() != round.getRoundIndex()) {
-            return false;
+            if (round.getRoundIndex() == 1) {
+                event.start();
+            } else {
+                return false;
+            }
+
         }
         if (getHeatState() != HeatState.SETUP) {
             return false;
@@ -110,9 +115,16 @@ public class Heat {
         setHeatState(HeatState.LOADED);
         scoreboard = new SpectatorScoreboard(this);
         updateScoreboard();
-        ApiUtilities.msgConsole("Drivers: " + getDrivers().values().size());
-        ApiUtilities.msgConsole("StartPositions: " + getStartPositions().size());
-        ApiUtilities.msgConsole("LivePositions: " + getLivePositions().size());
+        return true;
+    }
+
+    public boolean reloadHeat(){
+        if (!resetHeat()) {
+            return false;
+        }
+        if (!loadHeat()) {
+            return false;
+        }
         return true;
     }
 
@@ -252,7 +264,7 @@ public class Heat {
     }
 
     public boolean removeDriver(Driver driver) {
-        if (driver.getHeat().getHeatState() != HeatState.SETUP) {
+        if (driver.getHeat().getHeatState() != HeatState.SETUP && driver.getHeat().getHeatState() != HeatState.LOADED) {
             return false;
         }
         try {
@@ -273,7 +285,7 @@ public class Heat {
     }
 
     public boolean setDriverPosition(Driver driver, int newStartPosition){
-        if (driver.getHeat().getHeatState() != HeatState.SETUP) {
+        if (driver.getHeat().getHeatState() != HeatState.SETUP && driver.getHeat().getHeatState() != HeatState.LOADED) {
             return false;
         }
 
@@ -399,6 +411,10 @@ public class Heat {
         return getHeatState() == HeatState.LOADED || getHeatState() == HeatState.RACING || getHeatState() == HeatState.STARTING;
     }
 
+    public boolean isRacing() {
+        return getHeatState() == HeatState.RACING ||getHeatState() == HeatState.STARTING;
+    }
+
     public void onShutdown() {
         gridManager.clearArmorstands();
         if (scoreboard != null) {
@@ -408,7 +424,7 @@ public class Heat {
     }
 
     public void reverseGrid(Integer percentage) {
-        if (getHeatState() != HeatState.SETUP) {
+        if (getHeatState() != HeatState.SETUP && getHeatState() != HeatState.LOADED) {
             return;
         }
         int reverseSize = Math.min((getStartPositions().size() * percentage)/100, getStartPositions().size());
