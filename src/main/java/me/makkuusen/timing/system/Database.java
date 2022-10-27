@@ -248,10 +248,17 @@ public class Database {
                     "  `roundIndex` int(11) NOT NULL DEFAULT 1,\n" +
                     "  `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
-                    "  `isRemoved` tinyint(4) NOT NULL DEFAULT 0,\n" +
+                    "  `isRemoved` tinyint(1) NOT NULL DEFAULT 0,\n" +
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n");
 
+
+            // Update in rc-9
+            try {
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `toggleSound` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
+            } catch (Exception exception) {
+
+            }
             return true;
 
 
