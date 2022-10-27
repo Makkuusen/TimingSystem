@@ -32,8 +32,22 @@ public class EventSchedule {
     }
 
     public boolean removeRound(Round round) {
-        rounds.remove(round);
-        return true;
+        if (round.getState() != Round.RoundState.FINISHED && round.getState() != Round.RoundState.RUNNING) {
+            var heats = round.getHeats().stream().toList();
+            for (Heat heat : heats) {
+                if (!round.removeHeat(heat)){
+                    return false;
+                }
+            }
+            rounds.remove(round);
+            for (Round _round : rounds) {
+                if (round.getRoundIndex() < _round.getRoundIndex()) {
+                    _round.setRoundIndex(_round.getRoundIndex() - 1);
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     public Integer getCurrentRound(){

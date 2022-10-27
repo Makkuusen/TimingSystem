@@ -146,4 +146,9 @@ public abstract class Round {
         this.state = state;
         DB.executeUpdateAsync("UPDATE `ts_rounds` SET `state` = '" + state.name() + "' WHERE `id` = " + getId() + ";");
     }
+
+    public void setRoundIndex(Integer index){
+        this.roundIndex = index;
+        DB.executeUpdateAsync("UPDATE `ts_rounds` SET `state` = '" + state.name() + "' WHERE `id` = " + getId() + ";");
+    }
 }
