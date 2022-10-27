@@ -319,8 +319,13 @@ public class CommandTrack extends BaseCommand {
         }
 
         @Subcommand("spawn")
-        @CommandCompletion("@track")
-        public static void onSpawn(Player player, Track track) {
+        @CommandCompletion("@track @region")
+        public static void onSpawn(Player player, Track track, @Optional TrackRegion region) {
+            if (region != null) {
+                region.setSpawn(player.getLocation());
+                plugin.sendMessage(player, "messages.save.generic");
+                return;
+            }
             track.setSpawnLocation(player.getLocation());
             plugin.sendMessage(player, "messages.save.generic");
         }
