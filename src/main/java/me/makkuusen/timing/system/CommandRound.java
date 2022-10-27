@@ -58,6 +58,16 @@ public class CommandRound extends BaseCommand {
         player.sendMessage("§cCould not create new round");
     }
 
+    @Subcommand("delete")
+    @CommandCompletion("@round")
+    public static void onDelete(Player player, Round round) {
+        if (EventDatabase.removeRound(round)){
+            player.sendMessage("§a" + round.getDisplayName() + " was removed.");
+            return;
+        }
+        player.sendMessage("§c" + round.getDisplayName() + " could not be removed");
+    }
+
     @Subcommand("info")
     @CommandCompletion("@round")
     public static void onHeatInfo(Player player, Round round) {
