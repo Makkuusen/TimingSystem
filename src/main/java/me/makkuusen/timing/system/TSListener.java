@@ -300,6 +300,22 @@ public class TSListener implements Listener {
     }
 
     @EventHandler
+    public void onRegionEnter(PlayerMoveEvent e) {
+        Player player = e.getPlayer();
+        var track = TimingSystem.playerEditingSession.get(player.getUniqueId());
+        if (track == null) {
+            return;
+        }
+
+        for (TrackRegion region : track.getRegions()) {
+            if (region.contains(player.getLocation())) {
+                ApiUtilities.sendActionBar("§a" + region.getRegionType() + " : " + region.getRegionIndex(), player);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
     public void onRegionEnterV2(PlayerMoveEvent e) {
         if ((int) (e.getFrom().getX() - 0.5) != (int) e.getTo().getX() || (int) e.getFrom().getY() != (int) e.getTo().getY() || (int) (e.getFrom().getZ() - 0.5) != (int) e.getTo().getZ()) {
             Player player = e.getPlayer();
