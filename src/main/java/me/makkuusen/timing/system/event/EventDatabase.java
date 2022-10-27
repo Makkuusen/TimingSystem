@@ -140,10 +140,10 @@ public class EventDatabase {
         return heats.stream().toList();
     }
 
-    static public boolean eventNew(UUID uuid, String name) {
+    static public Optional<Event> eventNew(UUID uuid, String name) {
         try {
             if (getEvent(name).isPresent()) {
-                return false;
+                return Optional.empty();
             }
             var eventId = DB.executeInsert("INSERT INTO `ts_events`(" +
                     "`name`, " +
@@ -164,10 +164,10 @@ public class EventDatabase {
             if (events.add(event)) {
                 setPlayerSelectedEvent(uuid, event);
             }
-            return true;
+            return Optional.of(event);
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return false;
+            return Optional.empty();
         }
     }
 
@@ -242,7 +242,7 @@ public class EventDatabase {
     }
 
     public static boolean heatDriverNew(UUID uuid, Heat heat, int startPosition) {
-        if (heat.getHeatState() != HeatState.SETUP) {
+        if (heat.getHeatState() != HeatState.SETUP && heat.getHeatState() != HeatState.LOADED) {
             return false;
         }
         try {

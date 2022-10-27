@@ -107,6 +107,21 @@ public class CommandHeat extends BaseCommand {
 
     }
 
+    @Subcommand("reload")
+    @CommandPermission("event.admin")
+    @CommandCompletion("@heat")
+    public static void onHeatReload(Player player, Heat heat) {
+        if (heat.resetHeat()) {
+            if (heat.loadHeat()) {
+                player.sendMessage("§aReloaded " + heat.getName());
+                return;
+            }
+            player.sendMessage("§cCouldn't load " + heat.getName());
+            return;
+        }
+        player.sendMessage("§cCouldn't reset " + heat.getName());
+    }
+
     @Subcommand("reset")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
@@ -221,7 +236,7 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         Driver driver = heat.getDrivers().get(tPlayer.getUniqueId());
-        if (heat.isActive()) {
+        if (heat.isRacing()) {
             sender.sendMessage("§cHeat is currently running");
             return;
         }
@@ -256,6 +271,9 @@ public class CommandHeat extends BaseCommand {
 
         if (heat.setDriverPosition(driver, pos)) {
             sender.sendMessage("§a" + driver.getTPlayer().getName() + " is now starting " + pos );
+            if (heat.getHeatState() == HeatState.LOADED) {
+                heat.reloadHeat();
+            }
             return;
         }
         sender.sendMessage("§cCould not change position of driver");
@@ -269,6 +287,9 @@ public class CommandHeat extends BaseCommand {
             percentage = 100;
         }
         heat.reverseGrid(percentage);
+        if (heat.getHeatState() == HeatState.LOADED) {
+            heat.reloadHeat();
+        }
         player.sendMessage("§aReversed the first "+ percentage +"% of the grid");
     }
 
@@ -276,7 +297,7 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     @CommandCompletion("@players @heat")
     public static void onHeatAddDriver(Player sender, String playerName, Heat heat) {
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound()){
+        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1){
             sender.sendMessage("§cYou can't add driver to a future round before the current round has finished");
             return;
         }
@@ -300,6 +321,9 @@ public class CommandHeat extends BaseCommand {
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             sender.sendMessage("§aAdded driver");
+            if (heat.getHeatState() == HeatState.LOADED) {
+                heat.reloadHeat();
+            }
             return;
         }
 
@@ -321,7 +345,7 @@ public class CommandHeat extends BaseCommand {
             sender.sendMessage("§cPlayer is not in heat!");
             return;
         }
-        if (heat.isActive()) {
+        if (heat.isRacing()) {
             if (heat.disqualifyDriver(heat.getDrivers().get(tPlayer.getUniqueId()))) {
                 if (tPlayer.getPlayer() != null) {
                     if (tPlayer.getPlayer().getVehicle() != null && tPlayer.getPlayer().getVehicle() instanceof Boat boat) {
@@ -335,6 +359,11 @@ public class CommandHeat extends BaseCommand {
             }
             sender.sendMessage("§cDriver could not be disqualified");
         } else {
+            boolean reload = false;
+            if (heat.getHeatState() == HeatState.LOADED) {
+                heat.resetHeat();
+                reload = true;
+            }
             if (heat.removeDriver(heat.getDrivers().get(tPlayer.getUniqueId()))) {
                 boolean removeSpectator = true;
                 for (Round round : heat.getEvent().getEventSchedule().getRounds()) {
@@ -348,6 +377,9 @@ public class CommandHeat extends BaseCommand {
                     heat.getEvent().removeSpectator(tPlayer.getUniqueId());
                 }
                 sender.sendMessage("§aDriver has been removed");
+                if (reload) {
+                    heat.loadHeat();
+                }
                 return;
             }
             sender.sendMessage("§cDriver could not be removed");

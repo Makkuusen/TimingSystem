@@ -90,13 +90,17 @@ public class CommandEvent extends BaseCommand {
 
     @CommandPermission("event.admin")
     @Subcommand("create")
-    @CommandCompletion("<name>")
-    public static void onCreate(Player player, @Single String name) {
-        if (EventDatabase.eventNew(player.getUniqueId(), name)) {
+    @CommandCompletion("<name> @track")
+    public static void onCreate(Player player, @Single String name, @Optional Track track) {
+        var maybeEvent = EventDatabase.eventNew(player.getUniqueId(), name);
+        if (maybeEvent.isPresent()) {
             player.sendMessage("§aCreated event " + name);
+            if (track != null) {
+                maybeEvent.get().setTrack(track);
+            }
             return;
         }
-        player.sendMessage("§cCould not create event with name " + name);
+        player.sendMessage("§cCould not create event " + name);
     }
 
     @CommandPermission("event.admin")
