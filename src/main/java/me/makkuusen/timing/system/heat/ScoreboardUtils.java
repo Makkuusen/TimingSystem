@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.heat;
 
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.event.EventDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -95,14 +96,14 @@ public class ScoreboardUtils {
     }
 
     private static String getPitColour(String name, int pits) {
-        var driver = EventDatabase.getDriverFromRunningHeat(Bukkit.getPlayer(name).getUniqueId());
+        var driver = EventDatabase.getDriverFromRunningHeat(Database.getPlayer(name).getUniqueId());
         if(!driver.isPresent()) return "§f" + pits;
         if(driver.get().getPits() >= driver.get().getHeat().getTotalPits()) return "§a" + pits;
         else return "§f" + pits;
     }
 
     private static ChatColor getNameFormat(String name) {
-        var driver = EventDatabase.getDriverFromRunningHeat(Bukkit.getPlayer(name).getUniqueId());
+        var driver = EventDatabase.getDriverFromRunningHeat(Database.getPlayer(name).getUniqueId());
         if(!driver.isPresent()) return ChatColor.RESET;
         if(driver.get().isFinished()) return ChatColor.UNDERLINE;
         else return ChatColor.RESET;
