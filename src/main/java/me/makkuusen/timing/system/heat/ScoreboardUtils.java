@@ -3,75 +3,65 @@ package me.makkuusen.timing.system.heat;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.event.EventDatabase;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 public class ScoreboardUtils {
     public static String getDriverLine(String name, int pos) {
-        return paddPos(pos) + "§7|           §7| §f" + paddName(name);
+        return paddPos(pos, name) + "§7|           §7| §f" + paddName(name);
     }
 
     public static String getDriverLineQualyTime(long laptime, String name, int pos) {
-        return paddPos(pos) + "§7| §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + "§7| §f"+ paddName(name);
+        return paddPos(pos, name) + "§7| §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + "§7| §f"+ paddName(name);
     }
 
     public static String getDriverLineQualyGap(long timeDiff, String name, int pos) {
-        return paddPos(pos) + "§7| §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + "§7| §f"+ paddName(name);
+        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + "§7| §f"+ paddName(name);
     }
 
     public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos) {
-        return paddPos(pos) + "§7| §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + "§7| §f"+ paddName(name);
+        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + "§7| §f"+ paddName(name);
     }
 
     public static String getDriverLineRace(String name, int pos){
-        return paddPos(pos) + "§7|           §7| §f" + paddName(name) + "§7Pits: §f0 ";
+        return paddPos(pos, name) + "§7|           §7| §f" + paddName(name) + "§7Pits: §f0 ";
     }
     public static String getDriverLineRace(String name, int pits, int pos){
-        return paddPos(pos) + "§7|           §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7|           §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
     public static String getDriverLineRaceInPit(String name, int pits, int pos){
-        return paddPos(pos) + "§7| In Pit   §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| In Pit   §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineRaceOffline(String name, int pits, int pos){
-        return paddPos(pos) + "§7| Offline  §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| Offline  §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos) {
-        return paddPos(pos) + "§7| Lap:§f " + paddLaps(laps) + " §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| Lap:§f " + paddLaps(laps) + " §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineRaceGap(long gap, String name, int pits, int pos) {
-        return paddPos(pos) + "§7| §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + "§7| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + "§7| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineNegativeRaceGap(long gap, String name, int pits, int pos) {
-        return paddPos(pos) + "§7| §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + "§7| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + "§7| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String paddName(String name){
         StringBuilder sb = new StringBuilder();
-        sb.append(getNameFormat(name) + name + ChatColor.RESET);
+        sb.append(name + ChatColor.RESET);
         int spaces = 16 - name.length();
-        for(int i = 0; i < spaces; i++) {
-            sb.append(" ");
-        }
+        sb.append(" ".repeat(Math.max(0, spaces)));
 
         return sb.toString();
     }
 
-    public static String paddPos(int pos) {
-        String posColour;
-        switch (pos) {
-            case 1 -> posColour = "§6";
-            case 2 -> posColour = "§f";
-            case 3 -> posColour = "§4";
-            default -> posColour = "§7";
-        }
+    public static String paddPos(int pos, String name) {
         if (pos > 9) {
-            return posColour + pos;
+            return getPosFormat(pos, name) + pos;
         }
-        return posColour + pos + " ";
+        return getPosFormat(pos, name) + pos + "§r ";
     }
 
     public static String paddGap(String gap) {
@@ -97,15 +87,34 @@ public class ScoreboardUtils {
 
     private static String getPitColour(String name, int pits) {
         var driver = EventDatabase.getDriverFromRunningHeat(Database.getPlayer(name).getUniqueId());
-        if(!driver.isPresent()) return "§f" + pits;
+        if(driver.isEmpty()) return "§f" + pits;
         if(driver.get().getPits() >= driver.get().getHeat().getTotalPits()) return "§a" + pits;
         else return "§f" + pits;
     }
 
-    private static ChatColor getNameFormat(String name) {
+    private static String getPosFormat(int pos, String name) {
+        // Pigalala's Messiest code
         var driver = EventDatabase.getDriverFromRunningHeat(Database.getPlayer(name).getUniqueId());
-        if(!driver.isPresent()) return ChatColor.RESET;
-        if(driver.get().isFinished()) return ChatColor.UNDERLINE;
-        else return ChatColor.RESET;
+
+        net.md_5.bungee.api.ChatColor posColour;
+        boolean hasFastestLap = false;
+        boolean isFinished = false;
+
+        switch (pos) {
+            case 1 -> posColour = net.md_5.bungee.api.ChatColor.of("#f6f31a");
+            case 2 -> posColour = net.md_5.bungee.api.ChatColor.of("#c3c3c3");
+            case 3 -> posColour = net.md_5.bungee.api.ChatColor.of("#CD7F32");
+            default -> posColour = net.md_5.bungee.api.ChatColor.of("#ffffff");
+        }
+
+        if(driver.isEmpty()) return posColour + "";
+
+        if(driver.get().isFinished()) isFinished = true;
+        if(driver.get().getHeat().getFastestLapUUID() == driver.get().getTPlayer().getUniqueId()) hasFastestLap = true;
+
+        if(isFinished && hasFastestLap) return posColour + "" + ChatColor.UNDERLINE + ChatColor.ITALIC;
+        else if(isFinished) return posColour + "" + ChatColor.ITALIC;
+        else if(hasFastestLap) return posColour + "" + ChatColor.UNDERLINE;
+        else return posColour + "";
     }
 }
