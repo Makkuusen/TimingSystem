@@ -409,7 +409,7 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatAddDrivers(Player sender, Heat heat) {
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound()){
+        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1){
             sender.sendMessage("§cYou can't add drivers to a future round before the current round has finished");
             return;
         }
@@ -428,6 +428,9 @@ public class CommandHeat extends BaseCommand {
             }
             if (EventDatabase.heatDriverNew(player.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
                 continue;
+            }
+            if (heat.getHeatState() == HeatState.LOADED) {
+                heat.reloadHeat();
             }
         }
         sender.sendMessage("§aAll online players has been added");
