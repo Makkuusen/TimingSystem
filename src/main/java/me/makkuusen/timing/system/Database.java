@@ -33,6 +33,27 @@ public class Database {
         }
     }
 
+    public static boolean update() {
+        try {
+            var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
+            if (row == null) {
+                DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + plugin.getDescription().getVersion() + "', " + ApiUtilities.getTimestamp() + ");");
+                rc9Update();
+            } else {
+                if (isNewerVersion(row.getString("version") , plugin.getDescription().getVersion())) {
+                    updateDatabase(row.getString("version"), plugin.getDescription().getVersion());
+                    DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + plugin.getDescription().getVersion() + "', " + ApiUtilities.getTimestamp() + ");");
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            plugin.getLogger().warning("Failed to update database, disabling plugin.");
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
+            return false;
+        }
+    }
+
     public static boolean synchronize() {
         try {
             // Load players;
@@ -252,18 +273,51 @@ public class Database {
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n");
 
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_version` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `version` varchar(255) NOT NULL,\n" +
+                    "  `date` bigint(30) NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n");
 
-            // Update in rc-9
-            try {
-                DB.executeUpdate("ALTER TABLE `ts_players` ADD `toggleSound` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
-            } catch (Exception exception) {
-
-            }
             return true;
-
-
         } catch (SQLException exception) {
             exception.printStackTrace();
+            return false;
+        }
+    }
+    private static void updateDatabase(String oldVersion, String newVersion) {
+        plugin.getLogger().warning("UPDATING DATABASE FROM " + oldVersion + " to " + newVersion);
+    }
+
+    private static void rc9Update() {
+        try {
+            DB.executeUpdate("ALTER TABLE `ts_players` ADD `toggleSound` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
+        } catch (Exception exception) {
+
+        }
+    }
+
+    private static boolean isNewerVersion(String oldVersion, String newVersion){
+        if (oldVersion.equalsIgnoreCase(newVersion)) {
+            return false;
+        }
+        try {
+            String[] old = oldVersion.split("\\.");
+            int oldMajor = Integer.parseInt(old[0]);
+            int oldMinor = Integer.parseInt(old[1]);
+            String[] newer = newVersion.split("\\.");
+            int newMajor = Integer.parseInt(newer[0]);
+            int newMinor = Integer.parseInt(newer[1]);
+            if (newMajor > oldMajor) {
+                return true;
+            } else if (newMajor == oldMajor && newMinor > oldMinor) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
             return false;
         }
     }

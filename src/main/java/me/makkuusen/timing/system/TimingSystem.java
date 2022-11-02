@@ -146,6 +146,7 @@ public class TimingSystem extends JavaPlugin {
 
 
         Database.initialize();
+        Database.update();
         Database.synchronize();
 
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(heat -> heat.resetHeat());
