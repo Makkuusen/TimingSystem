@@ -12,6 +12,7 @@ import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.api.events.TimeTrialFinishEvent;
 import me.makkuusen.timing.system.gui.ItemBuilder;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
@@ -283,18 +284,18 @@ public class Track {
         timeTrialFinishes.get(timeTrialFinish.getPlayer()).add(timeTrialFinish);
     }
 
-    public void newTimeTrialFinish(long time, UUID uuid) {
+    public TimeTrialFinish newTimeTrialFinish(long time, UUID uuid) {
         try {
 
             long date = ApiUtilities.getTimestamp();
             var finishId = DB.executeInsert("INSERT INTO `ts_finishes` (`trackId`, `uuid`, `date`, `time`, `isRemoved`) VALUES(" + id + ", '" + uuid + "', " + date + ", " + time + ", 0);");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_finishes` WHERE `id` = " + finishId + ";");
-
             TimeTrialFinish timeTrialFinish = new TimeTrialFinish(dbRow);
             addTimeTrialFinish(timeTrialFinish);
-
+            return timeTrialFinish;
         } catch (SQLException exception) {
             exception.printStackTrace();
+            return null;
         }
     }
 
@@ -325,6 +326,17 @@ public class Track {
 
         } catch (SQLException exception) {
             exception.printStackTrace();
+        }
+    }
+
+    public void deleteAllFinishes(TPlayer player) {
+        try {
+            timeTrialFinishes.remove(player);
+            DB.executeUpdate("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + " AND `uuid` = '" + player.getUniqueId() + "';");
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            return;
         }
     }
 

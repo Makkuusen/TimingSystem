@@ -42,6 +42,8 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
         return date;
     }
 
+    public int getTrack() {return trackId; }
+
     @Override
     public int compare(TimeTrialFinish f1, TimeTrialFinish f2) {
         int result = Long.compare(f1.getTime(), f2.getTime());

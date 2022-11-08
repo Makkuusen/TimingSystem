@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.api.events.MenuOpenTTEvent;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
@@ -18,25 +19,23 @@ import java.util.stream.Collectors;
 
 public class GUITrack {
 
-    private static final HashMap<UUID, Integer> playersPages = new HashMap<>();
+    public static final HashMap<UUID, Integer> playersPages = new HashMap<>();
 
     public static final Integer BOATPAGE = 0;
     public static final Integer PARKOURPAGE = 8;
     public static final Integer ELYTRAPAGE = 7;
 
-    private static ItemStack borderGlass;
-    private static ItemStack lightBorderGlass;
-    private static ItemStack parkourPage;
-    private static ItemStack elytraPage;
-    private static List<ItemStack> boatPages = new ArrayList<>();
-    private static ItemStack elytra;
-    private static ItemStack boat;
-    private static ItemStack parkour;
+    public static ItemStack borderGlass;
+    public static ItemStack parkourPage;
+    public static ItemStack elytraPage;
+    public static List<ItemStack> boatPages = new ArrayList<>();
+    public static ItemStack elytra;
+    public static ItemStack boat;
+    public static ItemStack parkour;
 
     public static void init() {
 
         borderGlass = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName("§r").build();
-        lightBorderGlass = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName("§r").build();
         for (int i = 0; i < 4; i++){
             boatPages.add(new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lBoat tracks " + (i+1)).build());
         }
@@ -48,6 +47,13 @@ public class GUITrack {
     }
 
     public static void openTrackGUI(Player p) {
+        MenuOpenTTEvent menuOpenTTEvent = new MenuOpenTTEvent(p);
+        Bukkit.getServer().getPluginManager().callEvent(menuOpenTTEvent);
+
+        if (menuOpenTTEvent.hasMedalsOverride()) {
+            return;
+        }
+
         if (!playersPages.containsKey(p.getUniqueId())) {
             playersPages.put(p.getUniqueId(), BOATPAGE);
         }
@@ -57,7 +63,13 @@ public class GUITrack {
     public static void openTrackGUI(Player p, int page) {
         playersPages.put(p.getUniqueId(), page);
         Inventory inv = createGUI(p, page);
+        List<Track> tracks = getTracks(p, page);
+        Integer[] slots = getTrackSlots();
+        setTracks(tracks, inv, p, slots);
+        p.openInventory(inv);
+    }
 
+    public static List<Track> getTracks(Player p, int page) {
         List<Track> tracks;
         if (page == ELYTRAPAGE) {
             tracks = TrackDatabase.getAvailableTracks(p).stream().filter(Track::isElytraTrack).collect(Collectors.toList());
@@ -71,23 +83,27 @@ public class GUITrack {
                 tracks.add(tempTracks.get(i));
             }
         }
+        return tracks;
+    }
 
+    public static Integer[] getTrackSlots(){
         Integer[] slots = new Integer[36];
         int count = 9;
         for (int i = 0; i < slots.length; i++){
             slots[i] = count++;
         }
+        return slots;
+    }
 
-        count = 0;
+    public static void setTracks(List<Track> tracks, Inventory inv, Player player, Integer[] slots){
 
+        int count = 0;
         for (Track track : tracks) {
             if (count < slots.length) {
-                inv.setItem(slots[count], track.getGuiItem(p.getUniqueId()));
+                inv.setItem(slots[count], track.getGuiItem(player.getUniqueId()));
                 count++;
             }
         }
-
-        p.openInventory(inv);
     }
 
     public static Inventory createGUI(Player p, int page) {
