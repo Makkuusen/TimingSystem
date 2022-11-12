@@ -1,17 +1,15 @@
 package me.makkuusen.timing.system.api.events;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class MenuOpenTTEvent extends Event {
+public class MenuOpenTTEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private Player player;
     private boolean isPermitted = false;
-
-
-
-    private boolean medalsOverride = false;
+    private boolean cancelled = false;
 
     public MenuOpenTTEvent(Player player){
         this.player = player;
@@ -42,11 +40,13 @@ public class MenuOpenTTEvent extends Event {
         return isPermitted;
     }
 
-    public boolean hasMedalsOverride() {
-        return medalsOverride;
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
     }
 
-    public void setMedalsOverride(boolean medalsOverride) {
-        this.medalsOverride = medalsOverride;
+    @Override
+    public void setCancelled(boolean b) {
+        cancelled = b;
     }
 }

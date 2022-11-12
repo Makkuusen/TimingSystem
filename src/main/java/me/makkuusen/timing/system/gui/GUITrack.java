@@ -50,7 +50,7 @@ public class GUITrack {
         MenuOpenTTEvent menuOpenTTEvent = new MenuOpenTTEvent(p);
         Bukkit.getServer().getPluginManager().callEvent(menuOpenTTEvent);
 
-        if (menuOpenTTEvent.hasMedalsOverride()) {
+        if (menuOpenTTEvent.isCancelled()) {
             return;
         }
 

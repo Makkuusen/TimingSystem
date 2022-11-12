@@ -26,7 +26,7 @@ public class GUIListener implements Listener {
                 MenuClickTTEvent menuClickTTEvent = new MenuClickTTEvent(player);
                 Bukkit.getServer().getPluginManager().callEvent(menuClickTTEvent);
 
-                if (menuClickTTEvent.hasMedalsOverride()) {
+                if (menuClickTTEvent.isCancelled()) {
                     return;
                 }
 
