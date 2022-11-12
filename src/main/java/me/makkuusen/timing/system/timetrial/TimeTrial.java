@@ -5,6 +5,7 @@ import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.api.events.TimeTrialFinishEvent;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
@@ -20,7 +21,7 @@ import java.time.Instant;
 public class TimeTrial {
 
     public static TimingSystem plugin;
-    private final me.makkuusen.timing.system.TPlayer tPlayer;
+    private final TPlayer tPlayer;
     private final Track track;
     private Instant startTime;
     private boolean[] checkpoints;
@@ -235,7 +236,9 @@ public class TimeTrial {
     }
 
     private void newBestFinish(Player p, long mapTime){
-        track.newTimeTrialFinish(mapTime, p.getUniqueId());
+        var finish = track.newTimeTrialFinish(mapTime, p.getUniqueId());
+        TimeTrialFinishEvent eventTimeTrialFinish = new TimeTrialFinishEvent(p, finish, bestFinish);
+        Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialFinish);
         this.bestFinish = getBestFinish(track.getBestFinish(tPlayer));
         if (tPlayer.getToggleSound()) {
             p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);

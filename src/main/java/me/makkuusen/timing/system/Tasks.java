@@ -46,6 +46,19 @@ public class Tasks {
         }
         Particle particle;
 
+        if (!region.getSpawnLocation().isWorldLoaded()) {
+            return;
+        }
+
+        if (region.getSpawnLocation().getWorld() != player.getWorld()) {
+            return;
+        }
+
+        if(region.getSpawnLocation().distance(player.getLocation()) > 200) {
+            return;
+        }
+
+
         if (region.getRegionType().equals(TrackRegion.RegionType.CHECKPOINT)) {
             particle = Particle.GLOW;
         } else if (region.getRegionType().equals(TrackRegion.RegionType.RESET)) {
@@ -72,7 +85,7 @@ public class Tasks {
 
 
         if (region instanceof TrackPolyRegion polyRegion) {
-            drawPolyRegion(polyRegion, player, particle, 0.03);
+            drawPolyRegion(polyRegion, player, particle, 1);
         } else {
 
             drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), min.getBlockZ());
@@ -112,7 +125,7 @@ public class Tasks {
     private void drawLine(Player player, Particle particle, Location minP, Location maxP, double density){
         var newP = maxP.clone();
         newP.subtract(minP);
-        var distance = newP.distance(maxP) * density;
+        var distance = minP.distance(maxP) * density;
         double x = newP.getX()/distance;
         double z = newP.getZ()/distance;
         double y = newP.getY()/distance;
@@ -146,7 +159,7 @@ public class Tasks {
             }
 
             //Draw edge
-            drawLine(player, particle, bottomLocation, loc, density/3);
+            drawLine(player, particle, bottomLocation, loc, density);
 
             if (lastLocation == null){
                 firstLocation = loc.clone();

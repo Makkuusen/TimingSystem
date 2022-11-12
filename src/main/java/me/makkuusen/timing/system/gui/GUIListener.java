@@ -1,8 +1,11 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.api.events.MenuClickTTEvent;
+import me.makkuusen.timing.system.api.events.MenuOpenTTEvent;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,9 +22,16 @@ public class GUIListener implements Listener {
         if (e.getInventory() != null) {
 
             if (e.getView().getTitle() != null) {
+                Player player = (Player) e.getWhoClicked();
+                MenuClickTTEvent menuClickTTEvent = new MenuClickTTEvent(player);
+                Bukkit.getServer().getPluginManager().callEvent(menuClickTTEvent);
+
+                if (menuClickTTEvent.isCancelled()) {
+                    return;
+                }
+
                 if (e.getView().getTitle().startsWith(ApiUtilities.color("&3&lBoat")) || e.getView().getTitle().startsWith(ApiUtilities.color("&2&lParkour")) || e.getView().getTitle().startsWith(ApiUtilities.color("&c&lElytra"))) {
                     e.setCancelled(true);
-                    Player player = (Player) e.getWhoClicked();
 
                     if ((!(e.getClickedInventory() == player.getInventory())) && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
 

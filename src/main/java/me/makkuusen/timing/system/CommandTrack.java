@@ -272,8 +272,18 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("deletealltimes")
     @CommandPermission("track.admin")
-    @CommandCompletion("@track")
-    public static void onDeleteAllTimes(Player player, Track track){
+    @CommandCompletion("@track <player>")
+    public static void onDeleteAllTimes(Player player, Track track, @Optional String playerName){
+        if (playerName != null) {
+            TPlayer tPlayer = Database.getPlayer(playerName);
+            if (tPlayer == null) {
+                player.sendMessage("§cCould not find player");
+                return;
+            }
+            player.sendMessage("§aAll finishes has been reset for " + tPlayer.getNameDisplay());
+            track.deleteAllFinishes(tPlayer);
+            return;
+        }
         if (track.deleteAllFinishes()){
             player.sendMessage("§aAll finishes has been reset");
             LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
