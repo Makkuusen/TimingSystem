@@ -432,4 +432,42 @@ public class ApiUtilities {
         }
         return false;
     }
+
+    public static List<Material> getBoatMaterials(){
+        return List.of(
+                Material.BIRCH_BOAT,
+                Material.ACACIA_BOAT,
+                Material.DARK_OAK_BOAT,
+                Material.JUNGLE_BOAT,
+                Material.MANGROVE_BOAT,
+                Material.OAK_BOAT,
+                Material.SPRUCE_BOAT
+        );
+    }
+
+    public static Boat.Type getBoatType(Material material){
+        switch (material) {
+            case ACACIA_BOAT -> {
+                return Boat.Type.ACACIA;
+            }
+            case BIRCH_BOAT -> {
+                return Boat.Type.BIRCH;
+            }
+            case DARK_OAK_BOAT -> {
+                return Boat.Type.DARK_OAK;
+            }
+            case SPRUCE_BOAT -> {
+                return Boat.Type.SPRUCE;
+            }
+            case JUNGLE_BOAT -> {
+                return Boat.Type.JUNGLE;
+            }
+            case MANGROVE_BOAT -> {
+                return Boat.Type.MANGROVE;
+            }
+            default -> {
+                return Boat.Type.OAK;
+            }
+        }
+    }
 }

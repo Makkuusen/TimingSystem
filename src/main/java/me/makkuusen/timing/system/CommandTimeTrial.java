@@ -25,8 +25,9 @@ public class CommandTimeTrial extends BaseCommand {
                 player.sendMessage("§cWorld is not loaded!");
                 return;
             }
-            track.getSpawnLocation().setPitch(player.getLocation().getPitch());
-            player.teleport(track.getSpawnLocation());
+            var spawnLoc = track.getSpawnLocation().clone();
+            spawnLoc.setPitch(player.getLocation().getPitch());
+            player.teleport(spawnLoc);
         }
     }
 
@@ -42,41 +43,18 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("verbose")
     public static void onVerbose(Player player) {
-        if (TimingSystem.getPlugin().verbose.contains(player.getUniqueId())) {
-            TimingSystem.getPlugin().verbose.remove(player.getUniqueId());
-            plugin.sendMessage(player, "messages.toggle.race.checkpointsOff");
-        } else {
-            TimingSystem.getPlugin().verbose.add(player.getUniqueId());
-            plugin.sendMessage(player, "messages.toggle.race.checkpointsOn");
-        }
+        player.sendMessage("§cDid you mean /settings verbose?");
     }
 
     @Subcommand("boat")
     @CommandCompletion("@boat")
-    public static void onBoat(Player player, Boat.Type type){
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.setBoat(type);
-        if (player.getVehicle() instanceof Boat boat) {
-            boat.setBoatType(type);
-        }
-        plugin.sendMessage(player, "messages.save.generic");
+    public static void onBoat(Player player, @Optional Boat.Type type){
+        player.sendMessage("§cDid you mean /settings boat?");
     }
 
     @Subcommand("toggleSound")
     public static void onTTSound(Player player){
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.switchToggleSound();
-        player.sendMessage("§2Switched sounds to §a" + (tPlayer.getToggleSound() ? "on" : "off") + "§2.");
-    }
-
-    @Subcommand("help")
-    public static void onHelp(Player player) {
-        player.sendMessage("");
-        plugin.sendMessage(player, "messages.help", "%command%", "race");
-        player.sendMessage("§2/tt");
-        player.sendMessage("§2/tt cancel");
-        player.sendMessage("§2/tt verbose");
-        player.sendMessage("§2/tt sound");
+        player.sendMessage("§cDid you mean /settings sound?");
     }
 
     @Subcommand("random|r")

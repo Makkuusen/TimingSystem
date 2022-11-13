@@ -7,9 +7,12 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import me.makkuusen.timing.system.gui.ItemBuilder;
+import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
@@ -21,6 +24,9 @@ public class TPlayer implements Comparable<TPlayer> {
     private String name;
     private Boat.Type boat;
     private boolean toggleSound;
+    private boolean verbose;
+    private boolean timeTrial;
+    private boolean override;
 
 
     @Override
@@ -28,12 +34,14 @@ public class TPlayer implements Comparable<TPlayer> {
         return name.compareTo(other.name);
     }
 
-    public TPlayer(TimingSystem plugin, DbRow data) {
+    public TPlayer (TimingSystem plugin, DbRow data) {
         this.plugin = plugin;
         uuid = UUID.fromString(data.getString("uuid"));
         name = data.getString("name");
         boat = stringToType(data.getString("boat"));
         toggleSound = data.get("toggleSound");
+        verbose = data.get("verbose");
+        timeTrial = data.get("timetrial");
     }
 
     public UUID getUniqueId() {
@@ -50,6 +58,33 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public Boat.Type getBoat() {
         return boat;
+    }
+
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    public boolean isOverride() {
+        return override;
+    }
+
+    public void toggleOverride() {
+        override = !override;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `override` = " + override + " WHERE `uuid` = '" + uuid + "';");
+    }
+
+    public void toggleVerbose() {
+        verbose = !verbose;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `verbose` = " + verbose + " WHERE `uuid` = '" + uuid + "';");
+    }
+
+    public boolean isTimeTrial() {
+        return timeTrial;
+    }
+
+    public void toggleTimeTrial() {
+        timeTrial = !timeTrial;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `timetrial` = " + timeTrial + " WHERE `uuid` = '" + uuid + "';");
     }
 
     public void setName(String name) {
@@ -74,7 +109,7 @@ public class TPlayer implements Comparable<TPlayer> {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `toggleSound` = " + toggleSound + " WHERE `uuid` = '" + uuid + "';");
     }
 
-    public Boolean getToggleSound() {
+    public boolean isSound() {
         return toggleSound;
     }
 
@@ -86,6 +121,32 @@ public class TPlayer implements Comparable<TPlayer> {
         // Player came online
         // Player disconnected
         this.player = player;
+    }
+
+    public Material getBoatMaterial(){
+        switch (boat) {
+            case ACACIA -> {
+                return Material.ACACIA_BOAT;
+            }
+            case BIRCH -> {
+                return Material.BIRCH_BOAT;
+            }
+            case DARK_OAK -> {
+                return Material.DARK_OAK_BOAT;
+            }
+            case SPRUCE -> {
+                return Material.SPRUCE_BOAT;
+            }
+            case JUNGLE -> {
+                return Material.JUNGLE_BOAT;
+            }
+            case MANGROVE -> {
+                return Material.MANGROVE_BOAT;
+            }
+            default -> {
+                return Material.OAK_BOAT;
+            }
+        }
     }
 
     public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {
