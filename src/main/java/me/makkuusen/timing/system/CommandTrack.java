@@ -234,13 +234,7 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("override")
     @CommandPermission("track.admin")
     public static void onOverride(Player player) {
-        if (TimingSystem.getPlugin().override.contains(player.getUniqueId())) {
-            TimingSystem.getPlugin().override.remove(player.getUniqueId());
-            plugin.sendMessage(player, "messages.remove.override");
-        } else {
-            TimingSystem.getPlugin().override.add(player.getUniqueId());
-            plugin.sendMessage(player, "messages.create.override");
-        }
+        player.sendMessage("§cDid you mean /settings override?");
     }
 
     @Subcommand("reload")

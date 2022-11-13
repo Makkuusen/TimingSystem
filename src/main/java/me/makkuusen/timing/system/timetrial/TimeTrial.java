@@ -124,7 +124,7 @@ public class TimeTrial {
         Instant endTime = TimingSystem.currentTime;
         Player p = tPlayer.getPlayer();
 
-        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(tPlayer.getUniqueId())) {
+        if (!track.isOpen() && !tPlayer.isOverride()) {
             TimeTrialController.timeTrials.remove(p.getUniqueId());
             return;
         }
@@ -188,7 +188,11 @@ public class TimeTrial {
     public void playerStartingMap() {
         Player player = tPlayer.getPlayer();
 
-        if (!track.isOpen() && !TimingSystem.getPlugin().override.contains(tPlayer.getUniqueId())) {
+        if(!tPlayer.isTimeTrial()){
+            return;
+        }
+
+        if (!track.isOpen() && !tPlayer.isOverride()) {
             return;
         }
 
@@ -229,7 +233,7 @@ public class TimeTrial {
     public void playerPassingCheckpoint(int checkpoint) {
         passCheckpoint(checkpoint);
         long timeSinceStart = ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime));
-        if (TimingSystem.getPlugin().verbose.contains(tPlayer.getUniqueId())) {
+        if (tPlayer.isVerbose()) {
             plugin.sendMessage(tPlayer.getPlayer(), "messages.timer.checkpoint", "%checkpoint%", String.valueOf(checkpoint), "%time%", ApiUtilities.formatAsTime(timeSinceStart));
         }
         ApiUtilities.msgConsole(tPlayer.getName() + " passed checkpoint " + checkpoint + " on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeSinceStart));
@@ -240,7 +244,7 @@ public class TimeTrial {
         TimeTrialFinishEvent eventTimeTrialFinish = new TimeTrialFinishEvent(p, finish, bestFinish);
         Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialFinish);
         this.bestFinish = getBestFinish(track.getBestFinish(tPlayer));
-        if (tPlayer.getToggleSound()) {
+        if (tPlayer.isSound()) {
             p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
         }
         LeaderboardManager.updateFastestTimeLeaderboard(track.getId());

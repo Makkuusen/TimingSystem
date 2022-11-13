@@ -8,6 +8,7 @@ import co.aikar.taskchain.TaskChainFactory;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.GUIListener;
+import me.makkuusen.timing.system.gui.GUISettings;
 import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
@@ -36,8 +37,6 @@ public class TimingSystem extends JavaPlugin {
     public static TimingSystemConfiguration configuration;
     private static TimingSystem plugin;
     public static boolean enableLeaderboards = true;
-    public Set<UUID> override = new HashSet<>();
-    public Set<UUID> verbose = new HashSet<>();
     public static HashMap<UUID, Track> playerEditingSession = new HashMap<>();
     public static Map<UUID, TPlayer> players = new HashMap<UUID, TPlayer>();
     private LanguageManager languageManager;
@@ -52,6 +51,7 @@ public class TimingSystem extends JavaPlugin {
         configuration = new TimingSystemConfiguration(this);
         TrackDatabase.plugin = this;
         CommandTimeTrial.plugin = this;
+        CommandSettings.plugin = this;
         CommandTrack.plugin = this;
         TSListener.plugin = this;
         TimeTrial.plugin = this;
@@ -64,6 +64,7 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new TSListener(), plugin);
 
         GUITrack.init();
+        GUISettings.init();
         PlayerTimer.initPlayerTimer();
 
         PaperCommandManager manager = new PaperCommandManager(this);
@@ -142,6 +143,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandHeat());
         manager.registerCommand(new CommandTrack());
         manager.registerCommand(new CommandTimeTrial());
+        manager.registerCommand(new CommandSettings());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
 
@@ -177,6 +179,7 @@ public class TimingSystem extends JavaPlugin {
         TrackDatabase.plugin = null;
         Database.plugin = null;
         CommandTimeTrial.plugin = null;
+        CommandSettings.plugin = null;
         CommandTrack.plugin = null;
         TSListener.plugin = null;
         TimeTrial.plugin = null;

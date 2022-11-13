@@ -39,6 +39,7 @@ public class Database {
             if (row == null) {
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + plugin.getDescription().getVersion() + "', " + ApiUtilities.getTimestamp() + ");");
                 rc9Update();
+                v1_0Update();
             } else {
                 if (isNewerVersion(row.getString("version") , plugin.getDescription().getVersion())) {
                     updateDatabase(row.getString("version"), plugin.getDescription().getVersion());
@@ -293,6 +294,16 @@ public class Database {
     private static void rc9Update() {
         try {
             DB.executeUpdate("ALTER TABLE `ts_players` ADD `toggleSound` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
+        } catch (Exception exception) {
+
+        }
+    }
+
+    private static void v1_0Update() {
+        try {
+            DB.executeUpdate("ALTER TABLE `ts_players` ADD `verbose` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
+            DB.executeUpdate("ALTER TABLE `ts_players` ADD `timetrial` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
+            DB.executeUpdate("ALTER TABLE `ts_players` ADD `override` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
         } catch (Exception exception) {
 
         }
