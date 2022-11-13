@@ -8,7 +8,7 @@ This plugin is still in early development. Although the plugin works and is used
 
 1. World Edit
 2. MYSQL Database. It needs a database connection. Configure it in the plugins config.yml.
-3. [optional] HolographicDisplays
+3. [optional] [HolographicDisplays 3.0.0](https://dev.bukkit.org/projects/holographic-displays/files/4056176/download)
 
 
 
