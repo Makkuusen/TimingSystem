@@ -13,10 +13,8 @@ leaderboards:
          - '§f{name8} §7- §e{time8}'
          - '§f{name9} §7- §e{time9}'
          - '§f{name10} §7- §e{time10}'
-race:
-   lasersitems: false
 tracks:
-   timesPageSize: 15
+   timesPageSize: 18
 finals:
    laps: 5
    pits: 2

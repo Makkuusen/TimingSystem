@@ -73,6 +73,9 @@ public class EventSchedule {
     }
 
     public Optional<Round> getRound(){
+        if (currentRound == null){
+            return Optional.empty();
+        }
         return Optional.of(rounds.get(currentRound - 1));
     }
 

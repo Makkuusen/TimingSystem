@@ -8,7 +8,6 @@ import java.util.List;
 public class TimingSystemConfiguration {
     private final int leaderboardsUpdateTick;
     private final List<String> leaderboardsFastestTimeLines;
-    private final boolean lasersItems;
     private final int timesPageSize;
     private final int laps;
     private final int pits;
@@ -26,7 +25,6 @@ public class TimingSystemConfiguration {
         plugin.reloadConfig();
         leaderboardsUpdateTick = plugin.getConfig().getInt("leaderboards.updateticks");
         leaderboardsFastestTimeLines = plugin.getConfig().getStringList("leaderboards.fastesttime.lines");
-        lasersItems = plugin.getConfig().getBoolean("race.lasersItems");
         timesPageSize = plugin.getConfig().getInt("tracks.timesPageSize");
 
         laps = plugin.getConfig().getInt("finals.laps");

@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
+import org.bukkit.Bukkit;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -70,7 +71,7 @@ public class Event {
         return false;
     }
 
-    public boolean hasRunningHeat(){
+    public boolean hasRunningHeat() {
         if (getState() == Event.EventState.RUNNING) {
             var maybeRound = getEventSchedule().getRound();
             if (maybeRound.isPresent()) {
@@ -82,9 +83,30 @@ public class Event {
         return false;
     }
 
+    public Optional<Heat> getRunningHeat() {
+        if (getState() != Event.EventState.RUNNING) {
+            return Optional.empty();
+        }
+
+        var maybeRound = getEventSchedule().getRound();
+        if (maybeRound.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var maybeHeat = maybeRound.get().getHeats().stream().filter(Heat::isActive).findFirst();
+        if (maybeHeat.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(maybeHeat.get());
+    }
+
 
     public void addSpectator(UUID uuid) {
         spectators.put(uuid, new Spectator(Database.getPlayer(uuid)));
+        var maybeHeat = getRunningHeat();
+        if (maybeHeat.isPresent()) {
+            maybeHeat.get().updateScoreboard();
+        }
     }
 
     public boolean isSpectating(UUID uuid) {
@@ -94,6 +116,13 @@ public class Event {
     public void removeSpectator(UUID uuid) {
         if (spectators.containsKey(uuid)){
             spectators.remove(uuid);
+            if (Database.getPlayer(uuid).getPlayer() != null) {
+                var maybeHeat = getRunningHeat();
+                if (maybeHeat.isPresent()) {
+                    maybeHeat.get().getScoreboard().removeScoreboard(Database.getPlayer(uuid).getPlayer());
+                }
+            }
+
         }
     }
 

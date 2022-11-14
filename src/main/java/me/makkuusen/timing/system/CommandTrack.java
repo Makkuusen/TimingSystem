@@ -12,6 +12,11 @@ import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentBuilder;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -152,16 +157,30 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        plugin.sendMessage(player, "messages.list.times", "%track%", track.getDisplayName(), "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) track.getTopList().size()) / ((double) itemsPerPage))));
-
+        var trackText = Component.text("§2--- Times for §a" + track.getDisplayName() + " §2--- ");
+        //plugin.sendMessage(player, "messages.list.times", "%track%", track.getDisplayName(), "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) track.getTopList().size()) / ((double) itemsPerPage))));
+        player.sendMessage(trackText);
+        int count = 0;
         for (int i = start; i < stop; i++) {
             if (i == track.getTopList().size()) {
                 break;
             }
-
             TimeTrialFinish finish = track.getTopList().get(i);
             plugin.sendMessage(player, "messages.list.timesrow", "%pos%", String.valueOf(i + 1), "%player%", finish.getPlayer().getName(), "%time%", ApiUtilities.formatAsTime(finish.getTime()));
+            count++;
         }
+
+        var pageText = Component.text("§2--- ");
+        if (pageStart > 1) {
+            pageText = pageText.append(Component.text("§a<<< ").clickEvent(ClickEvent.runCommand("/t times " + track.getCommandName() + " " + (pageStart - 1))));
+        }
+        int pageEnd = (int) Math.ceil(((double) track.getTopList().size()) / ((double) itemsPerPage));
+        pageText = pageText.append(Component.text("§2page §a§l" + pageStart + " §r§2of §a§l" + pageEnd + " "));
+        if (pageEnd > pageStart) {
+            pageText = pageText.append(Component.text("§a>>>").clickEvent(ClickEvent.runCommand("/t times " + track.getCommandName() + " " + (pageStart + 1))));
+        }
+        pageText = pageText.append(Component.text(" §2---"));
+        player.sendMessage(pageText);
     }
 
     @Subcommand("list")

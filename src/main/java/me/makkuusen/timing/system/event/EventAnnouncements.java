@@ -8,6 +8,7 @@ import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -27,6 +28,19 @@ public class EventAnnouncements {
                 TimingSystem.getPlugin().sendMessage(p.getTPlayer().getPlayer(), key, replacements);
             }
         }
+    }
+
+    public static void broadcastSpectate(Event event) {
+        Bukkit.getOnlinePlayers().stream()
+                .filter(player -> !event.getSpectators().containsKey(player.getUniqueId()))
+                .forEach(player -> {
+                    player.sendMessage("");
+                    player.sendMessage(Component.text("§e§l[Click to spectate race: " + event.getDisplayName() + "]")
+                        .clickEvent(ClickEvent.runCommand("/event spectate " + event.getDisplayName())));
+                    player.sendMessage("");
+                }
+        );
+
     }
 
     public static void broadcastFinish(Heat heat, Driver driver, long time) {
@@ -102,6 +116,20 @@ public class EventAnnouncements {
         }
     }
 
+    public static void broadcastReset(Heat heat) {
+        for (Participant participant : heat.getParticipants()) {
+            Player player = participant.getTPlayer().getPlayer();
+            if (player != null) {
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.MASTER, 1, 1);
+                Component mainTitle = Component.text("Heat Reset", NamedTextColor.RED);
+                Title.Times times = Title.Times.times(Duration.ofMillis(100), Duration.ofMillis(2000), Duration.ofMillis(100));
+                Title title = Title.title(mainTitle, Component.empty(), times);
+                player.showTitle(title);
+            }
+
+        }
+    }
+
     public static void sendLapTime(Driver driver, long time) {
         if (driver.getTPlayer().getPlayer() == null) {
             return;
@@ -123,7 +151,9 @@ public class EventAnnouncements {
             return;
         }
         Player player = raceDriver.getTPlayer().getPlayer();
-        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
+        if (raceDriver.getTPlayer().isSound()) {
+            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
+        }
     }
 
     public static void sendFinishTitle(Driver driver) {
@@ -131,7 +161,10 @@ public class EventAnnouncements {
             return;
         }
         Player player = driver.getTPlayer().getPlayer();
-        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§7-- §fP" + driver.getPosition() + " §7--\"}");
+        Component mainTitle = Component.text("You finished P" + driver.getPosition(), NamedTextColor.YELLOW);
+        Title.Times times = Title.Times.times(Duration.ofMillis(100), Duration.ofMillis(2000), Duration.ofMillis(100));
+        Title title = Title.title(mainTitle, Component.empty(), times);
+        player.showTitle(title);
     }
 
     public static void sendFinishTitleQualy(Driver driver) {
@@ -139,6 +172,9 @@ public class EventAnnouncements {
             return;
         }
         Player player = driver.getTPlayer().getPlayer();
-        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "title " + player.getName() + " title {\"text\":\"§7-- §fFinished §7--\"}");
+        Component mainTitle = Component.text("Finished", NamedTextColor.YELLOW);
+        Title.Times times = Title.Times.times(Duration.ofMillis(100), Duration.ofMillis(2000), Duration.ofMillis(100));
+        Title title = Title.title(mainTitle, Component.empty(), times);
+        player.showTitle(title);
     }
 }

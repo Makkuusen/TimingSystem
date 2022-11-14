@@ -8,6 +8,7 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
+import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.heat.Heat;
@@ -101,6 +102,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     public static void onHeatLoad(Player player, Heat heat) {
         if (heat.loadHeat()) {
+            EventAnnouncements.broadcastSpectate(heat.getEvent());
             player.sendMessage("§aLoaded " + heat.getName());
             return;
         }
@@ -128,6 +130,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     public static void onHeatReset(Player player, Heat heat) {
         if (heat.resetHeat()){
+            EventAnnouncements.broadcastReset(heat);
             player.sendMessage("§aReset " + heat.getName());
             return;
         }

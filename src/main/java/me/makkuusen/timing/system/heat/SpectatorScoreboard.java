@@ -6,6 +6,7 @@ import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -45,6 +46,11 @@ public class SpectatorScoreboard {
         List<String> lines;
         lines = normalScoreboard();
         jScoreboard.setLines(lines);
+    }
+
+    public void removeScoreboard(Player player) {
+        spectators.remove(player.getUniqueId());
+        jScoreboard.removePlayer(player);
     }
 
     public List<String> normalScoreboard(){
