@@ -478,7 +478,12 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         if (heat.getHeatState() == HeatState.FINISHED) {
+
             sender.sendMessage("§2Results for heat §a" + heat.getName());
+            if (heat.getFastestLapUUID() != null) {
+                Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
+                sender.sendMessage("§2Fastest lap: §a" + ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) + " §2by §a" + d.getTPlayer().getName());
+            }
             List<Driver> result = EventResults.generateHeatResults(heat);
             if (heat.getRound() instanceof FinalRound){
                 for (Driver d : result) {
