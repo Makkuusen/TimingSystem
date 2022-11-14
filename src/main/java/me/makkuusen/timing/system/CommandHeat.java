@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
+import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
@@ -439,8 +440,40 @@ public class CommandHeat extends BaseCommand {
 
 
     @Subcommand("results")
-    @CommandCompletion("@heat")
-    public static void onHeatResults(Player sender, Heat heat) {
+    @CommandCompletion("@heat @players")
+    public static void onHeatResults(Player sender, Heat heat, @Optional String name) {
+        if (name != null) {
+            TPlayer tPlayer = Database.getPlayer(name);
+            if (tPlayer == null) {
+                sender.sendMessage("§cCould not find player");
+                return;
+            }
+            if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
+                sender.sendMessage("§cPlayer is not in heat!");
+                return;
+            }
+            Driver driver = heat.getDrivers().get(tPlayer.getUniqueId());
+            sender.sendMessage("§2Results for §a" + tPlayer.getNameDisplay() + "§2 in §a" + heat.getName());
+            sender.sendMessage("§2Position: §a" + driver.getPosition());
+            sender.sendMessage("§2StartPosition: §a" + driver.getStartPosition());
+            var maybeBestLap = driver.getBestLap();
+            if (maybeBestLap.isPresent()){
+                sender.sendMessage("§2Fastest Lap: §a" + ApiUtilities.formatAsTime(maybeBestLap.get().getLapTime()));
+            }
+            int count = 1;
+            for (Lap l : driver.getLaps()) {
+                String lap = "§7Lap " + count + ": §f" + ApiUtilities.formatAsTime(l.getLapTime());
+                if (l.equals(maybeBestLap.get())) {
+                    lap += " §7(F)";
+                }
+                if (l.isPitted()) {
+                    lap += " §7(P)";
+                }
+                sender.sendMessage(lap);
+                count++;
+            }
+            return;
+        }
         if (heat.getHeatState() == HeatState.FINISHED) {
             sender.sendMessage("§2Results for heat §a" + heat.getName());
             List<Driver> result = EventResults.generateHeatResults(heat);
