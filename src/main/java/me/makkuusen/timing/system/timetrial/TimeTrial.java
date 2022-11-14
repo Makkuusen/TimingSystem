@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -197,6 +198,10 @@ public class TimeTrial {
         }
 
         if (!player.isInsideVehicle() && track.isBoatTrack()) {
+            return;
+        }
+
+        if (track.isBoatTrack() && !(player.getVehicle() instanceof Boat)) {
             return;
         }
         TimeTrialController.timeTrials.put(tPlayer.getUniqueId(), this);
