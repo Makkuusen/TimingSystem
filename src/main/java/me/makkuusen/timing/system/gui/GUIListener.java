@@ -79,7 +79,7 @@ public class GUIListener implements Listener {
                             }
                         }
                     }
-                } else if (e.getView().getTitle().startsWith(ApiUtilities.color("§2§lSettings")) || e.getView().getTitle().startsWith(ApiUtilities.color("§2§lBoat Settings"))) {
+                } else if (e.getView().getTitle().startsWith(ApiUtilities.color("§2§lSettings")) || e.getView().getTitle().startsWith(ApiUtilities.color("§2§lBoat Settings")) || e.getView().getTitle().startsWith(ApiUtilities.color("§2§lColor Settings"))) {
                     e.setCancelled(true);
 
                     if ((!(e.getClickedInventory() == player.getInventory())) && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
@@ -119,7 +119,13 @@ public class GUIListener implements Listener {
                                 }
                                 GUISettings.openSettingsBoatGui(player);
                                 return;
-                            } else if (item.getItemMeta().getDisplayName().contains("Override")) {
+                            } else if (item.getItemMeta().getDisplayName().contains("Team Color")) {
+                                if (tPlayer.isSound()) {
+                                    playConfirm(player);
+                                }
+                                GUISettings.openSettingsColorGui(player);
+                                return;
+                            }else if (item.getItemMeta().getDisplayName().contains("Override")) {
                                 tPlayer.toggleOverride();
                                 if(tPlayer.isSound()) {
                                     playConfirm(player);
@@ -138,9 +144,17 @@ public class GUIListener implements Listener {
                                 return;
                             } else if (item.getItemMeta().getDisplayName().contains("Return")) {
                                 GUISettings.openSettingsGui(player);
-                                if(tPlayer.isSound()) {
+                                if (tPlayer.isSound()) {
                                     playConfirm(player);
                                 }
+                                return;
+                            } else if (item.getItemMeta().getDisplayName().contains("Color")) {
+                                var hexColor = ApiUtilities.getHexFromDyeColor(item.getType());
+                                tPlayer.setHexColor(hexColor);
+                                if (tPlayer.isSound()) {
+                                    playConfirm(player);
+                                }
+                                GUISettings.openSettingsGui(player);
                                 return;
                             }
                         }

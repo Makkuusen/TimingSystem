@@ -304,6 +304,7 @@ public class Database {
             DB.executeUpdate("ALTER TABLE `ts_players` ADD `verbose` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
             DB.executeUpdate("ALTER TABLE `ts_players` ADD `timetrial` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
             DB.executeUpdate("ALTER TABLE `ts_players` ADD `override` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
+            DB.executeUpdate("ALTER TABLE `ts_players` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#9D9D97' AFTER `boat`;");
         } catch (Exception exception) {
 
         }

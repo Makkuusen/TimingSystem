@@ -472,6 +472,19 @@ public class ApiUtilities {
         }
     }
 
+    public static String getHexFromDyeColor(Material dye) {
+        String dyeColorName = dye.name().replace("_DYE", "");
+        try {
+            return getHexFromColor(DyeColor.valueOf(dyeColorName).getColor());
+        } catch (IllegalArgumentException exception) {
+            return "#ffffff";
+        }
+    }
+
+    public static String getHexFromColor(Color color) {
+        return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
     public static Boat spawnBoatAndAddPlayer(Player player, Location location) {
 
         BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);

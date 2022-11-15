@@ -7,13 +7,12 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
-import me.makkuusen.timing.system.gui.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
+import java.awt.*;
 import java.util.UUID;
 
 public class TPlayer implements Comparable<TPlayer> {
@@ -27,6 +26,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private boolean verbose;
     private boolean timeTrial;
     private boolean override;
+    private String color;
 
 
     @Override
@@ -42,6 +42,7 @@ public class TPlayer implements Comparable<TPlayer> {
         toggleSound = data.get("toggleSound");
         verbose = data.get("verbose");
         timeTrial = data.get("timetrial");
+        color = data.getString("color");
     }
 
     public UUID getUniqueId() {
@@ -54,6 +55,24 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public String getNameDisplay() {
         return getName() + "§r";
+    }
+
+    public String getHexColor() {
+        return color;
+    }
+
+    public String getColorCode(){
+        return net.md_5.bungee.api.ChatColor.of(color) + "";
+    }
+
+    public org.bukkit.Color getBukkitColor(){
+        var c = Color.decode(color);
+        return org.bukkit.Color.fromRGB(c.getRed(), c.getGreen(), c.getBlue());
+    }
+
+    public void setHexColor(String hexColor) {
+        color = hexColor;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `color` = '" + hexColor + "' WHERE `uuid` = '" + uuid + "';");
     }
 
     public Boat.Type getBoat() {
