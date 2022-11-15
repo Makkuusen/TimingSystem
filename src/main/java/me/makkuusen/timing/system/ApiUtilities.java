@@ -9,6 +9,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
+import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
 import me.makkuusen.timing.system.track.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -469,5 +470,18 @@ public class ApiUtilities {
                 return Boat.Type.OAK;
             }
         }
+    }
+
+    public static Boat spawnBoatAndAddPlayer(Player player, Location location) {
+
+        BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
+        Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
+
+        if (boatSpawnEvent.getBoat() != null) {
+            return boatSpawnEvent.getBoat();
+        }
+        Boat boat = ApiUtilities.spawnBoat(location, Database.getPlayer(player.getUniqueId()).getBoat());
+        boat.addPassenger(player);
+        return boat;
     }
 }

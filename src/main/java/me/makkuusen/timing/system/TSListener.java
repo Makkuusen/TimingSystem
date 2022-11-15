@@ -1,6 +1,8 @@
 package me.makkuusen.timing.system;
 
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
+import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
+import me.makkuusen.timing.system.api.events.MenuOpenTTEvent;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -103,8 +105,7 @@ public class TSListener implements Listener {
                 if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
                     if (Track.isBoatTrack()) {
                         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                            Boat boat = ApiUtilities.spawnBoat(Track.getSpawnLocation(), Database.getPlayer(event.getPlayer().getUniqueId()).getBoat());
-                            boat.addPassenger(event.getPlayer());
+                            ApiUtilities.spawnBoatAndAddPlayer(event.getPlayer(), Track.getSpawnLocation());
                         }, 2);
                     }
                 }
@@ -523,11 +524,7 @@ public class TSListener implements Listener {
         player.teleport(location, PlayerTeleportEvent.TeleportCause.UNKNOWN);
         if (isBoatTrack) {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                Boat boat = ApiUtilities.spawnBoat(location, Database.getPlayer(player.getUniqueId()).getBoat());
-                boat.addPassenger(player);
-//                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-//                    boat.setWoodType(Database.getPlayer(player.getUniqueId()).getBoat());
-//                }, 1);
+                ApiUtilities.spawnBoatAndAddPlayer(player, location);
             }, 1);
         }
     }
