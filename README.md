@@ -2,7 +2,7 @@
 
 ## PRE-RELEASE
 
-This plugin is still in early development. Although the plugin works and is used by a few servers, there is a severe lack of documentation and instructions on how to use it. Before adding this plugin to your server it's good to understand that you will run into issues along the way.
+This plugin is still in early development. Although the plugin works and is used by a few servers, there is a severe lack of documentation and instructions on how to use it. Before adding this plugin to your server it's good to understand that you will probably run into a few issues a long the way.
 
 ## DEPENDENCIES
 
