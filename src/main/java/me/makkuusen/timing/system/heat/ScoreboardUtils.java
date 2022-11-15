@@ -7,45 +7,45 @@ import org.bukkit.ChatColor;
 
 public class ScoreboardUtils {
     public static String getDriverLine(String name, int pos) {
-        return paddPos(pos, name) + "§7|           §7| §f" + paddName(name);
+        return paddPos(pos, name) + "§7|           " + getColor(name) + "| §f" + paddName(name);
     }
 
     public static String getDriverLineQualyTime(long laptime, String name, int pos) {
-        return paddPos(pos, name) + "§7| §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + "§7| §f"+ paddName(name);
+        return paddPos(pos, name) + "§7| §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + getColor(name) + "| §f"+ paddName(name);
     }
 
     public static String getDriverLineQualyGap(long timeDiff, String name, int pos) {
-        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + "§7| §f"+ paddName(name);
+        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getColor(name) + "| §f"+ paddName(name);
     }
 
     public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos) {
-        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + "§7| §f"+ paddName(name);
+        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getColor(name) + "| §f"+ paddName(name);
     }
 
     public static String getDriverLineRace(String name, int pos){
-        return paddPos(pos, name) + "§7|           §7| §f" + paddName(name) + "§7Pits: §f0 ";
+        return paddPos(pos, name) + "§7|           " + getColor(name) + "| §f" + paddName(name) + "§7Pits: §f0 ";
     }
     public static String getDriverLineRace(String name, int pits, int pos){
-        return paddPos(pos, name) + "§7|           §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7|           " + getColor(name) + "| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
     public static String getDriverLineRaceInPit(String name, int pits, int pos){
-        return paddPos(pos, name) + "§7| In Pit   §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| In Pit   " + getColor(name) + "| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineRaceOffline(String name, int pits, int pos){
-        return paddPos(pos, name) + "§7| Offline  §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| Offline  " + getColor(name) + "| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos) {
-        return paddPos(pos, name) + "§7| Lap:§f " + paddLaps(laps) + " §7| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| Lap:§f " + paddLaps(laps) + " " + getColor(name) + "| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineRaceGap(long gap, String name, int pits, int pos) {
-        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + "§7| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getColor(name) + "| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineNegativeRaceGap(long gap, String name, int pits, int pos) {
-        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + "§7| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getColor(name) + "| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String paddName(String name){
@@ -117,4 +117,15 @@ public class ScoreboardUtils {
         else if(hasFastestLap) return posColour + "" + ChatColor.UNDERLINE;
         else return posColour + "";
     }
+
+    private static String getColor(String name){
+        var maybeDriver = EventDatabase.getDriverFromRunningHeat(Database.getPlayer(name).getUniqueId());
+
+        if (maybeDriver.isEmpty()) {
+            return net.md_5.bungee.api.ChatColor.of("#ffffff") + "";
+        }
+
+        return maybeDriver.get().getTPlayer().getColorCode();
+    }
+
 }
