@@ -134,10 +134,11 @@ public class GUIListener implements Listener {
                                 return;
                             } else if (item.getItemMeta().getDisplayName().contains("Boat")) {
                                 tPlayer.setBoat(ApiUtilities.getBoatType(item.getType()));
+                                tPlayer.setChestBoat(ApiUtilities.isChestBoat(item.getType()));
                                 if (player.getVehicle() instanceof Boat boat) {
                                     boat.setBoatType(tPlayer.getBoat());
                                 }
-                                if(tPlayer.isSound()) {
+                                if (tPlayer.isSound()) {
                                     playConfirm(player);
                                 }
                                 GUISettings.openSettingsGui(player);

@@ -22,6 +22,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private final UUID uuid;
     private String name;
     private Boat.Type boat;
+    private boolean chestBoat;
     private boolean toggleSound;
     private boolean verbose;
     private boolean timeTrial;
@@ -39,6 +40,7 @@ public class TPlayer implements Comparable<TPlayer> {
         uuid = UUID.fromString(data.getString("uuid"));
         name = data.getString("name");
         boat = stringToType(data.getString("boat"));
+        chestBoat = data.get("chestBoat");
         toggleSound = data.get("toggleSound");
         verbose = data.get("verbose");
         timeTrial = data.get("timetrial");
@@ -77,6 +79,17 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public Boat.Type getBoat() {
         return boat;
+    }
+
+    public boolean isChestBoat() {
+        return chestBoat;
+    }
+
+    public void setChestBoat(boolean b) {
+        if (chestBoat != b) {
+            chestBoat = b;
+            DB.executeUpdateAsync("UPDATE `ts_players` SET `chestBoat` = " + chestBoat + " WHERE `uuid` = '" + uuid + "';");
+        }
     }
 
     public boolean isVerbose() {

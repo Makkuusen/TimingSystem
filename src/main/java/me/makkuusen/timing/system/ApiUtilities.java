@@ -342,11 +342,17 @@ public class ApiUtilities {
         }
         return toReturn;
     }
-    public static Boat spawnBoat(Location location, Boat.Type type) {
+
+    public static Boat spawnBoat(Location location, Boat.Type type, boolean isChestBoat) {
         if (!location.isWorldLoaded()) {
             return null;
         }
-        Boat boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
+        Boat boat;
+        if (isChestBoat) {
+            boat = (Boat) location.getWorld().spawnEntity(location, EntityType.CHEST_BOAT);
+        } else {
+            boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
+        }
         boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
             boat.setBoatType(type);
@@ -437,39 +443,50 @@ public class ApiUtilities {
     public static List<Material> getBoatMaterials(){
         return List.of(
                 Material.BIRCH_BOAT,
+                Material.BIRCH_CHEST_BOAT,
                 Material.ACACIA_BOAT,
+                Material.ACACIA_CHEST_BOAT,
                 Material.DARK_OAK_BOAT,
+                Material.DARK_OAK_CHEST_BOAT,
                 Material.JUNGLE_BOAT,
+                Material.JUNGLE_CHEST_BOAT,
                 Material.MANGROVE_BOAT,
+                Material.MANGROVE_CHEST_BOAT,
                 Material.OAK_BOAT,
-                Material.SPRUCE_BOAT
+                Material.OAK_CHEST_BOAT,
+                Material.SPRUCE_BOAT,
+                Material.SPRUCE_CHEST_BOAT
         );
     }
 
     public static Boat.Type getBoatType(Material material){
         switch (material) {
-            case ACACIA_BOAT -> {
+            case ACACIA_BOAT, ACACIA_CHEST_BOAT -> {
                 return Boat.Type.ACACIA;
             }
-            case BIRCH_BOAT -> {
+            case BIRCH_BOAT, BIRCH_CHEST_BOAT -> {
                 return Boat.Type.BIRCH;
             }
-            case DARK_OAK_BOAT -> {
+            case DARK_OAK_BOAT, DARK_OAK_CHEST_BOAT -> {
                 return Boat.Type.DARK_OAK;
             }
-            case SPRUCE_BOAT -> {
+            case SPRUCE_BOAT, SPRUCE_CHEST_BOAT -> {
                 return Boat.Type.SPRUCE;
             }
-            case JUNGLE_BOAT -> {
+            case JUNGLE_BOAT, JUNGLE_CHEST_BOAT -> {
                 return Boat.Type.JUNGLE;
             }
-            case MANGROVE_BOAT -> {
+            case MANGROVE_BOAT, MANGROVE_CHEST_BOAT -> {
                 return Boat.Type.MANGROVE;
             }
             default -> {
                 return Boat.Type.OAK;
             }
         }
+    }
+
+    public static boolean isChestBoat(Material material) {
+        return material.name().contains("CHEST_BOAT");
     }
 
     public static String getHexFromDyeColor(Material dye) {
@@ -493,7 +510,8 @@ public class ApiUtilities {
         if (boatSpawnEvent.getBoat() != null) {
             return boatSpawnEvent.getBoat();
         }
-        Boat boat = ApiUtilities.spawnBoat(location, Database.getPlayer(player.getUniqueId()).getBoat());
+        var tPlayer = Database.getPlayer(player.getUniqueId());
+        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
         boat.addPassenger(player);
         return boat;
     }
