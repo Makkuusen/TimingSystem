@@ -7,6 +7,7 @@ import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.gui.ButtonFactory;
 import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.gui.GUISettings;
 import me.makkuusen.timing.system.gui.GUITrack;
@@ -65,6 +66,7 @@ public class TimingSystem extends JavaPlugin {
 
         GUITrack.init();
         GUISettings.init();
+        ButtonFactory.init();
         PlayerTimer.initPlayerTimer();
 
         PaperCommandManager manager = new PaperCommandManager(this);

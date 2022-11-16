@@ -1,27 +1,17 @@
 package me.makkuusen.timing.system.gui;
 
-import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.api.events.MenuClickTTEvent;
-import me.makkuusen.timing.system.api.events.MenuOpenTTEvent;
-import me.makkuusen.timing.system.track.TrackDatabase;
-import me.makkuusen.timing.system.timetrial.TimeTrialController;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import me.makkuusen.timing.system.TPlayer;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
-import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 
 public class GUIListener implements Listener {
 
+    /*
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         if (e.getInventory() != null) {
@@ -165,7 +155,29 @@ public class GUIListener implements Listener {
         }
     }
 
+     */
+
     private static void playConfirm(Player player) {
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1);
+    }
+
+    @EventHandler
+    public void onInventoryClickv2(InventoryClickEvent e) {
+        TPlayer tPlayer;
+        if (e.getWhoClicked() instanceof Player player) {
+            tPlayer = Database.getPlayer(player.getUniqueId());
+        } else {
+            return;
+        }
+
+        if (tPlayer.getOpenGui() != null) {
+            if (e.getCurrentItem() != null) {
+                if (tPlayer.getOpenGui().handleButton(e.getCurrentItem())) {
+                    e.setCancelled(true);
+                } else if (tPlayer.getOpenGui().equalsInv(e.getInventory())) {
+                    e.setCancelled(true);
+                }
+            }
+        }
     }
 }

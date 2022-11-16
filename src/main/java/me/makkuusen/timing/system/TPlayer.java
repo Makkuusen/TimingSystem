@@ -7,6 +7,7 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import me.makkuusen.timing.system.gui.BaseGui;
 import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
@@ -28,6 +29,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private boolean timeTrial;
     private boolean override;
     private String color;
+    private BaseGui openGui;
 
 
     @Override
@@ -45,6 +47,18 @@ public class TPlayer implements Comparable<TPlayer> {
         verbose = data.get("verbose");
         timeTrial = data.get("timetrial");
         color = data.getString("color");
+    }
+
+    public boolean hasOpenGui(){
+        return openGui != null;
+    }
+
+    public BaseGui getOpenGui() {
+        return openGui;
+    }
+
+    public void setOpenGui(BaseGui openGui) {
+        this.openGui = openGui;
     }
 
     public UUID getUniqueId() {

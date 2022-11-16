@@ -33,8 +33,6 @@ public class GUISettings {
 
     public static void openSettingsGui(Player p) {
         Inventory inv = createGui(p);
-
-
         p.openInventory(inv);
     }
 
