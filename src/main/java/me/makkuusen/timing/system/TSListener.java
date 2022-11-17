@@ -2,7 +2,6 @@ package me.makkuusen.timing.system;
 
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
-import me.makkuusen.timing.system.api.events.MenuOpenTTEvent;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;

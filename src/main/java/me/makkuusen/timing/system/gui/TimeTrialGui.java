@@ -10,27 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TrackGui extends TrackPageGui{
+public class TimeTrialGui extends TrackPageGui{
 
-    public TrackGui(TPlayer tPlayer, int page) {
-        super(tPlayer, "§2§lTracks", 6, page);
-    }
-
-    @Override
-    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page){
-        var button = new GuiButton(item);
-        button.setAction(() -> {
-            new TrackGui(tPlayer, page).show(tPlayer.getPlayer());
-        });
-        return button;
+    public TimeTrialGui(TPlayer tPlayer, int page) {
+        super(tPlayer,"§2§lTracks", 6, page);
     }
 
     public List<Track> getTracks(int page) {
         List<Track> tracks;
         if (page == ELYTRAPAGE) {
-            tracks = TrackDatabase.getTracks().stream().filter(Track::isElytraTrack).collect(Collectors.toList());
+            tracks = TrackDatabase.getOpenTracks().stream().filter(Track::isElytraTrack).collect(Collectors.toList());
         } else if (page == PARKOURPAGE) {
-            tracks = TrackDatabase.getTracks().stream().filter(Track::isParkourTrack).collect(Collectors.toList());
+            tracks = TrackDatabase.getOpenTracks().stream().filter(Track::isParkourTrack).collect(Collectors.toList());
         } else {
             List<Track> tempTracks = TrackDatabase.getOpenTracks().stream().filter(Track::isBoatTrack).collect(Collectors.toList());
             int start = 36 * page;
@@ -40,6 +31,15 @@ public class TrackGui extends TrackPageGui{
             }
         }
         return tracks;
+    }
+
+    @Override
+    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page){
+        var button = new GuiButton(item);
+        button.setAction(() -> {
+            new TimeTrialGui(tPlayer, page).show(tPlayer.getPlayer());
+        });
+        return button;
     }
 
     @Override

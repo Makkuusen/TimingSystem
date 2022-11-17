@@ -7,22 +7,16 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
-import me.makkuusen.timing.system.gui.GUITrack;
+import me.makkuusen.timing.system.gui.TrackGui;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ComponentBuilder;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
@@ -30,8 +24,9 @@ public class CommandTrack extends BaseCommand {
     static TimingSystem plugin;
 
     @Default
+    @CommandPermission("track.admin")
     public static void onTrack(Player player) {
-        GUITrack.openTrackGUI(player);
+        new TrackGui(Database.getPlayer(player.getUniqueId()),0).show(player);
     }
 
     @Subcommand("tp")

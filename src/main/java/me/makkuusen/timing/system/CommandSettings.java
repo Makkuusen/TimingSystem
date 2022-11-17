@@ -6,7 +6,6 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
-import me.makkuusen.timing.system.gui.GUISettings;
 import me.makkuusen.timing.system.gui.SettingsGui;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;

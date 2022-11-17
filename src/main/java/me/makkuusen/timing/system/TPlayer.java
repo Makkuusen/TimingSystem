@@ -164,35 +164,17 @@ public class TPlayer implements Comparable<TPlayer> {
     }
 
     void setPlayer(Player player) {
-        // Player came online
-        // Player disconnected
         this.player = player;
     }
 
     public Material getBoatMaterial(){
-        switch (boat) {
-            case ACACIA -> {
-                return Material.ACACIA_BOAT;
-            }
-            case BIRCH -> {
-                return Material.BIRCH_BOAT;
-            }
-            case DARK_OAK -> {
-                return Material.DARK_OAK_BOAT;
-            }
-            case SPRUCE -> {
-                return Material.SPRUCE_BOAT;
-            }
-            case JUNGLE -> {
-                return Material.JUNGLE_BOAT;
-            }
-            case MANGROVE -> {
-                return Material.MANGROVE_BOAT;
-            }
-            default -> {
-                return Material.OAK_BOAT;
-            }
+        String boat = getBoat().name();
+        if (chestBoat) {
+            boat += "_CHEST_BOAT";
+        } else {
+            boat += "_BOAT";
         }
+        return Material.valueOf(boat);
     }
 
     public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {

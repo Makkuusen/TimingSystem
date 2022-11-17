@@ -2,7 +2,7 @@ package me.makkuusen.timing.system;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
-import me.makkuusen.timing.system.gui.GUITrack;
+import me.makkuusen.timing.system.gui.TimeTrialGui;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
@@ -19,7 +19,8 @@ public class CommandTimeTrial extends BaseCommand {
     @CommandCompletion("@track")
     public static void onTimeTrial(Player player, @Optional Track track) {
         if (track == null) {
-            GUITrack.openTrackGUI(player);
+            var tPlayer = Database.getPlayer(player.getUniqueId());
+            new TimeTrialGui(tPlayer, 0).show(player);
         } else {
             if (!track.getSpawnLocation().isWorldLoaded()) {
                 player.sendMessage("§cWorld is not loaded!");

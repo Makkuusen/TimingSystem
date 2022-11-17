@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system.gui;
+package me.makkuusen.timing.system;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

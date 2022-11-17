@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.api.events.GuiOpenEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -32,10 +33,23 @@ public class BaseGui {
         return false;
     }
 
+    public boolean hasButton(GuiButton button) {
+        return buttons.contains(button);
+    }
+
     public void show(Player player) {
         var tPlayer = Database.getPlayer(player.getUniqueId());
+        GuiOpenEvent guiOpenEvent = new GuiOpenEvent(player, this);
+        Bukkit.getServer().getPluginManager().callEvent(guiOpenEvent);
+        if (guiOpenEvent.isCancelled()){
+           return;
+        }
         tPlayer.setOpenGui(this);
         player.openInventory(inventory);
+    }
+
+    public Inventory getInventory() {
+        return inventory;
     }
 
     public boolean equalsInv(Inventory inv) {
