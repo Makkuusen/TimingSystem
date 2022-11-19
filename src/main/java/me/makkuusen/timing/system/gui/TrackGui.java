@@ -32,7 +32,7 @@ public class TrackGui extends TrackPageGui{
         } else if (page == PARKOURPAGE) {
             tracks = TrackDatabase.getTracks().stream().filter(Track::isParkourTrack).collect(Collectors.toList());
         } else {
-            List<Track> tempTracks = TrackDatabase.getOpenTracks().stream().filter(Track::isBoatTrack).collect(Collectors.toList());
+            List<Track> tempTracks = TrackDatabase.getTracks().stream().filter(Track::isBoatTrack).collect(Collectors.toList());
             int start = 36 * page;
             tracks = new ArrayList<>();
             for (int i = start; i < Math.min(start + 36, tempTracks.size()); i++) {
