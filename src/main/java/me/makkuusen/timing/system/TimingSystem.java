@@ -7,9 +7,8 @@ import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.gui.ButtonUtilities;
 import me.makkuusen.timing.system.gui.GUIListener;
-import me.makkuusen.timing.system.gui.GUISettings;
-import me.makkuusen.timing.system.gui.GUITrack;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
@@ -63,8 +62,7 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new GUIListener(), plugin);
         pm.registerEvents(new TSListener(), plugin);
 
-        GUITrack.init();
-        GUISettings.init();
+        ButtonUtilities.init();
         PlayerTimer.initPlayerTimer();
 
         PaperCommandManager manager = new PaperCommandManager(this);

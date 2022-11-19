@@ -1,7 +1,6 @@
 package me.makkuusen.timing.system;
 
 import me.makkuusen.timing.system.event.EventDatabase;
-import me.makkuusen.timing.system.gui.ItemBuilder;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;

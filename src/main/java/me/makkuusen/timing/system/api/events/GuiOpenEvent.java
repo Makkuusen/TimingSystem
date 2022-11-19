@@ -1,18 +1,20 @@
 package me.makkuusen.timing.system.api.events;
 
+import me.makkuusen.timing.system.gui.BaseGui;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class MenuOpenTTEvent extends Event implements Cancellable {
+public class GuiOpenEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private Player player;
-    private boolean isPermitted = false;
+    private BaseGui gui;
     private boolean cancelled = false;
 
-    public MenuOpenTTEvent(Player player){
+    public GuiOpenEvent(Player player, BaseGui gui){
         this.player = player;
+        this.gui = gui;
     }
 
     @Override
@@ -30,14 +32,12 @@ public class MenuOpenTTEvent extends Event implements Cancellable {
         return player;
     }
 
-    public void isPermitted(boolean isPermitted)
-    {
-        this.isPermitted = isPermitted;
+    public BaseGui getGui() {
+        return gui;
     }
 
-    public boolean isPermitted()
-    {
-        return isPermitted;
+    public void setGui(BaseGui gui) {
+        this.gui = gui;
     }
 
     @Override

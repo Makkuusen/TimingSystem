@@ -12,8 +12,7 @@ import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.api.events.TimeTrialFinishEvent;
-import me.makkuusen.timing.system.gui.ItemBuilder;
+import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import net.kyori.adventure.text.Component;
@@ -122,8 +121,7 @@ public class Track {
         loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(TPlayer) == -1 ? "(none)" : getPlayerTopListPosition(TPlayer))));
         loreToSet.add(Component.text(bestTime));
         loreToSet.add(Component.text("§7Created by: §e" + getOwner().getName()));
-        loreToSet.add(Component.text("§7Type: §e" + getTypeAsString()));
-
+        
         ItemMeta im = toReturn.getItemMeta();
         im.displayName(Component.text(getDisplayName()).color(TextColor.color(255, 255, 85)));
         im.lore(loreToSet);
