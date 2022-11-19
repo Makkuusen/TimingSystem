@@ -50,6 +50,7 @@ public class Track {
     private TrackMode mode;
     private char[] options;
     private boolean open;
+    private long totalLaps;
 
     public Track(DbRow data) {
         id = data.getInt("id");
@@ -87,6 +88,10 @@ public class Track {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
         };
+    }
+
+    public void syncTotalLaps(long totalLaps) {
+        this.totalLaps = totalLaps;
     }
 
     public ItemStack getGuiItem(UUID uuid) {
@@ -290,6 +295,7 @@ public class Track {
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_finishes` WHERE `id` = " + finishId + ";");
             TimeTrialFinish timeTrialFinish = new TimeTrialFinish(dbRow);
             addTimeTrialFinish(timeTrialFinish);
+            totalLaps++;
             return timeTrialFinish;
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -342,6 +348,7 @@ public class Track {
         try {
             DB.executeUpdate("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + ";");
             timeTrialFinishes = new HashMap<>();
+            totalLaps = 0;
             return true;
         } catch (SQLException exception) {
             exception.printStackTrace();

@@ -1,10 +1,14 @@
 package me.makkuusen.timing.system.gui;
 
+import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +48,8 @@ public class TrackGui extends TrackPageGui{
 
     @Override
     public GuiButton getTrackButton(Player player, Track track){
-        var button = new GuiButton(track.getGuiItem(player.getUniqueId()));
+        var item = setTrackLore(track, track.getGuiItem(player.getUniqueId()));
+        var button = new GuiButton(item);
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {
                 player.sendMessage("§cWorld is not loaded!");
@@ -54,5 +59,17 @@ public class TrackGui extends TrackPageGui{
             player.closeInventory();
         });
         return button;
+    }
+
+    private ItemStack setTrackLore(Track track, ItemStack toReturn){
+        List<Component> loreToSet = new ArrayList<>();
+        loreToSet.add(Component.text("§7Total laps: §e" + track.getTotalLaps()));
+        loreToSet.add(Component.text("§7Created by: §e" + track.getOwner().getName()));
+        loreToSet.add(Component.text("§7Created at: §e" + ApiUtilities.niceDate(track.getDateCreated())));
+
+        ItemMeta im = toReturn.getItemMeta();
+        im.lore(loreToSet);
+        toReturn.setItemMeta(im);
+        return toReturn;
     }
 }

@@ -48,6 +48,9 @@ public class TrackDatabase {
                 rTrack.addTimeTrialFinish(new TimeTrialFinish(finish));
             }
 
+            var totalFinishes = DB.getFirstRow("SELECT count(*) AS totalLaps FROM ts_finishes WHERE trackId = " + rTrack.getId() + " AND isRemoved = 0;");
+            rTrack.syncTotalLaps(totalFinishes.getLong("totalLaps"));
+
         }
 
         var trackRegions = DB.getResults("SELECT * FROM `ts_regions` WHERE `isRemoved` = 0;");
