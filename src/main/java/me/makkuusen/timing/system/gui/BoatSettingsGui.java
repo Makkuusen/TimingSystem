@@ -37,4 +37,6 @@ public class BoatSettingsGui extends BaseGui{
         });
         return button;
     }
+
+
 }

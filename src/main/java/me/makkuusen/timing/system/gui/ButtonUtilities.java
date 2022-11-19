@@ -93,7 +93,7 @@ public class ButtonUtilities {
         return button;
     }
 
-    static void playConfirm(Player player) {
+    public static void playConfirm(Player player) {
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1);
     }
 

@@ -24,6 +24,19 @@ public class BaseGui {
         inventory.setItem(slot, button.getStack());
     }
 
+    public void removeItem(int slot) {
+        var item = inventory.getItem(slot);
+        if (item == null) {
+            return;
+        }
+        var maybeButton = buttons.stream().filter(b -> b.getStack().isSimilar(item)).findFirst();
+        if (maybeButton.isEmpty()) {
+            return;
+        }
+        buttons.remove(maybeButton.get());
+        inventory.remove(item);
+    }
+
     public boolean handleButton(ItemStack stack) {
         var maybeButton = buttons.stream().filter(b -> b.getStack().isSimilar(stack)).findFirst();
         if (maybeButton.isPresent()) {
