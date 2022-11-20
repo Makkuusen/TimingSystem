@@ -276,32 +276,26 @@ public class EventDatabase {
     }
 
     public static boolean lapNew(Lap lap) {
-        try {
-            String lapEnd;
-            if (lap.getLapEnd() == null) {
-                lapEnd = "NULL";
-            } else {
-                lapEnd = String.valueOf(lap.getLapEnd().toEpochMilli());
-            }
-            var driverId = DB.executeInsert("INSERT INTO `ts_laps`(" +
-                    "`uuid`, " +
-                    "`heatId`, " +
-                    "`trackId`, " +
-                    "`lapStart`, " +
-                    "`lapEnd`, " +
-                    "`pitted`) " +
-                    "VALUES (" +
-                    "'" + lap.getPlayer().getUniqueId() + "'," +
-                    lap.getHeatId() + "," +
-                    lap.getTrack().getId() + "," +
-                    lap.getLapStart().toEpochMilli() + "," +
-                    lapEnd + "," +
-                    lap.isPitted() + ")");
-
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-            return false;
+        String lapEnd;
+        if (lap.getLapEnd() == null) {
+            lapEnd = "NULL";
+        } else {
+            lapEnd = String.valueOf(lap.getLapEnd().toEpochMilli());
         }
+        DB.executeUpdateAsync("INSERT INTO `ts_laps`(" +
+                "`uuid`, " +
+                "`heatId`, " +
+                "`trackId`, " +
+                "`lapStart`, " +
+                "`lapEnd`, " +
+                "`pitted`) " +
+                "VALUES (" +
+                "'" + lap.getPlayer().getUniqueId() + "'," +
+                lap.getHeatId() + "," +
+                lap.getTrack().getId() + "," +
+                lap.getLapStart().toEpochMilli() + "," +
+                lapEnd + "," +
+                lap.isPitted() + ")");
         return true;
     }
 
