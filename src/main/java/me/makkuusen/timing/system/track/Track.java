@@ -52,7 +52,6 @@ public class Track {
     private TrackMode mode;
     private char[] options;
     private boolean open;
-    private long totalLaps;
 
     public Track(DbRow data) {
         id = data.getInt("id");
@@ -92,10 +91,6 @@ public class Track {
         };
     }
 
-    public void syncTotalLaps(long totalLaps) {
-        this.totalLaps = totalLaps;
-    }
-
     public ItemStack getGuiItem(UUID uuid) {
         ItemStack toReturn;
         if (guiItem == null) {
@@ -113,21 +108,21 @@ public class Track {
         if (toReturn == null) {
             return null;
         }
-        TPlayer TPlayer = Database.getPlayer(uuid);
+        TPlayer tPlayer = Database.getPlayer(uuid);
 
         List<Component> loreToSet = new ArrayList<>();
 
         String bestTime;
 
-        if (getBestFinish(TPlayer) == null) {
+        if (getBestFinish(tPlayer) == null) {
             bestTime = "§7Your best time: §e(none)";
         } else {
-            bestTime = "§7Your best time: §e" + ApiUtilities.formatAsTime(getBestFinish(TPlayer).getTime());
+            bestTime = "§7Your best time: §e" + ApiUtilities.formatAsTime(getBestFinish(tPlayer).getTime());
         }
 
-        loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(TPlayer) == -1 ? "(none)" : getPlayerTopListPosition(TPlayer))));
+        loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(tPlayer) == -1 ? "(none)" : getPlayerTopListPosition(tPlayer))));
         loreToSet.add(Component.text(bestTime));
-        loreToSet.add(Component.text("§7Your total laps: §e" + TPlayer.getTotalLaps(getId())));
+        loreToSet.add(Component.text("§7Your total laps: §e" + getFinishedLaps(tPlayer)));
         loreToSet.add(Component.text("§7Created by: §e" + getOwner().getName()));
 
         
@@ -299,12 +294,6 @@ public class Track {
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_finishes` WHERE `id` = " + finishId + ";");
             TimeTrialFinish timeTrialFinish = new TimeTrialFinish(dbRow);
             addTimeTrialFinish(timeTrialFinish);
-            totalLaps++;
-            Long laps = timeTrialFinish.getPlayer().getTotalLaps(getId());
-            if (laps == null) {
-                laps = 1L;
-            }
-            timeTrialFinish.getPlayer().syncTotalLaps(getId(), laps);
             return timeTrialFinish;
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -325,44 +314,18 @@ public class Track {
     }
 
     public void deleteBestFinish(TPlayer player, TimeTrialFinish bestFinish) {
-        try {
-            timeTrialFinishes.get(player).remove(bestFinish);
-            DB.executeUpdate("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `id` = " + bestFinish.getId() + ";");
-
-            var dbRow = DB.getFirstRow("SELECT * FROM ts_finishes WHERE trackId = "+ getId() + " AND `uuid` = '" + player.getUniqueId() + "' AND isRemoved = 0  ORDER BY time ASC, date ASC;");
-            var rf = new TimeTrialFinish(dbRow);
-            if (timeTrialFinishes.get(player).stream().noneMatch(timeTrialFinish -> timeTrialFinish.equals(rf))) {
-                addTimeTrialFinish(rf);
-            }
-            var laps = player.getTotalLaps(getId()) - 1;
-            player.syncTotalLaps(getId(), laps);
-
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-        }
+        timeTrialFinishes.get(player).remove(bestFinish);
+        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `id` = " + bestFinish.getId() + ";");
     }
 
     public void deleteAllFinishes(TPlayer player) {
-        try {
-            timeTrialFinishes.remove(player);
-            DB.executeUpdate("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + " AND `uuid` = '" + player.getUniqueId() + "';");
-            player.syncTotalLaps(getId(), 0);
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-            return;
-        }
+        timeTrialFinishes.remove(player);
+        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + " AND `uuid` = '" + player.getUniqueId() + "';");
     }
 
-    public boolean deleteAllFinishes() {
-        try {
-            DB.executeUpdate("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + ";");
-            timeTrialFinishes = new HashMap<>();
-            totalLaps = 0;
-            return true;
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-            return false;
-        }
+    public void deleteAllFinishes() {
+        timeTrialFinishes = new HashMap<>();
+        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + ";");
     }
 
     public Integer getPlayerTopListPosition(TPlayer TPlayer) {
@@ -465,6 +428,22 @@ public class Track {
             }
         }
         return false;
+    }
+
+    public int getFinishedLaps(TPlayer tPlayer){
+        if (!timeTrialFinishes.containsKey(tPlayer)) {
+            return 0;
+        }
+        return timeTrialFinishes.get(tPlayer).size();
+    }
+
+    public int getFinishedLaps(){
+        int laps = 0;
+        for (List<TimeTrialFinish> l : timeTrialFinishes.values()) {
+            laps += l.size();
+        }
+        return laps;
+
     }
 
     public enum TrackType {

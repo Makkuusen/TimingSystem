@@ -12,7 +12,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
 
     private final int id;
     private final int trackId;
-    private final TPlayer player;
+    private final UUID uuid;
     private final long date;
     private final long time;
     private final boolean isRemoved;
@@ -20,7 +20,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
     public TimeTrialFinish(DbRow data) {
         this.id = data.getInt("id");
         this.trackId = data.getInt("trackId");
-        this.player = data.getString("uuid") == null ? null : Database.getPlayer(UUID.fromString(data.getString("uuid")));
+        this.uuid = data.getString("uuid") == null ? null : UUID.fromString(data.getString("uuid"));
         this.date = data.getInt("date");
         this.time = data.getInt("time");
         this.isRemoved = data.get("isRemoved");
@@ -31,7 +31,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
     }
 
     public TPlayer getPlayer() {
-        return player;
+        return Database.getPlayer(uuid);
     }
 
     public long getTime() {

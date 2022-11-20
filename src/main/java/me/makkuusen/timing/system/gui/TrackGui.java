@@ -62,7 +62,7 @@ public class TrackGui extends TrackPageGui{
 
     private ItemStack setTrackLore(Track track, ItemStack toReturn){
         List<Component> loreToSet = new ArrayList<>();
-        loreToSet.add(Component.text("§7Total laps: §e" + track.getTotalLaps()));
+        loreToSet.add(Component.text("§7Total laps: §e" + track.getFinishedLaps()));
         loreToSet.add(Component.text("§7Created by: §e" + track.getOwner().getName()));
         loreToSet.add(Component.text("§7Created at: §e" + ApiUtilities.niceDate(track.getDateCreated())));
 

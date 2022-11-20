@@ -290,14 +290,13 @@ public class CommandTrack extends BaseCommand {
             }
             player.sendMessage("§aAll finishes has been reset for " + tPlayer.getNameDisplay());
             track.deleteAllFinishes(tPlayer);
-            return;
-        }
-        if (track.deleteAllFinishes()){
-            player.sendMessage("§aAll finishes has been reset");
             LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
             return;
         }
-        player.sendMessage("§cFailed to delete all finishes");
+        track.deleteAllFinishes();
+        player.sendMessage("§aAll finishes has been reset");
+        LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+
     }
 
     @Subcommand("updateleaderboards")

@@ -64,14 +64,6 @@ public class Database {
             for (DbRow row : result) {
                 TPlayer player = new TPlayer(plugin, row);
                 TimingSystem.players.put(player.getUniqueId(), player);
-                    var totalFinishesPerTrack = DB.getResults(
-                            "SELECT trackId, count(*) AS totalFinishes FROM ts_finishes\n" +
-                            "WHERE uuid = '" + player.getUniqueId()+ "'\n" +
-                            "AND isRemoved = 0\n" +
-                            "GROUP BY trackId;");
-                    for (DbRow trackFinishes : totalFinishesPerTrack) {
-                        player.syncTotalLaps(trackFinishes.get("trackId"), trackFinishes.get("totalFinishes"));
-                    }
             }
 
             for(Player player: Bukkit.getOnlinePlayers()) {
