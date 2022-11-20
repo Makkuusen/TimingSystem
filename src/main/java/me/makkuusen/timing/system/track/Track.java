@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.ItemBuilder;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import net.kyori.adventure.text.Component;
@@ -23,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -125,7 +127,9 @@ public class Track {
 
         loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(TPlayer) == -1 ? "(none)" : getPlayerTopListPosition(TPlayer))));
         loreToSet.add(Component.text(bestTime));
+        loreToSet.add(Component.text("§7Your total laps: §e" + TPlayer.getTotalLaps(getId())));
         loreToSet.add(Component.text("§7Created by: §e" + getOwner().getName()));
+
         
         ItemMeta im = toReturn.getItemMeta();
         im.displayName(Component.text(getDisplayName()).color(TextColor.color(255, 255, 85)));
@@ -296,6 +300,11 @@ public class Track {
             TimeTrialFinish timeTrialFinish = new TimeTrialFinish(dbRow);
             addTimeTrialFinish(timeTrialFinish);
             totalLaps++;
+            Long laps = timeTrialFinish.getPlayer().getTotalLaps(getId());
+            if (laps == null) {
+                laps = 1L;
+            }
+            timeTrialFinish.getPlayer().syncTotalLaps(getId(), laps);
             return timeTrialFinish;
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -320,13 +329,13 @@ public class Track {
             timeTrialFinishes.get(player).remove(bestFinish);
             DB.executeUpdate("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `id` = " + bestFinish.getId() + ";");
 
-            var dbRows = DB.getResults("SELECT * FROM `ts_finishes` WHERE (`uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + id + " AND `uuid` = '" + player.getUniqueId() + "' AND `isRemoved` = 0 GROUP BY `uuid`) AND `isRemoved` = 0 ORDER BY `time`;");
-            for (DbRow dbRow : dbRows) {
-                var rf = new TimeTrialFinish(dbRow);
-                if (timeTrialFinishes.get(player).stream().noneMatch(timeTrialFinish -> timeTrialFinish.equals(rf))) {
-                    addTimeTrialFinish(rf);
-                }
+            var dbRow = DB.getFirstRow("SELECT * FROM ts_finishes WHERE trackId = "+ getId() + " AND `uuid` = '" + player.getUniqueId() + "' AND isRemoved = 0  ORDER BY time ASC, date ASC;");
+            var rf = new TimeTrialFinish(dbRow);
+            if (timeTrialFinishes.get(player).stream().noneMatch(timeTrialFinish -> timeTrialFinish.equals(rf))) {
+                addTimeTrialFinish(rf);
             }
+            var laps = player.getTotalLaps(getId()) - 1;
+            player.syncTotalLaps(getId(), laps);
 
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -337,7 +346,7 @@ public class Track {
         try {
             timeTrialFinishes.remove(player);
             DB.executeUpdate("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + " AND `uuid` = '" + player.getUniqueId() + "';");
-
+            player.syncTotalLaps(getId(), 0);
         } catch (SQLException exception) {
             exception.printStackTrace();
             return;

@@ -14,6 +14,7 @@ import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class TPlayer implements Comparable<TPlayer> {
@@ -30,6 +31,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private boolean override;
     private String color;
     private BaseGui openGui;
+    private HashMap<Integer, Long> totalTrackFinishes = new HashMap<>();
 
 
     @Override
@@ -51,6 +53,14 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public boolean hasOpenGui(){
         return openGui != null;
+    }
+
+    public Long getTotalLaps(int trackId) {
+        return totalTrackFinishes.get(trackId);
+    }
+
+    public void syncTotalLaps(int trackId, long laps) {
+        totalTrackFinishes.put(trackId, laps);
     }
 
     public BaseGui getOpenGui() {
