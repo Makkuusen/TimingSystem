@@ -7,6 +7,7 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
@@ -18,11 +19,15 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
+import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
+import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @CommandAlias("heat")
@@ -497,6 +502,77 @@ public class CommandHeat extends BaseCommand {
         } else {
             sender.sendMessage("§cHeat has not been finished");
         }
+    }
+
+    @Subcommand("sort tt")
+    @CommandCompletion("@heat")
+    @CommandPermission("event.admin")
+    public static void onSortByTT(Player player, Heat heat) {
+        if(heat.getHeatState() == HeatState.RACING || heat.getHeatState() == HeatState.FINISHED || heat.getHeatState() == HeatState.STARTING) {
+            player.sendMessage("§cYou cannot sort an already started heat");
+            return;
+        }
+        if(heat.getStartPositions().size() == 0) {
+            player.sendMessage("§cThere are no players in the heat to sort");
+            return;
+        }
+        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+            player.sendMessage("§cYou can't add drivers to a future round before the current round has finished");
+            return;
+        }
+
+        List<TimeTrialFinish> fastestFinishes = new ArrayList<>();
+        for(Driver driver : heat.getStartPositions()) TimingSystemAPI.getBestTime(driver.getTPlayer().getUniqueId(), heat.getEvent().getTrack().getId()).ifPresent(fastestFinishes::add);
+
+        fastestFinishes.sort(new TimeTrialFinishComparator());
+        List<Driver> sortedDrivers = new ArrayList<>();
+
+        int i = 1;
+        for(Driver driver : heat.getStartPositions()) for(TimeTrialFinish finish : fastestFinishes)  {
+            if(finish.getPlayer() != driver.getTPlayer()) continue;
+            driver.setPosition(fastestFinishes.indexOf(finish) + 1);
+            driver.setStartPosition(fastestFinishes.indexOf(finish) + 1);
+            sortedDrivers.add(driver);
+            i++;
+        }
+
+        for(Driver driver : heat.getStartPositions()) {
+            if(sortedDrivers.contains(driver)) continue;
+            driver.setStartPosition(i);
+            driver.setPosition(i);
+            i++;
+        }
+
+        player.sendMessage("§aThe heat has been sorted by best TimeTrail finishes");
+    }
+
+    @Subcommand("sort random")
+    @CommandCompletion("@heat")
+    @CommandPermission("event.admin")
+    public static void onSortByRandom(Player player, Heat heat) {
+        if(heat.getHeatState() == HeatState.RACING || heat.getHeatState() == HeatState.FINISHED || heat.getHeatState() == HeatState.STARTING) {
+            player.sendMessage("§cYou cannot sort an already started heat");
+            return;
+        }
+        if(heat.getStartPositions().size() == 0) {
+            player.sendMessage("§cThere are no players in the heat to sort");
+            return;
+        }
+        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+            player.sendMessage("§cYou can't add drivers to a future round before the current round has finished");
+            return;
+        }
+
+        List<Driver> randomDrivers = heat.getStartPositions();
+        Collections.shuffle(randomDrivers);
+
+        for(Driver driver : heat.getStartPositions()) {
+            int i = randomDrivers.indexOf(driver) + 1;
+            driver.setPosition(i);
+            driver.setStartPosition(i);
+        }
+
+        player.sendMessage("§aThe heat has been sorted randomly");
     }
 
     private static boolean getParsedRemoveFlag(String index) {
