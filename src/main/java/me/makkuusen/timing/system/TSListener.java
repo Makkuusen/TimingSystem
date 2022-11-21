@@ -409,6 +409,7 @@ public class TSListener implements Listener {
         for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
             if (r.contains(player.getLocation())) {
                 timeTrial.playerResetMap();
+                return;
             }
         }
         // Check for next checkpoint in current map
