@@ -27,8 +27,10 @@ import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CommandAlias("heat")
 public class CommandHeat extends BaseCommand {
@@ -508,68 +510,83 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     @CommandPermission("event.admin")
     public static void onSortByTT(Player player, Heat heat) {
-        if(heat.getHeatState() == HeatState.RACING || heat.getHeatState() == HeatState.FINISHED || heat.getHeatState() == HeatState.STARTING) {
+        if (heat.getHeatState() == HeatState.FINISHED) {
+            player.sendMessage("§cYou cannot sort an finished started heat");
+            return;
+        }
+        if (heat.isRacing()) {
             player.sendMessage("§cYou cannot sort an already started heat");
             return;
         }
-        if(heat.getStartPositions().size() == 0) {
-            player.sendMessage("§cThere are no players in the heat to sort");
+        if (heat.getStartPositions().size() == 0) {
+            player.sendMessage("§aNo drivers to sort");
             return;
         }
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
-            player.sendMessage("§cYou can't add drivers to a future round before the current round has finished");
+            player.sendMessage("§cYou can't sort drivers in a future round before the current round has finished");
             return;
         }
 
-        List<TimeTrialFinish> fastestFinishes = new ArrayList<>();
-        for(Driver driver : heat.getStartPositions()) TimingSystemAPI.getBestTime(driver.getTPlayer().getUniqueId(), heat.getEvent().getTrack().getId()).ifPresent(fastestFinishes::add);
-
-        fastestFinishes.sort(new TimeTrialFinishComparator());
-        List<Driver> sortedDrivers = new ArrayList<>();
+        List<TimeTrialFinish> driversWithBestTimes = heat.getEvent().getTrack().getTopList().stream().filter(tt -> heat.getDrivers().keySet().contains(tt.getPlayer().getUniqueId())).collect(Collectors.toList());
+        List<Driver> allDrivers = new ArrayList<>();
+        allDrivers.addAll(heat.getStartPositions());
+        List<Driver> noTT = new ArrayList<>();
 
         int i = 1;
-        for(Driver driver : heat.getStartPositions()) for(TimeTrialFinish finish : fastestFinishes)  {
-            if(finish.getPlayer() != driver.getTPlayer()) continue;
-            driver.setPosition(fastestFinishes.indexOf(finish) + 1);
-            driver.setStartPosition(fastestFinishes.indexOf(finish) + 1);
-            sortedDrivers.add(driver);
+        for (Driver driver : allDrivers)  {
+            boolean match = false;
+            for (TimeTrialFinish finish : driversWithBestTimes)  {
+                if (finish.getPlayer() == driver.getTPlayer()) {
+                    heat.setDriverPosition(driver, driversWithBestTimes.indexOf(finish) + 1);
+                    i++;
+                    match = true;
+                    break;
+                }
+            }
+            if (match == false){
+                noTT.add(driver);
+            }
+        }
+
+        for (Driver driver : noTT) {
+            heat.setDriverPosition(driver, i);
             i++;
         }
 
-        for(Driver driver : heat.getStartPositions()) {
-            if(sortedDrivers.contains(driver)) continue;
-            driver.setStartPosition(i);
-            driver.setPosition(i);
-            i++;
+        if (heat.getHeatState() == HeatState.LOADED) {
+            heat.reloadHeat();
         }
 
-        player.sendMessage("§aThe heat has been sorted by best TimeTrail finishes");
+        player.sendMessage("§aThe heat has been sorted by fastest times");
     }
 
     @Subcommand("sort random")
     @CommandCompletion("@heat")
     @CommandPermission("event.admin")
     public static void onSortByRandom(Player player, Heat heat) {
-        if(heat.getHeatState() == HeatState.RACING || heat.getHeatState() == HeatState.FINISHED || heat.getHeatState() == HeatState.STARTING) {
+        if (heat.getHeatState() == HeatState.FINISHED) {
+            player.sendMessage("§cYou cannot sort an finished started heat");
+            return;
+        }
+        if (heat.isRacing()) {
             player.sendMessage("§cYou cannot sort an already started heat");
             return;
         }
         if(heat.getStartPositions().size() == 0) {
-            player.sendMessage("§cThere are no players in the heat to sort");
+            player.sendMessage("§aNo drivers to sort");
             return;
         }
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
-            player.sendMessage("§cYou can't add drivers to a future round before the current round has finished");
+            player.sendMessage("§cYou can't sort drivers in a future round before the current round has finished");
             return;
         }
 
-        List<Driver> randomDrivers = heat.getStartPositions();
+        List<Driver> randomDrivers = new ArrayList<>();
+        randomDrivers.addAll(heat.getStartPositions());
         Collections.shuffle(randomDrivers);
 
-        for(Driver driver : heat.getStartPositions()) {
-            int i = randomDrivers.indexOf(driver) + 1;
-            driver.setPosition(i);
-            driver.setStartPosition(i);
+        for (int i = 0; i < randomDrivers.size(); i++) {
+            heat.setDriverPosition(randomDrivers.get(i), i + 1);
         }
 
         player.sendMessage("§aThe heat has been sorted randomly");
