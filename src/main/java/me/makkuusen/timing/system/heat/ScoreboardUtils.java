@@ -7,45 +7,45 @@ import org.bukkit.ChatColor;
 
 public class ScoreboardUtils {
     public static String getDriverLine(String name, int pos) {
-        return paddPos(pos, name) + "§7|           " + getColor(name) + "| §f" + paddName(name);
+        return paddPos(pos, name) + "§7|           " + getTeamIcon(name) + paddName(name);
     }
 
     public static String getDriverLineQualyTime(long laptime, String name, int pos) {
-        return paddPos(pos, name) + "§7| §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + getColor(name) + "| §f"+ paddName(name);
+        return paddPos(pos, name) + "§7| §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + getTeamIcon(name) + paddName(name);
     }
 
     public static String getDriverLineQualyGap(long timeDiff, String name, int pos) {
-        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getColor(name) + "| §f"+ paddName(name);
+        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name);
     }
 
     public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos) {
-        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getColor(name) + "| §f"+ paddName(name);
+        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name);
     }
 
     public static String getDriverLineRace(String name, int pos){
-        return paddPos(pos, name) + "§7|           " + getColor(name) + "| §f" + paddName(name) + "§7Pits: §f0 ";
+        return paddPos(pos, name) + "§7|           " + getTeamIcon(name) + paddName(name) + "§7Pits: §f0 ";
     }
     public static String getDriverLineRace(String name, int pits, int pos){
-        return paddPos(pos, name) + "§7|           " + getColor(name) + "| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7|           " + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
     public static String getDriverLineRaceInPit(String name, int pits, int pos){
-        return paddPos(pos, name) + "§7| In Pit   " + getColor(name) + "| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| In Pit   " + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineRaceOffline(String name, int pits, int pos){
-        return paddPos(pos, name) + "§7| Offline  " + getColor(name) + "| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| Offline  " + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos) {
-        return paddPos(pos, name) + "§7| Lap:§f " + paddLaps(laps) + " " + getColor(name) + "| §f" + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| Lap:§f " + paddLaps(laps) + " " + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineRaceGap(long gap, String name, int pits, int pos) {
-        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getColor(name) + "| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String getDriverLineNegativeRaceGap(long gap, String name, int pits, int pos) {
-        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getColor(name) + "| §f"+ paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
     }
 
     public static String paddName(String name){
@@ -126,6 +126,10 @@ public class ScoreboardUtils {
         }
 
         return maybeDriver.get().getTPlayer().getColorCode();
+    }
+
+    private static String getTeamIcon(String name){
+        return getColor(name) + "§l§o||§r ";
     }
 
 }

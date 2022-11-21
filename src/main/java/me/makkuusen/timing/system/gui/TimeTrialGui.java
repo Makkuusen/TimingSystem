@@ -16,14 +16,21 @@ public class TimeTrialGui extends TrackPageGui{
         super(tPlayer,"§2§lTracks", 6, page);
     }
 
-    public List<Track> getTracks(int page) {
+    public TimeTrialGui(TPlayer tPlayer, int page, TrackSort trackSort) {
+        super(tPlayer,"§2§lTracks", 6, page, trackSort);
+    }
+
+    public List<Track> getTracks(int page, TrackSort trackSort) {
         List<Track> tracks;
         if (page == ELYTRAPAGE) {
             tracks = TrackDatabase.getOpenTracks().stream().filter(Track::isElytraTrack).collect(Collectors.toList());
+            sortTracks(tracks, trackSort);
         } else if (page == PARKOURPAGE) {
             tracks = TrackDatabase.getOpenTracks().stream().filter(Track::isParkourTrack).collect(Collectors.toList());
+            sortTracks(tracks, trackSort);
         } else {
             List<Track> tempTracks = TrackDatabase.getOpenTracks().stream().filter(Track::isBoatTrack).collect(Collectors.toList());
+            sortTracks(tempTracks, trackSort);
             int start = 36 * page;
             tracks = new ArrayList<>();
             for (int i = start; i < Math.min(start + 36, tempTracks.size()); i++) {
@@ -34,10 +41,19 @@ public class TimeTrialGui extends TrackPageGui{
     }
 
     @Override
+    public GuiButton getSortingButton(ItemStack item, TPlayer tPlayer, int page, TrackSort sort) {
+        var button = new GuiButton(item);
+        button.setAction(() -> {
+            new TimeTrialGui(tPlayer, page, sort).show(tPlayer.getPlayer());
+        });
+        return button;
+    }
+
+    @Override
     public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page){
         var button = new GuiButton(item);
         button.setAction(() -> {
-            new TimeTrialGui(tPlayer, page).show(tPlayer.getPlayer());
+            new TimeTrialGui(tPlayer, page, trackSort).show(tPlayer.getPlayer());
         });
         return button;
     }

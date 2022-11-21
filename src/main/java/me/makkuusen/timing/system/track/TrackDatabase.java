@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -43,14 +44,15 @@ public class TrackDatabase {
             tracks.add(rTrack);
             plugin.getLogger().info("LOADING IN " + rTrack.getDisplayName());
 
-            var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE ( `uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `trackId` = " + rTrack.getId() + " GROUP BY `uuid` ORDER BY `time` ASC, `date` ASC;");
+            //var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE ( `uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `trackId` = " + rTrack.getId() + " GROUP BY `uuid` ORDER BY `time` ASC, `date` ASC;");
+            var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0;");
             for (DbRow finish : resultFinishes) {
                 rTrack.addTimeTrialFinish(new TimeTrialFinish(finish));
             }
-
-            var totalFinishes = DB.getFirstRow("SELECT count(*) AS totalLaps FROM ts_finishes WHERE trackId = " + rTrack.getId() + " AND isRemoved = 0;");
-            rTrack.syncTotalLaps(totalFinishes.getLong("totalLaps"));
-
+            var attempts = DB.getResults("SELECT * FROM `ts_attempts` WHERE `trackId` = " + rTrack.getId() + ";");
+            for (DbRow attempt : attempts) {
+                rTrack.addTimeTrialAttempt(new TimeTrialAttempt(attempt));
+            }
         }
 
         var trackRegions = DB.getResults("SELECT * FROM `ts_regions` WHERE `isRemoved` = 0;");
