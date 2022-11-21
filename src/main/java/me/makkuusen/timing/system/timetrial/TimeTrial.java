@@ -178,12 +178,16 @@ public class TimeTrial {
                 return;
             }
         }
-        tPlayer.getPlayer().teleport(track.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
         var timeTrial = TimeTrialController.timeTrials.get(tPlayer.getUniqueId());
+        if (timeTrial == null) {
+            return;
+        }
         var time = ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime));
         timeTrial.getTrack().newTimeTrialAttempt(time, tPlayer.getUniqueId());
         TimeTrialController.timeTrials.remove(tPlayer.getUniqueId());
+        tPlayer.getPlayer().teleport(track.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
         ApiUtilities.msgConsole(tPlayer.getName() + " has been reset on " + track.getDisplayName());
+
     }
 
     public void playerStartingMap() {
