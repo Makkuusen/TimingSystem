@@ -589,6 +589,10 @@ public class CommandHeat extends BaseCommand {
             heat.setDriverPosition(randomDrivers.get(i), i + 1);
         }
 
+        if (heat.getHeatState() == HeatState.LOADED) {
+            heat.reloadHeat();
+        }
+
         player.sendMessage("§aThe heat has been sorted randomly");
     }
 
