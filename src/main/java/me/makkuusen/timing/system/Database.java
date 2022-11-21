@@ -181,6 +181,15 @@ public class Database {
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_attempts` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `trackId` int(11) NOT NULL,\n" +
+                    "  `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  `date` bigint(30) NOT NULL,\n" +
+                    "  `time` int(11) NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+
             DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_regions` (\n" +
                     "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
                     "  `trackId` int(11) NOT NULL,\n" +

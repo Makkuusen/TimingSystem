@@ -13,7 +13,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.ItemBuilder;
-import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import net.kyori.adventure.text.Component;
@@ -24,7 +24,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +41,7 @@ public class Track {
     private final Set<TrackRegion> regions = new HashSet<>();
     private final Map<Integer, Location> grids = new HashMap<>();
     private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
+    private Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
     private TPlayer owner;
     private String displayName;
     private String commandName;
@@ -120,9 +120,11 @@ public class Track {
             bestTime = "§7Your best time: §e" + ApiUtilities.formatAsTime(getBestFinish(tPlayer).getTime());
         }
 
-        loreToSet.add(Component.text("§7Your position: §e" + (getPlayerTopListPosition(tPlayer) == -1 ? "(none)" : getPlayerTopListPosition(tPlayer))));
+        loreToSet.add(Component.text("§7Position: §e" + (getPlayerTopListPosition(tPlayer) == -1 ? "(none)" : getPlayerTopListPosition(tPlayer))));
         loreToSet.add(Component.text(bestTime));
-        loreToSet.add(Component.text("§7Your total laps: §e" + getFinishedLaps(tPlayer)));
+        loreToSet.add(Component.text("§7Total Finishes: §e" + getPlayerTotalFinishes(tPlayer)));
+        loreToSet.add(Component.text("§7Total Attempts: §e" + (getPlayerTotalFinishes(tPlayer) + getPlayerTotalAttempts(tPlayer))));
+        loreToSet.add(Component.text("§7Time spent: §e" + ApiUtilities.formatAsTimeSpent(getPlayerTotalTimeSpent(tPlayer))));
         loreToSet.add(Component.text("§7Created by: §e" + getOwner().getName()));
 
         
@@ -301,6 +303,24 @@ public class Track {
         }
     }
 
+    public void addTimeTrialAttempt(TimeTrialAttempt timeTrialAttempt) {
+        if (timeTrialAttempts.get(timeTrialAttempt.getPlayer()) == null) {
+            List<TimeTrialAttempt> list = new ArrayList<>();
+            list.add(timeTrialAttempt);
+            timeTrialAttempts.put(timeTrialAttempt.getPlayer(), list);
+            return;
+        }
+        timeTrialAttempts.get(timeTrialAttempt.getPlayer()).add(timeTrialAttempt);
+    }
+
+    public TimeTrialAttempt newTimeTrialAttempt(long time, UUID uuid) {
+        long date = ApiUtilities.getTimestamp();
+        DB.executeUpdateAsync("INSERT INTO `ts_attempts` (`trackId`, `uuid`, `date`, `time`) VALUES(" + id + ", '" + uuid + "', " + date + ", " + time + ");");
+        TimeTrialAttempt timeTrialAttempt = new TimeTrialAttempt(getId(), uuid, ApiUtilities.getTimestamp(), time);
+        addTimeTrialAttempt(timeTrialAttempt);
+        return timeTrialAttempt;
+    }
+
     public TimeTrialFinish getBestFinish(TPlayer player) {
         if (timeTrialFinishes.get(player) == null) {
             return null;
@@ -430,20 +450,83 @@ public class Track {
         return false;
     }
 
-    public int getFinishedLaps(TPlayer tPlayer){
+    public int getPlayerTotalFinishes(TPlayer tPlayer){
         if (!timeTrialFinishes.containsKey(tPlayer)) {
             return 0;
         }
         return timeTrialFinishes.get(tPlayer).size();
     }
 
-    public int getFinishedLaps(){
+    public int getPlayerTotalAttempts(TPlayer tPlayer) {
+        if (!timeTrialAttempts.containsKey(tPlayer)) {
+            return 0;
+        }
+        return timeTrialAttempts.get(tPlayer).size();
+    }
+
+    public int getTotalFinishes(){
         int laps = 0;
         for (List<TimeTrialFinish> l : timeTrialFinishes.values()) {
             laps += l.size();
         }
         return laps;
 
+    }
+
+    public int getTotalAttempts(){
+        int laps = 0;
+        for (List<TimeTrialAttempt> l : timeTrialAttempts.values()) {
+            laps += l.size();
+        }
+        return laps;
+    }
+
+    public long getPlayerTotalTimeSpent(TPlayer tPlayer) {
+        long time = 0L;
+
+        if (timeTrialAttempts.containsKey(tPlayer)){
+            for (TimeTrialAttempt l : timeTrialAttempts.get(tPlayer)) {
+                time += l.getTime();
+            }
+        }
+        if (timeTrialFinishes.containsKey(tPlayer)){
+            for (TimeTrialFinish l : timeTrialFinishes.get(tPlayer)) {
+                time += l.getTime();
+            }
+        }
+        return time;
+    }
+
+    public long getTotalTimeSpent() {
+        long time = 0L;
+        long bestTime = 0L;
+        var topTime = getTopList(1);
+        if (topTime.size() != 0) {
+            bestTime = topTime.get(0).getTime();
+
+            for (List<TimeTrialFinish> l : timeTrialFinishes.values()) {
+                for (TimeTrialFinish ttf : l) {
+                    if (ttf.getTime() < (bestTime * 4)) {
+                        time += ttf.getTime();
+                    }
+                }
+            }
+        }
+
+        for (List<TimeTrialAttempt> l : timeTrialAttempts.values()) {
+            for (TimeTrialAttempt ttf : l) {
+                if (bestTime != 0) {
+                    if (ttf.getTime() < (bestTime * 4)) {
+                        time += ttf.getTime();
+                    }
+                } else {
+                    time += ttf.getTime();
+                }
+
+            }
+        }
+
+        return time;
     }
 
     public enum TrackType {

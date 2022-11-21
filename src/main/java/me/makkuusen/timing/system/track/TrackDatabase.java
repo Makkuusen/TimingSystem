@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -47,6 +48,10 @@ public class TrackDatabase {
             var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0;");
             for (DbRow finish : resultFinishes) {
                 rTrack.addTimeTrialFinish(new TimeTrialFinish(finish));
+            }
+            var attempts = DB.getResults("SELECT * FROM `ts_attempts` WHERE `trackId` = " + rTrack.getId() + ";");
+            for (DbRow attempt : attempts) {
+                rTrack.addTimeTrialAttempt(new TimeTrialAttempt(attempt));
             }
         }
 

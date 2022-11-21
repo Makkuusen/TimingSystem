@@ -100,7 +100,7 @@ public class TimeTrial {
         return Duration.between(startTime, Instant.now()).toMillis();
     }
 
-    private long getTimeSinceStart(Instant time) {
+    public long getTimeSinceStart(Instant time) {
         return Duration.between(startTime, time).toMillis();
     }
 
@@ -179,6 +179,9 @@ public class TimeTrial {
             }
         }
         tPlayer.getPlayer().teleport(track.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+        var timeTrial = TimeTrialController.timeTrials.get(tPlayer.getUniqueId());
+        var time = ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime));
+        timeTrial.getTrack().newTimeTrialAttempt(time, tPlayer.getUniqueId());
         TimeTrialController.timeTrials.remove(tPlayer.getUniqueId());
         ApiUtilities.msgConsole(tPlayer.getName() + " has been reset on " + track.getDisplayName());
     }

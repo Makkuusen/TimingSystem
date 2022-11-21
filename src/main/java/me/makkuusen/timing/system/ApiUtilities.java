@@ -289,6 +289,20 @@ public class ApiUtilities {
         return toReturn;
     }
 
+    public static String formatAsTimeSpent(long time) {
+        String toReturn;
+        long timeInMillis = getRoundedToTick(time);
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+
+        if (hours == 0) {
+            toReturn = minutes + "m";
+        } else {
+            toReturn = hours + "h " + minutes + "m";
+        }
+        return toReturn;
+    }
+
     public static String formatAsHeatTimeCountDown(long time) {
         String toReturn;
         long timeInMillis = getRoundedToTick(time);
