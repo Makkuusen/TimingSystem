@@ -11,7 +11,7 @@ TimingSystem is a plugin that aims to do a few things.
 This plugin has made it's first real release. If you want to use it, make sure to follow our installation guide on our [wiki](https://github.com/Makkuusen/TimingSystem/wiki/Installing-the-plugin) 
 
 ## Dependencies
-1. World Edit
+1. World Edit (I do recommend the use of [FastAsyncWorldEdit](https://www.spigotmc.org/resources/fastasyncworldedit.13932/))
 2. MYSQL Database. It needs a database connection. Configure it in the plugins config.yml.
 3. [optional] [HolographicDisplays 3.0.0](https://dev.bukkit.org/projects/holographic-displays/files/4056176/download)
 
