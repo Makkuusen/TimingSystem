@@ -1,18 +1,21 @@
 # Timing System
 
-## PRE-RELEASE
 
-This plugin is still in early development. Although the plugin works and is used by a few servers, there is a severe lack of documentation and instructions on how to use it. Before adding this plugin to your server it's good to understand that you will probably run into a few issues a long the way.
+## What does it do?
+TimingSystem is a plugin that aims to do a few things.
+* Creation and timetrials of 3 various track types. [Boats, Elytra and Parkour]
+* Displaying leaderboards. Currently both In-game holograms and a commandbased ones.
+* Creating and managing events to host races. (Currently only supports Boats).
 
-## DEPENDENCIES
+## Installation
+This plugin has made it's first real release. If you want to use it, make sure to follow our installation guide on our [wiki](https://github.com/Makkuusen/TimingSystem/wiki/Installing-the-plugin) 
 
-1. World Edit
+## Dependencies
+1. World Edit (I do recommend the use of [FastAsyncWorldEdit](https://www.spigotmc.org/resources/fastasyncworldedit.13932/))
 2. MYSQL Database. It needs a database connection. Configure it in the plugins config.yml.
 3. [optional] [HolographicDisplays 3.0.0](https://dev.bukkit.org/projects/holographic-displays/files/4056176/download)
 
-
-
-## DISCORD
+## Discord
 If you need support. Look for #support in our discord.
 
 http://discord.boatlabs.net
