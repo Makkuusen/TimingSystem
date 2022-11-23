@@ -61,6 +61,10 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
         return result;
     }
 
+    public int compareDate(TimeTrialFinish rf) {
+        return Long.compare(getDate(), rf.getDate());
+    }
+
     @Override
     public boolean equals(Object rf) {
         if (rf instanceof TimeTrialFinish timeTrialFinish) {

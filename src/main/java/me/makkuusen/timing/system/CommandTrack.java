@@ -8,7 +8,9 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.gui.TrackGui;
+import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
+import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -17,6 +19,9 @@ import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
@@ -173,6 +178,127 @@ public class CommandTrack extends BaseCommand {
         pageText = pageText.append(Component.text("§2page §a§l" + pageStart + " §r§2of §a§l" + pageEnd + " "));
         if (pageEnd > pageStart) {
             pageText = pageText.append(Component.text("§a>>>").clickEvent(ClickEvent.runCommand("/t times " + track.getCommandName() + " " + (pageStart + 1))));
+        }
+        pageText = pageText.append(Component.text(" §2---"));
+        player.sendMessage(pageText);
+    }
+
+    @Subcommand("mytimes")
+    @CommandCompletion("@track <page>")
+    public static void onMyTimes(Player player, @Optional Track track, @Optional Integer pageStart) {
+        if (pageStart == null) {
+            pageStart = 1;
+        }
+
+        var tPlayer = Database.getPlayer(player.getUniqueId());
+        List<TimeTrialFinish> allTimes = new ArrayList<>();
+        if (track == null) {
+            var tracks = TrackDatabase.getOpenTracks();
+            for (Track t : tracks) {
+                if (t.getTimeTrialFinishes().containsKey(tPlayer)) {
+                    allTimes.addAll(t.getTimeTrialFinishes().get(tPlayer));
+                }
+            }
+            allTimes.sort(new TimeTrialDateComparator());
+        } else {
+            if (track.getTimeTrialFinishes().containsKey(tPlayer)) {
+                allTimes.addAll(track.getTimeTrialFinishes().get(tPlayer));
+                allTimes.sort(new TimeTrialFinishComparator());
+            }
+        }
+
+        int itemsPerPage = TimingSystem.configuration.getTimesPageSize();
+        int start = (pageStart * itemsPerPage) - itemsPerPage;
+        int stop = pageStart * itemsPerPage;
+
+        if (start >= allTimes.size()) {
+            plugin.sendMessage(player, "messages.error.missing.page");
+            return;
+        }
+
+        var trackText = Component.text("§2--- §a" + player.getName() + " §2 recent times §2--- ");
+
+        player.sendMessage(trackText);
+        for (int i = start; i < stop; i++) {
+            if (i == allTimes.size()) {
+                break;
+            }
+            TimeTrialFinish finish = allTimes.get(i);
+            player.sendMessage("§2" + (i + 1) + ". §a" + ApiUtilities.formatAsTime(finish.getTime()) + " §2| §a" + ApiUtilities.niceDate(finish.getDate()));
+        }
+
+        if (track == null) {
+            return;
+        }
+        var pageText = Component.text("§2--- ");
+        if (pageStart > 1) {
+            pageText = pageText.append(Component.text("§a<<< ").clickEvent(ClickEvent.runCommand("/t mytimes " + track.getCommandName() + " " + (pageStart - 1))));
+        }
+        int pageEnd = (int) Math.ceil(((double) allTimes.size()) / ((double) itemsPerPage));
+
+        pageText = pageText.append(Component.text("§2page §a§l" + pageStart + " §r§2of §a§l" + pageEnd + " "));
+        if (pageEnd > pageStart) {
+            pageText = pageText.append(Component.text("§a>>>").clickEvent(ClickEvent.runCommand("/t mytimes " + track.getCommandName() + " " + (pageStart + 1))));
+        }
+        pageText = pageText.append(Component.text(" §2---"));
+        player.sendMessage(pageText);
+    }
+
+    @Subcommand("alltimes")
+    @CommandCompletion("@players <page>")
+    public static void onAllTimes(Player player, @Optional String name, @Optional Integer pageStart) {
+        if (pageStart == null) {
+            pageStart = 1;
+        }
+        TPlayer tPlayer;
+        if (name != null) {
+            tPlayer = Database.getPlayer(name);
+            if (tPlayer == null) {
+                player.sendMessage("§cCould not find player");
+                return;
+            }
+        } else {
+            tPlayer = Database.getPlayer(player.getUniqueId());
+        }
+
+        List<TimeTrialFinish> allTimes = new ArrayList<>();
+        var tracks = TrackDatabase.getOpenTracks();
+        for (Track t : tracks) {
+            if (t.getTimeTrialFinishes().containsKey(tPlayer)) {
+                allTimes.addAll(t.getTimeTrialFinishes().get(tPlayer));
+            }
+        }
+        allTimes.sort(new TimeTrialDateComparator());
+
+        int itemsPerPage = TimingSystem.configuration.getTimesPageSize();
+        int start = (pageStart * itemsPerPage) - itemsPerPage;
+        int stop = pageStart * itemsPerPage;
+
+        if (start >= allTimes.size()) {
+            plugin.sendMessage(player, "messages.error.missing.page");
+            return;
+        }
+
+        var trackText = Component.text("§2--- §a" + tPlayer.getName() + "§2 most recent times §2--- ");
+
+        player.sendMessage(trackText);
+        for (int i = start; i < stop; i++) {
+            if (i == allTimes.size()) {
+                break;
+            }
+            TimeTrialFinish finish = allTimes.get(i);
+            player.sendMessage("§2" + (i + 1) + ". §a" + ApiUtilities.formatAsTime(finish.getTime()) + " §2| §a" + ApiUtilities.niceDate(finish.getDate()));
+        }
+
+        var pageText = Component.text("§2--- ");
+        if (pageStart > 1) {
+            pageText = pageText.append(Component.text("§a<<< ").clickEvent(ClickEvent.runCommand("/t alltimes " + tPlayer.getName() + " " + (pageStart - 1))));
+        }
+        int pageEnd = (int) Math.ceil(((double) allTimes.size()) / ((double) itemsPerPage));
+
+        pageText = pageText.append(Component.text("§2page §a§l" + pageStart + " §r§2of §a§l" + pageEnd + " "));
+        if (pageEnd > pageStart) {
+            pageText = pageText.append(Component.text("§a>>>").clickEvent(ClickEvent.runCommand("/t alltimes " + tPlayer.getName() + " " + (pageStart + 1))));
         }
         pageText = pageText.append(Component.text(" §2---"));
         player.sendMessage(pageText);

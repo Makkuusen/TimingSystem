@@ -452,6 +452,7 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("results")
     @CommandCompletion("@heat @players")
     public static void onHeatResults(Player sender, Heat heat, @Optional String name) {
+
         if (name != null) {
             TPlayer tPlayer = Database.getPlayer(name);
             if (tPlayer == null) {
