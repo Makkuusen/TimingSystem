@@ -92,8 +92,8 @@ messages:
     teleportNoPos: '&2Teleporterade dig till &a%track%&2.'
     noTracks: '&cDet finns inga öppna banor att teleportera dig till.'
   timer:
-    firstFinish: '&eNytt rekord!&6 Du klarade &e%map%&6 på &e%time%&6.'
-    newRecord: '&eNytt rekord!&6 Du klarade &e%map%&6 på &e%time%&6. Tidigare rekord var &e%oldTime%&6.'
+    firstFinish: '&eNytt rekord!&6 Du klarade &e%map%&6 på &e%time%&6. (&e#- &6→ &e#%position%&6)'
+    newRecord: '&eNytt rekord!&6 Du klarade &e%map%&6 på &e%time%&6. Tidigare rekord var &e%oldTime%&6. (&e#%oldposition% &6→ &e#%newposition%&6)'
     finish: '&2Du klarade &a%map%&2 på &a%time%&2. Ditt rekord är &a%oldTime%&2.'
     checkpoint: '&2Du passerade &akontrollpunkt %checkpoint%&2 på &a%time%&2.'
   announcements:
