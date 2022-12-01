@@ -20,4 +20,4 @@ If you need support. Look for #support in our discord.
 
 http://discord.boatlabs.net
 
-Plugin originally forked from EpicIceTrack.
+Timing System was originally forked from [EpicIceTrack](https://github.com/JustBru00/NetherCubeParkour).
