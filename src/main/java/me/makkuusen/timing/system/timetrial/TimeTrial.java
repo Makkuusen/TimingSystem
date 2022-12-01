@@ -171,7 +171,7 @@ public class TimeTrial {
         var time = ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime));
         timeTrial.getTrack().newTimeTrialAttempt(time, tPlayer.getUniqueId());
         TimeTrialController.timeTrials.remove(tPlayer.getUniqueId());
-        tPlayer.getPlayer().teleport(track.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+        ApiUtilities.teleportPlayerAndSpawnBoat(tPlayer.getPlayer(), track.isBoatTrack(), track.getSpawnLocation());
         ApiUtilities.msgConsole(tPlayer.getName() + " has been reset on " + track.getDisplayName());
 
     }

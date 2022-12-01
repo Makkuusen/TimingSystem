@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system.gui;
 
+import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
@@ -66,7 +67,7 @@ public class TimeTrialGui extends TrackPageGui{
                 player.sendMessage("§cWorld is not loaded!");
                 return;
             }
-            player.teleport(track.getSpawnLocation());
+            ApiUtilities.teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), track.getSpawnLocation());
             player.closeInventory();
         });
         return button;
