@@ -92,8 +92,8 @@ messages:
     teleportNoPos: '&2Teleported you to &a%track%&2.'
     noTracks: '&cThere are no open tracks to teleport to.'
   timer:
-    firstFinish: '&eNew best time!&6 You finished &e%map%&6 in &e%time%&6. (&e#- &6→ &e#%position%&6)'
-    newRecord: '&eNew best time!&6 You finished &e%map%&6 in &e%time%&6. Your previous best was &e%oldTime%&6. (&e#%oldposition% &6→ &e#%newposition%&6)'
+    firstFinish: '&eNew best time!&6 You finished &e%map%&6 in &e%time%&6.'
+    newRecord: '&eNew best time!&6 You finished &e%map%&6 in &e%time%&6. Your previous best was &e%oldTime%&6.'
     finish: '&2You finished &a%map%&2 in &a%time%&2. Your best is &a%oldTime%&2.'
     checkpoint: '&2You passed &acheckpoint %checkpoint%&2 in &a%time%&2.'
   announcements:

@@ -150,10 +150,10 @@ public class TimeTrial {
 
         if (track.getBestFinish(tPlayer) == null) {
             newBestFinish(p, mapTime);
-            plugin.sendMessage(p, "messages.timer.firstFinish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%position%", track.getPlayerTopListPosition(tPlayer).toString());
+            p.sendMessage(plugin.getLocalizedMessage(p, "messages.timer.firstFinish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime)) + String.format(" (§e#- §6→ §e#%s§6)", track.getPlayerTopListPosition(tPlayer)));
         } else if (mapTime < track.getBestFinish(tPlayer).getTime()) {
             newBestFinish(p, mapTime);
-            plugin.sendMessage(p, "messages.timer.newRecord", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()), "%oldposition%", oldPos.toString(), "%newposition%", track.getPlayerTopListPosition(tPlayer).toString());
+            p.sendMessage(plugin.getLocalizedMessage(p, "messages.timer.newRecord", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime())) + String.format(" (§e#%s §6→ §e#%s§6)", oldPos.toString(), track.getPlayerTopListPosition(tPlayer).toString()));
         } else {
             plugin.sendMessage(p, "messages.timer.finish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
             track.newTimeTrialFinish(mapTime, p.getUniqueId());
