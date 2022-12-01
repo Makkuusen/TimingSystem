@@ -19,13 +19,16 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -367,7 +370,7 @@ public class ApiUtilities {
         } else {
             boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
         }
-        boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
+        boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin)), PersistentDataType.INTEGER, 1);
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
             boat.setBoatType(type);
         }, 2);
@@ -528,5 +531,15 @@ public class ApiUtilities {
         Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
         boat.addPassenger(player);
         return boat;
+    }
+
+    public static void teleportPlayerAndSpawnBoat(Player player, boolean isBoatTrack, Location location){
+        location.setPitch(player.getLocation().getPitch());
+        player.teleport(location, PlayerTeleportEvent.TeleportCause.UNKNOWN);
+        if (isBoatTrack) {
+            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                ApiUtilities.spawnBoatAndAddPlayer(player, location);
+            }, 1);
+        }
     }
 }

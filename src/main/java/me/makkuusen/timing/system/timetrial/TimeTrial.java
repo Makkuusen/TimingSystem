@@ -164,20 +164,6 @@ public class TimeTrial {
     }
 
     public void playerResetMap() {
-        if (track.hasOption('c')) {
-            int lastCheckpoint = getLatestCheckpoint();
-            if (lastCheckpoint != 0) {
-                var checkpoint = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lastCheckpoint).get();
-                tPlayer.getPlayer().teleport(checkpoint.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                if (track.getType() == Track.TrackType.BOAT) {
-                    Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                        Boat boat = ApiUtilities.spawnBoat(checkpoint.getSpawnLocation(), tPlayer.getBoat(), tPlayer.isChestBoat());
-                        boat.addPassenger(tPlayer.getPlayer());
-                    }, 1);
-                }
-                return;
-            }
-        }
         var timeTrial = TimeTrialController.timeTrials.get(tPlayer.getUniqueId());
         if (timeTrial == null) {
             return;
