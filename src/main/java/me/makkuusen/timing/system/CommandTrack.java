@@ -7,26 +7,96 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
+import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.gui.TrackGui;
 import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
+import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
-
     static TimingSystem plugin;
+
+    @Subcommand("move")
+    @CommandCompletion("@track")
+    public static void onMove(Player player, Track track) {
+        var moveTo = player.getLocation().toBlockLocation();
+        var moveFrom = track.getSpawnLocation().toBlockLocation();
+        Track moveTrack = track;
+        World newWorld = moveTo.getWorld();
+        track.setSpawnLocation(moveTo);
+        var offset = getOffset(moveFrom, moveTo);
+        player.sendMessage("§2Offset is X: " + offset.getX() + ", Y: " + offset.getY() + ", Z: " + offset.getZ());
+        Location newLeaderboard = getNewLocation(moveTo.getWorld(), track.getLeaderboardLocation(), offset);
+        track.setLeaderboardLocation(newLeaderboard);
+
+        var grids = track.getGrids();
+        for (int i : grids.keySet()) {
+            Location grid = grids.get(i);
+            var newGrid = getNewLocation(newWorld, grid, offset);
+            track.setGridLocation(newGrid, i);
+        }
+
+        var regions = track.getRegions();
+        for (TrackRegion region : regions){
+            if (region.getSpawnLocation() != null) {
+                region.setSpawn(getNewLocation(newWorld, region.getSpawnLocation(), offset));
+            }
+
+            if (region.getMaxP() != null) {
+                region.setMaxP(getNewLocation(newWorld, region.getMaxP(), offset));
+            }
+
+            if (region.getMinP() != null) {
+                region.setMinP(getNewLocation(newWorld, region.getMinP(), offset));
+            }
+
+            if (region instanceof TrackPolyRegion polyRegion) {
+                var oldPoints = polyRegion.getPolygonal2DRegion().getPoints();
+                List<BlockVector2> newPoints = new ArrayList<>();
+                for (BlockVector2 b : oldPoints) {
+                    newPoints.add(getNewBlockVector2(b, offset));
+                }
+                polyRegion.updateRegion(newPoints);
+            }
+        }
+
+        Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(player));
+        player.sendMessage("§aTrack was moved from " + ApiUtilities.niceLocation(moveTo) + " to " + ApiUtilities.niceLocation(moveFrom));
+    }
+
+    public static Vector getOffset(Location moveFrom, Location moveTo){
+        var vector = new Vector();
+        vector.setX(moveFrom.getX() - moveTo.getX());
+        vector.setY(moveFrom.getY() - moveTo.getY());
+        vector.setZ(moveFrom.getZ() - moveTo.getZ());
+        return vector;
+    }
+
+    public static Location getNewLocation(World newWorld, Location oldLocation, Vector offset) {
+        var referenceNewWorld = new Location(newWorld, oldLocation.getX(), oldLocation.getY(), oldLocation.getZ());
+        referenceNewWorld.subtract(offset);
+        return referenceNewWorld;
+    }
+
+    public static BlockVector2 getNewBlockVector2(BlockVector2 old, Vector offset) {
+        return BlockVector2.at(old.getX() - offset.getX(), old.getZ() - offset.getZ());
+    }
+
 
     @Default
     @CommandPermission("track.admin")
@@ -141,6 +211,8 @@ public class CommandTrack extends BaseCommand {
         TrackDatabase.removeTrack(track);
         plugin.sendMessage(player, "messages.remove.track");
     }
+
+
 
     @Subcommand("times")
     @CommandCompletion("@track <page>")
@@ -479,6 +551,7 @@ public class CommandTrack extends BaseCommand {
             Location loc = player.getLocation();
             loc.setY(loc.getY() + 3);
             track.setLeaderboardLocation(loc);
+            Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(player));
             plugin.sendMessage(player, "messages.save.generic");
         }
 

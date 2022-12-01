@@ -26,7 +26,7 @@ public class TrackPolyRegion extends TrackRegion {
 
     public boolean updateRegion(List<BlockVector2> points) {
         try {
-            DB.executeUpdateAsync("DELETE FROM `ts_points` WHERE `regionId` = " + getId() + ";");
+            DB.executeUpdate("DELETE FROM `ts_points` WHERE `regionId` = " + getId() + ";");
             for (BlockVector2 v : points) {
                 DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(" + getId() + ", " + v.getBlockX() + ", " + v.getBlockZ() + ");");
             }
