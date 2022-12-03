@@ -124,6 +124,9 @@ public class TimeTrial {
     public void playerRestartMap() {
         Instant endTime = TimingSystem.currentTime;
         Player p = tPlayer.getPlayer();
+        Integer oldPos = null;
+
+        if(track.getBestFinish(tPlayer) != null) oldPos = track.getPlayerTopListPosition(tPlayer);
 
         if (!track.isOpen() && !tPlayer.isOverride()) {
             TimeTrialController.timeTrials.remove(p.getUniqueId());
@@ -146,11 +149,11 @@ public class TimeTrial {
         long mapTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
 
         if (track.getBestFinish(tPlayer) == null) {
-            plugin.sendMessage(p, "messages.timer.firstFinish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime));
             newBestFinish(p, mapTime);
+            p.sendMessage(plugin.getLocalizedMessage(p, "messages.timer.firstFinish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime)) + String.format(" (§e#- §6→ §e#%s§6)", track.getPlayerTopListPosition(tPlayer)));
         } else if (mapTime < track.getBestFinish(tPlayer).getTime()) {
-            plugin.sendMessage(p, "messages.timer.newRecord", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
             newBestFinish(p, mapTime);
+            p.sendMessage(plugin.getLocalizedMessage(p, "messages.timer.newRecord", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime())) + String.format(" (§e#%s §6→ §e#%s§6)", oldPos.toString(), track.getPlayerTopListPosition(tPlayer).toString()));
         } else {
             plugin.sendMessage(p, "messages.timer.finish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
             track.newTimeTrialFinish(mapTime, p.getUniqueId());
