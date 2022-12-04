@@ -539,7 +539,7 @@ public class ApiUtilities {
         if (isBoatTrack) {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
                 ApiUtilities.spawnBoatAndAddPlayer(player, location);
-            }, 1);
+            }, 3);
         }
     }
 }

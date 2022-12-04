@@ -26,9 +26,7 @@ public class CommandTimeTrial extends BaseCommand {
                 player.sendMessage("§cWorld is not loaded!");
                 return;
             }
-            var spawnLoc = track.getSpawnLocation().clone();
-            spawnLoc.setPitch(player.getLocation().getPitch());
-            player.teleport(spawnLoc);
+            ApiUtilities.teleportPlayerAndSpawnBoat(player,track.isBoatTrack(), track.getSpawnLocation());
         }
     }
 
@@ -80,7 +78,6 @@ public class CommandTimeTrial extends BaseCommand {
             plugin.sendMessage(player, "messages.randomTrack.teleportNoPos", "%track%", t.getDisplayName());
         }
 
-        t.getSpawnLocation().setPitch(player.getLocation().getPitch());
-        player.teleport(t.getSpawnLocation());
+        ApiUtilities.teleportPlayerAndSpawnBoat(player, t.isBoatTrack(), t.getSpawnLocation());
     }
 }

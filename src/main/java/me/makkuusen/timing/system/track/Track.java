@@ -329,6 +329,7 @@ public class Track {
         if (times.isEmpty()) {
             return null;
         }
+
         times.sort(new TimeTrialFinishComparator());
         return times.get(0);
     }

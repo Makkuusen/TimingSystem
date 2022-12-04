@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system.api;
 
+import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.event.EventDatabase;
@@ -7,6 +8,7 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -54,5 +56,9 @@ public class TimingSystemAPI {
 
     public static TPlayer getTPlayer(UUID uuid) {
         return Database.getPlayer(uuid);
+    }
+
+    public static void teleportPlayerAndSpawnBoat(Player player, boolean isBoatTrack, Location location){
+        ApiUtilities.teleportPlayerAndSpawnBoat(player, isBoatTrack, location);
     }
 }

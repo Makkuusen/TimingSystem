@@ -102,18 +102,6 @@ public class TSListener implements Listener {
             }
         }
 
-        for (me.makkuusen.timing.system.track.Track Track : TrackDatabase.getTracks()) {
-            if (Track.getSpawnLocation().isWorldLoaded() && Track.getSpawnLocation().getWorld() == event.getTo().getWorld()) {
-                if (Track.getSpawnLocation().distance(event.getTo()) < 1 && event.getPlayer().getGameMode() != GameMode.SPECTATOR) {
-                    if (Track.isBoatTrack()) {
-                        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                            ApiUtilities.spawnBoatAndAddPlayer(event.getPlayer(), Track.getSpawnLocation());
-                        }, 2);
-                    }
-                }
-            }
-        }
-
         if (!event.getCause().equals(PlayerTeleportEvent.TeleportCause.UNKNOWN)) {
             TimeTrialController.playerLeavingMap(event.getPlayer().getUniqueId());
         }

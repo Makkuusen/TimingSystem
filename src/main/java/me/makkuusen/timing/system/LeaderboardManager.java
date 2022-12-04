@@ -64,6 +64,10 @@ public class LeaderboardManager {
             if (fastestHolograms.get(id) == null) {
                 holo = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(leaderBoardLocation);
                 fastestHolograms.put(id, holo);
+            } else if (!fastestHolograms.get(id).getPosition().isInSameWorld(leaderBoardLocation)) {
+                fastestHolograms.get(id).delete();
+                holo = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(leaderBoardLocation);
+                fastestHolograms.put(id, holo);
             } else if (fastestHolograms.get(id).getPosition().distance(leaderBoardLocation) > 1) {
                 fastestHolograms.get(id).delete();
                 holo = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(leaderBoardLocation);
