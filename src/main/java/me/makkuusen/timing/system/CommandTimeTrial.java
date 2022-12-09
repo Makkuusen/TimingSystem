@@ -45,22 +45,6 @@ public class CommandTimeTrial extends BaseCommand {
         plugin.sendMessage(player, "messages.cancel");
     }
 
-    @Subcommand("verbose")
-    public static void onVerbose(Player player) {
-        player.sendMessage("§cDid you mean /settings verbose?");
-    }
-
-    @Subcommand("boat")
-    @CommandCompletion("@boat")
-    public static void onBoat(Player player, @Optional Boat.Type type){
-        player.sendMessage("§cDid you mean /settings boat?");
-    }
-
-    @Subcommand("toggleSound")
-    public static void onTTSound(Player player){
-        player.sendMessage("§cDid you mean /settings sound?");
-    }
-
     @Subcommand("random|r")
     public static void onRandom(Player player){
         if(TrackDatabase.getOpenTracks().isEmpty()){
