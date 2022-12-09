@@ -26,6 +26,11 @@ public class CommandTimeTrial extends BaseCommand {
                 player.sendMessage("§cWorld is not loaded!");
                 return;
             }
+
+            if (!track.isOpen() && !(player.isOp() || player.hasPermission("track.admin"))) {
+                player.sendMessage("§cTrack is closed!");
+                return;
+            }
             ApiUtilities.teleportPlayerAndSpawnBoat(player,track.isBoatTrack(), track.getSpawnLocation());
         }
     }
