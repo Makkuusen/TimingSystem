@@ -38,8 +38,13 @@ public class FinalRound extends Round {
         var maybeHeat = EventDatabase.heatNew(this, heatNumber);
         if (maybeHeat.isPresent()) {
             var nextHeat = maybeHeat.get();
-            nextHeat.setTotalLaps(TimingSystem.configuration.getLaps());
-            nextHeat.setTotalPits(pits);
+            if (nextHeat.getEvent().getTrack().isStage()) {
+                nextHeat.setTotalLaps(1);
+                nextHeat.setTotalPits(0);
+            } else {
+                nextHeat.setTotalLaps(TimingSystem.configuration.getLaps());
+                nextHeat.setTotalPits(pits);
+            }
         }
     }
 }

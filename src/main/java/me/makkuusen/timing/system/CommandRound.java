@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.FinalRound;
+import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import org.bukkit.entity.Player;
@@ -51,6 +52,16 @@ public class CommandRound extends BaseCommand {
                 return;
             }
         }
+
+        if (event.getTrack() == null) {
+            player.sendMessage("§cYou need to select a track first");
+            return;
+        }
+        if (event.getTrack().isStage() && roundType.equals(RoundType.QUALIFICATION)) {
+            player.sendMessage("§cThis track does not support qualification");
+            return;
+        }
+
         if (EventDatabase.roundNew(event, roundType, event.getEventSchedule().getRounds().size() + 1)) {
             player.sendMessage("§aCreated " + roundType.name() + " round.");
             return;

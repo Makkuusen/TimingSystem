@@ -22,6 +22,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.stringtemplate.v4.ST;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -528,6 +529,10 @@ public class Track {
         }
 
         return time;
+    }
+
+    public boolean isStage(){
+        return hasRegion(TrackRegion.RegionType.END);
     }
 
     public enum TrackType {

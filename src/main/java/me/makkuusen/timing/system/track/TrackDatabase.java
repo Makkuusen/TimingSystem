@@ -37,6 +37,13 @@ public class TrackDatabase {
     private static List<TrackRegion> startRegions = new ArrayList<>();
 
     public static void initDatabaseSynchronize() throws SQLException {
+        loadTracksAndTimeTrials();
+        loadTrackRegions();
+        loadGridLocations();
+        clearUselessEndRegions();
+    }
+
+    private static void loadTracksAndTimeTrials() throws SQLException {
         var dbRows = DB.getResults("SELECT * FROM `ts_tracks` WHERE `isRemoved` = 0;");
 
         for (DbRow dbRow : dbRows) {
@@ -44,21 +51,29 @@ public class TrackDatabase {
             tracks.add(rTrack);
             plugin.getLogger().info("LOADING IN " + rTrack.getDisplayName());
 
-            //var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE ( `uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `trackId` = " + rTrack.getId() + " GROUP BY `uuid` ORDER BY `time` ASC, `date` ASC;");
-            var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0;");
-            for (DbRow finish : resultFinishes) {
-                rTrack.addTimeTrialFinish(new TimeTrialFinish(finish));
-            }
-            var attempts = DB.getResults("SELECT * FROM `ts_attempts` WHERE `trackId` = " + rTrack.getId() + ";");
-            for (DbRow attempt : attempts) {
-                rTrack.addTimeTrialAttempt(new TimeTrialAttempt(attempt));
-            }
+            loadFinishes(rTrack);
+            loadAttempts(rTrack);
         }
+    }
+    private static void loadFinishes(Track rTrack) throws SQLException{
+        //var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE ( `uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `trackId` = " + rTrack.getId() + " GROUP BY `uuid` ORDER BY `time` ASC, `date` ASC;");
+        var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0;");
+        for (DbRow finish : resultFinishes) {
+            rTrack.addTimeTrialFinish(new TimeTrialFinish(finish));
+        }
+    }
 
+    private static void loadAttempts(Track rTrack) throws SQLException {
+        var attempts = DB.getResults("SELECT * FROM `ts_attempts` WHERE `trackId` = " + rTrack.getId() + ";");
+        for (DbRow attempt : attempts) {
+            rTrack.addTimeTrialAttempt(new TimeTrialAttempt(attempt));
+        }
+    }
+
+    private static void loadTrackRegions() throws SQLException {
         var trackRegions = DB.getResults("SELECT * FROM `ts_regions` WHERE `isRemoved` = 0;");
         for (DbRow region : trackRegions) {
             Optional<Track> maybeTrack = getTrackById(region.getInt("trackId"));
-
 
             if (maybeTrack.isPresent()) {
                 var rTrack = maybeTrack.get();
@@ -66,7 +81,6 @@ public class TrackDatabase {
                 if (!rTrack.getSpawnLocation().isWorldLoaded()) {
                     continue;
                 }
-
 
                 if (region.getString("regionShape") != null && TrackRegion.RegionShape.POLY.name().equalsIgnoreCase(region.getString("regionShape"))) {
                     var pointRows = DB.getResults("SELECT * FROM `ts_points` WHERE `regionId` = " + region.getInt("id") + ";");
@@ -84,7 +98,20 @@ public class TrackDatabase {
                 rTrack.addRegion(trackRegion);
             }
         }
+    }
 
+    private static void clearUselessEndRegions() {
+        for (Track track : tracks) {
+            if (track.hasRegion(TrackRegion.RegionType.START) && track.hasRegion(TrackRegion.RegionType.END)) {
+                var start = track.getRegion(TrackRegion.RegionType.START).get();
+                var end = track.getRegion(TrackRegion.RegionType.END).get();
+                if (start.hasEqualBounds(end)) {
+                    track.removeRegion(end);
+                }
+            }
+        }
+    }
+    private static void loadGridLocations() throws SQLException {
         var locations = DB.getResults("SELECT * FROM `ts_locations` WHERE `type` = 'GRID'");
         for (DbRow dbRow : locations) {
             Optional<Track> maybeTrack = getTrackById(dbRow.getInt("trackId"));
