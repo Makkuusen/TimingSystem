@@ -83,4 +83,7 @@ public abstract class TrackRegion {
         this.spawnLocation = spawn;
         DB.executeUpdateAsync("UPDATE `ts_regions` SET `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + getId() + ";");
     }
+
+    abstract boolean hasEqualBounds(TrackRegion other);
+
 }

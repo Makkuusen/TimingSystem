@@ -47,4 +47,17 @@ public class TrackPolyRegion extends TrackRegion {
     public boolean isDefined() {
         return true;
     }
+
+    public boolean hasEqualBounds(TrackRegion other){
+        if (other instanceof TrackPolyRegion trackPolyRegion) {
+            if (!other.getWorldName().equalsIgnoreCase(getWorldName())) {
+                return false;
+            }
+            if (!isDefined() || !other.isDefined()) {
+                return false;
+            }
+            return getMinP().equals(trackPolyRegion.getMinP()) && getMaxP().equals(trackPolyRegion.getMaxP());
+        }
+        return false;
+    }
 }

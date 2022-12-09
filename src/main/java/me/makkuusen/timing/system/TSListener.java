@@ -463,6 +463,25 @@ public class TSListener implements Listener {
             }
         }
 
+        if (track.isStage()) {
+            if (track.getRegion(TrackRegion.RegionType.END).get().contains(player.getLocation())) {
+                if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
+                    int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
+                    if (track.hasOption('c')) {
+                        var maybeCheckpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
+                        if (maybeCheckpoint.isPresent()) {
+                            ApiUtilities.teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), maybeCheckpoint.get().getSpawnLocation());
+                        }
+                    }
+                    plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
+                    return;
+                }
+                heat.passLap(driver);
+                heat.updatePositions();
+                return;
+            }
+        }
+
 
         if (driver.getState() == DriverState.RUNNING) {
             Lap lap = driver.getCurrentLap();

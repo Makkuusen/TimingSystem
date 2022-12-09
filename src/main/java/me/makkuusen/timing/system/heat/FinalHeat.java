@@ -4,7 +4,7 @@ import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
 
 
-public class FinalHeat{
+public class FinalHeat {
 
     public static boolean passLap(Driver driver){
         if (driver.getHeat().getHeatState() != HeatState.RACING) {
