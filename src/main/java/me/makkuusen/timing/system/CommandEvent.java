@@ -23,12 +23,12 @@ public class CommandEvent extends BaseCommand {
 
     @Default
     @Description("Active events")
-    public static void onActiveEvents(Player player) {
+    public static void onActiveEvents(CommandSender commandSender) {
         var list = EventDatabase.getEvents().stream().filter(event -> event.isActive()).collect(Collectors.toList());
         list.sort(Comparator.comparingLong(Event::getDate));
-        player.sendMessage("§aActive events right now:");
+        commandSender.sendMessage("§aActive events right now:");
         for (Event event : list) {
-            player.sendMessage("§a" + event.getDisplayName() + " §2(§a" + event.getState().name() + "§2) - §a" + ApiUtilities.niceDate(event.getDate()) + "§2 by §a" + Database.getPlayer(event.getUuid()).getNameDisplay());
+            commandSender.sendMessage("§a" + event.getDisplayName() + " §2(§a" + event.getState().name() + "§2) - §a" + ApiUtilities.niceDate(event.getDate()) + "§2 by §a" + Database.getPlayer(event.getUuid()).getNameDisplay());
         }
     }
 

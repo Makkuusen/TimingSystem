@@ -139,6 +139,7 @@
             <groupId>dev.jcsoftware</groupId>
             <artifactId>JScoreboards</artifactId>
             <version>2.1.5-RELEASE</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
@@ -166,9 +167,9 @@
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
-        <repository>
+        <!--<repository>
             <id>jordanosterberg-repo</id>
             <url>https://nexus-repo.jordanosterberg.com/repository/maven-releases/</url>
-        </repository>
+        </repository>-->
     </repositories>
 </project>
