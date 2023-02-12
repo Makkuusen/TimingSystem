@@ -38,6 +38,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("move")
     @CommandCompletion("@track")
+    @CommandPermission("track.admin")
     public static void onMove(Player player, Track track) {
         var moveTo = player.getLocation().toBlockLocation();
         var moveFrom = track.getSpawnLocation().toBlockLocation();
