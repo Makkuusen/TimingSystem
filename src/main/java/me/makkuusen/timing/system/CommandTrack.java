@@ -9,9 +9,11 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.gui.TrackGui;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
+import me.makkuusen.timing.system.timetrial.TimeTrialSession;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
@@ -170,8 +172,34 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("info")
-    @CommandCompletion("@track")
-    public static void onInfo(CommandSender commandSender, Track track) {
+    @CommandCompletion("@track @players")
+    public static void onInfo(CommandSender commandSender, Track track, @Optional String name) {
+
+        TPlayer tPlayer;
+        if (name != null && commandSender.isOp()) {
+            tPlayer = Database.getPlayer(name);
+            if (tPlayer == null) {
+                commandSender.sendMessage("§cCould not find player");
+                return;
+            }
+            commandSender.sendMessage(" ");
+            commandSender.sendMessage(Component.text("§2--- §a" + tPlayer.getName() + "§2 statistics on §a" + track.getDisplayName() + "§2--- "));
+            String bestTime;
+            if (track.getBestFinish(tPlayer) == null) {
+                bestTime = "§2" + tPlayer.getName() + "'s best time: §a(none)";
+            } else {
+                bestTime = "§2"+ tPlayer.getName() + "'s best time: §a" + ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime());
+            }
+
+            commandSender.sendMessage(Component.text("§2Position: §a" + (track.getPlayerTopListPosition(tPlayer) == -1 ? "(none)" : track.getPlayerTopListPosition(tPlayer))));
+            commandSender.sendMessage(Component.text(bestTime));
+            commandSender.sendMessage(Component.text("§2Total Finishes: §a" + track.getPlayerTotalFinishes(tPlayer)));
+            commandSender.sendMessage(Component.text("§2Total Attempts: §a" + (track.getPlayerTotalFinishes(tPlayer) + track.getPlayerTotalAttempts(tPlayer))));
+            commandSender.sendMessage(Component.text("§2Time spent: §a" + ApiUtilities.formatAsTimeSpent(track.getPlayerTotalTimeSpent(tPlayer))));
+            return;
+        }
+
+
         commandSender.sendMessage(" ");
         plugin.sendMessage(commandSender, "messages.info.track.name", "%name%", track.getDisplayName(), "%id%", String.valueOf(track.getId()));
         if (track.isOpen()) {
@@ -207,6 +235,42 @@ public class CommandTrack extends BaseCommand {
         if (!inRegion) {
             player.sendMessage("§cThere are no regions here.");
         }
+    }
+
+    @Subcommand("session")
+    @CommandCompletion("@track")
+    public static void toggleSession(Player player, @Optional Track track) {
+        if (TimeTrialController.timeTrialSessions.containsKey(player.getUniqueId())) {
+            var ttSession = TimeTrialController.timeTrialSessions.get(player.getUniqueId());
+            ttSession.clearScoreboard();
+            TimeTrialController.timeTrialSessions.remove(player.getUniqueId());
+            if (track == null) {
+                player.sendMessage("§aYour session has ended");
+                return;
+            }
+            if (track.getId() != ttSession.getTrack().getId()) {
+                var newSession = new TimeTrialSession(Database.getPlayer(player.getUniqueId()), track);
+                newSession.updateScoreboard();
+                TimeTrialController.timeTrialSessions.put(player.getUniqueId(), newSession);
+                player.sendMessage("§aSession started on " + track.getDisplayName());
+                ApiUtilities.teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), track.getSpawnLocation());
+                return;
+            }
+            player.sendMessage("§aYour session has ended");
+            return;
+        }
+
+        if (track == null) {
+            player.sendMessage("§cYou have no session to end");
+            return;
+        }
+
+        TimeTrialSession ttSession = new TimeTrialSession(Database.getPlayer(player.getUniqueId()), track);
+        ttSession.updateScoreboard();
+        TimeTrialController.timeTrialSessions.put(player.getUniqueId(), ttSession);
+        player.sendMessage("§aSession started on " + track.getDisplayName());
+        ApiUtilities.teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), track.getSpawnLocation());
+
     }
 
     @Subcommand("delete")
@@ -298,7 +362,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        var trackText = Component.text("§2--- §a" + player.getName() + " §2 recent times §2--- ");
+        var trackText = Component.text("§2--- §a" + player.getName() + "§2 best times on §a" + track.getDisplayName() + " §2--- ");
 
         player.sendMessage(trackText);
         for (int i = start; i < stop; i++) {
@@ -369,7 +433,7 @@ public class CommandTrack extends BaseCommand {
                 break;
             }
             TimeTrialFinish finish = allTimes.get(i);
-            player.sendMessage("§2" + (i + 1) + ". §a" + ApiUtilities.formatAsTime(finish.getTime()) + " §2| §a" + ApiUtilities.niceDate(finish.getDate()));
+            player.sendMessage("§2" + (i + 1) + ". §a" + ApiUtilities.formatAsTime(finish.getTime()) + " §2| §a" + TrackDatabase.getTrackById(finish.getTrack()).get().getDisplayName() + " §2| §a" + ApiUtilities.niceDate(finish.getDate()));
         }
 
         var pageText = Component.text("§2--- ");
