@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
+import me.makkuusen.timing.system.timetrial.TimeTrialListener;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -61,6 +62,7 @@ public class TimingSystem extends JavaPlugin {
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new GUIListener(), plugin);
         pm.registerEvents(new TSListener(), plugin);
+        pm.registerEvents(new TimeTrialListener(), plugin);
 
         ButtonUtilities.init();
         PlayerTimer.initPlayerTimer();

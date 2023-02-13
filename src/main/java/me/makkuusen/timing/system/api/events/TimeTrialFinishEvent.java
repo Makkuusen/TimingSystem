@@ -11,12 +11,14 @@ public class TimeTrialFinishEvent extends Event {
     private Player player;
     private TimeTrialFinish timeTrialFinish;
     private long oldBestTime;
+    private boolean newBestTime;
 
 
-    public TimeTrialFinishEvent(Player player, TimeTrialFinish timeTrialFinish, long oldBestTime) {
+    public TimeTrialFinishEvent(Player player, TimeTrialFinish timeTrialFinish, long oldBestTime, boolean newBestTime) {
         this.player = player;
         this.timeTrialFinish = timeTrialFinish;
         this.oldBestTime = oldBestTime;
+        this.newBestTime = newBestTime;
     }
 
     @Override
@@ -39,5 +41,9 @@ public class TimeTrialFinishEvent extends Event {
 
     public long getOldBestTime() {
         return oldBestTime;
+    }
+
+    public boolean isNewBestTime() {
+        return newBestTime;
     }
 }
