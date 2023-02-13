@@ -292,6 +292,24 @@ public class ApiUtilities {
         return toReturn;
     }
 
+    public static String formatAsTimeNoRounding(long time) {
+        String toReturn;
+        long timeInMillis = time;
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
+        String milis = String.format("%03d", (timeInMillis % 1000));
+
+        if (hours == 0 && minutes == 0) {
+            toReturn = String.format("%02d", seconds) + "." + milis;
+        } else if (hours == 0) {
+            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + milis;
+        } else {
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+        }
+        return toReturn;
+    }
+
     public static String formatAsTimeSpent(long time) {
         String toReturn;
         long timeInMillis = getRoundedToTick(time);

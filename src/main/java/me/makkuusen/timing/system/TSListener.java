@@ -110,6 +110,12 @@ public class TSListener implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
         TimeTrialController.playerLeavingMap(e.getPlayer().getUniqueId());
+
+        if (TimeTrialController.timeTrialSessions.containsKey(e.getPlayer().getUniqueId()) && e.getReason() != PlayerQuitEvent.QuitReason.TIMED_OUT) {
+            var ttSession = TimeTrialController.timeTrialSessions.get(e.getPlayer().getUniqueId());
+            ttSession.clearScoreboard();
+            TimeTrialController.timeTrialSessions.remove(e.getPlayer().getUniqueId());
+        }
     }
 
     @EventHandler
