@@ -327,13 +327,15 @@ public class Track {
         if (timeTrialFinishes.get(player) == null) {
             return null;
         }
+        List<TimeTrialFinish> ttTimes = new ArrayList<>();
         var times = timeTrialFinishes.get(player);
-        if (times.isEmpty()) {
+        ttTimes.addAll(times);
+        if (ttTimes.isEmpty()) {
             return null;
         }
 
-        times.sort(new TimeTrialFinishComparator());
-        return times.get(0);
+        ttTimes.sort(new TimeTrialFinishComparator());
+        return ttTimes.get(0);
     }
 
     public void deleteBestFinish(TPlayer player, TimeTrialFinish bestFinish) {
