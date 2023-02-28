@@ -4,13 +4,13 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.gui.TimeTrialGui;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
-import me.makkuusen.timing.system.timetrial.TimeTrialSession;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
-import org.bukkit.entity.Boat;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import javax.xml.crypto.Data;
 import java.util.Random;
 
 @CommandAlias("timetrial|tt")
@@ -19,7 +19,33 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Default
     @CommandCompletion("@track")
-    public static void onTimeTrial(Player player, @Optional Track track) {
+    public static void onTimeTrial(CommandSender sender, @Optional Track track) {
+        Player player = null;
+        if (sender instanceof BlockCommandSender blockCommandSender) {
+            Location location = ((BlockCommandSender) sender).getBlock().getLocation();
+            double closest = -1;
+
+            for (Player tmp : Bukkit.getOnlinePlayers()) {
+                if (tmp.getWorld().equals(location.getWorld())) {
+
+                    double distance = tmp.getLocation().distance(location);
+
+                    if (distance < closest || closest == -1) {
+                        player = tmp;
+                        closest = distance;
+                    }
+                }
+            }
+
+            if (player == null) {
+                return;
+            }
+        } else if (sender instanceof Player) {
+            player = (Player) sender;
+        } else {
+            sender.sendMessage("This command could not be executed!");
+            return;
+        }
         if (track == null) {
             var tPlayer = Database.getPlayer(player.getUniqueId());
             new TimeTrialGui(tPlayer, 0).show(player);
