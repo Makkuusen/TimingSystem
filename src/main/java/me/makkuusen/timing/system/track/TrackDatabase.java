@@ -59,14 +59,20 @@ public class TrackDatabase {
         //var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE ( `uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `trackId` = " + rTrack.getId() + " GROUP BY `uuid` ORDER BY `time` ASC, `date` ASC;");
         var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0;");
         for (DbRow finish : resultFinishes) {
-            rTrack.addTimeTrialFinish(new TimeTrialFinish(finish));
+            var uuid = finish.getString("uuid") == null ? null : UUID.fromString(finish.getString("uuid"));
+            if (Database.getPlayer(uuid) != null) {
+                rTrack.addTimeTrialFinish(new TimeTrialFinish(finish));
+            }
         }
     }
 
     private static void loadAttempts(Track rTrack) throws SQLException {
         var attempts = DB.getResults("SELECT * FROM `ts_attempts` WHERE `trackId` = " + rTrack.getId() + ";");
         for (DbRow attempt : attempts) {
-            rTrack.addTimeTrialAttempt(new TimeTrialAttempt(attempt));
+            var uuid = attempt.getString("uuid") == null ? null : UUID.fromString(attempt.getString("uuid"));
+            if (Database.getPlayer(uuid) != null) {
+                rTrack.addTimeTrialAttempt(new TimeTrialAttempt(attempt));
+            }
         }
     }
 
