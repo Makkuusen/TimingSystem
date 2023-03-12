@@ -320,6 +320,7 @@ public class Track {
         long date = ApiUtilities.getTimestamp();
         DB.executeUpdateAsync("INSERT INTO `ts_attempts` (`trackId`, `uuid`, `date`, `time`) VALUES(" + id + ", '" + uuid + "', " + date + ", " + time + ");");
         TimeTrialAttempt timeTrialAttempt = new TimeTrialAttempt(getId(), uuid, ApiUtilities.getTimestamp(), time);
+        addTimeTrialAttempt(timeTrialAttempt);
         return timeTrialAttempt;
     }
 

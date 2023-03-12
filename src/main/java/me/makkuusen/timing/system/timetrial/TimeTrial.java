@@ -161,7 +161,6 @@ public class TimeTrial {
         } else {
             callTimeTrialFinishEvent(p, mapTime, track.getBestFinish(tPlayer).getTime(), false);
             plugin.sendMessage(p, "messages.timer.finish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
-            track.newTimeTrialFinish(mapTime, p.getUniqueId());
         }
 
         ApiUtilities.msgConsole(p.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(mapTime));
@@ -233,7 +232,6 @@ public class TimeTrial {
         } else {
             callTimeTrialFinishEvent(p, mapTime, track.getBestFinish(tPlayer).getTime(), false);
             plugin.sendMessage(p, "messages.timer.finish", "%map%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(mapTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
-            track.newTimeTrialFinish(mapTime, p.getUniqueId());
         }
 
         TimeTrialController.timeTrials.remove(p.getUniqueId());
