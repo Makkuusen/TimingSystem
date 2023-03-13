@@ -9,6 +9,8 @@ import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.gui.SettingsGui;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -180,7 +180,7 @@ public class TimeTrial {
         var eventTimeTrialAttempt = new TimeTrialAttemptEvent(tPlayer.getPlayer(), attempt);
         Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialAttempt);
         TimeTrialController.timeTrials.remove(tPlayer.getUniqueId());
-        ApiUtilities.teleportPlayerAndSpawnBoat(tPlayer.getPlayer(), track.isBoatTrack(), track.getSpawnLocation());
+        ApiUtilities.teleportPlayerAndSpawnBoat(tPlayer.getPlayer(), track, track.getSpawnLocation());
         ApiUtilities.msgConsole(tPlayer.getName() + " has been reset on " + track.getDisplayName());
 
     }

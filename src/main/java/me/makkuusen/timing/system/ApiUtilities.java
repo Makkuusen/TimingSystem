@@ -10,6 +10,7 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
+import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -23,6 +24,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,7 +127,7 @@ public class ApiUtilities {
 
     public static String parseFlagChange(char[] flagsOriginal, String change) {
         String flagsRaw = new String(flagsOriginal);
-        change = change.replace("*", "bcgeptsu");
+        change = change.replace("*", "bcgeptsuri");
 
         boolean isAdding = true;
 
@@ -184,7 +187,7 @@ public class ApiUtilities {
     }
 
     private static boolean isValidFlag(char currentChar){
-        if (currentChar != 'b' && currentChar != 'c' && currentChar != 'g' && currentChar != 'e' && currentChar != 'p' && currentChar != 't' && currentChar != 's' && currentChar != 'u') {
+        if (currentChar != 'b' && currentChar != 'c' && currentChar != 'g' && currentChar != 'e' && currentChar != 'p' && currentChar != 't' && currentChar != 's' && currentChar != 'u' && currentChar != 'r' && currentChar != 'i') {
             return false;
         }
         return true;
@@ -551,13 +554,65 @@ public class ApiUtilities {
         return boat;
     }
 
-    public static void teleportPlayerAndSpawnBoat(Player player, boolean isBoatTrack, Location location){
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location){
         location.setPitch(player.getLocation().getPitch());
         player.teleport(location, PlayerTeleportEvent.TeleportCause.UNKNOWN);
-        if (isBoatTrack) {
+        if (track.isBoatTrack()) {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
                 ApiUtilities.spawnBoatAndAddPlayer(player, location);
+                if (track.hasOption('r')) {
+                    ApiUtilities.giveBoatUtilsREffect(player);
+                }
+                if (track.hasOption('i')) {
+                    ApiUtilities.giveBoatUtilsIEffect(player);
+                }
             }, 3);
         }
+    }
+
+    public static boolean hasBoatUtilsEffects(Player player) {
+        if (player.hasPotionEffect(PotionEffectType.LUCK)) {
+            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 54) {
+                return true;
+            }
+        }
+        if (player.hasPotionEffect(PotionEffectType.UNLUCK)) {
+            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 49) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasBoatUtilsREffect(Player player) {
+        if (player.hasPotionEffect(PotionEffectType.UNLUCK)) {
+            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 49) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasBoatUtilsIEffect(Player player) {
+        if (player.hasPotionEffect(PotionEffectType.LUCK)) {
+            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 54) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void removeBoatUtilsEffects(Player player){
+        player.removePotionEffect(PotionEffectType.UNLUCK);
+        player.removePotionEffect(PotionEffectType.LUCK);
+    }
+
+    public static void giveBoatUtilsREffect(Player player) {
+        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK,999999, 49, false, false);
+        player.addPotionEffect(unluckEffect);
+    }
+    public static void giveBoatUtilsIEffect(Player player) {
+        var luckEffect = new PotionEffect(PotionEffectType.LUCK,999999, 54, false, false);
+        player.addPotionEffect(luckEffect);
     }
 }

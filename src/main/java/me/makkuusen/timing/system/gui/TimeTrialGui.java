@@ -67,7 +67,7 @@ public class TimeTrialGui extends TrackPageGui{
                 player.sendMessage("§cWorld is not loaded!");
                 return;
             }
-            ApiUtilities.teleportPlayerAndSpawnBoat(player, track.isBoatTrack(), track.getSpawnLocation());
+            ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
             player.closeInventory();
         });
         return button;

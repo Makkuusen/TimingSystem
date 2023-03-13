@@ -1,6 +1,6 @@
 name: TimingSystem
 main: me.makkuusen.timing.system.TimingSystem
-version: 1.1
+version: 1.2
 authors: [Markus Hellquist (Makkuusen)]
 depend: [WorldEdit]
 softdepend: [HolographicDisplays, Multiverse-Core]
