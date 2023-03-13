@@ -59,7 +59,7 @@ public class CommandTimeTrial extends BaseCommand {
                 player.sendMessage("§cTrack is closed!");
                 return;
             }
-            ApiUtilities.teleportPlayerAndSpawnBoat(player,track.isBoatTrack(), track.getSpawnLocation());
+            ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
         }
     }
 
@@ -75,7 +75,7 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("random|r")
     public static void onRandom(Player player){
-        if(TrackDatabase.getOpenTracks().isEmpty()){
+        if (TrackDatabase.getOpenTracks().isEmpty()){
             plugin.sendMessage(player, "messages.randomTrack.noTracks");
             return;
         }
@@ -95,6 +95,6 @@ public class CommandTimeTrial extends BaseCommand {
             plugin.sendMessage(player, "messages.randomTrack.teleportNoPos", "%track%", t.getDisplayName());
         }
 
-        ApiUtilities.teleportPlayerAndSpawnBoat(player, t.isBoatTrack(), t.getSpawnLocation());
+        ApiUtilities.teleportPlayerAndSpawnBoat(player, t, t.getSpawnLocation());
     }
 }

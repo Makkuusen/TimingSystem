@@ -58,7 +58,7 @@ public class TimingSystemAPI {
         return Database.getPlayer(uuid);
     }
 
-    public static void teleportPlayerAndSpawnBoat(Player player, boolean isBoatTrack, Location location){
-        ApiUtilities.teleportPlayerAndSpawnBoat(player, isBoatTrack, location);
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location){
+        ApiUtilities.teleportPlayerAndSpawnBoat(player, track, location);
     }
 }

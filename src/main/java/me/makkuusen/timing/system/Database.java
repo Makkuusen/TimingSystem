@@ -108,7 +108,7 @@ public class Database {
             }
 
             try {
-                DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES('" + uuid + "', " + sqlString(name) + ", '" + Boat.Type.OAK.name() + "');");
+                DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES('" + uuid + "', " + sqlString(name) + ", '" + Boat.Type.BIRCH.name() + "');");
                 var dbRow = DB.getFirstRow("SELECT * FROM `ts_players` WHERE `uuid` = '" + uuid + "';");
 
                 TPlayer = new TPlayer(plugin, dbRow);
