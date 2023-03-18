@@ -2,7 +2,9 @@ package me.makkuusen.timing.system;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TimeTrialGui;
+import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
@@ -46,6 +48,15 @@ public class CommandTimeTrial extends BaseCommand {
             sender.sendMessage("This command could not be executed!");
             return;
         }
+
+        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().isRunning()) {
+                player.sendMessage("§cYou can't time trial when you are in a heat.");
+                return;
+            }
+        }
+
         if (track == null) {
             var tPlayer = Database.getPlayer(player.getUniqueId());
             new TimeTrialGui(tPlayer, 0).show(player);
@@ -75,6 +86,14 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("random|r")
     public static void onRandom(Player player){
+        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().isRunning()) {
+                player.sendMessage("§cYou can't time trial when you are in a heat.");
+                return;
+            }
+        }
+
         if (TrackDatabase.getOpenTracks().isEmpty()){
             plugin.sendMessage(player, "messages.randomTrack.noTracks");
             return;

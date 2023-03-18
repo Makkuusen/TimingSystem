@@ -105,7 +105,7 @@ public class Heat {
                 if (player != null) {
                     Location grid = getEvent().getTrack().getGridLocation(d.getStartPosition());
                     if (grid != null) {
-                        gridManager.teleportPlayerToGrid(player, grid);
+                        gridManager.teleportPlayerToGrid(player, grid, getEvent().getTrack());
                     }
                 }
                 EventDatabase.addPlayerToRunningHeat(d);

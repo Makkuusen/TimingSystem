@@ -554,18 +554,42 @@ public class ApiUtilities {
         return boat;
     }
 
+    public static Boat spawnBoatAndAddPlayerWithEffects(Player player, Location location, Track track) {
+
+        BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
+        Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
+
+        if (boatSpawnEvent.getBoat() != null) {
+            return boatSpawnEvent.getBoat();
+        }
+        var tPlayer = Database.getPlayer(player.getUniqueId());
+        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
+        boat.addPassenger(player);
+        if (track.hasOption('r')) {
+            ApiUtilities.giveBoatUtilsREffect(player);
+        }
+        if (track.hasOption('i')) {
+            ApiUtilities.giveBoatUtilsIEffect(player);
+        }
+        return boat;
+    }
+
     public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location){
         location.setPitch(player.getLocation().getPitch());
-        player.teleport(location, PlayerTeleportEvent.TeleportCause.UNKNOWN);
+        player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         if (track.isBoatTrack()) {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                ApiUtilities.spawnBoatAndAddPlayer(player, location);
-                if (track.hasOption('r')) {
-                    ApiUtilities.giveBoatUtilsREffect(player);
-                }
-                if (track.hasOption('i')) {
-                    ApiUtilities.giveBoatUtilsIEffect(player);
-                }
+                ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
+            }, 3);
+        }
+    }
+
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location, PlayerTeleportEvent.TeleportCause teleportCause){
+        location.setPitch(player.getLocation().getPitch());
+        player.teleport(location, teleportCause);
+        if (track.isBoatTrack()) {
+            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+                ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
             }, 3);
         }
     }

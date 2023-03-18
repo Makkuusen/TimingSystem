@@ -21,7 +21,7 @@ public class GridManager {
     public GridManager() {
     }
 
-    public void teleportPlayerToGrid(Player player, Location location){
+    public void teleportPlayerToGrid(Player player, Location location, Track track){
         location.setPitch(player.getLocation().getPitch());
         if (!location.isWorldLoaded()) {
             return;
@@ -38,7 +38,7 @@ public class GridManager {
         ar.setGravity(false);
         ar.setVisible(false);
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-            Boat boat = ApiUtilities.spawnBoatAndAddPlayer(player, location);
+            Boat boat = ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
             ar.addPassenger(boat);
             armorStands.put(player.getUniqueId(), ar);
         }, 2);

@@ -8,6 +8,7 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import com.sk89q.worldedit.math.BlockVector2;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TrackGui;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
@@ -241,6 +242,15 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("session")
     @CommandCompletion("@track")
     public static void toggleSession(Player player, @Optional Track track) {
+
+        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().isRunning()) {
+                player.sendMessage("§cYou can't start a session when you are in a heat.");
+                return;
+            }
+        }
+
         if (TimeTrialController.timeTrialSessions.containsKey(player.getUniqueId())) {
             var ttSession = TimeTrialController.timeTrialSessions.get(player.getUniqueId());
             ttSession.clearScoreboard();
@@ -249,6 +259,16 @@ public class CommandTrack extends BaseCommand {
                 player.sendMessage("§aYour session has ended");
                 return;
             }
+            if (!track.getSpawnLocation().isWorldLoaded()) {
+                player.sendMessage("§cWorld is not loaded!");
+                return;
+            }
+
+            if (!track.isOpen() && !(player.isOp() || player.hasPermission("track.admin"))) {
+                player.sendMessage("§cTrack is closed!");
+                return;
+            }
+
             if (track.getId() != ttSession.getTrack().getId()) {
                 var newSession = new TimeTrialSession(Database.getPlayer(player.getUniqueId()), track);
                 newSession.updateScoreboard();
