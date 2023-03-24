@@ -253,7 +253,7 @@ public class TimeTrial {
         if (tPlayer.isSound()) {
             p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
         }
-        LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+        LeaderboardManager.updateFastestTimeLeaderboard(track);
     }
 
 

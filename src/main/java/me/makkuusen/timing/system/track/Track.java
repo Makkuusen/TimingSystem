@@ -42,7 +42,7 @@ public class Track {
     private final int id;
     private final long dateCreated;
     private final Set<TrackRegion> regions = new HashSet<>();
-    private final Map<Integer, Location> grids = new HashMap<>();
+    private final Set<TrackLocation> trackLocations = new HashSet<>();
     private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
     private Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
     private TPlayer owner;
@@ -50,7 +50,6 @@ public class Track {
     private String commandName;
     private ItemStack guiItem;
     private Location spawnLocation;
-    private Location leaderboardLocation;
     private TrackType type;
     private TrackMode mode;
     private char[] options;
@@ -64,7 +63,6 @@ public class Track {
         dateCreated = data.getInt("dateCreated");
         guiItem = ApiUtilities.stringToItem(data.getString("guiItem"));
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
-        leaderboardLocation = ApiUtilities.stringToLocation(data.getString("leaderboard"));
         type = data.getString("type") == null ? TrackType.BOAT : TrackType.valueOf(data.getString("type"));
         open = data.get("toggleOpen");
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
@@ -160,11 +158,6 @@ public class Track {
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + id + ";");
     }
 
-    public void setLeaderboardLocation(Location leaderboard) {
-        this.leaderboardLocation = leaderboard;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `leaderboard` = '" + ApiUtilities.locationToString(leaderboard) + "' WHERE `id` = " + id + ";");
-    }
-
     public void setOpen(boolean open) {
         this.open = open;
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `toggleOpen` = " + open + " WHERE `id` = " + id + ";");
@@ -246,39 +239,65 @@ public class Track {
         return false;
     }
 
-    public void setGridLocation(Location loc, int index) {
-        if (grids.containsKey(index)) {
-            grids.put(index, loc);
-            DB.executeUpdateAsync("UPDATE `ts_locations` SET `location` = '" + ApiUtilities.locationToString(loc) + "' WHERE `trackId` = " + getId() + " AND `index` = " + index + " AND `type` = 'GRID';");
-        } else {
-            try {
-                DB.executeInsert("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + getId() +  ", "  + index + ", 'GRID', '" + ApiUtilities.locationToString(loc) + "');");
-                grids.put(index, loc);
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-            }
+    public void addTrackLocation(TrackLocation trackLocation){
+        trackLocations.add(trackLocation);
+    }
+
+    public boolean hasTrackLocation(TrackLocation.Type locationType){
+        return trackLocations.stream().anyMatch(trackLocation -> trackLocation.getLocationType().equals(locationType));
+    }
+
+    public boolean hasTrackLocation(TrackLocation.Type locationType, int index) {
+        return trackLocations.stream().filter(trackLocation -> trackLocation.getLocationType().equals(locationType)).anyMatch(trackLocation -> trackLocation.getIndex() == index);
+    }
+
+    public List<TrackLocation> getTrackLocations(TrackLocation.Type locationType) {
+        return trackLocations.stream().filter(trackLocation -> trackLocation.getLocationType().equals(locationType)).collect(Collectors.toList());
+    }
+
+    public Optional<TrackLocation> getTrackLocation(TrackLocation.Type locationType) {
+        return trackLocations.stream().filter(trackLocation -> trackLocation.getLocationType().equals(locationType)).findFirst();
+    }
+
+    public Optional<TrackLocation> getTrackLocation(TrackLocation.Type locationType, int index) {
+        return trackLocations.stream().filter(trackLocation -> trackLocation.getLocationType().equals(locationType)).filter(trackLocation -> trackLocation.getIndex() == index).findFirst();
+    }
+
+    public void updateTrackLocation(TrackLocation trackLocation, Location location) {
+        trackLocation.updateLocation(location);
+        if (trackLocation instanceof TrackLeaderboard trackLeaderboard) {
+            trackLeaderboard.createOrUpdateHologram();
         }
     }
 
-    public void addGridLocation(Location location, int index) {
-        grids.put(index, location);
+    public boolean createTrackLocation(TrackLocation.Type type, Location location){
+        return createTrackLocation(type, 0, location);
     }
 
-    public boolean removeGridLocation(int index) {
-        if (grids.containsKey(index)) {
-            grids.remove(index);
-            DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = " + getId() + " AND `index` = " + index + " AND `type` = 'GRID';");
+    public boolean createTrackLocation(TrackLocation.Type type, int index, Location location){
+        try {
+            var trackLocation = TrackDatabase.trackLocationNew(getId(), index, type, location);
+            addTrackLocation(trackLocation);
+            if (trackLocation instanceof TrackLeaderboard trackLeaderboard) {
+                trackLeaderboard.createOrUpdateHologram();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean removeTrackLocation(TrackLocation trackLocation) {
+        if (trackLocations.contains(trackLocation)) {
+            if (trackLocation instanceof TrackLeaderboard trackLeaderboard) {
+                trackLeaderboard.removeHologram();
+            }
+            trackLocations.remove(trackLocation);
+            DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = " + getId() + " AND `index` = " + trackLocation.getIndex() + " AND `type` = '" +  trackLocation.getLocationType() + "';");
             return true;
         }
         return false;
-    }
-
-    public Map<Integer, Location> getGridLocations() {
-        return grids;
-    }
-
-    public Location getGridLocation(int index){
-        return grids.get(index);
     }
 
     public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish) {
