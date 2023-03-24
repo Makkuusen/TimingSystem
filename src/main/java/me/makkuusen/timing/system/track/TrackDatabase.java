@@ -150,9 +150,9 @@ public class TrackDatabase {
             leaderboard.setY(leaderboard.getY() + 3);
             // Save the track
             var trackId = DB.executeInsert("INSERT INTO `ts_tracks` " +
-                    "(`uuid`, `name`, `dateCreated`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `isRemoved`) " +
+                    "(`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `isRemoved`) " +
                     "VALUES('" + uuid + "', " +
-                    Database.sqlString(name) + ", " + date + ", " +
+                    Database.sqlString(name) + ", " + date + ", 100, " +
                     Database.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " +
                     Database.sqlString(type == null ? null : type.toString()) + "," +
                     Database.sqlString(Track.TrackMode.TIMETRIAL.toString()) + ", 0, NULL , 0);");

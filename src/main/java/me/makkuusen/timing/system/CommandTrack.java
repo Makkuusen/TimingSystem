@@ -217,6 +217,7 @@ public class CommandTrack extends BaseCommand {
         }
         plugin.sendMessage(commandSender, "messages.info.track.resets", "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.RESET).size()));
         plugin.sendMessage(commandSender, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
+        commandSender.sendMessage("§2Weight: §a" + track.getWeight());
 
     }
 
@@ -610,6 +611,13 @@ public class CommandTrack extends BaseCommand {
             } else {
                 plugin.sendMessage(player, "messages.toggle.track.closed");
             }
+        }
+
+        @Subcommand("weight")
+        @CommandCompletion("weight @track")
+        public static void onWeight(Player player, int weight, Track track) {
+            track.setWeight(weight);
+            plugin.sendMessage(player, "messages.save.generic");
         }
 
         @Subcommand("type")
