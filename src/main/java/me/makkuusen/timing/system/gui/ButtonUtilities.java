@@ -40,7 +40,7 @@ public class ButtonUtilities {
         elytra = new ItemBuilder(Material.ELYTRA).setName("§e§lElytra").build();
         boat = new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat").build();
         parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkours").build();
-        for (int i = 0; i < 4; i++){
+        for (int i = 0; i < 7; i++){
             boatPages.add(new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lBoat tracks " + (i+1)).build());
         }
         elytraPage = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§lElytra tracks").build();

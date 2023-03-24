@@ -12,7 +12,7 @@ import java.util.List;
 
 public abstract class TrackPageGui extends BaseGui {
 
-    public static final List<Integer> BOATPAGES = List.of(0,1,2,3);
+    public static final List<Integer> BOATPAGES = List.of(0,1,2,3,4,5,6);
     public static final Integer PARKOURPAGE = 8;
     public static final Integer ELYTRAPAGE = 7;
     public TrackSort trackSort = TrackSort.CREATION;
