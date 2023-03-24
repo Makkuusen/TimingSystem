@@ -83,6 +83,7 @@ public class TrackGui extends TrackPageGui{
         loreToSet.add(Component.text("§7Time Spent: §e" + ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
         loreToSet.add(Component.text("§7Created by: §e" + track.getOwner().getName()));
         loreToSet.add(Component.text("§7Created at: §e" + ApiUtilities.niceDate(track.getDateCreated())));
+        loreToSet.add(Component.text("§7Weight: §e" + track.getWeight()));
 
         ItemMeta im = toReturn.getItemMeta();
         im.lore(loreToSet);

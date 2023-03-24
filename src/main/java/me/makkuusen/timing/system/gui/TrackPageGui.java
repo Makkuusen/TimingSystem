@@ -56,6 +56,8 @@ public abstract class TrackPageGui extends BaseGui {
     private void setSortingItems(TPlayer tPlayer, int page){
         if (trackSort == TrackSort.CREATION) {
             setItem(getSortingButtons(tPlayer, page, TrackSort.POPULARITY), 0);
+        } else if (trackSort == TrackSort.POPULARITY) {
+            setItem(getSortingButtons(tPlayer, page, TrackSort.WEIGHT), 0);
         } else {
             setItem(getSortingButtons(tPlayer, page, TrackSort.CREATION), 0);
         }
@@ -64,6 +66,8 @@ public abstract class TrackPageGui extends BaseGui {
     private GuiButton getSortingButtons(TPlayer tPlayer, int page, TrackSort trackSort){
         if (trackSort == TrackSort.POPULARITY) {
              return getSortingButton(new ItemBuilder(Material.SUNFLOWER).setName("§eSort by: Popularity").build(), tPlayer, page, trackSort);
+        } else if (trackSort == TrackSort.WEIGHT) {
+            return getSortingButton(new ItemBuilder(Material.ANVIL).setName("§eSort by: Custom").build(), tPlayer, page, trackSort);
         } else {
             return getSortingButton(new ItemBuilder(Material.CLOCK).setName("§eSort by: Date Created").build(), tPlayer, page, trackSort);
         }
@@ -90,7 +94,7 @@ public abstract class TrackPageGui extends BaseGui {
         if (PARKOURPAGE != page) {
             setItem(getPageButton(ButtonUtilities.parkourPage, tPlayer, PARKOURPAGE), 53);
         } else {
-            setItem(getPageButton(new ItemBuilder(Material.PAPER    ).setName("§e§lCurrent page").build(),tPlayer, page), 53);
+            setItem(getPageButton(new ItemBuilder(Material.PAPER).setName("§e§lCurrent page").build(),tPlayer, page), 53);
         }
     }
 
@@ -127,9 +131,8 @@ public abstract class TrackPageGui extends BaseGui {
     public void sortTracks(List<Track> tracks, TrackSort trackSort) {
         if (trackSort == TrackSort.POPULARITY) {
             tracks.sort(Comparator.comparingLong(Track::getTotalTimeSpent).reversed());
+        } else if (trackSort == TrackSort.WEIGHT) {
+            tracks.sort(Comparator.comparingInt(Track::getWeight).reversed());
         }
     }
-
-
-
 }

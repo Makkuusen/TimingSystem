@@ -52,6 +52,7 @@ public class Track {
     private Location spawnLocation;
     private TrackType type;
     private TrackMode mode;
+    private int weight;
     private char[] options;
     private boolean open;
 
@@ -61,12 +62,14 @@ public class Track {
         displayName = data.getString("name");
         commandName = displayName.replaceAll(" ", "");
         dateCreated = data.getInt("dateCreated");
+        weight = data.getInt("weight");
         guiItem = ApiUtilities.stringToItem(data.getString("guiItem"));
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         type = data.getString("type") == null ? TrackType.BOAT : TrackType.valueOf(data.getString("type"));
         open = data.get("toggleOpen");
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
         mode = data.get("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));
+        weight = data.getInt("weight");
 
     }
 
@@ -136,6 +139,16 @@ public class Track {
 
         return toReturn;
     }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `weight` = " + weight + " WHERE `id` = " + id + ";");
+    }
+
 
     public void setMode(TrackMode mode) {
         this.mode = mode;
