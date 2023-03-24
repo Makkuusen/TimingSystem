@@ -19,6 +19,7 @@ import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.track.GridManager;
+import me.makkuusen.timing.system.track.TrackLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -99,11 +100,11 @@ public class Heat {
         }
         List<Driver> pos = new ArrayList<>();
         pos.addAll(getStartPositions());
-        if (getEvent().getTrack().getGridLocations().values().size() != 0)
+        if (getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size() != 0)
             for (Driver d : getStartPositions()) {
                 Player player = d.getTPlayer().getPlayer();
                 if (player != null) {
-                    Location grid = getEvent().getTrack().getGridLocation(d.getStartPosition());
+                    Location grid = getEvent().getTrack().getTrackLocation(TrackLocation.Type.GRID, d.getStartPosition()).get().getLocation();
                     if (grid != null) {
                         gridManager.teleportPlayerToGrid(player, grid, getEvent().getTrack());
                     }
@@ -249,7 +250,7 @@ public class Heat {
         if (maxDrivers != null) {
             return maxDrivers;
         }
-        return getEvent().getTrack().getGrids().size();
+        return getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size();
     }
 
     public void addDriver(Driver driver) {

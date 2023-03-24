@@ -39,7 +39,7 @@ public class TrackDatabase {
     public static void initDatabaseSynchronize() throws SQLException {
         loadTracksAndTimeTrials();
         loadTrackRegions();
-        loadGridLocations();
+        loadTrackLocations();
         clearUselessEndRegions();
     }
 
@@ -117,15 +117,28 @@ public class TrackDatabase {
             }
         }
     }
-    private static void loadGridLocations() throws SQLException {
-        var locations = DB.getResults("SELECT * FROM `ts_locations` WHERE `type` = 'GRID'");
+
+    private static void loadTrackLocations() throws SQLException {
+        var locations = DB.getResults("SELECT * FROM `ts_locations`");
         for (DbRow dbRow : locations) {
+
             Optional<Track> maybeTrack = getTrackById(dbRow.getInt("trackId"));
-            if (maybeTrack.isPresent()) {
-                Location loc = ApiUtilities.stringToLocation(dbRow.getString("location"));
-                Integer index = dbRow.getInt("index");
-                maybeTrack.get().addGridLocation(loc, index);
+            if (maybeTrack.isEmpty()) {
+                continue;
             }
+            // Check that type is an actual valid TrackLocation. For e.g. Nidos camera system store other values here.
+            try {
+                TrackLocation.Type.valueOf(dbRow.getString("type"));
+            } catch (IllegalArgumentException exception) {
+                continue;
+            }
+            TrackLocation trackLocation;
+            if (TrackLocation.Type.valueOf(dbRow.getString("type")) == TrackLocation.Type.LEADERBOARD) {
+                trackLocation = new TrackLeaderboard(dbRow);
+            } else {
+                trackLocation = new TrackLocation(dbRow);
+            }
+            maybeTrack.get().addTrackLocation(trackLocation);
         }
     }
 
@@ -178,17 +191,28 @@ public class TrackDatabase {
         }
     }
 
+    public static TrackLocation trackLocationNew(int trackId, int index, TrackLocation.Type type, Location location) throws SQLException {
+        DB.executeInsert("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + trackId +  ", "  + index + ", '" + type.name() + "', '" + ApiUtilities.locationToString(location) + "');");
+        if (type == TrackLocation.Type.LEADERBOARD) {
+            return new TrackLeaderboard(trackId, index, location, type);
+        } else {
+            return new TrackLocation(trackId, index, location, type);
+        }
+
+    }
+
     static public void removeTrack(Track track) {
         DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `trackId` = " + track.getId() + ";");
         DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + track.getId() + ";");
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = " + track.getId() + ";");
+        LeaderboardManager.removeLeaderboards(track);
         startRegions.removeIf(trackRegion -> trackRegion.getTrackId() == track.getId());
         tracks.remove(track);
         var events = EventDatabase.getEvents().stream().filter(event -> event.getTrack() != null).filter(event -> event.getTrack().equals(track.getId())).collect(Collectors.toList());
         for (Event event : events) {
             EventDatabase.removeEvent(event);
         }
-        LeaderboardManager.removeLeaderboard(track.getId());
+
     }
 
     static public Optional<Track> getTrack(String name) {

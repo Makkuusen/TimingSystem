@@ -41,6 +41,7 @@ public class Database {
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + plugin.getDescription().getVersion() + "', " + ApiUtilities.getTimestamp() + ");");
                 rc9Update();
                 v1_0Update();
+                v1_2Update();
             } else {
                 if (isNewerVersion(row.getString("version") , plugin.getDescription().getVersion())) {
                     updateDatabase(row.getString("version"), plugin.getDescription().getVersion());
@@ -299,6 +300,10 @@ public class Database {
     }
     private static void updateDatabase(String oldVersion, String newVersion) {
         plugin.getLogger().warning("UPDATING DATABASE FROM " + oldVersion + " to " + newVersion);
+
+        if (newVersion.equalsIgnoreCase("1.2")) {
+            v1_2Update();
+        }
     }
 
     private static void rc9Update() {
@@ -318,6 +323,18 @@ public class Database {
             DB.executeUpdate("ALTER TABLE `ts_players` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#9D9D97' AFTER `boat`;");
         } catch (Exception exception) {
 
+        }
+    }
+
+    private static void v1_2Update() {
+        try {
+            var dbRows = DB.getResults("SELECT * FROM `ts_tracks`;");
+            for (DbRow row : dbRows) {
+                DB.executeUpdate("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + row.getInt("id") +  ", "  + 1 + ", 'LEADERBOARD', '" + row.getString("leaderboard") + "');");
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 

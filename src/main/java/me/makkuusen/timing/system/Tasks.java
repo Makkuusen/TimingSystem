@@ -4,6 +4,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Bukkit;
@@ -30,7 +31,7 @@ public class Tasks {
                     Track track = TimingSystem.playerEditingSession.get(uuid);
 
                     track.getRegions().stream().forEach(trackRegion -> setParticles(player, trackRegion));
-                    track.getGridLocations().values().forEach(location -> setParticles(player, location, Particle.WAX_OFF));
+                    track.getTrackLocations(TrackLocation.Type.GRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_OFF));
                 }
             }
         }, 0, 10);

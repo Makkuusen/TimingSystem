@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialSession;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
+import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
@@ -50,14 +51,12 @@ public class CommandTrack extends BaseCommand {
         track.setSpawnLocation(moveTo);
         var offset = getOffset(moveFrom, moveTo);
         player.sendMessage("§2Offset is X: " + offset.getX() + ", Y: " + offset.getY() + ", Z: " + offset.getZ());
-        Location newLeaderboard = getNewLocation(moveTo.getWorld(), track.getLeaderboardLocation(), offset);
-        track.setLeaderboardLocation(newLeaderboard);
 
-        var grids = track.getGrids();
-        for (int i : grids.keySet()) {
-            Location grid = grids.get(i);
-            var newGrid = getNewLocation(newWorld, grid, offset);
-            track.setGridLocation(newGrid, i);
+        var trackLocations = track.getTrackLocations();
+        for (TrackLocation tl: trackLocations) {
+            Location loc = tl.getLocation();
+            var newLoc = getNewLocation(newWorld, loc, offset);
+            track.updateTrackLocation(tl, newLoc);
         }
 
         var regions = track.getRegions();
@@ -170,7 +169,7 @@ public class CommandTrack extends BaseCommand {
         track.setOptions("b");
 
         plugin.sendMessage(player, "messages.create.name", "%name%", name);
-        LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+        LeaderboardManager.updateFastestTimeLeaderboard(track);
     }
 
     @Subcommand("info")
@@ -213,12 +212,11 @@ public class CommandTrack extends BaseCommand {
         plugin.sendMessage(commandSender, "messages.info.track.options", "%options%", ApiUtilities.formatPermissions(track.getOptions()));
         plugin.sendMessage(commandSender, "messages.info.track.mode", "%mode%", track.getModeAsString());
         plugin.sendMessage(commandSender, "messages.info.track.checkpoints", "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()));
-        if (track.getGrids().size() != 0) {
-            commandSender.sendMessage("§2Grids: §a" + track.getGrids().size());
+        if (track.getTrackLocations(TrackLocation.Type.GRID).size() != 0) {
+            commandSender.sendMessage("§2Grids: §a" + track.getTrackLocations(TrackLocation.Type.GRID).size());
         }
         plugin.sendMessage(commandSender, "messages.info.track.resets", "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.RESET).size()));
         plugin.sendMessage(commandSender, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
-        plugin.sendMessage(commandSender, "messages.info.track.leaderboard", "%location%", ApiUtilities.niceLocation(track.getLeaderboardLocation()));
 
     }
 
@@ -568,7 +566,7 @@ public class CommandTrack extends BaseCommand {
         }
         track.deleteBestFinish(TPlayer, bestFinish);
         plugin.sendMessage(commandSender, "messages.remove.bestTime", "%player%", TPlayer.getName(), "%map%", track.getDisplayName());
-        LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+        LeaderboardManager.updateFastestTimeLeaderboard(track);
     }
 
     @Subcommand("deletealltimes")
@@ -583,12 +581,12 @@ public class CommandTrack extends BaseCommand {
             }
             commandSender.sendMessage("§aAll finishes has been reset for " + tPlayer.getNameDisplay());
             track.deleteAllFinishes(tPlayer);
-            LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+            LeaderboardManager.updateFastestTimeLeaderboard(track);
             return;
         }
         track.deleteAllFinishes();
         commandSender.sendMessage("§aAll finishes has been reset");
-        LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+        LeaderboardManager.updateFastestTimeLeaderboard(track);
 
     }
 
@@ -641,13 +639,11 @@ public class CommandTrack extends BaseCommand {
         }
 
         @Subcommand("leaderboard")
-        @CommandCompletion("@track")
-        public static void onLeaderboard(Player player, Track track) {
+        @CommandCompletion("@track <index>")
+        public static void onLeaderboard(Player player, Track track, @Optional String index) {
             Location loc = player.getLocation();
             loc.setY(loc.getY() + 3);
-            track.setLeaderboardLocation(loc);
-            Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(player));
-            plugin.sendMessage(player, "messages.save.generic");
+            createOrUpdateTrackIndexLocation(track, TrackLocation.Type.LEADERBOARD, index, player, loc);
         }
 
         @Subcommand("name")
@@ -675,7 +671,7 @@ public class CommandTrack extends BaseCommand {
             }
             track.setName(name);
             plugin.sendMessage(commandSender, "messages.save.generic");
-            LeaderboardManager.updateFastestTimeLeaderboard(track.getId());
+            LeaderboardManager.updateFastestTimeLeaderboard(track);
 
         }
 
@@ -805,29 +801,8 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("grid")
         @CommandCompletion("@track <index>")
-        public static void onGridRegion(Player player, Track track, @Optional String index) {
-            int regionIndex;
-            boolean remove = false;
-            if (index != null) {
-                remove = getParsedRemoveFlag(index);
-                if (getParsedIndex(index) == null) {
-                    plugin.sendMessage(player, "messages.error.numberException");
-                    return;
-                }
-                regionIndex = getParsedIndex(index);
-            } else {
-                regionIndex = track.getGridLocations().size() + 1;
-            }
-            if (remove) {
-                if (track.removeGridLocation(regionIndex)) {
-                    plugin.sendMessage(player, "messages.remove.region");
-                } else {
-                    plugin.sendMessage(player, "messages.error.remove.region");
-                }
-            } else {
-                track.setGridLocation(player.getLocation(), regionIndex);
-                plugin.sendMessage(player, "messages.create.region");
-            }
+        public static void onGridLocation(Player player, Track track, @Optional String index) {
+            createOrUpdateTrackIndexLocation(track, TrackLocation.Type.GRID, index, player, player.getLocation());
         }
 
         @Subcommand("checkpoint")
@@ -864,6 +839,53 @@ public class CommandTrack extends BaseCommand {
             } else {
                 return track.createRegion(regionType, index, selection, player.getLocation());
             }
+        }
+
+        private static void createOrUpdateTrackLocation(Track track, TrackLocation.Type type, int index, Player player, Location location) {
+            if (track.hasTrackLocation(type, index)) {
+                track.updateTrackLocation(track.getTrackLocation(type, index).get(), location);
+            } else {
+                track.createTrackLocation(type, index, location);
+            }
+        }
+
+        private static boolean createOrUpdateTrackIndexLocation(Track track, TrackLocation.Type type, String index, Player player, Location location) {
+            int locationIndex;
+
+            boolean remove = false;
+            if (index != null) {
+                remove = getParsedRemoveFlag(index);
+                if (getParsedIndex(index) == null) {
+                    plugin.sendMessage(player, "messages.error.numberException");
+                    return false;
+                }
+                locationIndex = getParsedIndex(index);
+            } else {
+                if (type == TrackLocation.Type.GRID) {
+                    locationIndex = track.getTrackLocations(TrackLocation.Type.GRID).size() + 1;
+                } else {
+                    locationIndex = 1;
+                }
+            }
+            if (remove) {
+                var maybeLocation = track.getTrackLocation(type, locationIndex);
+                if (maybeLocation.isPresent()) {
+                    if (track.removeTrackLocation(maybeLocation.get())) {
+                        plugin.sendMessage(player, "messages.remove.generic");
+                        return true;
+                    } else {
+                        player.sendMessage("§cTrack location could not be removed.");
+                        return false;
+                    }
+                } else {
+                    player.sendMessage("§cTrack location doesn't currently exist");
+                    return false;
+                }
+            }
+            createOrUpdateTrackLocation(track, type, locationIndex, player, location);
+            player.sendMessage("§aTrack Location has been updated");
+            return false;
+
         }
 
         private static boolean createOrUpdateIndexRegion(Track track, TrackRegion.RegionType regionType, String index, Player player) {
