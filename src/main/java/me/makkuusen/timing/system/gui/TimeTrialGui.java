@@ -24,13 +24,13 @@ public class TimeTrialGui extends TrackPageGui{
     public List<Track> getTracks(int page, TrackSort trackSort) {
         List<Track> tracks;
         if (page == ELYTRAPAGE) {
-            tracks = TrackDatabase.getOpenTracks().stream().filter(Track::isElytraTrack).collect(Collectors.toList());
+            tracks = TrackDatabase.getOpenTracks().stream().filter(Track::isWeightAboveZero).filter(Track::isElytraTrack).collect(Collectors.toList());
             sortTracks(tracks, trackSort);
         } else if (page == PARKOURPAGE) {
-            tracks = TrackDatabase.getOpenTracks().stream().filter(Track::isParkourTrack).collect(Collectors.toList());
+            tracks = TrackDatabase.getOpenTracks().stream().filter(Track::isWeightAboveZero).filter(Track::isParkourTrack).collect(Collectors.toList());
             sortTracks(tracks, trackSort);
         } else {
-            List<Track> tempTracks = TrackDatabase.getOpenTracks().stream().filter(Track::isBoatTrack).collect(Collectors.toList());
+            List<Track> tempTracks = TrackDatabase.getOpenTracks().stream().filter(Track::isWeightAboveZero).filter(Track::isBoatTrack).collect(Collectors.toList());
             sortTracks(tempTracks, trackSort);
             int start = 36 * page;
             tracks = new ArrayList<>();

@@ -149,6 +149,10 @@ public class Track {
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `weight` = " + weight + " WHERE `id` = " + id + ";");
     }
 
+    public boolean isWeightAboveZero(){
+        return weight > 0;
+    }
+
 
     public void setMode(TrackMode mode) {
         this.mode = mode;
