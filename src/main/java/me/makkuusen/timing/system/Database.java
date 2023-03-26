@@ -293,6 +293,19 @@ public class Database {
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n");
 
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_tags` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `tag` varchar(255) NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n");
+
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_tracks_tags` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `trackId` int(11) NOT NULL,\n" +
+                    "  `tag` varchar(255) NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n");
+
             return true;
         } catch (SQLException exception) {
             exception.printStackTrace();

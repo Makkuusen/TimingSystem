@@ -20,13 +20,12 @@ import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -218,6 +217,12 @@ public class CommandTrack extends BaseCommand {
         plugin.sendMessage(commandSender, "messages.info.track.resets", "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.RESET).size()));
         plugin.sendMessage(commandSender, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
         commandSender.sendMessage("§2Weight: §a" + track.getWeight());
+        List<String> tagList = new ArrayList<>();
+        for (TrackTag tag : track.getTags()) {
+            tagList.add(tag.getValue());
+        }
+        String tags = String.join(", ", tagList);
+        commandSender.sendMessage("§2Tags: §a" + tags);
 
     }
 
@@ -471,7 +476,7 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("list")
-    @CommandCompletion("@track <page>")
+    @CommandCompletion("<page>")
     public static void onList(CommandSender commandSender, @Optional Integer pageStart) {
         if (TrackDatabase.getTracks().size() == 0) {
             plugin.sendMessage(commandSender, "messages.error.missing.tracks");
@@ -614,10 +619,38 @@ public class CommandTrack extends BaseCommand {
         }
 
         @Subcommand("weight")
-        @CommandCompletion("weight @track")
+        @CommandCompletion("<value> @track")
         public static void onWeight(Player player, int weight, Track track) {
             track.setWeight(weight);
             plugin.sendMessage(player, "messages.save.generic");
+        }
+
+        @Subcommand("tag")
+        @CommandCompletion("@track +/- @trackTag")
+        public static void onTag(CommandSender sender, Track track, String plusOrMinus, TrackTag tag) {
+
+            if (!TrackTagManager.hasTag(tag)) {
+                sender.sendMessage("§cTag does not exist");
+                return;
+            }
+            if (plusOrMinus.equalsIgnoreCase("-")) {
+                if (track.removeTag(tag)) {
+                    sender.sendMessage("§aTag '" + tag.getValue() + "' was removed.");
+                    return;
+                }
+
+                sender.sendMessage("§cTag '" + tag.getValue() + "' could not be removed.");
+                return;
+            }
+
+            if (track.createTag(tag)) {
+                sender.sendMessage("§aTag '" + tag.getValue() + "' was added.");
+                return;
+            }
+
+            sender.sendMessage("§cTag '" + tag.getValue() + "' could not be added.");
+            return;
+
         }
 
         @Subcommand("type")

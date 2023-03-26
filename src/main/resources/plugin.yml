@@ -21,6 +21,9 @@ commands:
    round:
       description: Command for rounds.
       aliases: []
+   timingsystem:
+      description: Command for server settings
+      aliases: [ts]
 
 permissions:
 

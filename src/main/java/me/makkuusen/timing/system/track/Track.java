@@ -43,6 +43,7 @@ public class Track {
     private final long dateCreated;
     private final Set<TrackRegion> regions = new HashSet<>();
     private final Set<TrackLocation> trackLocations = new HashSet<>();
+    private final Set<TrackTag> tags = new HashSet<>();
     private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
     private Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
     private TPlayer owner;
@@ -131,7 +132,14 @@ public class Track {
         loreToSet.add(Component.text("§7Time spent: §e" + ApiUtilities.formatAsTimeSpent(getPlayerTotalTimeSpent(tPlayer))));
         loreToSet.add(Component.text("§7Created by: §e" + getOwner().getName()));
 
-        
+        List<String> tagList = new ArrayList<>();
+        for (TrackTag tag : getTags()) {
+            tagList.add(tag.getValue());
+        }
+        String tags = String.join(", ", tagList);
+        loreToSet.add(Component.text("§7Tags: §e" + tags));
+
+
         ItemMeta im = toReturn.getItemMeta();
         im.displayName(Component.text(getDisplayName()).color(TextColor.color(255, 255, 85)));
         im.lore(loreToSet);
@@ -151,6 +159,43 @@ public class Track {
 
     public boolean isWeightAboveZero(){
         return weight > 0;
+    }
+
+    public boolean hasTag(TrackTag tag) {
+        if (tag == null) {
+            return true;
+        }
+        return tags.contains(tag);
+    }
+
+
+    public void addTag(DbRow dbRow) {
+        var tag = new TrackTag(dbRow.get("tag"));
+        if (!tags.contains(tag)) {
+            tags.add(tag);
+        }
+    }
+
+    public boolean createTag(TrackTag tag) {
+        if (!tags.contains(tag)) {
+            DB.executeUpdateAsync("INSERT INTO `ts_tracks_tags` (`trackId`, `tag`) VALUES(" + getId() + ", '" + tag.getValue() + "');");
+            tags.add(tag);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeTag(TrackTag tag) {
+        if (tags.contains(tag)) {
+            DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = " + tag.getValue() + " AND `trackId` = " + getId() + ";");
+            tags.remove(tag);
+            return true;
+        }
+        return false;
+    }
+
+    public List<TrackTag> getTags(){
+        return tags.stream().toList();
     }
 
 
