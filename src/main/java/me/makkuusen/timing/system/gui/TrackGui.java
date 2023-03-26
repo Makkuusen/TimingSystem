@@ -4,6 +4,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
+import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -16,32 +17,36 @@ import java.util.stream.Collectors;
 public class TrackGui extends TrackPageGui{
 
     public TrackGui(TPlayer tPlayer, int page) {
-        super(tPlayer, "§2§lTracks", 6, page);
+        super(tPlayer, "§2§lTracks - ALL", 6, page);
     }
 
-    public TrackGui(TPlayer tPlayer, int page, TrackSort trackSort) {
-        super(tPlayer, "§2§lTracks", 6, page, trackSort);
+    public TrackGui(TPlayer tPlayer, String title, int page, TrackSort trackSort, TrackTag filter) {
+        super(tPlayer, title, 6, page, trackSort, filter);
+
     }
 
     @Override
     public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page){
         var button = new GuiButton(item);
         button.setAction(() -> {
-            new TrackGui(tPlayer, page, trackSort).show(tPlayer.getPlayer());
+            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(filter);
+            new TrackGui(tPlayer, title, page, trackSort, filter).show(tPlayer.getPlayer());
         });
         return button;
     }
 
     public List<Track> getTracks(int page, TrackSort trackSort) {
+        var filteredTracks = TrackDatabase.getTracks().stream().filter(track -> track.hasTag(filter)).filter(Track::isWeightAboveZero);
+
         List<Track> tracks;
         if (page == ELYTRAPAGE) {
-            tracks = TrackDatabase.getTracks().stream().filter(Track::isElytraTrack).collect(Collectors.toList());
+            tracks = filteredTracks.filter(Track::isElytraTrack).collect(Collectors.toList());
             sortTracks(tracks, trackSort);
         } else if (page == PARKOURPAGE) {
-            tracks = TrackDatabase.getTracks().stream().filter(Track::isParkourTrack).collect(Collectors.toList());
+            tracks = filteredTracks.filter(Track::isParkourTrack).collect(Collectors.toList());
             sortTracks(tracks, trackSort);
         } else {
-            List<Track> tempTracks = TrackDatabase.getTracks().stream().filter(Track::isBoatTrack).collect(Collectors.toList());
+            List<Track> tempTracks = filteredTracks.filter(Track::isBoatTrack).collect(Collectors.toList());
             sortTracks(tempTracks, trackSort);
             int start = 36 * page;
             tracks = new ArrayList<>();
@@ -68,10 +73,27 @@ public class TrackGui extends TrackPageGui{
     }
 
     @Override
-    public GuiButton getSortingButton(ItemStack item, TPlayer tPlayer, int page, TrackSort trackSort) {
+    public GuiButton getSortingButton(ItemStack item, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            new TrackGui(tPlayer, page, trackSort).show(tPlayer.getPlayer());
+            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(filter);
+            if (tPlayer.isSound()) {
+                ButtonUtilities.playConfirm(tPlayer.getPlayer());
+            }
+            new TrackGui(tPlayer, title, page, trackSort, tag).show(tPlayer.getPlayer());
+        });
+        return button;
+    }
+
+    @Override
+    public GuiButton getFilterButton(ItemStack item, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag) {
+        var button = new GuiButton(item);
+        button.setAction(() -> {
+            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(tag);
+            if (tPlayer.isSound()) {
+                ButtonUtilities.playConfirm(tPlayer.getPlayer());
+            }
+            new TrackGui(tPlayer, title, page, trackSort, tag).show(tPlayer.getPlayer());
         });
         return button;
     }
@@ -84,6 +106,13 @@ public class TrackGui extends TrackPageGui{
         loreToSet.add(Component.text("§7Created by: §e" + track.getOwner().getName()));
         loreToSet.add(Component.text("§7Created at: §e" + ApiUtilities.niceDate(track.getDateCreated())));
         loreToSet.add(Component.text("§7Weight: §e" + track.getWeight()));
+
+        List<String> tagList = new ArrayList<>();
+        for (TrackTag tag : track.getTags()) {
+            tagList.add(tag.getValue());
+        }
+        String tags = String.join(", ", tagList);
+        loreToSet.add(Component.text("§7Tags: §e" + tags));
 
         ItemMeta im = toReturn.getItemMeta();
         im.lore(loreToSet);

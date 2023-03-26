@@ -15,6 +15,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
@@ -37,6 +38,7 @@ public class TrackDatabase {
     private static List<TrackRegion> startRegions = new ArrayList<>();
 
     public static void initDatabaseSynchronize() throws SQLException {
+        loadTags();
         loadTracksAndTimeTrials();
         loadTrackRegions();
         loadTrackLocations();
@@ -53,6 +55,7 @@ public class TrackDatabase {
 
             loadFinishes(rTrack);
             loadAttempts(rTrack);
+            loadTrackTags(rTrack);
         }
     }
     private static void loadFinishes(Track rTrack) throws SQLException{
@@ -74,6 +77,14 @@ public class TrackDatabase {
                 rTrack.addTimeTrialAttempt(new TimeTrialAttempt(attempt));
             }
         }
+    }
+
+    private static void loadTrackTags(Track rTrack) throws SQLException {
+        var tags = DB.getResults("SELECT * FROM `ts_tracks_tags` WHERE `trackId` = " + rTrack.getId() + ";");
+        for (DbRow tag : tags) {
+            rTrack.addTag(tag);
+        }
+
     }
 
     private static void loadTrackRegions() throws SQLException {
@@ -139,6 +150,13 @@ public class TrackDatabase {
                 trackLocation = new TrackLocation(dbRow);
             }
             maybeTrack.get().addTrackLocation(trackLocation);
+        }
+    }
+
+    public static void loadTags() throws SQLException {
+        var trackTags = DB.getResults("SELECT * FROM `ts_tags`");
+        for (DbRow dbRow: trackTags) {
+            TrackTagManager.addTag(new TrackTag(dbRow.getString("tag")));
         }
     }
 

@@ -2,7 +2,9 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackTag;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +17,8 @@ public abstract class TrackPageGui extends BaseGui {
     public static final List<Integer> BOATPAGES = List.of(0,1,2,3,4,5,6);
     public static final Integer PARKOURPAGE = 8;
     public static final Integer ELYTRAPAGE = 7;
-    public TrackSort trackSort = TrackSort.CREATION;
+    public TrackSort trackSort = TrackSort.WEIGHT;
+    public TrackTag filter;
 
     public TrackPageGui(TPlayer tPlayer, String title, int rows, int page) {
         super(title, rows);
@@ -24,16 +27,19 @@ public abstract class TrackPageGui extends BaseGui {
         setNavigationItems(tPlayer, page);
         setTrackButtons(tPlayer, page);
         setSortingItems(tPlayer, page);
+        setFilterItems(tPlayer, page);
     }
 
-    public TrackPageGui(TPlayer tPlayer, String title, int rows, int page, TrackSort trackSort) {
+    public TrackPageGui(TPlayer tPlayer, String title, int rows, int page, TrackSort trackSort, TrackTag filter) {
         super(title, rows);
         this.trackSort = trackSort;
+        this.filter = filter;
         setBorder();
         setPageItem(page);
         setNavigationItems(tPlayer, page);
         setTrackButtons(tPlayer, page);
         setSortingItems(tPlayer, page);
+        setFilterItems(tPlayer, page);
     }
 
     private void setBorder() {
@@ -63,17 +69,30 @@ public abstract class TrackPageGui extends BaseGui {
         }
     }
 
+    private void setFilterItems(TPlayer tPlayer, int page){
+        setItem(getFilterButtons(tPlayer, page, filter, TrackTagManager.getNext(filter)), 2);
+    }
+
+    private GuiButton getFilterButtons(TPlayer tPlayer, int page, TrackTag current, TrackTag next) {
+        if (filter == null) {
+            return getFilterButton(new ItemBuilder(Material.HOPPER).setName("§eFilter by: None").build(), tPlayer, page, trackSort, next);
+        }
+        return getFilterButton(new ItemBuilder(Material.HOPPER).setName("§eFilter by: " + current.getValue()).build(), tPlayer, page, trackSort, next);
+    }
+
+    public abstract GuiButton getFilterButton(ItemStack itemStack, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag);
+
     private GuiButton getSortingButtons(TPlayer tPlayer, int page, TrackSort trackSort){
         if (trackSort == TrackSort.POPULARITY) {
-             return getSortingButton(new ItemBuilder(Material.SUNFLOWER).setName("§eSort by: Popularity").build(), tPlayer, page, trackSort);
+             return getSortingButton(new ItemBuilder(Material.CLOCK).setName("§eSorted by: Date Created").build(), tPlayer, page, trackSort, filter);
         } else if (trackSort == TrackSort.WEIGHT) {
-            return getSortingButton(new ItemBuilder(Material.ANVIL).setName("§eSort by: Custom").build(), tPlayer, page, trackSort);
+            return getSortingButton(new ItemBuilder(Material.SUNFLOWER).setName("§eSorted by: Popularity").build(), tPlayer, page, trackSort, filter);
         } else {
-            return getSortingButton(new ItemBuilder(Material.CLOCK).setName("§eSort by: Date Created").build(), tPlayer, page, trackSort);
+            return getSortingButton(new ItemBuilder(Material.ANVIL).setName("§eSorted by: Custom").build(), tPlayer, page, trackSort, filter);
         }
     }
 
-    public abstract GuiButton getSortingButton(ItemStack itemStack, TPlayer tPlayer, int page, TrackSort trackSort);
+    public abstract GuiButton getSortingButton(ItemStack itemStack, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag);
 
     private void setNavigationItems(TPlayer tPlayer, int page){
         int slot = 45;

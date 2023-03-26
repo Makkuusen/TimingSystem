@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialListener;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.TrackTag;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -109,6 +110,16 @@ public class TimingSystem extends JavaPlugin {
         });
 
         manager.getCommandContexts().registerContext(
+                TrackTag.class, TrackTagManager.getTrackTagContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("trackTag", context -> {
+            List<String> res = new ArrayList<>();
+            for(TrackTag tag : TrackTagManager.getTrackTags()){
+                res.add(tag.getValue());
+            }
+            return res;
+        });
+
+        manager.getCommandContexts().registerContext(
                 RoundType.class, Round.getRoundTypeContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("roundType", context -> {
             List<String> res = new ArrayList<>();
@@ -144,6 +155,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandTrack());
         manager.registerCommand(new CommandTimeTrial());
         manager.registerCommand(new CommandSettings());
+        manager.registerCommand(new CommandTimingSystem());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
 

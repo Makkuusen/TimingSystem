@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.track.TrackTag;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -95,6 +96,14 @@ public class ButtonUtilities {
 
     public static void playConfirm(Player player) {
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1);
+    }
+
+    public static String getFilterTitel(TrackTag tag) {
+        if (tag == null) {
+            return "- ALL";
+        } else {
+            return "- " + tag.getValue();
+        }
     }
 
 }
