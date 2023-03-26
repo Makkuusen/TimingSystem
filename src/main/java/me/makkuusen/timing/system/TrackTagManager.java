@@ -9,14 +9,14 @@ import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class TrackTagManager {
 
-    private static Set<TrackTag> trackTags = new HashSet<>();
+    private static List<TrackTag> trackTags = new ArrayList<>();
 
     public static boolean createTrackTag(String value) {
 

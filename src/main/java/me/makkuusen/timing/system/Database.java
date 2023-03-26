@@ -347,7 +347,7 @@ public class Database {
             var dbRows = DB.getResults("SELECT * FROM `ts_tracks`;");
             for (DbRow row : dbRows) {
                 var first = DB.getFirstRow("SELECT * FROM `ts_locations` WHERE `trackId` = " + row.getInt("id") + " AND `type` = 'LEADERBOARD' AND `index` = 1;");
-                if (first.isEmpty()) {
+                if (first == null) {
                     DB.executeUpdate("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + row.getInt("id") +  ", "  + 1 + ", 'LEADERBOARD', '" + row.getString("leaderboard") + "');");
                 }
 
