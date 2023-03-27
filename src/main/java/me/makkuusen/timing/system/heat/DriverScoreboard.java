@@ -95,11 +95,8 @@ public class DriverScoreboard {
         }
         Location playerLoc = driver.getTPlayer().getPlayer().getLocation();
 
-        var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
-        for (TrackRegion trackRegion : inPitRegions) {
-            if (trackRegion.contains(playerLoc)){
-                return ScoreboardUtils.getDriverLineRaceInPit(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition());
-            }
+        if (driver.isInPit(playerLoc)) {
+            return ScoreboardUtils.getDriverLineRaceInPit(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition());
         }
 
         if (driver.getPosition() < comparingDriver.getPosition()) {

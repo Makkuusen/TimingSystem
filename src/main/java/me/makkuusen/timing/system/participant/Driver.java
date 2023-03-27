@@ -11,7 +11,10 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.DriverScoreboard;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
+import me.makkuusen.timing.system.heat.ScoreboardUtils;
 import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.track.TrackRegion;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,6 +131,16 @@ public class Driver extends Participant implements Comparable<Driver> {
         return state == DriverState.RUNNING || state == DriverState.LOADED || state == DriverState.STARTING;
     }
 
+    public boolean isInPit(Location playerLoc) {
+        var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
+        for (TrackRegion trackRegion : inPitRegions) {
+            if (trackRegion.contains(playerLoc)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void newLap() {
         laps.add(new Lap(this, heat.getEvent().getTrack()));
     }
@@ -213,6 +226,35 @@ public class Driver extends Participant implements Comparable<Driver> {
         }
 
         return getLaps().get(lap - 1).getCheckpointTime(checkpoint);
+    }
+
+    public long getTimeGap(Driver comparingDriver) {
+
+        long timeDiff;
+        if (getPosition() < comparingDriver.getPosition()) {
+            if (comparingDriver.isFinished()) {
+                return Duration.between(getEndTime(), comparingDriver.getEndTime()).toMillis();
+            }
+
+            if (comparingDriver.getLaps().size() > 0 && comparingDriver.getCurrentLap() != null) {
+                Instant timeStamp = comparingDriver.getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
+                Instant fasterTimeStamp = getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
+                timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
+                return timeDiff;
+            }
+        }
+
+        if (getPosition() > comparingDriver.getPosition()) {
+            if (isFinished()) {
+                return Duration.between(comparingDriver.getEndTime(), getEndTime()).toMillis();
+            }
+
+            Instant timeStamp = getTimeStamp(getLaps().size(), getCurrentLap().getLatestCheckpoint());
+            Instant fasterTimeStamp = comparingDriver.getTimeStamp(getLaps().size(), getCurrentLap().getLatestCheckpoint());
+            timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
+            return timeDiff;
+        }
+        return 0;
     }
 
 
