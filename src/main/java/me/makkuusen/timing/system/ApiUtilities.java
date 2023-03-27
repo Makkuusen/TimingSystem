@@ -270,7 +270,7 @@ public class ApiUtilities {
     }
 
     public static void msgConsole(String msg) {
-        TimingSystem.getPlugin().logger.info(msg);
+            TimingSystem.getPlugin().logger.info(msg);
     }
 
     public static String color(String uncolored) {
@@ -559,18 +559,19 @@ public class ApiUtilities {
         BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
         Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
 
-        if (boatSpawnEvent.getBoat() != null) {
-            return boatSpawnEvent.getBoat();
-        }
-        var tPlayer = Database.getPlayer(player.getUniqueId());
-        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
-        boat.addPassenger(player);
         if (track.hasOption('r')) {
             ApiUtilities.giveBoatUtilsREffect(player);
         }
         if (track.hasOption('i')) {
             ApiUtilities.giveBoatUtilsIEffect(player);
         }
+
+        if (boatSpawnEvent.getBoat() != null) {
+            return boatSpawnEvent.getBoat();
+        }
+        var tPlayer = Database.getPlayer(player.getUniqueId());
+        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
+        boat.addPassenger(player);
         return boat;
     }
 
