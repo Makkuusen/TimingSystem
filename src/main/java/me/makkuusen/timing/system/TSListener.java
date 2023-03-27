@@ -451,6 +451,21 @@ public class TSListener implements Listener {
                 return;
             }
         }
+
+        if (!timeTrial.hasLagChecked() && track.hasRegion(TrackRegion.RegionType.LAGCHECK)) {
+            if (track.getRegion(TrackRegion.RegionType.LAGCHECK).get().contains(player.getLocation())) {
+                timeTrial.lagCheck(true);
+                if (ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime)) == 0) {
+                    player.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
+                    plugin.logger.warning(player.getName() + " failed lagcheck on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                    //timeTrial.playerResetMap();
+
+                } else {
+                    ApiUtilities.msgConsole(player.getName() + " passed lagcheck on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                }
+            }
+        }
+
         // Check for next checkpoint in current map
         int nextCheckpoint = timeTrial.getNextCheckpoint();
         if (nextCheckpoint == timeTrial.getLatestCheckpoint()) {

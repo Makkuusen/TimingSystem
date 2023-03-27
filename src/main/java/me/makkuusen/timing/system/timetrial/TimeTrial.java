@@ -28,6 +28,7 @@ public class TimeTrial {
     private final Track track;
     private Instant startTime;
     private boolean[] checkpoints;
+    private boolean lagcheck = false;
     private long bestFinish;
     private TimeTrialScoreboard timeTrialScoreboard;
 
@@ -116,6 +117,14 @@ public class TimeTrial {
         return checkpoints.length;
     }
 
+    public boolean hasLagChecked() {
+        return lagcheck;
+    }
+
+    public void lagCheck(boolean lagcheck) {
+        this.lagcheck = lagcheck;
+    }
+
 
     public String getCheckpointsString() {
         if (checkpoints.length > 0) {
@@ -168,6 +177,7 @@ public class TimeTrial {
         ApiUtilities.msgConsole(tPlayer.getName() + " started on " + track.getDisplayName());
         this.startTime = TimingSystem.currentTime;
         this.checkpoints = new boolean[track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()];
+        this.lagcheck = false;
     }
 
     public void playerResetMap() {
