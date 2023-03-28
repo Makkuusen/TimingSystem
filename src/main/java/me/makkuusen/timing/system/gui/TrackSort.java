@@ -4,5 +4,6 @@ public enum TrackSort {
     POPULARITY,
     RATING,
     WEIGHT,
+    POSITION,
     CREATION
 }

@@ -19,9 +19,11 @@ public abstract class TrackPageGui extends BaseGui {
     public static final Integer ELYTRAPAGE = 7;
     public TrackSort trackSort = TrackSort.WEIGHT;
     public TrackTag filter;
+    public TPlayer tPlayer;
 
     public TrackPageGui(TPlayer tPlayer, String title, int rows, int page) {
         super(title, rows);
+        this.tPlayer = tPlayer;
         setBorder();
         setPageItem(page);
         setNavigationItems(tPlayer, page);
@@ -34,6 +36,7 @@ public abstract class TrackPageGui extends BaseGui {
         super(title, rows);
         this.trackSort = trackSort;
         this.filter = filter;
+        this.tPlayer = tPlayer;
         setBorder();
         setPageItem(page);
         setNavigationItems(tPlayer, page);
@@ -64,6 +67,8 @@ public abstract class TrackPageGui extends BaseGui {
             setItem(getSortingButtons(tPlayer, page, TrackSort.POPULARITY), 0);
         } else if (trackSort == TrackSort.POPULARITY) {
             setItem(getSortingButtons(tPlayer, page, TrackSort.WEIGHT), 0);
+        } else if (trackSort == TrackSort.WEIGHT) {
+            setItem(getSortingButtons(tPlayer, page, TrackSort.POSITION), 0);
         } else {
             setItem(getSortingButtons(tPlayer, page, TrackSort.CREATION), 0);
         }
@@ -87,6 +92,8 @@ public abstract class TrackPageGui extends BaseGui {
              return getSortingButton(new ItemBuilder(Material.CLOCK).setName("§eSorted by: Date Created").build(), tPlayer, page, trackSort, filter);
         } else if (trackSort == TrackSort.WEIGHT) {
             return getSortingButton(new ItemBuilder(Material.SUNFLOWER).setName("§eSorted by: Popularity").build(), tPlayer, page, trackSort, filter);
+        } else if (trackSort == TrackSort.CREATION) {
+            return getSortingButton(new ItemBuilder(Material.DRAGON_BREATH).setName("§eSorted by: Position").build(), tPlayer, page, trackSort, filter);
         } else {
             return getSortingButton(new ItemBuilder(Material.ANVIL).setName("§eSorted by: Custom").build(), tPlayer, page, trackSort, filter);
         }
@@ -152,6 +159,20 @@ public abstract class TrackPageGui extends BaseGui {
             tracks.sort(Comparator.comparingLong(Track::getTotalTimeSpent).reversed());
         } else if (trackSort == TrackSort.WEIGHT) {
             tracks.sort(Comparator.comparingInt(Track::getWeight).reversed());
+        } else if (trackSort == TrackSort.POSITION) {
+            tracks.sort(compareTrackPosition);
         }
     }
+
+    public Comparator<Track> compareTrackPosition = (k1, k2) -> {
+        if (k1.getPlayerTopListPosition(tPlayer) == -1 && k2.getPlayerTopListPosition(tPlayer) > 0){
+            return 1;
+        } else if (k2.getPlayerTopListPosition(tPlayer) == -1 && k1.getPlayerTopListPosition(tPlayer) > 0){
+            return -1;
+        }
+        return k1.getPlayerTopListPosition(tPlayer).compareTo(k2.getPlayerTopListPosition(tPlayer));
+    };
+
 }
+
+
