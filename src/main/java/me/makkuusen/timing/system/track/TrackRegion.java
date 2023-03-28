@@ -21,7 +21,7 @@ public abstract class TrackRegion {
     private Location maxP;
 
     public enum RegionType {
-        START, END, CHECKPOINT, RESET, PIT, INPIT
+        START, END, CHECKPOINT, RESET, PIT, INPIT, LAGSTART, LAGEND
     }
 
     public enum RegionShape {

@@ -99,6 +99,12 @@ public class TrackDatabase {
                     continue;
                 }
 
+                try {
+                    TrackRegion.RegionType.valueOf(region.getString("regionType"));
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+
                 if (region.getString("regionShape") != null && TrackRegion.RegionShape.POLY.name().equalsIgnoreCase(region.getString("regionShape"))) {
                     var pointRows = DB.getResults("SELECT * FROM `ts_points` WHERE `regionId` = " + region.getInt("id") + ";");
                     List<BlockVector2> points = new ArrayList<>();

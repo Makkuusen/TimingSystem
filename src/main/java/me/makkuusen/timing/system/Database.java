@@ -342,7 +342,6 @@ public class Database {
 
     private static void v1_2Update() {
         try {
-
             DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `dateCreated`;");
             var dbRows = DB.getResults("SELECT * FROM `ts_tracks`;");
             for (DbRow row : dbRows) {

@@ -28,6 +28,9 @@ public class TimeTrial {
     private final Track track;
     private Instant startTime;
     private boolean[] checkpoints;
+    private boolean lagStart = false;
+    private Instant lagStartTime = null;
+    private boolean lagEnd = false;
     private long bestFinish;
     private TimeTrialScoreboard timeTrialScoreboard;
 
@@ -116,6 +119,27 @@ public class TimeTrial {
         return checkpoints.length;
     }
 
+    public boolean isLagStart() {
+        return lagStart;
+    }
+
+    public void setLagStartTrue() {
+        this.lagStart = true;
+        lagStartTime = TimingSystem.currentTime;
+    }
+
+    public Instant getLagStart() {
+        return lagStartTime;
+    }
+
+    public boolean isLagEnd() {
+        return lagEnd;
+    }
+
+    public void setLagEnd(boolean lagEnd) {
+        this.lagEnd = lagEnd;
+    }
+
 
     public String getCheckpointsString() {
         if (checkpoints.length > 0) {
@@ -140,6 +164,20 @@ public class TimeTrial {
             TimeTrialController.timeTrials.remove(p.getUniqueId());
             return;
         }
+
+
+        if (track.hasRegion(TrackRegion.RegionType.LAGSTART) && !lagStart) {
+            p.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
+            TimeTrialController.timeTrials.remove(p.getUniqueId());
+            return;
+        }
+
+        if (track.hasRegion(TrackRegion.RegionType.LAGEND) && !lagEnd) {
+            p.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
+            TimeTrialController.timeTrials.remove(p.getUniqueId());
+            return;
+        }
+
 
         if (!hasPassedAllCheckpoints()) {
             plugin.sendMessage(p, "messages.error.timer.missedCheckpoints");
@@ -168,6 +206,9 @@ public class TimeTrial {
         ApiUtilities.msgConsole(tPlayer.getName() + " started on " + track.getDisplayName());
         this.startTime = TimingSystem.currentTime;
         this.checkpoints = new boolean[track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()];
+        this.lagStart = false;
+        this.lagEnd = false;
+        this.lagStartTime = null;
     }
 
     public void playerResetMap() {
@@ -216,6 +257,18 @@ public class TimeTrial {
 
         if (!hasPassedAllCheckpoints()) {
             plugin.sendMessage(p, "messages.error.timer.missedCheckpoints");
+            TimeTrialController.timeTrials.remove(p.getUniqueId());
+            return;
+        }
+
+        if (track.hasRegion(TrackRegion.RegionType.LAGSTART) && !lagStart) {
+            p.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
+            TimeTrialController.timeTrials.remove(p.getUniqueId());
+            return;
+        }
+
+        if (track.hasRegion(TrackRegion.RegionType.LAGEND) && !lagEnd) {
+            p.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
             TimeTrialController.timeTrials.remove(p.getUniqueId());
             return;
         }

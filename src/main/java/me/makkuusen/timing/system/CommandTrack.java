@@ -840,6 +840,64 @@ public class CommandTrack extends BaseCommand {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.INPIT, index, player);
         }
 
+        @Subcommand("lagstart")
+        @CommandCompletion("@track <->")
+        public static void onLagStart(Player player, Track track, @Optional String remove) {
+            boolean toRemove = false;
+            if (remove != null) {
+                toRemove = getParsedRemoveFlag(remove);
+            }
+
+            if (toRemove) {
+                var maybeRegion = track.getRegion(TrackRegion.RegionType.LAGSTART);
+                if (maybeRegion.isPresent()) {
+                    if (track.removeRegion(maybeRegion.get())) {
+                        plugin.sendMessage(player, "messages.remove.region");
+                        return;
+                    } else {
+                        plugin.sendMessage(player, "messages.error.remove.region");
+                        return;
+                    }
+                } else {
+                    player.sendMessage("§cRegion doesn't currently exist");
+                    return;
+                }
+            }
+            if (createOrUpdateRegion(track, TrackRegion.RegionType.LAGSTART, player)) {
+                plugin.sendMessage(player, "messages.create.region");
+                return;
+            }
+        }
+
+        @Subcommand("lagend")
+        @CommandCompletion("@track <->")
+        public static void onLagEnd(Player player, Track track, @Optional String remove) {
+            boolean toRemove = false;
+            if (remove != null) {
+                toRemove = getParsedRemoveFlag(remove);
+            }
+
+            if (toRemove) {
+                var maybeRegion = track.getRegion(TrackRegion.RegionType.LAGEND);
+                if (maybeRegion.isPresent()) {
+                    if (track.removeRegion(maybeRegion.get())) {
+                        plugin.sendMessage(player, "messages.remove.region");
+                        return;
+                    } else {
+                        plugin.sendMessage(player, "messages.error.remove.region");
+                        return;
+                    }
+                } else {
+                    player.sendMessage("§cRegion doesn't currently exist");
+                    return;
+                }
+            }
+            if (createOrUpdateRegion(track, TrackRegion.RegionType.LAGEND, player)) {
+                plugin.sendMessage(player, "messages.create.region");
+                return;
+            }
+        }
+
         @Subcommand("grid")
         @CommandCompletion("@track <index>")
         public static void onGridLocation(Player player, Track track, @Optional String index) {
