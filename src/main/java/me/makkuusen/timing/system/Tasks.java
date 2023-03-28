@@ -72,8 +72,6 @@ public class Tasks {
             particle = Particle.HEART;
         } else if (region.getRegionType().equals(TrackRegion.RegionType.INPIT)) {
             particle = Particle.SPELL_WITCH;
-        } else if (region.getRegionType().equals(TrackRegion.RegionType.LAGCHECK)) {
-            particle = Particle.WAX_OFF;
         } else {
             particle = Particle.WAX_OFF;
         }

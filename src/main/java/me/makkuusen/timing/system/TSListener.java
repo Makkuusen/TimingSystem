@@ -452,16 +452,35 @@ public class TSListener implements Listener {
             }
         }
 
-        if (!timeTrial.hasLagChecked() && track.hasRegion(TrackRegion.RegionType.LAGCHECK)) {
-            if (track.getRegion(TrackRegion.RegionType.LAGCHECK).get().contains(player.getLocation())) {
-                timeTrial.lagCheck(true);
+        if (!timeTrial.isLagStart() && track.hasRegion(TrackRegion.RegionType.LAGSTART)) {
+            if (track.getRegion(TrackRegion.RegionType.LAGSTART).get().contains(player.getLocation())) {
+                timeTrial.setLagStartTrue();
                 if (ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime)) == 0) {
                     player.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
-                    plugin.logger.warning(player.getName() + " failed lagcheck on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
-                    //timeTrial.playerResetMap();
-
+                    plugin.logger.warning(player.getName() + " failed lagstart on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                    timeTrial.playerResetMap();
+                    return;
                 } else {
-                    ApiUtilities.msgConsole(player.getName() + " passed lagcheck on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                    ApiUtilities.msgConsole(player.getName() + " passed lagstart on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                }
+            }
+        }
+
+        if (!timeTrial.isLagEnd() && track.hasRegion(TrackRegion.RegionType.LAGEND)) {
+            if (track.getRegion(TrackRegion.RegionType.LAGEND).get().contains(player.getLocation())) {
+                timeTrial.setLagEnd(true);
+                if (!timeTrial.isLagStart()) {
+                    player.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
+                    plugin.logger.warning(player.getName() + " failed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                    timeTrial.playerResetMap();
+                    return;
+                } else if (TimingSystem.currentTime.toEpochMilli() == timeTrial.getLagStart().toEpochMilli()) {
+                    player.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
+                    plugin.logger.warning(player.getName() + " failed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                    timeTrial.playerResetMap();
+                    return;
+                } else {
+                    ApiUtilities.msgConsole(player.getName() + " passed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
                 }
             }
         }
