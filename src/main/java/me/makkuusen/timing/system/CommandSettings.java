@@ -55,6 +55,13 @@ public class CommandSettings extends BaseCommand {
         player.sendMessage("§2Switched sounds to §a" + (tPlayer.isSound() ? "on" : "off") + "§2.");
     }
 
+    @Subcommand("compactScoreboard")
+    public static void onCompactScoreboard(Player player){
+        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        tPlayer.setCompactScoreboard(!tPlayer.getCompactScoreboard());
+        player.sendMessage("§2Switched compact scoreboards to §a" + (tPlayer.getCompactScoreboard() ? "on" : "off") + "§2.");
+    }
+
     @Subcommand("override")
     @CommandPermission("track.admin")
     public static void onOverride(Player player) {
@@ -68,6 +75,8 @@ public class CommandSettings extends BaseCommand {
             plugin.sendMessage(player, "messages.create.override");
         }
     }
+
+
 
     @Subcommand("color")
     @CommandCompletion("<hexcolorcode>")

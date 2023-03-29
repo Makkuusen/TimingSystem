@@ -29,6 +29,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private boolean verbose;
     private boolean timeTrial;
     private boolean override;
+    private boolean compactScoreboard;
     private String color;
     private BaseGui openGui;
 
@@ -48,6 +49,7 @@ public class TPlayer implements Comparable<TPlayer> {
         verbose = data.get("verbose");
         timeTrial = data.get("timetrial");
         color = data.getString("color");
+        compactScoreboard = data.get("compactScoreboard");
     }
 
     public boolean hasOpenGui(){
@@ -64,6 +66,15 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public UUID getUniqueId() {
         return this.uuid;
+    }
+
+    public boolean getCompactScoreboard() {
+        return compactScoreboard;
+    }
+
+    public void setCompactScoreboard(boolean compactScoreboard) {
+        this.compactScoreboard = compactScoreboard;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
     }
 
     public String getName() {
