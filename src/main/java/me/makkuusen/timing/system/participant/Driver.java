@@ -229,6 +229,9 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public long getTimeGap(Driver comparingDriver) {
+        if (getLaps().size() < 1) {
+            return 0;
+        }
 
         long timeDiff;
         if (getPosition() < comparingDriver.getPosition()) {
@@ -248,11 +251,10 @@ public class Driver extends Participant implements Comparable<Driver> {
             if (isFinished()) {
                 return Duration.between(comparingDriver.getEndTime(), getEndTime()).toMillis();
             }
-
-            Instant timeStamp = getTimeStamp(getLaps().size(), getCurrentLap().getLatestCheckpoint());
-            Instant fasterTimeStamp = comparingDriver.getTimeStamp(getLaps().size(), getCurrentLap().getLatestCheckpoint());
-            timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
-            return timeDiff;
+                Instant timeStamp = getTimeStamp(getLaps().size(), getCurrentLap().getLatestCheckpoint());
+                Instant fasterTimeStamp = comparingDriver.getTimeStamp(getLaps().size(), getCurrentLap().getLatestCheckpoint());
+                timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
+                return timeDiff;
         }
         return 0;
     }
