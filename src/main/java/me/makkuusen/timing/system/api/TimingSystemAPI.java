@@ -90,7 +90,13 @@ public class TimingSystemAPI {
     }
 
     private static DriverDetails getDriverDetailsFromHeatWithTimes(Heat heat, UUID driverUuid, Driver previousDriverCompare, Driver leaderDriverCompare) {
-        var driverDetails = getDriverDetailsFromHeat(heat, driverUuid, previousDriverCompare.getTPlayer().getUniqueId());
+
+        DriverDetails driverDetails;
+        if (previousDriverCompare != null) {
+            driverDetails = getDriverDetailsFromHeat(heat, driverUuid, previousDriverCompare.getTPlayer().getUniqueId());
+        } else {
+            driverDetails = getDriverDetailsFromHeat(heat, driverUuid, null);
+        }
         var driver = heat.getDrivers().get(driverUuid);
 
         if (leaderDriverCompare != null) {
