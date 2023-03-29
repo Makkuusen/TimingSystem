@@ -6,54 +6,63 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import org.bukkit.ChatColor;
 
 public class ScoreboardUtils {
-    public static String getDriverLine(String name, int pos) {
-        return paddPos(pos, name) + "§7|           " + getTeamIcon(name) + paddName(name);
+    public static String getDriverLine(String name, int pos, boolean compact) {
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  "           " + getTeamIcon(name) + paddName(name, compact);
     }
 
-    public static String getDriverLineQualyTime(long laptime, String name, int pos) {
-        return paddPos(pos, name) + "§7| §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + getTeamIcon(name) + paddName(name);
+    public static String getDriverLineQualyTime(long laptime, String name, int pos, boolean compact) {
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  " §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + getTeamIcon(name) + paddName(name, compact);
     }
 
-    public static String getDriverLineQualyGap(long timeDiff, String name, int pos) {
-        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name);
+    public static String getDriverLineQualyGap(long timeDiff, String name, int pos, boolean compact) {
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  " §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
     }
 
-    public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos) {
-        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name);
+    public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos, boolean compact) {
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  " §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
     }
 
-    public static String getDriverLineRace(String name, int pos){
-        return paddPos(pos, name) + "§7|           " + getTeamIcon(name) + paddName(name) + "§7Pits: §f0 ";
+    public static String getDriverLineRace(String name, int pos, boolean compact){
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + "§f0";
     }
-    public static String getDriverLineRace(String name, int pits, int pos){
-        return paddPos(pos, name) + "§7|           " + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+    public static String getDriverLineRace(String name, int pits, int pos, boolean compact){
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
     }
-    public static String getDriverLineRaceInPit(String name, int pits, int pos){
-        return paddPos(pos, name) + "§7| In Pit   " + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
-    }
-
-    public static String getDriverLineRaceOffline(String name, int pits, int pos){
-        return paddPos(pos, name) + "§7| Offline  " + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+    public static String getDriverLineRaceInPit(String name, int pits, int pos, boolean compact){
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  " In Pit   " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
     }
 
-    public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos) {
-        return paddPos(pos, name) + "§7| Lap:§f " + paddLaps(laps) + " " + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+    public static String getDriverLineRaceOffline(String name, int pits, int pos, boolean compact){
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  " Offline  " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
     }
 
-    public static String getDriverLineRaceGap(long gap, String name, int pits, int pos) {
-        return paddPos(pos, name) + "§7| §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+    public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos, boolean compact) {
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  " Lap:§f " + paddLaps(laps) + " " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
     }
 
-    public static String getDriverLineNegativeRaceGap(long gap, String name, int pits, int pos) {
-        return paddPos(pos, name) + "§7| §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name) + "§7Pits: " + getPitColour(name, pits) + " ";
+    public static String getDriverLineRaceGap(long gap, String name, int pits, int pos, boolean compact) {
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  " §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name,compact) + getPits(compact) + getPitColour(name, pits);
     }
 
-    public static String paddName(String name){
+    public static String getDriverLineNegativeRaceGap(long gap, String name, int pits, int pos, boolean compact) {
+        return paddPos(pos, name) + (compact ? "" : "§7|") +  " §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+    }
+
+    public static String paddName(String name, boolean compact){
         StringBuilder sb = new StringBuilder();
-        sb.append(name + ChatColor.RESET);
-        int spaces = 16 - name.length();
-        sb.append(" ".repeat(Math.max(0, spaces)));
-
+        if (compact) {
+            if (name.length() > 3) {
+                sb.append(name, 0, 4);
+            } else {
+                sb.append(name);
+                int spaces = 4 - name.length();
+                sb.append(" ".repeat(Math.max(0, spaces)));
+            }
+        } else {
+            sb.append(name + ChatColor.RESET);
+            int spaces = 16 - name.length();
+            sb.append(" ".repeat(Math.max(0, spaces)));
+        }
         return sb.toString();
     }
 
@@ -130,6 +139,13 @@ public class ScoreboardUtils {
 
     private static String getTeamIcon(String name){
         return getColor(name) + "§l§o||§r ";
+    }
+
+    private static String getPits(boolean compact) {
+        if (compact) {
+            return " ";
+        }
+        return "§7Pits: ";
     }
 
 }

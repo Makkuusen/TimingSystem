@@ -152,7 +152,7 @@ public class Database {
                     "  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',\n" +
                     "  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `boat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
-                    " `toggleSound` tinyint(1) DEFAULT 1 NOT NULL,\n" +
+                    "  `toggleSound` tinyint(1) DEFAULT 1 NOT NULL,\n" +
                     "  PRIMARY KEY (`uuid`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
@@ -161,7 +161,6 @@ public class Database {
                     "  `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
                     "  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `dateCreated` bigint(30) DEFAULT NULL,\n" +
-                    "  `weight` int(11) NOT NULL DEFAULT '100' ,\n" +
                     "  `guiItem` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
                     "  `leaderboard` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
@@ -343,6 +342,7 @@ public class Database {
     private static void v1_2Update() {
         try {
             DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `dateCreated`;");
+            DB.executeUpdate("ALTER TABLE `ts_players` ADD `compactScoreboard` tinyint(1) NOT NULL DEFAULT '0' AFTER `chestBoat`;");
             var dbRows = DB.getResults("SELECT * FROM `ts_tracks`;");
             for (DbRow row : dbRows) {
                 var first = DB.getFirstRow("SELECT * FROM `ts_locations` WHERE `trackId` = " + row.getInt("id") + " AND `type` = 'LEADERBOARD' AND `index` = 1;");
