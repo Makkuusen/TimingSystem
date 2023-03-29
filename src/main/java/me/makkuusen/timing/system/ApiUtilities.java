@@ -468,7 +468,7 @@ public class ApiUtilities {
         return false;
     }
 
-    private static final List<String> rejectedWords = Arrays.asList("random", "r", "cancel", "c", "help");
+    private static final List<String> rejectedWords = Arrays.asList("random", "randomunfinished", "r", "cancel", "c", "help");
     public static boolean checkTrackName(String name){
         for (String rejected : rejectedWords){
             if(name.equalsIgnoreCase(rejected)){

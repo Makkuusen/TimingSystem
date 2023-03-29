@@ -8,12 +8,17 @@ import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
+import me.makkuusen.timing.system.track.TrackTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @CommandAlias("timetrial|tt")
 public class CommandTimeTrial extends BaseCommand {
@@ -84,8 +89,12 @@ public class CommandTimeTrial extends BaseCommand {
         plugin.sendMessage(player, "messages.cancel");
     }
 
-    @Subcommand("random|r")
     public static void onRandom(Player player){
+        onRandom(player, null);
+    }
+    @Subcommand("random|r")
+    @CommandCompletion("@trackTag")
+    public static void onRandom(Player player, @Optional TrackTag trackTag){
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().isRunning()) {
@@ -99,7 +108,19 @@ public class CommandTimeTrial extends BaseCommand {
             return;
         }
 
-        Track t = TrackDatabase.getOpenTracks().get(new Random().nextInt(TrackDatabase.getOpenTracks().size()));
+        List<Track> tracks;
+
+        if (trackTag != null) {
+            tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.hasTag(trackTag)).collect(Collectors.toList());
+            if (tracks.size() < 1) {
+                player.sendMessage("§cThere are no tracks with that filter");
+                return;
+            }
+        } else {
+            tracks = TrackDatabase.getOpenTracks();
+        }
+
+        Track t = tracks.get(new Random().nextInt(tracks.size()));
 
         if (!t.getSpawnLocation().isWorldLoaded()) {
             player.sendMessage("§cWorld is not loaded!");
@@ -116,4 +137,57 @@ public class CommandTimeTrial extends BaseCommand {
 
         ApiUtilities.teleportPlayerAndSpawnBoat(player, t, t.getSpawnLocation());
     }
+
+    @Subcommand("randomunfinished")
+    @CommandCompletion("@trackTag")
+    public static void onRandomUnfinished(Player player, @Optional TrackTag trackTag){
+        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().isRunning()) {
+                player.sendMessage("§cYou can't time trial when you are in a heat.");
+                return;
+            }
+        }
+
+        if (TrackDatabase.getOpenTracks().isEmpty()){
+            plugin.sendMessage(player, "messages.randomTrack.noTracks");
+            return;
+        }
+
+        List<Track> tracks;
+        if (trackTag != null) {
+            tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.hasTag(trackTag)).collect(Collectors.toList());
+            if (tracks.size() < 1) {
+                player.sendMessage("§cThere are no tracks with that filter");
+                return;
+            }
+        } else {
+            tracks = TrackDatabase.getOpenTracks();
+        }
+
+        tracks = tracks.stream().filter(track -> track.getPlayerTotalFinishes(Database.getPlayer(player.getUniqueId())) < 1).collect(Collectors.toList());
+        if (tracks.size() == 0) {
+            player.sendMessage("§cYou have already completed all tracks");
+            return;
+        }
+
+        Track t = tracks.get(new Random().nextInt(tracks.size()));
+
+        if (!t.getSpawnLocation().isWorldLoaded()) {
+            player.sendMessage("§cWorld is not loaded!");
+            return;
+        }
+
+        if(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1){
+            plugin.sendMessage(player, "messages.randomTrack.teleport", "%track%", t.getDisplayName(),
+                    "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())))
+            );
+        } else {
+            plugin.sendMessage(player, "messages.randomTrack.teleportNoPos", "%track%", t.getDisplayName());
+        }
+
+        ApiUtilities.teleportPlayerAndSpawnBoat(player, t, t.getSpawnLocation());
+    }
+
+
 }
