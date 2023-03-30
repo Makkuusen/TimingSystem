@@ -28,6 +28,7 @@ import org.stringtemplate.v4.ST;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -238,7 +239,9 @@ public class Track {
     }
 
     public List<TrackRegion> getRegions(TrackRegion.RegionType regionType) {
-        return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).collect(Collectors.toList());
+        var list = regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).collect(Collectors.toList());
+        list.sort(Comparator.comparingInt(trackRegion -> trackRegion.getRegionIndex()));
+        return list;
     }
 
     public Optional<TrackRegion> getRegion(TrackRegion.RegionType regionType){
@@ -314,7 +317,9 @@ public class Track {
     }
 
     public List<TrackLocation> getTrackLocations(TrackLocation.Type locationType) {
-        return trackLocations.stream().filter(trackLocation -> trackLocation.getLocationType().equals(locationType)).collect(Collectors.toList());
+        var list = trackLocations.stream().filter(trackLocation -> trackLocation.getLocationType().equals(locationType)).collect(Collectors.toList());
+        list.sort(Comparator.comparingInt(trackLocation -> trackLocation.getIndex()));
+        return list;
     }
 
     public Optional<TrackLocation> getTrackLocation(TrackLocation.Type locationType) {

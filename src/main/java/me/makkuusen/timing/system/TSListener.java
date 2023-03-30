@@ -455,6 +455,7 @@ public class TSListener implements Listener {
         if (!timeTrial.isLagStart() && track.hasRegion(TrackRegion.RegionType.LAGSTART)) {
             if (track.getRegion(TrackRegion.RegionType.LAGSTART).get().contains(player.getLocation())) {
                 timeTrial.setLagStartTrue();
+                timeTrial.playerPassingLagStart();
                 if (ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime)) == 0) {
                     player.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
                     plugin.logger.warning(player.getName() + " failed lagstart on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
@@ -469,6 +470,7 @@ public class TSListener implements Listener {
         if (!timeTrial.isLagEnd() && track.hasRegion(TrackRegion.RegionType.LAGEND)) {
             if (track.getRegion(TrackRegion.RegionType.LAGEND).get().contains(player.getLocation())) {
                 timeTrial.setLagEnd(true);
+                timeTrial.playerPassingLagEnd();
                 if (!timeTrial.isLagStart()) {
                     player.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
                     plugin.logger.warning(player.getName() + " failed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));

@@ -24,8 +24,10 @@ import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -114,18 +116,80 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("tp")
     @CommandPermission("track.admin")
     @CommandCompletion("@track @region")
-    public static void onTrackTp(Player player, Track track, @Optional TrackRegion region) {
+    public static void onTrackTp(Player player, Track track, @Optional String region) {
         if (!track.getSpawnLocation().isWorldLoaded()) {
             player.sendMessage("§cWorld is not loaded!");
             return;
         }
 
+
         if (region != null) {
-            player.teleport(region.getSpawnLocation());
-            player.sendMessage("§aYou have been teleported to " + region.getRegionType().name() + " : " + region.getRegionIndex());
+            var rg = region.split("-");
+            if (rg.length != 2) {
+                player.sendMessage("§cIncorrect syntax");
+                return;
+            }
+            String name = rg[0];
+            String index = rg[1];
+
+            var trackRegion = getRegion(track, name, index);
+
+            if (trackRegion != null) {
+                player.teleport(trackRegion.getSpawnLocation());
+                player.sendMessage("§aYou have been teleported to " + trackRegion.getRegionType().name() + " : " + trackRegion.getRegionIndex());
+                return;
+            }
+
+            var trackLocation = getTrackLocation(track, name, index);
+
+            if (trackLocation != null) {
+                player.teleport(trackLocation.getLocation());
+                player.sendMessage("§aYou have been teleported to " + trackLocation.getLocationType().name() + " : " + trackLocation.getIndex());
+                return;
+            }
+
+            player.sendMessage("§cYour teleport location could not be determined, does it exist?");
         } else {
             player.teleport(track.getSpawnLocation());
             player.sendMessage("§aYou have been teleported to " + track.getDisplayName());
+        }
+    }
+
+    private static TrackRegion getRegion(Track track, String name, String index) {
+        try {
+            var regionType = TrackRegion.RegionType.valueOf(name);
+            var regionIndex = Integer.valueOf(index);
+
+            var trackRegion = track.getRegion(regionType, regionIndex);
+            if (trackRegion.isPresent()) {
+                return trackRegion.get();
+            } else {
+                return null;
+            }
+
+        } catch (NumberFormatException ex) {
+            return null;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private static TrackLocation getTrackLocation(Track track, String name, String index) {
+        try {
+            var locationType = TrackLocation.Type.valueOf(name);
+            var regionIndex = Integer.valueOf(index);
+
+            var trackLocation = track.getTrackLocation(locationType, regionIndex);
+            if (trackLocation.isPresent()) {
+                return trackLocation.get();
+            } else {
+                return null;
+            }
+
+        } catch (NumberFormatException ex) {
+            return null;
+        } catch (IllegalArgumentException e) {
+            return null;
         }
     }
 
@@ -224,6 +288,37 @@ public class CommandTrack extends BaseCommand {
         String tags = String.join(", ", tagList);
         commandSender.sendMessage("§2Tags: §a" + tags);
 
+    }
+
+    @Subcommand("regions")
+    @CommandCompletion("@track")
+    @CommandPermission("track.admin")
+    public static void onRegions(CommandSender sender, Track track) {
+        sender.sendMessage("§2--- Regions for §a" + track.getDisplayName() + "§2 ---");
+
+        for (var regionType : TrackRegion.RegionType.values()) {
+            for (TrackRegion trackRegion : track.getRegions(regionType)) {
+
+                String regionText = trackRegion.getRegionType().name() + "-" + trackRegion.getRegionIndex();
+                var message = Component.text("§2-> §a" + regionText).clickEvent(ClickEvent.runCommand("/t tp " + track.getCommandName() + " " + regionText));
+                sender.sendMessage(message);
+            }
+        }
+    }
+
+    @Subcommand("locations")
+    @CommandCompletion("@track")
+    @CommandPermission("track.admin")
+    public static void onLocations(CommandSender sender, Track track) {
+        sender.sendMessage("§2--- Locations for §a" + track.getDisplayName() + "§2 ---");
+
+        for (var locationType : TrackLocation.Type.values()) {
+            for (TrackLocation trackLocation : track.getTrackLocations(locationType)) {
+                String locationText = trackLocation.getLocationType().name() + "-" + trackLocation.getIndex();
+                var message = Component.text("§2-> §a" + locationText).clickEvent(ClickEvent.runCommand("/t tp " + track.getCommandName() + " " + locationText));
+                sender.sendMessage(message);
+            }
+        }
     }
 
     @Subcommand("here")

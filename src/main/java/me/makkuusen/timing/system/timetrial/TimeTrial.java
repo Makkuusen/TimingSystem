@@ -300,6 +300,20 @@ public class TimeTrial {
         ApiUtilities.msgConsole(tPlayer.getName() + " passed checkpoint " + checkpoint + " on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeSinceStart));
     }
 
+    public void playerPassingLagStart() {
+        Player player = tPlayer.getPlayer();
+        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("track.admin"))) {
+            player.sendMessage("§2You passed §clagstart §2 in §c" + ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
+        }
+    }
+
+    public void playerPassingLagEnd() {
+        Player player = tPlayer.getPlayer();
+        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("track.admin"))) {
+            player.sendMessage("§2You passed §clagend §2 in §c" + ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
+        }
+    }
+
     private void newBestFinish(Player p, long mapTime, long oldTime){
         callTimeTrialFinishEvent(p, mapTime, oldTime, true);
         this.bestFinish = getBestFinish(track.getBestFinish(tPlayer));
