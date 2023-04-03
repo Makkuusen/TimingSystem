@@ -14,8 +14,8 @@ public class QualifyHeat {
             return false;
         }
         if (timeIsOver(driver)) {
-            driver.getHeat().updatePositions();
             driver.finish();
+            driver.getHeat().updatePositions();
             EventAnnouncements.sendFinishSound(driver);
             EventAnnouncements.sendFinishTitleQualy(driver);
             EventAnnouncements.broadcastFinishQualy(driver.getHeat(), driver);
