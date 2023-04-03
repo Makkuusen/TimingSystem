@@ -122,6 +122,10 @@ public class TimingSystemAPI {
         driverDetails.setPosition(driver.getPosition());
         driverDetails.setStartPosition(driver.getStartPosition());
 
+        if (driver.getBestLap().isPresent()) {
+            driverDetails.setBestLap(driver.getBestLap().get().getLapTime());
+        }
+
         if (driverCompare != null) {
             var previousDriverCompare = heat.getDrivers().get(driverCompare);
             driverDetails.setGap(driver.getTimeGap(previousDriverCompare));

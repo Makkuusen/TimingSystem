@@ -374,6 +374,9 @@ public class Track {
             timeTrialFinishes.put(timeTrialFinish.getPlayer(), list);
             return;
         }
+        if (timeTrialFinishes.get(timeTrialFinish.getPlayer()).contains(timeTrialFinish)) {
+            return;
+        }
         timeTrialFinishes.get(timeTrialFinish.getPlayer()).add(timeTrialFinish);
     }
 

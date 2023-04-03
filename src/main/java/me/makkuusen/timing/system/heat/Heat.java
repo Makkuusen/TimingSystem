@@ -346,6 +346,7 @@ public class Heat {
         return true;
     }
 
+
     public void setHeatState(HeatState state) {
         this.heatState = state;
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `state` = '" + state.name() + "' WHERE `id` = " + id + ";");

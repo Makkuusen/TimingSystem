@@ -23,5 +23,6 @@ public class DriverDetails {
     int startPosition;
     long gap;
     long gapFromLeader;
+    long bestLap;
 
 }

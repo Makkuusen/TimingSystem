@@ -229,6 +229,24 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public long getTimeGap(Driver comparingDriver) {
+
+        if (heat.getRound() instanceof QualificationRound) {
+            if (getBestLap().isEmpty()) {
+                return 0;
+            }
+
+            if (comparingDriver.getBestLap().isEmpty()) {
+                return 0;
+            }
+
+            if (comparingDriver.equals(this)) {
+                return 0;
+            }
+
+            long timeDiff = getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
+            return timeDiff;
+        } else {
+
         if (getLaps().size() < 1) {
             return 0;
         }
@@ -257,6 +275,7 @@ public class Driver extends Participant implements Comparable<Driver> {
                 return timeDiff;
         }
         return 0;
+        }
     }
 
 
