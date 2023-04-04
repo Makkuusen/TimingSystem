@@ -9,10 +9,10 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
+import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
-import org.bukkit.Bukkit;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -28,7 +28,7 @@ public class Event {
     private UUID uuid;
     private String displayName;
     private long date;
-    HashMap<UUID, Participant> participants = new HashMap<>();
+    HashMap<UUID, Subscriber> subscribers = new HashMap<>(); // Signed drivers
     HashMap<UUID, Spectator> spectators = new HashMap<>();
     public EventSchedule eventSchedule;
     private EventState state;
@@ -123,6 +123,20 @@ public class Event {
                 }
             }
 
+        }
+    }
+
+    public void addSubscriber(UUID uuid) {
+        subscribers.put(uuid, new Subscriber(Database.getPlayer(uuid)));
+    }
+
+    public boolean isSubscribing(UUID uuid) {
+        return subscribers.containsKey(uuid);
+    }
+
+    public void removeSubscriber(UUID uuid) {
+        if (subscribers.containsKey(uuid)){
+            subscribers.remove(uuid);
         }
     }
 

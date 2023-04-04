@@ -11,10 +11,16 @@ import co.aikar.commands.annotation.Single;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.track.Track;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.awt.*;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -86,6 +92,7 @@ public class CommandEvent extends BaseCommand {
         }
 
         sender.sendMessage("§aState: " + event.getState());
+        sender.sendMessage("§aSigned Drivers: " + event.getSubscribers().size());
     }
 
     @CommandPermission("event.admin")
@@ -147,6 +154,85 @@ public class CommandEvent extends BaseCommand {
             event.addSpectator(player.getUniqueId());
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
             player.sendMessage("§aYou are now spectating " + event.getDisplayName());
+        }
+    }
+
+    @Subcommand("sign")
+    @CommandCompletion("@event")
+    public static void onSignUp(Player player, Event event, @Optional String name) {
+        if (name != null) {
+
+            if (!player.hasPermission("event.admin") || !player.isOp()) {
+                player.sendMessage("§cAccess denied");
+                return;
+            }
+
+            TPlayer tPlayer = Database.getPlayer(name);
+            if (tPlayer == null) {
+                player.sendMessage("§cCould not find player");
+                return;
+            }
+
+            if (event.isSubscribing(tPlayer.getUniqueId())) {
+                if (event.getState() != Event.EventState.SETUP) {
+                    player.sendMessage("§cEvent has already started and you can no longer remove signs from the event.");
+                    return;
+                }
+                event.removeSubscriber(tPlayer.getUniqueId());
+                player.sendMessage("§a" + tPlayer.getNameDisplay() + "§a is no longer signed up for " + event.getDisplayName());
+                return;
+            } else {
+                event.addSubscriber(tPlayer.getUniqueId());
+                EventDatabase.setP6layerSelectedEvent(tPlayer.getUniqueId(), event);
+                player.sendMessage("§a" + tPlayer.getNameDisplay() + "§a is now signed up for " + event.getDisplayName());
+                return;
+            }
+        }
+
+        if (event.isSubscribing(player.getUniqueId())) {
+            if (event.getState() != Event.EventState.SETUP) {
+                player.sendMessage("§cEvent has already started and you can no longer remove your sign from the event.");
+                return;
+            }
+            event.removeSubscriber(player.getUniqueId());
+            player.sendMessage("§aYou are no longer signed up for " + event.getDisplayName());
+        } else {
+            event.addSubscriber(player.getUniqueId());
+            EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
+            player.sendMessage("§aYou are now signed up for " + event.getDisplayName());
+        }
+    }
+
+
+    @Subcommand("list signs")
+    @CommandCompletion("@event")
+    @CommandPermission("event.admin")
+    public static void onListSigns(Player player, Event event) {
+        int count = 1;
+        player.sendMessage("§2--- Signs for §a" + event.getDisplayName() + " §2---");
+        for (Subscriber s : event.getSubscribers().values()) {
+            player.sendMessage("§2" + count++ + ": §a" + s.getTPlayer().getName());
+        }
+    }
+
+    @Subcommand("broadcast clicktosign")
+    @CommandPermission("event.admin")
+    public static void onSendSignUp(Player player, @Optional Event event) {
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                player.sendMessage("§cYou have no event selected");
+                return;
+            }
+        }
+
+        var message = Component.text("§3--> Click to sign up for §b§l" + event.getDisplayName() + " §3<--").clickEvent(ClickEvent.runCommand("/event sign " + event.getDisplayName()));
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.sendMessage("");
+            p.sendMessage(message);
+            p.sendMessage("");
         }
     }
 }

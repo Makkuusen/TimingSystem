@@ -262,6 +262,9 @@ public class Heat {
         if (!event.getSpectators().containsKey(driver.getTPlayer().getUniqueId())) {
             event.addSpectator(driver.getTPlayer().getUniqueId());
         }
+        if (!event.getSubscribers().containsKey(driver.getTPlayer().getUniqueId())) {
+            event.addSubscriber(driver.getTPlayer().getUniqueId());
+        }
     }
 
     public boolean removeDriver(Driver driver) {
