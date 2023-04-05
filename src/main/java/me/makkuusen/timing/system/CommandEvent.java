@@ -183,7 +183,7 @@ public class CommandEvent extends BaseCommand {
                 return;
             } else {
                 event.addSubscriber(tPlayer.getUniqueId());
-                EventDatabase.setP6layerSelectedEvent(tPlayer.getUniqueId(), event);
+                EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
                 player.sendMessage("§a" + tPlayer.getNameDisplay() + "§a is now signed up for " + event.getDisplayName());
                 return;
             }

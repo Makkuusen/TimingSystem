@@ -161,9 +161,15 @@ public class CommandRound extends BaseCommand {
                 return;
             }
         }
-        if (event.eventSchedule.getRound().isPresent()) {
+        java.util.Optional<Round> maybeRound;
+        if (event.eventSchedule.getCurrentRound() == null && event.eventSchedule.getRounds().size() > 0) {
+            maybeRound = event.eventSchedule.getNextRound();
+        } else {
+            maybeRound = event.eventSchedule.getRound();
+        }
+        if (maybeRound.isPresent()) {
 
-            var round = event.getEventSchedule().getRound().get();
+            Round round = event.getEventSchedule().getRound().get();
 
             for (Heat h : round.getHeats()) {
                 if (h.getHeatState() != HeatState.SETUP) {
@@ -219,7 +225,13 @@ public class CommandRound extends BaseCommand {
             return;
         }
 
-        if (event.eventSchedule.getRound().isPresent()) {
+        java.util.Optional<Round> maybeRound;
+        if (event.eventSchedule.getCurrentRound() == null && event.eventSchedule.getRounds().size() > 0) {
+            maybeRound = event.eventSchedule.getRound(1);
+        } else {
+            maybeRound = event.eventSchedule.getRound();
+        }
+        if (maybeRound.isPresent()) {
 
             Round round = event.getEventSchedule().getRound().get();
             var heats = round.getHeats();
