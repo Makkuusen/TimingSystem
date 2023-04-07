@@ -19,6 +19,7 @@ import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
+import me.makkuusen.timing.system.track.Track;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -204,18 +205,6 @@ public class CommandRound extends BaseCommand {
 
         boolean random = sort.equalsIgnoreCase("random");
 
-        List<TPlayer> listOfSubscribers = new ArrayList<>();
-        if (group.equalsIgnoreCase("all")) {
-            listOfSubscribers.addAll(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
-            listOfSubscribers.addAll(event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
-        } else {
-            var subscriberMap = group.equalsIgnoreCase("signed") ? event.getSubscribers() : event.getReserves();
-            listOfSubscribers.addAll(subscriberMap.values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
-        }
-        fillHeat(player, event, listOfSubscribers, random);
-    }
-
-    public static void fillHeat(Player player, Event event, List<TPlayer> players, boolean random){
         if (event.getState() != Event.EventState.SETUP) {
             player.sendMessage("§cEvent has already been started and drivers can't be distributed");
             return;
@@ -234,29 +223,38 @@ public class CommandRound extends BaseCommand {
 
             int numberOfSlots = heats.stream().mapToInt(Heat::getMaxDrivers).sum();
 
-            if (numberOfSlots < numberOfDrivers) {
-                player.sendMessage("§cThere are " + numberOfDrivers + " drivers but only " + numberOfSlots + " slots available");
-                return;
-            }
-
             LinkedList<TPlayer> tPlayerList = new LinkedList<>();
+            LinkedList<TPlayer> excludedList = new LinkedList<>();
 
-            Collections.shuffle(players);
-            if (!random) {
-                List<TimeTrialFinish> driversWithBestTimes = event.getTrack().getTopList().stream().filter(tt -> players.contains(tt.getPlayer())).collect(Collectors.toList());
-                player.sendMessage("§aSorting players based on timetrials");
-                int count = 1;
-                for (var finish : driversWithBestTimes) {
-                    tPlayerList.add(finish.getPlayer());
-                    player.sendMessage("§2" + count++ + ": §a" + finish.getPlayer().getName());
+            List<TPlayer> listOfSubscribers = new ArrayList<>();
+            if (group.equalsIgnoreCase("all")) {
+                listOfSubscribers.addAll(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
+                int reserveSlots = numberOfSlots - numberOfDrivers;
+                var reserves = event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList());
+                if (reserveSlots > 0) {
+                    List<TPlayer> list;
+                    if (!random) {
+                        list = getSortedList(reserves, event.getTrack());
+                    } else {
+                        list = getRandomList(reserves);
+                    }
+                    for (int i = 0; i < reserveSlots; i++) {
+                        listOfSubscribers.add(list.remove(0));
+                    }
+                    excludedList.addAll(list);
+                } else {
+                    excludedList.addAll(reserves);
                 }
+            } else {
+                var subscriberMap = group.equalsIgnoreCase("signed") ? event.getSubscribers() : event.getReserves();
+                listOfSubscribers.addAll(subscriberMap.values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
             }
+            Collections.shuffle(listOfSubscribers);
 
-            for (var subscriber : players){
-                if (!tPlayerList.contains(subscriber)){
-                    tPlayerList.add(subscriber);
-                    player.sendMessage("§2- §a" + subscriber.getName());
-                }
+            if (!random) {
+                tPlayerList.addAll(getSortedList(listOfSubscribers, event.getTrack()));
+            } else {
+                tPlayerList.addAll(getRandomList(listOfSubscribers));
             }
 
             for (Heat heat : heats) {
@@ -269,10 +267,52 @@ public class CommandRound extends BaseCommand {
                     heatAddDriver(player, tPlayerList.pop(), heat, random);
                 }
             }
+
+            tPlayerList.addAll(excludedList);
+
+            if (!tPlayerList.isEmpty()) {
+                player.sendMessage("§6Drivers left out: ");
+                String message = "§e";
+                message += tPlayerList.pop().getName();
+
+                while (!tPlayerList.isEmpty()) {
+                    message += "§6, §e" + tPlayerList.pop().getName();
+                }
+                player.sendMessage(message);
+            }
         } else {
             player.sendMessage("§cRound could not be found");
         }
     }
+
+    public static List<TPlayer> getSortedList(List<TPlayer> players, Track track) {
+        List<TPlayer> tPlayerList = new ArrayList<>();
+        List<TimeTrialFinish> driversWithBestTimes = track.getTopList().stream().filter(tt -> players.contains(tt.getPlayer())).collect(Collectors.toList());
+        for (var finish : driversWithBestTimes) {
+            tPlayerList.add(finish.getPlayer());
+        }
+
+        for (var subscriber : players){
+            if (!tPlayerList.contains(subscriber)){
+                tPlayerList.add(subscriber);
+            }
+        }
+
+        return tPlayerList;
+    }
+
+    public static List<TPlayer> getRandomList(List<TPlayer> players) {
+        List<TPlayer> tPlayerList = new ArrayList<>();
+        for (var subscriber : players){
+            if (!tPlayerList.contains(subscriber)){
+                tPlayerList.add(subscriber);
+            }
+        }
+        Collections.shuffle(tPlayerList);
+        return tPlayerList;
+    }
+
+
 
     public static boolean heatAddDriver(Player sender, TPlayer tPlayer, Heat heat, boolean random) {
         if (heat.getMaxDrivers() <= heat.getDrivers().size()) {

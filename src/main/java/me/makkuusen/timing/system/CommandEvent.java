@@ -254,14 +254,31 @@ public class CommandEvent extends BaseCommand {
 
         int count = 1;
         player.sendMessage("§2--- Signs for §a" + event.getDisplayName() + " §2---");
-        for (Subscriber s : event.getSubscribers().values()) {
-            player.sendMessage("§2" + count++ + ": §a" + s.getTPlayer().getName());
+        if (event.getTrack() != null) {
+            var sortedList = CommandRound.getSortedList(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
+            for (TPlayer tPlayer : sortedList) {
+                var bestTime = event.getTrack().getBestFinish(tPlayer);
+                player.sendMessage("§2" + count++ + ": §a" + tPlayer.getName() + (bestTime == null ? "§2 - §a(None)" : "§2 - §a" + ApiUtilities.formatAsTime(bestTime.getTime())));
+            }
+        } else {
+            for (Subscriber s : event.getSubscribers().values()) {
+                player.sendMessage("§2" + count++ + ": §a" + s.getTPlayer().getName());
+            }
         }
+
 
         count = 1;
         player.sendMessage("§2--- Reserves for §a" + event.getDisplayName() + " §2---");
-        for (Subscriber s : event.getReserves().values()) {
-            player.sendMessage("§2" + count++ + ": §a" + s.getTPlayer().getName());
+        if (event.getTrack() != null) {
+            var sortedList = CommandRound.getSortedList(event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
+            for (TPlayer tPlayer : sortedList) {
+                var bestTime = event.getTrack().getBestFinish(tPlayer);
+                player.sendMessage("§2" + count++ + ": §a" + tPlayer.getName() + (bestTime == null ? "§2 - §a(None)" : "§2 - §a" + ApiUtilities.formatAsTime(bestTime.getTime())));
+            }
+        } else {
+            for (Subscriber s : event.getReserves().values()) {
+                player.sendMessage("§2" + count++ + ": §a" + s.getTPlayer().getName());
+            }
         }
     }
 
