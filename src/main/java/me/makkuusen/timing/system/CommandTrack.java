@@ -451,26 +451,16 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("mytimes")
     @CommandCompletion("@track <page>")
-    public static void onMyTimes(Player player, @Optional Track track, @Optional Integer pageStart) {
+    public static void onMyTimes(Player player, Track track, @Optional Integer pageStart) {
         if (pageStart == null) {
             pageStart = 1;
         }
 
         var tPlayer = Database.getPlayer(player.getUniqueId());
         List<TimeTrialFinish> allTimes = new ArrayList<>();
-        if (track == null) {
-            var tracks = TrackDatabase.getOpenTracks();
-            for (Track t : tracks) {
-                if (t.getTimeTrialFinishes().containsKey(tPlayer)) {
-                    allTimes.addAll(t.getTimeTrialFinishes().get(tPlayer));
-                }
-            }
-            allTimes.sort(new TimeTrialDateComparator());
-        } else {
-            if (track.getTimeTrialFinishes().containsKey(tPlayer)) {
-                allTimes.addAll(track.getTimeTrialFinishes().get(tPlayer));
-                allTimes.sort(new TimeTrialFinishComparator());
-            }
+        if (track.getTimeTrialFinishes().containsKey(tPlayer)) {
+            allTimes.addAll(track.getTimeTrialFinishes().get(tPlayer));
+            allTimes.sort(new TimeTrialFinishComparator());
         }
 
         int itemsPerPage = TimingSystem.configuration.getTimesPageSize();
@@ -493,9 +483,6 @@ public class CommandTrack extends BaseCommand {
             player.sendMessage("§2" + (i + 1) + ". §a" + ApiUtilities.formatAsTime(finish.getTime()) + " §2| §a" + ApiUtilities.niceDate(finish.getDate()));
         }
 
-        if (track == null) {
-            return;
-        }
         var pageText = Component.text("§2--- ");
         if (pageStart > 1) {
             pageText = pageText.append(Component.text("§a<<< ").clickEvent(ClickEvent.runCommand("/t mytimes " + track.getCommandName() + " " + (pageStart - 1))));
