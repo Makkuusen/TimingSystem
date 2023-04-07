@@ -42,6 +42,7 @@ public class Database {
                 rc9Update();
                 v1_0Update();
                 v1_2Update();
+                v1_3Update();
             } else {
                 if (isNewerVersion(row.getString("version") , plugin.getDescription().getVersion())) {
                     updateDatabase(row.getString("version"), plugin.getDescription().getVersion());
@@ -245,6 +246,14 @@ public class Database {
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_events_signs`(\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `eventId` int(11) NOT NULL,\n" +
+                    "  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
             DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_laps` (\n" +
                     "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
                     "  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
@@ -316,6 +325,8 @@ public class Database {
 
         if (newVersion.equalsIgnoreCase("1.2")) {
             v1_2Update();
+        } else if (newVersion.equalsIgnoreCase("1.3")) {
+            v1_3Update();
         }
     }
 
@@ -352,6 +363,14 @@ public class Database {
 
             }
 
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private static void v1_3Update() {
+        try {
+            DB.executeUpdate("ALTER TABLE `ts_events` ADD `open` tinyint(1) NOT NULL DEFAULT '0' AFTER `state`;");
         } catch (Exception exception) {
             exception.printStackTrace();
         }
