@@ -207,13 +207,14 @@ public class CommandEvent extends BaseCommand {
                 if (event.isReserving(tPlayer.getUniqueId())) {
                     event.removeReserve(tPlayer.getUniqueId());
                 }
-                event.addSubscriber(tPlayer.getUniqueId());
+                event.addSubscriber(tPlayer);
                 EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
                 player.sendMessage("§a" + tPlayer.getNameDisplay() + "§a is now signed up for " + event.getDisplayName());
                 return;
             }
         }
 
+        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         if (event.isSubscribing(player.getUniqueId())) {
             if (event.getState() != Event.EventState.SETUP) {
                 player.sendMessage("§cEvent has already started and you can no longer remove your sign from the event.");
@@ -232,7 +233,7 @@ public class CommandEvent extends BaseCommand {
             if (event.isReserving(player.getUniqueId())) {
                 event.removeReserve(player.getUniqueId());
             }
-            event.addSubscriber(player.getUniqueId());
+            event.addSubscriber(tPlayer);
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
             player.sendMessage("§aYou are now signed up for " + event.getDisplayName());
         }
@@ -292,13 +293,13 @@ public class CommandEvent extends BaseCommand {
                 if (event.isSubscribing(tPlayer.getUniqueId())) {
                     event.removeSubscriber(tPlayer.getUniqueId());
                 }
-                event.addReserve(tPlayer.getUniqueId());
+                event.addReserve(tPlayer);
                 EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
                 player.sendMessage("§a" + tPlayer.getNameDisplay() + "§a is now signed up as reserve for " + event.getDisplayName());
                 return;
             }
         }
-
+        var tPlayer = Database.getPlayer(player.getUniqueId());
         if (event.isReserving(player.getUniqueId())) {
             if (event.getState() != Event.EventState.SETUP) {
                 player.sendMessage("§cEvent has already started and you can no longer remove your sign from the event.");
@@ -311,7 +312,7 @@ public class CommandEvent extends BaseCommand {
                 player.sendMessage("§cYou are already signed up for " + event.getDisplayName());
                 return;
             }
-            event.addReserve(player.getUniqueId());
+            event.addReserve(tPlayer);
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
             player.sendMessage("§aYou are now signed up as reserve for " + event.getDisplayName());
         }

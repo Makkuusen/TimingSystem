@@ -9,11 +9,13 @@ import co.aikar.idb.DbRow;
 import com.google.errorprone.annotations.Var;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
@@ -45,6 +47,20 @@ public class EventDatabase {
             Event event = new Event(dbRow);
             events.add(event);
             EventSchedule es = new EventSchedule();
+
+            var signsDbRows = DB.getResults("SELECT * FROM `ts_events_signs` WHERE `eventId` = " + event.getId() + ";");
+            for (DbRow signsData : signsDbRows) {
+                try {
+                    var type = Subscriber.Type.valueOf(signsData.getString("type"));
+                    if (type == Subscriber.Type.SUBSCRIBER) {
+                        event.subscribers.put(UUID.fromString(signsData.get("uuid")), new Subscriber(signsData));
+                    } else if (type == Subscriber.Type.RESERVE) {
+                        event.reserves.put(UUID.fromString(signsData.get("uuid")), new Subscriber(signsData));
+                    }
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+            }
 
             var roundDbRows = DB.getResults("SELECT * FROM `ts_rounds` WHERE `eventId` = " + event.getId() + " AND `isRemoved` = 0;");
             for (DbRow roundData : roundDbRows) {
@@ -253,6 +269,21 @@ public class EventDatabase {
             exception.printStackTrace();
             return false;
         }
+    }
+
+    public static Subscriber subscriberNew(TPlayer tPlayer, Event event, Subscriber.Type type) {
+
+        DB.executeUpdateAsync("INSERT INTO `ts_events_signs`(" +
+                "`eventId`, " +
+                "`uuid`, " +
+                "`type`) " +
+                "VALUES (" +
+                event.getId() + ", " +
+                "'" + tPlayer.getUniqueId() + "'," +
+                "'" + type.name() + "')");
+
+        return new Subscriber(tPlayer);
+
     }
 
     private static DbRow driverNew(UUID uuid, Heat heat, int startPosition) throws SQLException {

@@ -246,6 +246,14 @@ public class Database {
                     "  PRIMARY KEY (`id`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
+            DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_events_signs`(\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `eventId` int(11) NOT NULL,\n" +
+                    "  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
             DB.executeUpdate("CREATE TABLE IF NOT EXISTS `ts_laps` (\n" +
                     "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
                     "  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +

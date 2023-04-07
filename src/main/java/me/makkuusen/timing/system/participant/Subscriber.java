@@ -29,4 +29,8 @@ public class Subscriber extends Participant{
         return false;
     }
 
+    public enum Type {
+        SUBSCRIBER, RESERVE
+    }
+
 }

@@ -263,7 +263,7 @@ public class Heat {
             event.addSpectator(driver.getTPlayer().getUniqueId());
         }
         if (!event.getSubscribers().containsKey(driver.getTPlayer().getUniqueId()) && !event.getReserves().containsKey(driver.getTPlayer().getUniqueId())) {
-            event.addSubscriber(driver.getTPlayer().getUniqueId());
+            event.addSubscriber(driver.getTPlayer());
         }
     }
 

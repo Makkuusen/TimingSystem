@@ -5,6 +5,7 @@ import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Participant;
@@ -129,8 +130,8 @@ public class Event {
         }
     }
 
-    public void addSubscriber(UUID uuid) {
-        subscribers.put(uuid, new Subscriber(Database.getPlayer(uuid)));
+    public void addSubscriber(TPlayer tPlayer) {
+        subscribers.put(tPlayer.getUniqueId(), EventDatabase.subscriberNew(tPlayer,this, Subscriber.Type.SUBSCRIBER));
     }
 
     public boolean isSubscribing(UUID uuid) {
@@ -139,12 +140,13 @@ public class Event {
 
     public void removeSubscriber(UUID uuid) {
         if (subscribers.containsKey(uuid)){
+            DB.executeUpdateAsync("DELETE FROM `ts_events_signs` WHERE `uuid` = '" + uuid.toString() + "' AND `eventId` = " + getId() + " AND `type` = '" + Subscriber.Type.SUBSCRIBER.name() + "';");
             subscribers.remove(uuid);
         }
     }
 
-    public void addReserve(UUID uuid) {
-        reserves.put(uuid, new Subscriber(Database.getPlayer(uuid)));
+    public void addReserve(TPlayer tPlayer) {
+        reserves.put(tPlayer.getUniqueId(), EventDatabase.subscriberNew(tPlayer,this, Subscriber.Type.RESERVE));
     }
 
     public boolean isReserving(UUID uuid) {
@@ -153,6 +155,7 @@ public class Event {
 
     public void removeReserve(UUID uuid) {
         if (reserves.containsKey(uuid)){
+            DB.executeUpdateAsync("DELETE FROM `ts_events_signs` WHERE `uuid` = '" + uuid.toString() + "' AND `eventId` = " + getId() + " AND `type` = '" + Subscriber.Type.RESERVE.name() + "';");
             reserves.remove(uuid);
         }
     }
