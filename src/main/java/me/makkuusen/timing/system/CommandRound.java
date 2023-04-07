@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -163,13 +164,12 @@ public class CommandRound extends BaseCommand {
         }
         java.util.Optional<Round> maybeRound;
         if (event.eventSchedule.getCurrentRound() == null && event.eventSchedule.getRounds().size() > 0) {
-            maybeRound = event.eventSchedule.getNextRound();
+            maybeRound = event.eventSchedule.getRound(1);
         } else {
             maybeRound = event.eventSchedule.getRound();
         }
         if (maybeRound.isPresent()) {
-
-            Round round = event.getEventSchedule().getRound().get();
+            Round round = maybeRound.get();
 
             for (Heat h : round.getHeats()) {
                 if (h.getHeatState() != HeatState.SETUP) {
@@ -188,38 +188,34 @@ public class CommandRound extends BaseCommand {
         }
     }
 
-    @Subcommand("fillheatsrandom")
+
+    @Subcommand("fillheats")
     @CommandPermission("event.admin")
-    public static void onAddDriversToHeatsRandom(Player player, @Optional Event event) {
-        if (event == null) {
-            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
-            if (maybeEvent.isPresent()) {
-                event = maybeEvent.get();
-            } else {
-                player.sendMessage("§cYou have no event selected");
-                return;
-            }
+    @CommandCompletion("random|sorted all|signed|reserves")
+    public static void onFillHeats(Player player, String sort, String group) {
+        Event event;
+        var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+        if (maybeEvent.isPresent()) {
+            event = maybeEvent.get();
+        } else {
+            player.sendMessage("§cYou have no event selected");
+            return;
         }
-        fillHeat(player, event, true);
+
+        boolean random = sort.equalsIgnoreCase("random");
+
+        List<TPlayer> listOfSubscribers = new ArrayList<>();
+        if (group.equalsIgnoreCase("all")) {
+            listOfSubscribers.addAll(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
+            listOfSubscribers.addAll(event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
+        } else {
+            var subscriberMap = group.equalsIgnoreCase("signed") ? event.getSubscribers() : event.getReserves();
+            listOfSubscribers.addAll(subscriberMap.values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
+        }
+        fillHeat(player, event, listOfSubscribers, random);
     }
 
-    @Subcommand("fillheatssorted")
-    @CommandPermission("event.admin")
-    public static void onAddDriversToHeatsByTimeTrials(Player player, @Optional Event event) {
-        if (event == null) {
-            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
-            if (maybeEvent.isPresent()) {
-                event = maybeEvent.get();
-            } else {
-                player.sendMessage("§cYou have no event selected");
-                return;
-            }
-        }
-        fillHeat(player, event, false);
-    }
-
-
-    public static void fillHeat(Player player, Event event, boolean random){
+    public static void fillHeat(Player player, Event event, List<TPlayer> players, boolean random){
         if (event.getState() != Event.EventState.SETUP) {
             player.sendMessage("§cEvent has already been started and drivers can't be distributed");
             return;
@@ -232,8 +228,7 @@ public class CommandRound extends BaseCommand {
             maybeRound = event.eventSchedule.getRound();
         }
         if (maybeRound.isPresent()) {
-
-            Round round = event.getEventSchedule().getRound().get();
+            Round round = maybeRound.get();
             var heats = round.getHeats();
             int numberOfDrivers = event.getSubscribers().size();
 
@@ -245,13 +240,10 @@ public class CommandRound extends BaseCommand {
             }
 
             LinkedList<TPlayer> tPlayerList = new LinkedList<>();
-            List<TPlayer> listOfSubscribers = new ArrayList<>();
-            event.getSubscribers().values().stream().forEach(subscriber -> {
-                listOfSubscribers.add(subscriber.getTPlayer());
-            });
-            Collections.shuffle(listOfSubscribers);
+
+            Collections.shuffle(players);
             if (!random) {
-                List<TimeTrialFinish> driversWithBestTimes = event.getTrack().getTopList().stream().filter(tt -> listOfSubscribers.contains(tt.getPlayer())).collect(Collectors.toList());
+                List<TimeTrialFinish> driversWithBestTimes = event.getTrack().getTopList().stream().filter(tt -> players.contains(tt.getPlayer())).collect(Collectors.toList());
                 player.sendMessage("§aSorting players based on timetrials");
                 int count = 1;
                 for (var finish : driversWithBestTimes) {
@@ -260,31 +252,29 @@ public class CommandRound extends BaseCommand {
                 }
             }
 
-            for (var subscriber : listOfSubscribers){
+            for (var subscriber : players){
                 if (!tPlayerList.contains(subscriber)){
                     tPlayerList.add(subscriber);
+                    player.sendMessage("§2- §a" + subscriber.getName());
                 }
             }
 
             for (Heat heat : heats) {
+                player.sendMessage("§2--- Adding drivers to §a" + heat.getName() + " §2---");
                 int size = heat.getMaxDrivers() - heat.getDrivers().size();
                 for (int i = 0; i < size; i++) {
                     if (tPlayerList.size() < 1) {
                         break;
                     }
-                    if (!heatAddDriver(tPlayerList.pop(), heat)) {
-                        player.sendMessage("§cSomething went wrong!");
-                        return;
-                    }
+                    heatAddDriver(player, tPlayerList.pop(), heat, random);
                 }
             }
-            player.sendMessage("§aDrivers has been " + (random ? "randomly added to" : "sorted into") + " heat(s)");
         } else {
             player.sendMessage("§cRound could not be found");
         }
     }
 
-    public static boolean heatAddDriver(TPlayer tPlayer, Heat heat) {
+    public static boolean heatAddDriver(Player sender, TPlayer tPlayer, Heat heat, boolean random) {
         if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
             return false;
         }
@@ -296,6 +286,8 @@ public class CommandRound extends BaseCommand {
         }
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
+            var bestTime = heat.getEvent().getTrack().getBestFinish(tPlayer);
+            sender.sendMessage("§2" + heat.getDrivers().size() + ": §a" + tPlayer.getName() + (bestTime == null ? "§2 - §a(None)" : "§2 - §a" + ApiUtilities.formatAsTime(bestTime.getTime())));
             return true;
         }
 

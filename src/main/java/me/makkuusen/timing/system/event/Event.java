@@ -28,7 +28,9 @@ public class Event {
     private UUID uuid;
     private String displayName;
     private long date;
+    private boolean openSign;
     HashMap<UUID, Subscriber> subscribers = new HashMap<>(); // Signed drivers
+    HashMap<UUID, Subscriber> reserves = new HashMap<>();
     HashMap<UUID, Spectator> spectators = new HashMap<>();
     public EventSchedule eventSchedule;
     private EventState state;
@@ -46,6 +48,7 @@ public class Event {
         Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : TrackDatabase.getTrackById(data.getInt("track"));
         track = maybeTrack.isEmpty() ? null : maybeTrack.get();
         state = EventState.valueOf(data.getString("state"));
+        openSign = data.get("open");
         eventSchedule = new EventSchedule();
     }
 
@@ -137,6 +140,20 @@ public class Event {
     public void removeSubscriber(UUID uuid) {
         if (subscribers.containsKey(uuid)){
             subscribers.remove(uuid);
+        }
+    }
+
+    public void addReserve(UUID uuid) {
+        reserves.put(uuid, new Subscriber(Database.getPlayer(uuid)));
+    }
+
+    public boolean isReserving(UUID uuid) {
+        return reserves.containsKey(uuid);
+    }
+
+    public void removeReserve(UUID uuid) {
+        if (reserves.containsKey(uuid)){
+            reserves.remove(uuid);
         }
     }
 

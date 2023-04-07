@@ -42,6 +42,7 @@ public class Database {
                 rc9Update();
                 v1_0Update();
                 v1_2Update();
+                v1_3Update();
             } else {
                 if (isNewerVersion(row.getString("version") , plugin.getDescription().getVersion())) {
                     updateDatabase(row.getString("version"), plugin.getDescription().getVersion());
@@ -316,6 +317,8 @@ public class Database {
 
         if (newVersion.equalsIgnoreCase("1.2")) {
             v1_2Update();
+        } else if (newVersion.equalsIgnoreCase("1.3")) {
+            v1_3Update();
         }
     }
 
@@ -352,6 +355,14 @@ public class Database {
 
             }
 
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private static void v1_3Update() {
+        try {
+            DB.executeUpdate("ALTER TABLE `ts_events` ADD `open` tinyint(1) NOT NULL DEFAULT '0' AFTER `state`;");
         } catch (Exception exception) {
             exception.printStackTrace();
         }

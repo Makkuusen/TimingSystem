@@ -144,6 +144,27 @@ public class CommandEvent extends BaseCommand {
         player.sendMessage("§aTrack has been updated");
     }
 
+    @CommandPermission("event.admin")
+    @Subcommand("set signs")
+    @CommandCompletion("open|closed")
+    public static void setOpen(Player player, String open) {
+        Event event;
+        var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+        if (maybeEvent.isPresent()) {
+            event = maybeEvent.get();
+        } else {
+            player.sendMessage("§cYou have no event selected");
+            return;
+        }
+        if (open.equalsIgnoreCase("open")) {
+            player.sendMessage("§aEvent signs are open");
+            event.setOpenSign(true);
+        } else {
+            player.sendMessage("§aEvent signs are closed");
+            event.setOpenSign(false);
+        }
+    }
+
     @Subcommand("spectate")
     @CommandCompletion("@event")
     public static void onSpectate(Player player, Event event) {
@@ -162,7 +183,7 @@ public class CommandEvent extends BaseCommand {
     public static void onSignUp(Player player, Event event, @Optional String name) {
         if (name != null) {
 
-            if (!player.hasPermission("event.admin") || !player.isOp()) {
+            if (!player.hasPermission("event.sign.others") || !player.hasPermission("event.admin") || !player.isOp()) {
                 player.sendMessage("§cAccess denied");
                 return;
             }
@@ -182,6 +203,10 @@ public class CommandEvent extends BaseCommand {
                 player.sendMessage("§a" + tPlayer.getNameDisplay() + "§a is no longer signed up for " + event.getDisplayName());
                 return;
             } else {
+
+                if (event.isReserving(tPlayer.getUniqueId())) {
+                    event.removeReserve(tPlayer.getUniqueId());
+                }
                 event.addSubscriber(tPlayer.getUniqueId());
                 EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
                 player.sendMessage("§a" + tPlayer.getNameDisplay() + "§a is now signed up for " + event.getDisplayName());
@@ -197,6 +222,16 @@ public class CommandEvent extends BaseCommand {
             event.removeSubscriber(player.getUniqueId());
             player.sendMessage("§aYou are no longer signed up for " + event.getDisplayName());
         } else {
+            if (!event.isOpenSign()) {
+                if (!player.hasPermission("event.sign") || !player.hasPermission("event.admin") || !player.isOp()) {
+                    player.sendMessage("§cAccess denied");
+                    return;
+                }
+            }
+
+            if (event.isReserving(player.getUniqueId())) {
+                event.removeReserve(player.getUniqueId());
+            }
             event.addSubscriber(player.getUniqueId());
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
             player.sendMessage("§aYou are now signed up for " + event.getDisplayName());
@@ -205,13 +240,80 @@ public class CommandEvent extends BaseCommand {
 
 
     @Subcommand("list signs")
-    @CommandCompletion("@event")
     @CommandPermission("event.admin")
-    public static void onListSigns(Player player, Event event) {
+    public static void onListSigns(Player player) {
+        Event event;
+        var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+        if (maybeEvent.isPresent()) {
+            event = maybeEvent.get();
+        } else {
+            player.sendMessage("§cYou have no event selected");
+            return;
+        }
+
         int count = 1;
         player.sendMessage("§2--- Signs for §a" + event.getDisplayName() + " §2---");
         for (Subscriber s : event.getSubscribers().values()) {
             player.sendMessage("§2" + count++ + ": §a" + s.getTPlayer().getName());
+        }
+
+        count = 1;
+        player.sendMessage("§2--- Reserves for §a" + event.getDisplayName() + " §2---");
+        for (Subscriber s : event.getReserves().values()) {
+            player.sendMessage("§2" + count++ + ": §a" + s.getTPlayer().getName());
+        }
+    }
+
+    @Subcommand("reserve")
+    @CommandCompletion("@event")
+    public static void onReserve(Player player, Event event, @Optional String name) {
+        if (name != null) {
+
+            if (!player.hasPermission("event.admin") || !player.isOp()) {
+                player.sendMessage("§cAccess denied");
+                return;
+            }
+
+            TPlayer tPlayer = Database.getPlayer(name);
+            if (tPlayer == null) {
+                player.sendMessage("§cCould not find player");
+                return;
+            }
+
+            if (event.isReserving(tPlayer.getUniqueId())) {
+                if (event.getState() != Event.EventState.SETUP) {
+                    player.sendMessage("§cEvent has already started and you can no longer remove reserves from the event.");
+                    return;
+                }
+                event.removeReserve(tPlayer.getUniqueId());
+                player.sendMessage("§a" + tPlayer.getNameDisplay() + "§a is no longer signed up as reserve for " + event.getDisplayName());
+                return;
+            } else {
+                if (event.isSubscribing(tPlayer.getUniqueId())) {
+                    event.removeSubscriber(tPlayer.getUniqueId());
+                }
+                event.addReserve(tPlayer.getUniqueId());
+                EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
+                player.sendMessage("§a" + tPlayer.getNameDisplay() + "§a is now signed up as reserve for " + event.getDisplayName());
+                return;
+            }
+        }
+
+        if (event.isReserving(player.getUniqueId())) {
+            if (event.getState() != Event.EventState.SETUP) {
+                player.sendMessage("§cEvent has already started and you can no longer remove your sign from the event.");
+                return;
+            }
+            event.removeReserve(player.getUniqueId());
+            player.sendMessage("§aYou are no longer signed up as reserve for " + event.getDisplayName());
+        } else {
+            if (event.isSubscribing(player.getUniqueId())) {
+                player.sendMessage("§cYou are already signed up for " + event.getDisplayName());
+                return;
+            }
+            event.addReserve(player.getUniqueId());
+            EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
+            player.sendMessage("§aYou are now signed up as reserve for " + event.getDisplayName());
         }
     }
 
@@ -230,6 +332,41 @@ public class CommandEvent extends BaseCommand {
 
         var message = Component.text("§3--> Click to sign up for §b§l" + event.getDisplayName() + " §3<--").clickEvent(ClickEvent.runCommand("/event sign " + event.getDisplayName()));
         for (Player p : Bukkit.getOnlinePlayers()) {
+
+            if (event.isSubscribing(p.getUniqueId())) {
+                continue;
+            }
+
+            if (!event.isOpenSign()) {
+                if (!player.hasPermission("event.sign") || !player.hasPermission("event.admin") || !player.isOp()) {
+                    continue;
+                }
+            }
+            p.sendMessage("");
+            p.sendMessage(message);
+            p.sendMessage("");
+        }
+    }
+
+    @Subcommand("broadcast clicktoreserve")
+    @CommandPermission("event.admin")
+    public static void onSendReserve(Player player, @Optional Event event) {
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                player.sendMessage("§cYou have no event selected");
+                return;
+            }
+        }
+
+        var message = Component.text("§3--> Click to sign up as reserve for §b§l" + event.getDisplayName() + " §3<--").clickEvent(ClickEvent.runCommand("/event reserve " + event.getDisplayName()));
+        for (Player p : Bukkit.getOnlinePlayers()) {
+
+            if (event.isReserving(p.getUniqueId()) || event.isSubscribing(p.getUniqueId())) {
+                continue;
+            }
             p.sendMessage("");
             p.sendMessage(message);
             p.sendMessage("");
