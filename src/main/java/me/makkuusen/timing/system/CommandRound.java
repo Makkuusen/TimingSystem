@@ -18,8 +18,13 @@ import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
+import me.makkuusen.timing.system.text.Errors;
+import me.makkuusen.timing.system.text.TextButtons;
+import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -42,7 +47,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage("§cYou have no event selected");
+                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
                 return;
             }
         }
@@ -60,7 +65,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage("§cYou have no event selected");
+                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
                 return;
             }
         }
@@ -93,11 +98,34 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("info")
     @CommandCompletion("@round")
-    public static void onHeatInfo(Player player, Round round) {
-        player.sendMessage("§2Round: §a" + round.getDisplayName());
-        player.sendMessage("§2Roundtype: §a" + round.getType().name());
-        player.sendMessage("§2Roundstate: §a" + round.getState().name());
-        player.sendMessage("§2Heats: " + round.getHeats().size());
+    public static void onRoundInfo(Player player, Round round) {
+
+        player.sendMessage("");
+        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName()))
+                .append(TextUtilities.space())
+                .append(TextUtilities.getTitleLine(
+                        Component.text(round.getDisplayName()).color(TextUtilities.textHighlightColor)
+                                .append(TextUtilities.space())
+                                .append(TextUtilities.getParenthisied(round.getState().name())))
+                )
+                .append(TextUtilities.space())
+                .append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))
+        );
+
+        player.sendMessage(Component.text("Heats:").color(TextUtilities.textDarkColor)
+                .append(TextUtilities.tab())
+                .append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()))
+        );
+        for (Heat heat : round.getHeats()) {
+            player.sendMessage(TextUtilities.tab()
+                    .append(Component.text(heat.getName()).color(TextUtilities.textHighlightColor))
+                    .append(TextUtilities.tab())
+                    .append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))
+                    .append(TextUtilities.space())
+                    .append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())))
+
+            );
+        }
     }
 
 
@@ -109,7 +137,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage("§cYou have no event selected");
+                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
                 return;
             }
         }
@@ -128,22 +156,35 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage("§cYou have no event selected");
+                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
                 return;
             }
         }
         List<Driver> results = EventResults.generateRoundResults(round.getHeats());
 
         if (results.size() != 0) {
-            player.sendMessage("§2Round results for event §a" + event.getDisplayName());
+            player.sendMessage(TextUtilities.getTitleLine("Round results for event", event.getDisplayName()));
             int pos = 1;
             if (round instanceof FinalRound){
                 for (Driver d : results) {
-                    player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName() + "§2 - §a" + d.getLaps().size() + " §2laps in §a" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                    player.sendMessage(TextUtilities.dark(pos++ + ".")
+                            .append(TextUtilities.space())
+                            .append(TextUtilities.highlight(d.getTPlayer().getName()))
+                            .append(TextUtilities.hyphen())
+                            .append(TextUtilities.highlight(String.valueOf(d.getLaps().size())))
+                            .append(TextUtilities.dark("laps in"))
+                            .append(Component.space())
+                            .append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime())))
+                    );
                 }
             } else {
                 for (Driver d : results) {
-                    player.sendMessage("§2" + pos++ + ". §a" + d.getTPlayer().getName() + "§2 - §a" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0"));
+                    player.sendMessage(TextUtilities.dark(pos++ + ".")
+                            .append(TextUtilities.space())
+                            .append(TextUtilities.highlight(d.getTPlayer().getName()))
+                            .append(TextUtilities.hyphen())
+                            .append(TextUtilities.highlight((d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0")))
+                    );
                 }
             }
         } else {
@@ -159,7 +200,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage("§cYou have no event selected");
+                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
                 return;
             }
         }
@@ -174,7 +215,7 @@ public class CommandRound extends BaseCommand {
 
             for (Heat h : round.getHeats()) {
                 if (h.getHeatState() != HeatState.SETUP) {
-                    player.sendMessage("§cDrivers can not be removed from " + h.getName() + " because it is either running or finished.");
+                    player.sendMessage(TextUtilities.error("Drivers can not be removed from " + h.getName() + " because it is either running or finished."));
                     return;
                 }
 
@@ -184,7 +225,7 @@ public class CommandRound extends BaseCommand {
                     h.removeDriver(d);
                 }
             }
-            player.sendMessage("§aDrivers have been removed!");
+            player.sendMessage(TextUtilities.success("Drivers have been removed!"));
 
         }
     }
@@ -199,14 +240,14 @@ public class CommandRound extends BaseCommand {
         if (maybeEvent.isPresent()) {
             event = maybeEvent.get();
         } else {
-            player.sendMessage("§cYou have no event selected");
+            player.sendMessage(Errors.NO_EVENT_SELECTED.message());
             return;
         }
 
         boolean random = sort.equalsIgnoreCase("random");
 
         if (event.getState() != Event.EventState.SETUP) {
-            player.sendMessage("§cEvent has already been started and drivers can't be distributed");
+            player.sendMessage(TextUtilities.error("Event has already been started and drivers can't be distributed"));
             return;
         }
 
@@ -258,7 +299,7 @@ public class CommandRound extends BaseCommand {
             }
 
             for (Heat heat : heats) {
-                player.sendMessage("§2--- Adding drivers to §a" + heat.getName() + " §2---");
+                player.sendMessage(TextUtilities.getTitleLine("Adding drivers to", heat.getName()));
                 int size = heat.getMaxDrivers() - heat.getDrivers().size();
                 for (int i = 0; i < size; i++) {
                     if (tPlayerList.size() < 1) {
@@ -271,17 +312,17 @@ public class CommandRound extends BaseCommand {
             tPlayerList.addAll(excludedList);
 
             if (!tPlayerList.isEmpty()) {
-                player.sendMessage("§6Drivers left out: ");
-                String message = "§e";
+                player.sendMessage(TextUtilities.warn("Drivers left out: "));
+                String message = "";
                 message += tPlayerList.pop().getName();
 
                 while (!tPlayerList.isEmpty()) {
-                    message += "§6, §e" + tPlayerList.pop().getName();
+                    message += ", " + tPlayerList.pop().getName();
                 }
-                player.sendMessage(message);
+                player.sendMessage(TextUtilities.warn(message));
             }
         } else {
-            player.sendMessage("§cRound could not be found");
+            player.sendMessage(TextUtilities.error("Round could not be found"));
         }
     }
 
@@ -327,7 +368,12 @@ public class CommandRound extends BaseCommand {
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             var bestTime = heat.getEvent().getTrack().getBestFinish(tPlayer);
-            sender.sendMessage("§2" + heat.getDrivers().size() + ": §a" + tPlayer.getName() + (bestTime == null ? "§2 - §a(None)" : "§2 - §a" + ApiUtilities.formatAsTime(bestTime.getTime())));
+            sender.sendMessage(TextUtilities.dark(heat.getDrivers().size() + ":")
+                    .append(TextUtilities.space())
+                    .append(TextUtilities.highlight(tPlayer.getName()))
+                    .append(TextUtilities.hyphen())
+                    .append(TextUtilities.highlight((bestTime == null ? "(None)" : ApiUtilities.formatAsTime(bestTime.getTime()))))
+            );
             return true;
         }
 
