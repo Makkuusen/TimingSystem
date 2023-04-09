@@ -112,19 +112,27 @@ public class CommandRound extends BaseCommand {
                 .append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))
         );
 
-        player.sendMessage(Component.text("Heats:").color(TextUtilities.textDarkColor)
-                .append(TextUtilities.tab())
-                .append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()))
-        );
+        var heatsMessage = Component.text("Heats:").color(TextUtilities.textDarkColor);
+
+        if (player.hasPermission("event.admin")) {
+            heatsMessage.append(TextUtilities.tab())
+                    .append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
+        }
+        player.sendMessage(heatsMessage);
+
         for (Heat heat : round.getHeats()) {
-            player.sendMessage(TextUtilities.tab()
+
+            var message = TextUtilities.tab()
                     .append(Component.text(heat.getName()).color(TextUtilities.textHighlightColor))
                     .append(TextUtilities.tab())
-                    .append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))
-                    .append(TextUtilities.space())
-                    .append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())))
+                    .append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
-            );
+            if (player.hasPermission("event.admin")) {
+                message = message.append(TextUtilities.space())
+                        .append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
+            }
+
+            player.sendMessage(message);
         }
     }
 
@@ -272,7 +280,7 @@ public class CommandRound extends BaseCommand {
                 listOfSubscribers.addAll(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
                 int reserveSlots = numberOfSlots - numberOfDrivers;
                 var reserves = event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList());
-                if (reserveSlots > 0) {
+                if (reserveSlots > 0 && event.getReserves().values().size() > 0) {
                     List<TPlayer> list;
                     if (!random) {
                         list = getSortedList(reserves, event.getTrack());

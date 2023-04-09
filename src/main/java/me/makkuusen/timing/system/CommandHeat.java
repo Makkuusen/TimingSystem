@@ -71,35 +71,67 @@ public class CommandHeat extends BaseCommand {
                 .append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + heat.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))
         );
 
-        player.sendMessage(Component.text("[Load]").color(NamedTextColor.YELLOW).clickEvent(ClickEvent.runCommand("/heat load " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to load heat")))
-                .append(Component.space())
-                .append(Component.text("[Reset]").color(NamedTextColor.RED).clickEvent(ClickEvent.runCommand("/heat reset " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to reset heat"))))
-                .append(Component.space())
-                .append(Component.text("[Start]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/heat start " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to start heat"))))
-                .append(Component.space())
-                .append(Component.text("[Finish]").color(NamedTextColor.GRAY).clickEvent(ClickEvent.runCommand("/heat finish " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to finish heat"))))
-        );
+        if (player.hasPermission("event.admin")) {
+            player.sendMessage(Component.text("[Load]").color(NamedTextColor.YELLOW).clickEvent(ClickEvent.runCommand("/heat load " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to load heat")))
+                    .append(Component.space())
+                    .append(Component.text("[Reset]").color(NamedTextColor.RED).clickEvent(ClickEvent.runCommand("/heat reset " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to reset heat"))))
+                    .append(Component.space())
+                    .append(Component.text("[Start]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/heat start " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to start heat"))))
+                    .append(Component.space())
+                    .append(Component.text("[Finish]").color(NamedTextColor.GRAY).clickEvent(ClickEvent.runCommand("/heat finish " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to finish heat"))))
+            );
+        }
 
         if (heat.getTimeLimit() != null) {
-            player.sendMessage(Component.text("Time limit: ").color(TextUtilities.textDarkColor)
-                    .append(TextButtons.getEditButton((heat.getTimeLimit() / 1000) + "s").clickEvent(ClickEvent.suggestCommand("/heat set timelimit " + heat.getName() + " "))));
+            var message = Component.text("Time limit: ").color(TextUtilities.textDarkColor);
+
+            if (player.hasPermission("event.admin")) {
+                message = message.append(TextButtons.getEditButton((heat.getTimeLimit() / 1000) + "s").clickEvent(ClickEvent.suggestCommand("/heat set timelimit " + heat.getName() + " ")));
+            } else {
+                message = message.append(TextUtilities.highlight((heat.getTimeLimit() / 1000) + "s"));
+            }
+            player.sendMessage(message);
         }
         if (heat.getStartDelay() != null) {
-            player.sendMessage(Component.text("Start delay: ").color(TextUtilities.textDarkColor)
-                    .append(TextButtons.getEditButton((heat.getStartDelay()) + "ms").clickEvent(ClickEvent.suggestCommand("/heat set startdelay " + heat.getName() + " "))));
+            var message = Component.text("Start delay: ").color(TextUtilities.textDarkColor);
+
+            if (player.hasPermission("event.admin")) {
+                message = message.append(TextButtons.getEditButton((heat.getStartDelay()) + "ms").clickEvent(ClickEvent.suggestCommand("/heat set startdelay " + heat.getName() + " ")));
+            } else {
+                message = message.append(TextUtilities.highlight((heat.getStartDelay()) + "ms"));
+            }
+            player.sendMessage(message);
         }
 
         if (heat.getTotalLaps() != null) {
-            player.sendMessage(Component.text("Laps: ").color(TextUtilities.textDarkColor)
-                    .append(TextButtons.getEditButton(String.valueOf(heat.getTotalLaps())).clickEvent(ClickEvent.suggestCommand("/heat set laps " + heat.getName() + " "))));
+            var message = Component.text("Laps: ").color(TextUtilities.textDarkColor);
+
+            if (player.hasPermission("event.admin")) {
+                message = message.append(TextButtons.getEditButton(String.valueOf(heat.getTotalLaps())).clickEvent(ClickEvent.suggestCommand("/heat set laps " + heat.getName() + " ")));
+            } else {
+                message = message.append(TextUtilities.highlight(String.valueOf(heat.getTotalLaps())));
+            }
+            player.sendMessage(message);
         }
         if (heat.getTotalPits() != null) {
-            player.sendMessage(Component.text("Pits: ").color(TextUtilities.textDarkColor)
-                    .append(TextButtons.getEditButton(String.valueOf(heat.getTotalPits())).clickEvent(ClickEvent.suggestCommand("/heat set pits " + heat.getName() + " "))));
+            var message = Component.text("Pits: ").color(TextUtilities.textDarkColor);
+
+            if (player.hasPermission("event.admin")) {
+                message = message.append(TextButtons.getEditButton(String.valueOf(heat.getTotalPits())).clickEvent(ClickEvent.suggestCommand("/heat set pits " + heat.getName() + " ")));
+            } else {
+                message = message.append(TextUtilities.highlight(String.valueOf(heat.getTotalPits())));
+            }
+            player.sendMessage(message);
         }
 
-        player.sendMessage(Component.text("Max drivers: ").color(TextUtilities.textDarkColor)
-                .append(TextButtons.getEditButton(String.valueOf(heat.getMaxDrivers())).clickEvent(ClickEvent.suggestCommand("/heat set maxdrivers " + heat.getName() + " "))));
+        var maxDriversMessage = Component.text("Max drivers: ").color(TextUtilities.textDarkColor);
+
+        if (player.hasPermission("event.admin")) {
+            maxDriversMessage = maxDriversMessage.append(TextButtons.getEditButton(String.valueOf(heat.getMaxDrivers())).clickEvent(ClickEvent.suggestCommand("/heat set maxdrivers " + heat.getName() + " ")));
+        } else {
+            maxDriversMessage = maxDriversMessage.append(TextUtilities.highlight(String.valueOf(heat.getMaxDrivers())));
+        }
+        player.sendMessage(maxDriversMessage);
 
         if (heat.getFastestLapUUID() != null) {
             Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
@@ -113,19 +145,27 @@ public class CommandHeat extends BaseCommand {
             );
         }
 
-        player.sendMessage(Component.text("Drivers:").color(TextUtilities.textDarkColor)
-                .append(TextUtilities.space())
-                .append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/heat add " + heat.getName() + " ")))
-        );
-        for (Driver d : heat.getStartPositions()) {
-            player.sendMessage(TextUtilities.tab()
-                    .append(Component.text(d.getStartPosition() + ": " + d.getTPlayer().getName()).color(NamedTextColor.WHITE))
-                    .append(TextUtilities.tab())
-                    .append(TextButtons.getMoveButton().clickEvent(ClickEvent.suggestCommand("/heat set driverposition " + heat.getName() + " " + d.getTPlayer().getName() + " ")).hoverEvent(HoverEvent.showText(Component.text("Change position"))))
-                    .append(Component.space())
-                    .append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete driver " + heat.getName() + " " + d.getTPlayer().getName())))
+        var driverMessage = Component.text("Drivers:").color(TextUtilities.textDarkColor);
 
-            );
+        if (player.hasPermission("event.admin")) {
+            driverMessage = driverMessage.append(TextUtilities.space())
+                    .append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/heat add " + heat.getName() + " ")));
+        }
+
+        player.sendMessage(driverMessage);
+
+        for (Driver d : heat.getStartPositions()) {
+            var message = TextUtilities.tab()
+                    .append(Component.text(d.getStartPosition() + ": " + d.getTPlayer().getName()).color(NamedTextColor.WHITE));
+
+            if (player.hasPermission("event.admin")) {
+                message = message.append(TextUtilities.tab())
+                        .append(TextButtons.getMoveButton().clickEvent(ClickEvent.suggestCommand("/heat set driverposition " + heat.getName() + " " + d.getTPlayer().getName() + " ")).hoverEvent(HoverEvent.showText(Component.text("Change position"))))
+                        .append(Component.space())
+                        .append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete driver " + heat.getName() + " " + d.getTPlayer().getName())));
+            }
+
+            player.sendMessage(message);
         }
     }
 

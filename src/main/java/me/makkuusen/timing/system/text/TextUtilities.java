@@ -57,6 +57,10 @@ public class TextUtilities {
         return Component.text(" - ").color(textDarkColor);
     }
 
+    public static Component arrow() {
+        return Component.text("->").color(textDarkColor);
+    }
+
     public static Component getTitleLine(String dark, String highlight) {
         return getSpacersStart()
                 .append(Component.text(dark).color(textDarkColor))
