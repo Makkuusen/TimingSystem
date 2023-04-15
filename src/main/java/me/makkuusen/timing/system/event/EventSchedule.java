@@ -3,6 +3,8 @@ package me.makkuusen.timing.system.event;
 import lombok.Getter;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
+import me.makkuusen.timing.system.text.TextUtilities;
+import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +78,9 @@ public class EventSchedule {
         if (currentRound == null){
             return Optional.empty();
         }
+        if (currentRound - 1 > rounds.size() - 1) {
+            return Optional.empty();
+        }
         return Optional.of(rounds.get(currentRound - 1));
     }
 
@@ -84,18 +89,17 @@ public class EventSchedule {
     }
 
 
-    public List<String> getHeatList(Event event) {
-        List<String> message = new ArrayList<>();
-        message.add("§2--- Heats for §a" + event.getDisplayName() + " §2---");
+    public List<Component> getHeatList(Event event) {
+        List<Component> message = new ArrayList<>();
+        message.add(TextUtilities.getTitleLine("Heats for", event.getDisplayName()));
         message.addAll(listHeats());
         return message;
     }
 
-    public List<String> getRoundList(Event event) {
-        List<String> message = new ArrayList<>();
-        message.add("§2--- Rounds for §a" + event.getDisplayName() + " §2---");
+    public List<Component> getRoundList(Event event) {
+        List<Component> message = new ArrayList<>();
+        message.add(TextUtilities.getTitleLine("Rounds for", event.getDisplayName()));
         message.addAll(listRounds());
-
         return message;
     }
 
@@ -112,17 +116,16 @@ public class EventSchedule {
         return rounds.stream().filter(round -> name.equalsIgnoreCase(round.getName())).findFirst();
     }
 
-    public List<String> listRounds(){
-        List<String> message = new ArrayList<>();
-        rounds.stream().forEach(round -> message.add("§a - " + round.getName()));
+    public List<Component> listRounds(){
+        List<Component> message = new ArrayList<>();
+        rounds.stream().forEach(round -> message.add(Component.text(" - " + round.getName()).color(TextUtilities.textHighlightColor)));
         return message;
     }
 
-    public List<String> listHeats() {
-        List<String> message = new ArrayList<>();
-
+    public List<Component> listHeats() {
+        List<Component> message = new ArrayList<>();
         for (Round round : rounds) {
-            round.getHeats().stream().forEach(heat -> message.add("§a - " + heat.getName()));
+            round.getHeats().stream().forEach(heat -> message.add(Component.text(" - " + heat.getName()).color(TextUtilities.textHighlightColor)));
         }
         return message;
     }
