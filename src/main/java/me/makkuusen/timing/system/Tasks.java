@@ -32,6 +32,7 @@ public class Tasks {
 
                     track.getRegions().stream().forEach(trackRegion -> setParticles(player, trackRegion));
                     track.getTrackLocations(TrackLocation.Type.GRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_OFF));
+                    track.getTrackLocations(TrackLocation.Type.QUALYGRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_ON));
                 }
             }
         }, 0, 10);

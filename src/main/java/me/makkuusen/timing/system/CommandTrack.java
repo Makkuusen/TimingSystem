@@ -278,6 +278,9 @@ public class CommandTrack extends BaseCommand {
         if (track.getTrackLocations(TrackLocation.Type.GRID).size() != 0) {
             commandSender.sendMessage("§2Grids: §a" + track.getTrackLocations(TrackLocation.Type.GRID).size());
         }
+        if (track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0) {
+            commandSender.sendMessage("§2QualyGrids: §a" + track.getTrackLocations(TrackLocation.Type.QUALYGRID).size());
+        }
         plugin.sendMessage(commandSender, "messages.info.track.resets", "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.RESET).size()));
         plugin.sendMessage(commandSender, "messages.info.track.spawn", "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
         commandSender.sendMessage("§2Weight: §a" + track.getWeight());
@@ -986,6 +989,12 @@ public class CommandTrack extends BaseCommand {
             createOrUpdateTrackIndexLocation(track, TrackLocation.Type.GRID, index, player, player.getLocation());
         }
 
+        @Subcommand("qualygrid")
+        @CommandCompletion("@track <index>")
+        public static void onQualyGridLocation(Player player, Track track, @Optional String index) {
+            createOrUpdateTrackIndexLocation(track, TrackLocation.Type.QUALYGRID, index, player, player.getLocation());
+        }
+
         @Subcommand("checkpoint")
         @CommandCompletion("@track <index>")
         public static void onCheckpoint(Player player, Track track, @Optional String index) {
@@ -1044,7 +1053,9 @@ public class CommandTrack extends BaseCommand {
             } else {
                 if (type == TrackLocation.Type.GRID) {
                     locationIndex = track.getTrackLocations(TrackLocation.Type.GRID).size() + 1;
-                } else {
+                } else if (type == TrackLocation.Type.QUALYGRID) {
+                    locationIndex = track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() + 1;
+                } else{
                     locationIndex = 1;
                 }
             }
