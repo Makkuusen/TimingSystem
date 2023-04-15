@@ -24,6 +24,9 @@ commands:
    timingsystem:
       description: Command for server settings
       aliases: [ts]
+   boat:
+      description: Spawns a boat
+      aliases: [b]
 
 permissions:
 
