@@ -33,6 +33,6 @@ public class TrackLocation {
     }
 
     public enum Type {
-        LEADERBOARD, GRID
+        LEADERBOARD, GRID, QUALYGRID
     }
 }

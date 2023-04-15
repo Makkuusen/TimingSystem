@@ -100,18 +100,32 @@ public class Heat {
         }
         List<Driver> pos = new ArrayList<>();
         pos.addAll(getStartPositions());
-        if (getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size() != 0)
-            for (Driver d : getStartPositions()) {
-                Player player = d.getTPlayer().getPlayer();
-                if (player != null) {
-                    Location grid = getEvent().getTrack().getTrackLocation(TrackLocation.Type.GRID, d.getStartPosition()).get().getLocation();
-                    if (grid != null) {
-                        gridManager.teleportPlayerToGrid(player, grid, getEvent().getTrack());
-                    }
+
+        var track = getEvent().getTrack();
+
+        boolean qualyGrid = round instanceof QualificationRound && track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0;
+
+        if (!qualyGrid && track.getTrackLocations(TrackLocation.Type.GRID).size() == 0) {
+            return false;
+        }
+
+        for (Driver d : getStartPositions()) {
+            Player player = d.getTPlayer().getPlayer();
+            if (player != null) {
+                Location grid;
+                if (qualyGrid) {
+                    grid = track.getTrackLocation(TrackLocation.Type.QUALYGRID, d.getStartPosition()).get().getLocation();
+                } else {
+                    grid = track.getTrackLocation(TrackLocation.Type.GRID, d.getStartPosition()).get().getLocation();
                 }
-                EventDatabase.addPlayerToRunningHeat(d);
-                d.setState(DriverState.LOADED);
+                if (grid != null) {
+                    gridManager.teleportPlayerToGrid(player, grid, track);
+                }
             }
+            EventDatabase.addPlayerToRunningHeat(d);
+            d.setState(DriverState.LOADED);
+        }
+
         setLivePositions(pos);
         setHeatState(HeatState.LOADED);
         scoreboard = new SpectatorScoreboard(this);
@@ -253,6 +267,9 @@ public class Heat {
     public int getMaxDrivers(){
         if (maxDrivers != null) {
             return maxDrivers;
+        }
+        if (round instanceof QualificationRound && getEvent().getTrack().getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0) {
+            return getEvent().getTrack().getTrackLocations(TrackLocation.Type.QUALYGRID).size();
         }
         return getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size();
     }
