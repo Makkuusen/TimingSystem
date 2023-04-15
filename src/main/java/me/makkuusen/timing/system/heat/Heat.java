@@ -216,6 +216,10 @@ public class Heat {
         return true;
     }
 
+    public boolean isFinished() {
+        return heatState == HeatState.FINISHED;
+    }
+
     public void updatePositions() {
         Collections.sort(getLivePositions());
         int pos = 1;

@@ -59,7 +59,7 @@ public class CommandEvent extends BaseCommand {
         for (Event event : list) {
             commandSender.sendMessage(TextUtilities.highlight(event.getDisplayName())
                     .clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName()))
-                    .hoverEvent(HoverEvent.showText(Component.text("Click to view event")))
+                    .hoverEvent(HoverEvent.showText(Component.text("Click to select event")))
                     .append(TextUtilities.space())
                     .append(TextUtilities.getParenthisied(event.getState().name()))
                     .append(TextUtilities.dark(" - "))
@@ -217,7 +217,7 @@ public class CommandEvent extends BaseCommand {
                         .append(TextUtilities.tab())
                         .append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
-                if (sender.hasPermission("event.admin")) {
+                if (!heat.isFinished() && sender.hasPermission("event.admin")) {
                     message = message.append(TextUtilities.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
                 }
                 sender.sendMessage(message);

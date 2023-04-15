@@ -71,7 +71,7 @@ public class CommandHeat extends BaseCommand {
                 .append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + heat.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))
         );
 
-        if (player.hasPermission("event.admin")) {
+        if (player.hasPermission("event.admin") && heat.getHeatState() != HeatState.FINISHED) {
             player.sendMessage(Component.text("[Load]").color(NamedTextColor.YELLOW).clickEvent(ClickEvent.runCommand("/heat load " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to load heat")))
                     .append(Component.space())
                     .append(Component.text("[Reset]").color(NamedTextColor.RED).clickEvent(ClickEvent.runCommand("/heat reset " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to reset heat"))))
@@ -85,7 +85,7 @@ public class CommandHeat extends BaseCommand {
         if (heat.getTimeLimit() != null) {
             var message = Component.text("Time limit: ").color(TextUtilities.textDarkColor);
 
-            if (player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("event.admin")) {
                 message = message.append(TextButtons.getEditButton((heat.getTimeLimit() / 1000) + "s").clickEvent(ClickEvent.suggestCommand("/heat set timelimit " + heat.getName() + " ")));
             } else {
                 message = message.append(TextUtilities.highlight((heat.getTimeLimit() / 1000) + "s"));
@@ -95,7 +95,7 @@ public class CommandHeat extends BaseCommand {
         if (heat.getStartDelay() != null) {
             var message = Component.text("Start delay: ").color(TextUtilities.textDarkColor);
 
-            if (player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("event.admin")) {
                 message = message.append(TextButtons.getEditButton((heat.getStartDelay()) + "ms").clickEvent(ClickEvent.suggestCommand("/heat set startdelay " + heat.getName() + " ")));
             } else {
                 message = message.append(TextUtilities.highlight((heat.getStartDelay()) + "ms"));
@@ -106,7 +106,7 @@ public class CommandHeat extends BaseCommand {
         if (heat.getTotalLaps() != null) {
             var message = Component.text("Laps: ").color(TextUtilities.textDarkColor);
 
-            if (player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("event.admin")) {
                 message = message.append(TextButtons.getEditButton(String.valueOf(heat.getTotalLaps())).clickEvent(ClickEvent.suggestCommand("/heat set laps " + heat.getName() + " ")));
             } else {
                 message = message.append(TextUtilities.highlight(String.valueOf(heat.getTotalLaps())));
@@ -116,7 +116,7 @@ public class CommandHeat extends BaseCommand {
         if (heat.getTotalPits() != null) {
             var message = Component.text("Pits: ").color(TextUtilities.textDarkColor);
 
-            if (player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("event.admin")) {
                 message = message.append(TextButtons.getEditButton(String.valueOf(heat.getTotalPits())).clickEvent(ClickEvent.suggestCommand("/heat set pits " + heat.getName() + " ")));
             } else {
                 message = message.append(TextUtilities.highlight(String.valueOf(heat.getTotalPits())));
@@ -126,7 +126,7 @@ public class CommandHeat extends BaseCommand {
 
         var maxDriversMessage = Component.text("Max drivers: ").color(TextUtilities.textDarkColor);
 
-        if (player.hasPermission("event.admin")) {
+        if (!heat.isFinished() && player.hasPermission("event.admin")) {
             maxDriversMessage = maxDriversMessage.append(TextButtons.getEditButton(String.valueOf(heat.getMaxDrivers())).clickEvent(ClickEvent.suggestCommand("/heat set maxdrivers " + heat.getName() + " ")));
         } else {
             maxDriversMessage = maxDriversMessage.append(TextUtilities.highlight(String.valueOf(heat.getMaxDrivers())));
@@ -147,7 +147,7 @@ public class CommandHeat extends BaseCommand {
 
         var driverMessage = Component.text("Drivers:").color(TextUtilities.textDarkColor);
 
-        if (player.hasPermission("event.admin")) {
+        if (!heat.isFinished() && player.hasPermission("event.admin")) {
             driverMessage = driverMessage.append(TextUtilities.space())
                     .append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/heat add " + heat.getName() + " ")));
         }
@@ -158,7 +158,7 @@ public class CommandHeat extends BaseCommand {
             var message = TextUtilities.tab()
                     .append(Component.text(d.getStartPosition() + ": " + d.getTPlayer().getName()).color(NamedTextColor.WHITE));
 
-            if (player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("event.admin")) {
                 message = message.append(TextUtilities.tab())
                         .append(TextButtons.getMoveButton().clickEvent(ClickEvent.suggestCommand("/heat set driverposition " + heat.getName() + " " + d.getTPlayer().getName() + " ")).hoverEvent(HoverEvent.showText(Component.text("Change position"))))
                         .append(Component.space())
@@ -196,28 +196,24 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatLoad(Player player, Heat heat) {
+
+        var state = heat.getHeatState();
+        if (state != HeatState.SETUP) {
+            if (!heat.resetHeat()) {
+                player.sendMessage("§cCouldn't reload " + heat.getName());
+                return;
+            }
+        }
+
         if (heat.loadHeat()) {
-            EventAnnouncements.broadcastSpectate(heat.getEvent());
+            if (state == HeatState.SETUP) {
+                EventAnnouncements.broadcastSpectate(heat.getEvent());
+            }
             player.sendMessage(TextUtilities.success("Loaded " + heat.getName()));
             return;
         }
         player.sendMessage("§cCouldn't load " + heat.getName());
 
-    }
-
-    @Subcommand("reload")
-    @CommandPermission("event.admin")
-    @CommandCompletion("@heat")
-    public static void onHeatReload(Player player, Heat heat) {
-        if (heat.resetHeat()) {
-            if (heat.loadHeat()) {
-                player.sendMessage(TextUtilities.success("Reloaded " + heat.getName()));
-                return;
-            }
-            player.sendMessage("§cCouldn't load " + heat.getName());
-            return;
-        }
-        player.sendMessage("§cCouldn't reset " + heat.getName());
     }
 
     @Subcommand("reset")

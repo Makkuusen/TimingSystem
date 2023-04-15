@@ -7,6 +7,7 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
 import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
@@ -100,6 +101,10 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public void setHexColor(String hexColor) {
         color = hexColor;
+        var maybeDriver = EventDatabase.getDriverFromRunningHeat(uuid);
+        if (maybeDriver.isPresent()) {
+            maybeDriver.get().getHeat().updateScoreboard();
+        }
         DB.executeUpdateAsync("UPDATE `ts_players` SET `color` = '" + hexColor + "' WHERE `uuid` = '" + uuid + "';");
     }
 
