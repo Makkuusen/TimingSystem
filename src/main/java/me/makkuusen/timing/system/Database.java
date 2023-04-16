@@ -31,7 +31,7 @@ public class Database {
                     hostAndPort
             );
 
-            if(TimingSystem.configuration.getSqlType().equalsIgnoreCase("mariadb")) {
+            if(options.getOptions().getDataSourceClassName().equalsIgnoreCase("org.mariadb.jdbc.MariaDbDataSource")) {
                 options.getOptions().setDsn("mariadb://" + hostAndPort + "/" + TimingSystem.configuration.getSqlDatabase());
             }
 
