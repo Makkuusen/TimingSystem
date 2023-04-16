@@ -3,9 +3,9 @@ package me.makkuusen.timing.system;
 import co.aikar.idb.BukkitDB;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import co.aikar.idb.PooledDatabaseOptions;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.track.TrackDatabase;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Boat;
@@ -20,14 +20,23 @@ public class Database {
 
     public static boolean initialize() {
         try {
-            BukkitDB.createHikariDatabase(TimingSystem.getPlugin(),
+            String hostAndPort = TimingSystem.configuration.getSqlHost() + ":" + TimingSystem.configuration.getSqlPort();
+
+            PooledDatabaseOptions options = BukkitDB.getRecommendedOptions(TimingSystem.getPlugin(),
                     TimingSystem.configuration.getSqlUsername(),
                     TimingSystem.configuration.getSqlPassword(),
                     TimingSystem.configuration.getSqlDatabase(),
-                    TimingSystem.configuration.getSqlHost() + ":" + TimingSystem.configuration.getSqlPort()
+                    hostAndPort
             );
+
+            if(options.getOptions().getDataSourceClassName().equalsIgnoreCase("org.mariadb.jdbc.MariaDbDataSource")) {
+                options.getOptions().setDsn("mariadb://" + hostAndPort + "/" + TimingSystem.configuration.getSqlDatabase());
+            }
+
+            BukkitDB.createHikariDatabase(TimingSystem.getPlugin(), options);
             return createTables();
         } catch (Exception e) {
+            e.printStackTrace();
             plugin.getLogger().warning("Failed to initialize database, disabling plugin.");
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             return false;
