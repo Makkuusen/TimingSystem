@@ -6,14 +6,12 @@ import co.aikar.idb.DbRow;
 import co.aikar.idb.PooledDatabaseOptions;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.track.TrackDatabase;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.UUID;
 
 public class Database {
