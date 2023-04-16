@@ -252,9 +252,14 @@ public class Track {
         return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).filter(trackRegion -> trackRegion.getRegionIndex() == index).findFirst();
     }
 
+    public Optional<TrackRegion> getStartRegion() {
+        return hasRegion(TrackRegion.RegionType.START, 1) ? getRegion(TrackRegion.RegionType.START, 1) : getRegion(TrackRegion.RegionType.START);
+
+    }
+
     public boolean updateRegion(TrackRegion.RegionType regionType, Region selection, Location location) {
-        var startRegion = getRegion(regionType).get();
-        return updateRegion(startRegion, selection, location);
+        var region = getRegion(regionType).get();
+        return updateRegion(region, selection, location);
     }
 
     public boolean updateRegion(TrackRegion region, Region selection, Location location) {
