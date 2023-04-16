@@ -160,7 +160,7 @@ public class TimingSystem extends JavaPlugin {
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
 
-        Database.initialize();
+        if(!Database.initialize()) return;
         Database.update();
         Database.synchronize();
 

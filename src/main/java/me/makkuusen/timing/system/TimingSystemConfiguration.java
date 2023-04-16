@@ -14,6 +14,7 @@ public class TimingSystemConfiguration {
     private final Integer timeLimit;
     private final Integer qualyStartDelayInMS;
     private final Integer finalStartDelayInMS;
+    private final String sqlType;
     private final String sqlHost;
     private final int sqlPort;
     private final String sqlDatabase;
@@ -34,6 +35,7 @@ public class TimingSystemConfiguration {
         qualyStartDelayInMS = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("qualifying.startDelay"));
         finalStartDelayInMS = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("finals.startDelay"));
 
+        sqlType = plugin.getConfig().getString("sql.type");
         sqlHost = plugin.getConfig().getString("sql.host");
         sqlPort = plugin.getConfig().getInt("sql.port");
         sqlDatabase = plugin.getConfig().getString("sql.database");
