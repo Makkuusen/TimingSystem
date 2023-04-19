@@ -60,9 +60,9 @@ public class Driver extends Participant implements Comparable<Driver> {
             return;
         }
         if (scoreboard == null){
-            scoreboard = new DriverScoreboard(getTPlayer().getPlayer(), this);
+            scoreboard = new DriverScoreboard(getTPlayer(), this);
         }
-        scoreboard.setDriverLines(getTPlayer().getPlayer());
+        scoreboard.setDriverLines();
     }
 
     public void finish() {

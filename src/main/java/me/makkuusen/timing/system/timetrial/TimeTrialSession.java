@@ -49,9 +49,9 @@ public class TimeTrialSession {
             return;
         }
         if (timeTrialScoreboard == null){
-            timeTrialScoreboard = new TimeTrialScoreboard(tPlayer.getPlayer(), this);
+            timeTrialScoreboard = new TimeTrialScoreboard(tPlayer, this);
         }
-        timeTrialScoreboard.setDriverLines(tPlayer.getPlayer());
+        timeTrialScoreboard.setDriverLines();
     }
 
     public void clearScoreboard() {

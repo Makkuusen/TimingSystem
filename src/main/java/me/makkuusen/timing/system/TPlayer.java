@@ -7,6 +7,7 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
 import org.bukkit.Material;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class TPlayer implements Comparable<TPlayer> {
@@ -31,6 +33,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private boolean timeTrial;
     private boolean override;
     private boolean compactScoreboard;
+    JPerPlayerMethodBasedScoreboard jScoreboard;
     private String color;
     private BaseGui openGui;
 
@@ -51,6 +54,46 @@ public class TPlayer implements Comparable<TPlayer> {
         timeTrial = data.get("timetrial");
         color = data.getString("color");
         compactScoreboard = data.get("compactScoreboard");
+    }
+
+    public void initScoreboard() {
+        if (player == null) {
+            return;
+        }
+        if (jScoreboard == null) {
+            jScoreboard = new JPerPlayerMethodBasedScoreboard();
+            jScoreboard.addPlayer(player);
+        }
+    }
+
+    public void clearScoreboard() {
+        if (jScoreboard != null) {
+            jScoreboard.destroy();
+            jScoreboard = null;
+        }
+    }
+
+    public void setScoreBoardTitle(String title) {
+        if (player == null) {
+            return;
+        }
+        if (jScoreboard == null) {
+            initScoreboard();
+        }
+
+        jScoreboard.setTitle(player, title);
+    }
+
+    public void setScoreBoardLines(List<String> lines){
+        if (player == null) {
+            return;
+        }
+
+        if (jScoreboard == null) {
+            initScoreboard();
+        }
+
+        jScoreboard.setLines(player, lines);
     }
 
     public boolean hasOpenGui(){

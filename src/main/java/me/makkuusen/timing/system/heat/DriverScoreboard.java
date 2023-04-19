@@ -1,11 +1,9 @@
 package me.makkuusen.timing.system.heat;
 
-import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.QualificationRound;
-import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -13,41 +11,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DriverScoreboard {
-    JPerPlayerMethodBasedScoreboard jScoreboard;
+    TPlayer tPlayer;
     Driver driver;
     boolean compact;
     Heat heat;
 
-    public DriverScoreboard(Player player, Driver driver){
-        jScoreboard = new JPerPlayerMethodBasedScoreboard();
+    public DriverScoreboard(TPlayer tPlayer, Driver driver){
+        this.tPlayer = tPlayer;
         this.driver = driver;
         heat = driver.getHeat();
-        setTitle(player);
-        jScoreboard.addPlayer(player);
+        setTitle();
     }
 
-    public void setTitle(Player player){
+    public void setTitle(){
         String eventName;
         if (heat.getEvent().getDisplayName().length() > 8) {
             eventName = heat.getEvent().getDisplayName().substring(0, 8);
         } else {
             eventName = heat.getEvent().getDisplayName();
         }
-        jScoreboard.setTitle(player, "&7&l" + heat.getName() + " | " + eventName);
+
+        tPlayer.setScoreBoardTitle("&7&l" + heat.getName() + " | " + eventName);
     }
 
     public void removeScoreboard(){
-        jScoreboard.destroy();
+        tPlayer.clearScoreboard();
     }
 
-    public void setDriverLines(Player player){
-            setLines(player);
+    public void setDriverLines(){
+            setLines();
     }
 
-    public void setLines(Player player) {
+    public void setLines() {
         if (compact != driver.getTPlayer().getCompactScoreboard()) {
             compact = driver.getTPlayer().getCompactScoreboard();
-            setTitle(player);
+            setTitle();
         }
 
         List<String> lines;
@@ -57,7 +55,7 @@ public class DriverScoreboard {
         } else {
             lines = normalScoreboard();
         }
-        jScoreboard.setLines(player, lines);
+        tPlayer.setScoreBoardLines(lines);
     }
 
     public List<String> individualScoreboard(){

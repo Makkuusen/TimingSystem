@@ -1,32 +1,31 @@
 package me.makkuusen.timing.system.timetrial;
 
-import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.ApiUtilities;
-import org.bukkit.entity.Player;
+import me.makkuusen.timing.system.TPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TimeTrialScoreboard {
-    JPerPlayerMethodBasedScoreboard jScoreboard;
+    TPlayer tPlayer;
     TimeTrialSession timeTrialSession;
 
-    public TimeTrialScoreboard(Player player, TimeTrialSession timeTrialsession){
-        jScoreboard = new JPerPlayerMethodBasedScoreboard();
+    public TimeTrialScoreboard(TPlayer tPlayer, TimeTrialSession timeTrialsession){
+        this.tPlayer = tPlayer;
+        tPlayer.initScoreboard();
         this.timeTrialSession = timeTrialsession;
-        jScoreboard.setTitle(player, "&7&l" + timeTrialsession.track.getDisplayName());
-        jScoreboard.addPlayer(player);
+        tPlayer.setScoreBoardTitle("&7&l" + timeTrialsession.track.getDisplayName());
     }
 
     public void removeScoreboard(){
-        jScoreboard.destroy();
+        tPlayer.clearScoreboard();
     }
 
-    public void setDriverLines(Player player){
-        setLines(player);
+    public void setDriverLines(){
+        setLines();
     }
 
-    public void setLines(Player player) {
+    public void setLines() {
         List<String> lines = new ArrayList<>();
 
         long totalTime = 0;
@@ -90,6 +89,6 @@ public class TimeTrialScoreboard {
                 }
             }
         }
-        jScoreboard.setLines(player, lines);
+        tPlayer.setScoreBoardLines(lines);
     }
 }

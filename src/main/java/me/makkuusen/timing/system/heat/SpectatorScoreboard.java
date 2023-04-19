@@ -1,12 +1,11 @@
 package me.makkuusen.timing.system.heat;
 
-import dev.jcsoftware.jscoreboards.JGlobalMethodBasedScoreboard;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -19,38 +18,45 @@ import java.util.UUID;
 public class SpectatorScoreboard {
 
     private Set<UUID> spectators = new HashSet<>();
-    private JGlobalMethodBasedScoreboard jScoreboard;
     private Heat heat;
 
     public SpectatorScoreboard(Heat heat){
-        jScoreboard = new JGlobalMethodBasedScoreboard();
         this.heat = heat;
-        jScoreboard.setTitle("&7&l" + heat.getName() + " - " + heat.getEvent().getDisplayName());
-    }
-
-    public void removeScoreboard(){
-        jScoreboard.destroy();
     }
 
     public void updateScoreboard() {
         for (Spectator spec : heat.getEvent().getSpectators().values()) {
             if (!spectators.contains(spec.getTPlayer().getUniqueId()) && !heat.getDrivers().containsKey(spec.getTPlayer().getUniqueId())) {
                 if (spec.getTPlayer().getPlayer() != null) {
-                    jScoreboard.addPlayer(spec.getTPlayer().getPlayer());
+                    spec.getTPlayer().initScoreboard();
+                    List<String> lines;
+                    lines = normalScoreboard();
+                    setTitle(spec.getTPlayer());
+                    spec.getTPlayer().setScoreBoardLines(lines);
                     spectators.add(spec.getTPlayer().getUniqueId());
                 }
             } else if (spectators.contains(spec.getTPlayer().getUniqueId()) && spec.getTPlayer().getPlayer() == null) {
                 spectators.remove(spec.getTPlayer().getUniqueId());
+                spec.getTPlayer().clearScoreboard();
             }
         }
-        List<String> lines;
-        lines = normalScoreboard();
-        jScoreboard.setLines(lines);
     }
 
-    public void removeScoreboard(Player player) {
-        spectators.remove(player.getUniqueId());
-        jScoreboard.removePlayer(player);
+    public void setTitle(TPlayer tPlayer){
+        String eventName;
+        if (heat.getEvent().getDisplayName().length() > 8) {
+            eventName = heat.getEvent().getDisplayName().substring(0, 8);
+        } else {
+            eventName = heat.getEvent().getDisplayName();
+        }
+
+        tPlayer.setScoreBoardTitle("&7&l" + heat.getName() + " | " + eventName);
+    }
+
+    public void removeScoreboards() {
+        for (Spectator spec : heat.getEvent().getSpectators().values()) {
+            spec.getTPlayer().clearScoreboard();
+        }
     }
 
     public List<String> normalScoreboard(){
