@@ -13,7 +13,6 @@ import java.util.List;
 public class DriverScoreboard {
     TPlayer tPlayer;
     Driver driver;
-    boolean compact;
     Heat heat;
 
     public DriverScoreboard(TPlayer tPlayer, Driver driver){
@@ -25,7 +24,7 @@ public class DriverScoreboard {
 
     public void setTitle(){
         String eventName;
-        if (heat.getEvent().getDisplayName().length() > 8) {
+        if (tPlayer.getCompactScoreboard() && heat.getEvent().getDisplayName().length() > 8) {
             eventName = heat.getEvent().getDisplayName().substring(0, 8);
         } else {
             eventName = heat.getEvent().getDisplayName();
@@ -39,15 +38,11 @@ public class DriverScoreboard {
     }
 
     public void setDriverLines(){
-            setLines();
+        setTitle();
+        setLines();
     }
 
     public void setLines() {
-        if (compact != driver.getTPlayer().getCompactScoreboard()) {
-            compact = driver.getTPlayer().getCompactScoreboard();
-            setTitle();
-        }
-
         List<String> lines;
         int pos = driver.getPosition();
         if (pos > 12 && heat.getLivePositions().size() > 15){
@@ -67,38 +62,30 @@ public class DriverScoreboard {
             count++;
             if (count < first){
                 continue;
-            } else if (count > last) {
-                break;
             }
             if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualy(driver, this.driver));
+                lines.add(getDriverRowQualy(driver, this.driver, tPlayer.getCompactScoreboard()));
 
             } else {
-                lines.add(getDriverRowFinal(driver,this.driver));
+                lines.add(getDriverRowFinal(driver,this.driver, tPlayer.getCompactScoreboard()));
             }
         }
         return lines;
     }
     public List<String> normalScoreboard(){
         List<String> lines = new ArrayList<>();
-        int count = 0;
-        int last = 15;
         for (Driver driver : heat.getLivePositions()) {
-            count++;
-            if (count > last) {
-                break;
-            }
             if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualy(driver, this.driver));
+                lines.add(getDriverRowQualy(driver, this.driver, tPlayer.getCompactScoreboard()));
 
             } else {
-                lines.add(getDriverRowFinal(driver,this.driver));
+                lines.add(getDriverRowFinal(driver,this.driver, tPlayer.getCompactScoreboard()));
             }
         }
         return lines;
     }
 
-    private String getDriverRowFinal(Driver driver, Driver comparingDriver){
+    private String getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact){
         if (driver.getLaps().size() < 1) {
             return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPosition(), compact);
         }
@@ -150,7 +137,7 @@ public class DriverScoreboard {
         return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
     }
 
-    private String getDriverRowQualy(Driver driver, Driver comparingDriver) {
+    private String getDriverRowQualy(Driver driver, Driver comparingDriver, boolean compact) {
         if (driver.getBestLap().isEmpty()) {
             return ScoreboardUtils.getDriverLine(driver.getTPlayer().getName(), driver.getPosition(), compact);
         }

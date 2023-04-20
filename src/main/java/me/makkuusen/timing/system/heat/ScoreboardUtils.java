@@ -10,38 +10,38 @@ public class ScoreboardUtils {
         return paddPos(pos, name) + (compact ? "" : "§7|") +  "           " + getTeamIcon(name) + paddName(name, compact);
     }
 
-    public static String getDriverLineQualyTime(long laptime, String name, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : "§7|") +  " §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + getTeamIcon(name) + paddName(name, compact);
-    }
+        public static String getDriverLineQualyTime(long laptime, String name, int pos, boolean compact) {
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  " §e" + paddTime(ApiUtilities.formatAsTime(laptime)) + getTeamIcon(name) + paddName(name, compact);
+        }
 
-    public static String getDriverLineQualyGap(long timeDiff, String name, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : "§7|") +  " §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
-    }
+        public static String getDriverLineQualyGap(long timeDiff, String name, int pos, boolean compact) {
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  " §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
+        }
 
-    public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : "§7|") +  " §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
-    }
+        public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos, boolean compact) {
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  " §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
+        }
 
-    public static String getDriverLineRace(String name, int pos, boolean compact){
-        return paddPos(pos, name) + (compact ? "" : "§7|") +  "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + "§f0";
-    }
-    public static String getDriverLineRace(String name, int pits, int pos, boolean compact){
-        return paddPos(pos, name) + (compact ? "" : "§7|") +  "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
-    }
-    public static String getDriverLineRaceInPit(String name, int pits, int pos, boolean compact){
-        return paddPos(pos, name) + (compact ? "" : "§7|") +  " In Pit   " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
-    }
+        public static String getDriverLineRace(String name, int pos, boolean compact){
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + "§f0";
+        }
+        public static String getDriverLineRace(String name, int pits, int pos, boolean compact){
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+        }
+        public static String getDriverLineRaceInPit(String name, int pits, int pos, boolean compact){
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  " In Pit   " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+        }
 
-    public static String getDriverLineRaceOffline(String name, int pits, int pos, boolean compact){
-        return paddPos(pos, name) + (compact ? "" : "§7|") +  " Offline  " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
-    }
+        public static String getDriverLineRaceOffline(String name, int pits, int pos, boolean compact){
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  " Offline  " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+        }
 
-    public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : "§7|") +  " Lap:§f " + paddLaps(laps) + " " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
-    }
+        public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos, boolean compact) {
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  " Lap:§f " + paddLaps(laps) + " " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+        }
 
-    public static String getDriverLineRaceGap(long gap, String name, int pits, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : "§7|") +  " §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name,compact) + getPits(compact) + getPitColour(name, pits);
+        public static String getDriverLineRaceGap(long gap, String name, int pits, int pos, boolean compact) {
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  " §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name,compact) + getPits(compact) + getPitColour(name, pits);
     }
 
     public static String getDriverLineNegativeRaceGap(long gap, String name, int pits, int pos, boolean compact) {
