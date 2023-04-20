@@ -402,6 +402,7 @@ public class TSListener implements Listener {
         TPlayer TPlayer = Database.getPlayer(event.getPlayer());
         // Set to offline
         TPlayer.setPlayer(null);
+        TPlayer.clearScoreboard();
     }
 
     void handleTimeTrials(Player player) {
