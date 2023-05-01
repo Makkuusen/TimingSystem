@@ -287,7 +287,8 @@ public class CommandRound extends BaseCommand {
                     } else {
                         list = getRandomList(reserves);
                     }
-                    for (int i = 0; i < reserveSlots; i++) {
+                    int count = Integer.min(reserveSlots, event.getReserves().values().size());
+                    for (int i = 0; i < count; i++) {
                         listOfSubscribers.add(list.remove(0));
                     }
                     excludedList.addAll(list);
