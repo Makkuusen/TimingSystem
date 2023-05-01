@@ -96,9 +96,10 @@ public class ScoreboardUtils {
 
     private static String getPitColour(String name, int pits) {
         var driver = EventDatabase.getDriverFromRunningHeat(Database.getPlayer(name).getUniqueId());
-        if(driver.isEmpty()) return "§f" + pits;
+        if(driver.isEmpty()) return "§c" + pits;
         if(driver.get().getPits() >= driver.get().getHeat().getTotalPits()) return "§a" + pits;
-        else return "§f" + pits;
+        else if(driver.get().getPits() > 0) return "§6" + pits;
+        else return "§c" + pits;
     }
 
     private static String getPosFormat(int pos, String name) {
