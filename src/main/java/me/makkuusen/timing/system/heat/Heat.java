@@ -203,7 +203,7 @@ public class Heat {
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(TimingSystem.getPlugin(), new Runnable() {
             public void run() {
                 getDrivers().values().forEach(driver -> driver.removeScoreboard());
-                scoreboard.removeScoreboard();
+                scoreboard.removeScoreboards();
                 ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
             }
         }, 200);
@@ -258,7 +258,7 @@ public class Heat {
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
         });
         if (scoreboard != null) {
-            scoreboard.removeScoreboard();
+            scoreboard.removeScoreboards();
         }
         ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
         return true;
@@ -444,7 +444,7 @@ public class Heat {
     public void onShutdown() {
         gridManager.clearArmorstands();
         if (scoreboard != null) {
-            scoreboard.removeScoreboard();
+            scoreboard.removeScoreboards();
         }
         drivers.values().forEach(driver -> driver.onShutdown());
     }

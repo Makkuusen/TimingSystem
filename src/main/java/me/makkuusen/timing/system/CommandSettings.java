@@ -98,7 +98,7 @@ public class CommandSettings extends BaseCommand {
     public static boolean isValidHexaCode(String str)
     {
         // Regex to check valid hexadecimal color code.
-        String regex = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$";
+        String regex = "^#([A-Fa-f0-9]{6})$";
 
         // Compile the ReGex
         Pattern p = Pattern.compile(regex);

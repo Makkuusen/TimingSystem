@@ -379,7 +379,8 @@ public class Database {
 
     private static void v1_3Update() {
         try {
-            DB.executeUpdate("ALTER TABLE `ts_events` ADD `open` tinyint(1) NOT NULL DEFAULT '0' AFTER `state`;");
+            DB.executeUpdate("ALTER TABLE `ts_events` ADD `open` tinyint(1) NOT NULL DEFAULT '1' AFTER `state`;");
+            DB.executeUpdate("UPDATE `ts_regions` SET `regionIndex` = 1 WHERE `regionType` = 'START' OR `regionType` = 'END' OR `regionType` = 'PIT';");
         } catch (Exception exception) {
             exception.printStackTrace();
         }

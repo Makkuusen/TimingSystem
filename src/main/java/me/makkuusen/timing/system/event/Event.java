@@ -123,7 +123,7 @@ public class Event {
             if (Database.getPlayer(uuid).getPlayer() != null) {
                 var maybeHeat = getRunningHeat();
                 if (maybeHeat.isPresent()) {
-                    maybeHeat.get().getScoreboard().removeScoreboard(Database.getPlayer(uuid).getPlayer());
+                    Database.getPlayer(uuid).clearScoreboard();
                 }
             }
 

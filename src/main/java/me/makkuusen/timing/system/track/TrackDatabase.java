@@ -126,10 +126,13 @@ public class TrackDatabase {
     private static void clearUselessEndRegions() {
         for (Track track : tracks) {
             if (track.hasRegion(TrackRegion.RegionType.START) && track.hasRegion(TrackRegion.RegionType.END)) {
-                var start = track.getRegion(TrackRegion.RegionType.START).get();
-                var end = track.getRegion(TrackRegion.RegionType.END).get();
-                if (start.hasEqualBounds(end)) {
-                    track.removeRegion(end);
+                for (TrackRegion startRegion : track.getRegions(TrackRegion.RegionType.START))
+                {
+                    for (TrackRegion endRegion : track.getRegions(TrackRegion.RegionType.END)) {
+                        if (startRegion.hasEqualBounds(endRegion)) {
+                            track.removeRegion(endRegion);
+                        }
+                    }
                 }
             }
         }
