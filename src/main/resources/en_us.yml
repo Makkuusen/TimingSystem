@@ -24,7 +24,7 @@ messages:
     trackIsLocked: '&cTrack is locked.'
     trackIsClosed: '&cTrack is closed.'
     nameToLong: '&cName can not exceed %length% characters.'
-    nameRegexException: '&cName can only contain letters, space och numbers.'
+    nameRegexException: '&cName can only contain letters, spaces, or numbers.'
     selectionException: '&cYour selection could not be used.'
     trackExists: '&cTrack already exists.'
     raceExists: '&cRace already exists.'
