@@ -229,6 +229,10 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("create")
     @CommandCompletion("<name> @track")
     public static void onCreate(Player player, @Single String name, @Optional Track track) {
+        if (name.equalsIgnoreCase("QuickRace")) {
+            player.sendMessage(TextUtilities.error("You can't name the event QuickRace"));
+            return;
+        }
         var maybeEvent = EventDatabase.eventNew(player.getUniqueId(), name);
         if (maybeEvent.isPresent()) {
             player.sendMessage(TextUtilities.success("Created event " + name));
