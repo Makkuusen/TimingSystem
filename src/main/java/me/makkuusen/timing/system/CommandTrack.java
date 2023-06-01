@@ -97,7 +97,7 @@ public class CommandTrack extends BaseCommand {
     }
 
     public static Location getNewLocation(World newWorld, Location oldLocation, Vector offset) {
-        var referenceNewWorld = new Location(newWorld, oldLocation.getX(), oldLocation.getY(), oldLocation.getZ());
+        var referenceNewWorld = new Location(newWorld, oldLocation.getX(), oldLocation.getY(), oldLocation.getZ(), oldLocation.getYaw(), oldLocation.getPitch());
         referenceNewWorld.subtract(offset);
         return referenceNewWorld;
     }
