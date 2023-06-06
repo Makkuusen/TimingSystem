@@ -32,6 +32,7 @@ messages:
     timer:
       missedCheckpoints: '&cTime is invalid, not all checkpoints were passed!'
       leftBoat: '&cYou left the boat and cancelled your time.'
+    commandCooldownGeneric: '&cThat command is on cooldown. Please wait %cooldownRemaining% before using this command again.'  
   save:
     generic: '&aValue has been saved.'
   create:

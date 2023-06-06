@@ -17,7 +17,8 @@ This plugin has made it's first real release. If you want to use it, make sure t
 4. [optional] [HolographicDisplays 3.0.0](https://dev.bukkit.org/projects/holographic-displays/files/4056176/download)
 
 ## Add-ons
-* [Unofficial] [TimingSystemRESTApi](https://github.com/JustBru00/TimingSystemRESTApi) - Adds a basic JSON REST API to the TimingSystem plugin.
+* [Unofficial] [TimingSystemRESTApi](https://github.com/JustBru00/TimingSystemRESTApi) - Adds a basic JSON REST API to the TimingSystem plugin.     
+* [Unofficial] [TimingSystemBlueMap](https://github.com/JustBru00/TimingSystemBlueMap) - Adds TimingSystem track locations to [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap).     
 
 ## Discord
 If you need support. Look for #support in our discord.

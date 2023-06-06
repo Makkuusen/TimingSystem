@@ -28,3 +28,5 @@ sql:
    database: ''
    username: ''
    password: ''
+commandcooldowns:
+  boat: 3000   

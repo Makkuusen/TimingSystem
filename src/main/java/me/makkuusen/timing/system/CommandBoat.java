@@ -15,7 +15,11 @@ public class CommandBoat extends BaseCommand {
         if (isPlayerInBoat(player)) {
             return;
         }
-        ApiUtilities.spawnBoatAndAddPlayer(player, player.getLocation());
+        
+        if (CommandCooldownManager.isCommandBoatCooldownComplete(player)) {
+        	 ApiUtilities.spawnBoatAndAddPlayer(player, player.getLocation());
+        	 return;
+        }         	
     }
 
     private static boolean isPlayerInBoat(Player p) {
