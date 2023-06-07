@@ -23,9 +23,9 @@ import org.bukkit.entity.Player;
 @CommandAlias("race")
 public class CommandRace extends BaseCommand {
 
-    Event event;
-    Round round;
-    Heat heat;
+    public static Event event;
+    public static Round round;
+    public static Heat heat;
 
     @CommandPermission("race.admin")
     @Subcommand("start")

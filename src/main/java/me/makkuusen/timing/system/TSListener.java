@@ -9,6 +9,7 @@ import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
+import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
@@ -122,6 +123,23 @@ public class TSListener implements Listener {
             var ttSession = TimeTrialController.timeTrialSessions.get(e.getPlayer().getUniqueId());
             ttSession.clearScoreboard();
             TimeTrialController.timeTrialSessions.remove(e.getPlayer().getUniqueId());
+        }
+
+        //Remove driver from loaded heats.
+        Heat heat = CommandRace.heat;
+        if (heat == null) {
+            return;
+        }
+
+        if (CommandRace.heat.getDrivers().containsKey(e.getPlayer().getUniqueId())) {
+            if (heat.getHeatState() != HeatState.LOADED) {
+                return;
+            }
+            heat.resetHeat();
+            if (heat.removeDriver(heat.getDrivers().get(e.getPlayer().getUniqueId()))) {
+                heat.getEvent().removeSpectator(e.getPlayer().getUniqueId());
+            }
+            heat.loadHeat();
         }
     }
 
