@@ -105,7 +105,7 @@ public class Heat {
 
         boolean qualyGrid = round instanceof QualificationRound && track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0;
 
-        if (!qualyGrid && track.getTrackLocations(TrackLocation.Type.GRID).size() == 0) {
+        if (track.getTrackLocations(TrackLocation.Type.GRID).size() == 0) {
             return false;
         }
 
@@ -129,7 +129,7 @@ public class Heat {
         setLivePositions(pos);
         setHeatState(HeatState.LOADED);
         scoreboard = new SpectatorScoreboard(this);
-        updateScoreboard();
+        pos.forEach(driver -> driver.updateScoreboard());
         return true;
     }
 
@@ -152,7 +152,6 @@ public class Heat {
     }
 
     public void startHeat() {
-
         setHeatState(HeatState.RACING);
         updateScoreboard();
         setStartTime(TimingSystem.currentTime);

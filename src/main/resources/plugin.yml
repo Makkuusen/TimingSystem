@@ -27,6 +27,8 @@ commands:
    boat:
       description: Spawns a boat
       aliases: [b]
+   race:
+      description: Quickraces
 
 permissions:
 
@@ -41,4 +43,7 @@ permissions:
       default: op
    event.sign.others:
       description: Allows admin per to sign others into events
+      default: op
+   race.admin:
+      description: Allows admin of quickraces
       default: op

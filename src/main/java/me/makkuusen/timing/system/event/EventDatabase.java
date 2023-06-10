@@ -44,6 +44,9 @@ public class EventDatabase {
         var dbRows = DB.getResults("SELECT * FROM `ts_events` WHERE `isRemoved` = 0;");
 
         for (DbRow dbRow : dbRows) {
+            if (dbRow.getString("name").equalsIgnoreCase("QuickRace")) {
+                continue;
+            }
             Event event = new Event(dbRow);
             events.add(event);
             EventSchedule es = new EventSchedule();
@@ -419,6 +422,22 @@ public class EventDatabase {
     public static boolean removeEvent(Event event){
         if (event.hasRunningHeat()){
             return false;
+        }
+        List<UUID> uuids = new ArrayList<>();
+        uuids.addAll(playerSelectedEvent.keySet());
+        for (UUID uuid : uuids){
+            if (playerSelectedEvent.get(uuid).equals(event)){
+                playerSelectedEvent.remove(uuid);
+            }
+        }
+        events.remove(event);
+        DB.executeUpdateAsync("UPDATE `ts_events` SET `isRemoved` = 1 WHERE `id` = " + event.getId() + ";");
+        return true;
+    }
+
+    public static boolean removeEventHard(Event event) {
+        if (event.hasRunningHeat()){
+            event.getRunningHeat().get().finishHeat();
         }
         List<UUID> uuids = new ArrayList<>();
         uuids.addAll(playerSelectedEvent.keySet());
