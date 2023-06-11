@@ -15,14 +15,20 @@ import me.makkuusen.timing.system.track.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.DyeColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -493,7 +499,11 @@ public class ApiUtilities {
                 Material.OAK_BOAT,
                 Material.OAK_CHEST_BOAT,
                 Material.SPRUCE_BOAT,
-                Material.SPRUCE_CHEST_BOAT
+                Material.SPRUCE_CHEST_BOAT,
+                Material.CHERRY_BOAT,
+                Material.CHERRY_CHEST_BOAT,
+                Material.BAMBOO_RAFT,
+                Material.BAMBOO_CHEST_RAFT
         );
     }
 
@@ -516,6 +526,12 @@ public class ApiUtilities {
             }
             case MANGROVE_BOAT, MANGROVE_CHEST_BOAT -> {
                 return Boat.Type.MANGROVE;
+            }
+            case CHERRY_BOAT, CHERRY_CHEST_BOAT -> {
+                return Boat.Type.CHERRY;
+            }
+            case BAMBOO_RAFT, BAMBOO_CHEST_RAFT -> {
+                return Boat.Type.BAMBOO;
             }
             default -> {
                 return Boat.Type.OAK;

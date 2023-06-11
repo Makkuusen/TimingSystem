@@ -5,6 +5,14 @@ import co.aikar.idb.DB;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import me.makkuusen.timing.system.commands.CommandBoat;
+import me.makkuusen.timing.system.commands.CommandEvent;
+import me.makkuusen.timing.system.commands.CommandRace;
+import me.makkuusen.timing.system.commands.CommandRound;
+import me.makkuusen.timing.system.commands.CommandSettings;
+import me.makkuusen.timing.system.commands.CommandTimeTrial;
+import me.makkuusen.timing.system.commands.CommandTimingSystem;
+import me.makkuusen.timing.system.commands.CommandTrack;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.ButtonUtilities;
@@ -29,26 +37,29 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class TimingSystem extends JavaPlugin {
 
-    public Logger logger = null;
-    public static TimingSystemConfiguration configuration;
+    public Logger logger;
     private static TimingSystem plugin;
+    public static TimingSystemConfiguration configuration;
     public static boolean enableLeaderboards = true;
     public static HashMap<UUID, Track> playerEditingSession = new HashMap<>();
     public static Map<UUID, TPlayer> players = new HashMap<UUID, TPlayer>();
     private LanguageManager languageManager;
     public static Instant currentTime = Instant.now();
     private static TaskChainFactory taskChainFactory;
-    Tasks tasks;
 
     public void onEnable() {
 
         plugin = this;
-        this.logger = getLogger();
+        logger = getLogger();
         configuration = new TimingSystemConfiguration(this);
         TrackDatabase.plugin = this;
         CommandTimeTrial.plugin = this;
@@ -58,7 +69,7 @@ public class TimingSystem extends JavaPlugin {
         TimeTrial.plugin = this;
         Database.plugin = this;
         ApiUtilities.plugin = this;
-        this.languageManager = new LanguageManager(this, "en_us");
+        languageManager = new LanguageManager(this, "en_us");
 
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new GUIListener(), plugin);
@@ -151,7 +162,6 @@ public class TimingSystem extends JavaPlugin {
 
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandRound());
-        manager.registerCommand(new CommandHeat());
         manager.registerCommand(new CommandTrack());
         manager.registerCommand(new CommandTimeTrial());
         manager.registerCommand(new CommandSettings());
@@ -168,7 +178,9 @@ public class TimingSystem extends JavaPlugin {
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(heat -> heat.resetHeat());
 
 
-        tasks = new Tasks(this);
+        var tasks = new Tasks();
+        tasks.startPlayerTimer(plugin);
+        tasks.startParticleSpawner(plugin);
 
         if (!Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
             ApiUtilities.msgConsole("&cWARNING HOLOGRAPHICDISPLAYS NOT INSTALLED OR ENABLED");

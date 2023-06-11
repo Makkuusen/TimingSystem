@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system;
+package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;

@@ -16,7 +16,6 @@ import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -230,7 +229,10 @@ public class TPlayer implements Comparable<TPlayer> {
     public Material getBoatMaterial(){
         String boat = getBoat().name();
         if (chestBoat) {
-            boat += "_CHEST_BOAT";
+            boat += "_CHEST";
+        }
+        if (boat.equalsIgnoreCase("BAMBOO")) {
+            boat += "_RAFT";
         } else {
             boat += "_BOAT";
         }

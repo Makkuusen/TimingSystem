@@ -1,10 +1,16 @@
-package me.makkuusen.timing.system;
+package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Optional;
+import co.aikar.commands.annotation.Subcommand;
+import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TimeTrialGui;
-import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
@@ -18,11 +24,10 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @CommandAlias("timetrial|tt")
 public class CommandTimeTrial extends BaseCommand {
-    static TimingSystem plugin;
+    public static TimingSystem plugin;
 
     @Default
     @CommandCompletion("@track")

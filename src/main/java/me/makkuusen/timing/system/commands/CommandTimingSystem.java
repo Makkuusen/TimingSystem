@@ -1,9 +1,10 @@
-package me.makkuusen.timing.system;
+package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
+import me.makkuusen.timing.system.TrackTagManager;
 import org.bukkit.command.CommandSender;
 
 @CommandAlias("timingsystem|ts")
