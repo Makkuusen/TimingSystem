@@ -147,6 +147,7 @@ public class Heat {
         if (getHeatState() != HeatState.LOADED) {
             return false;
         }
+        setHeatState(HeatState.STARTING);
         TaskChainCountdown.countdown(this, 5);
         return true;
     }
