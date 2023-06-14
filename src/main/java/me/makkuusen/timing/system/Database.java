@@ -335,6 +335,9 @@ public class Database {
         if (newVersion.equalsIgnoreCase("1.2")) {
             v1_2Update();
         } else if (newVersion.equalsIgnoreCase("1.3")) {
+            if (!oldVersion.equalsIgnoreCase("1.2")) {
+                v1_2Update();
+            }
             v1_3Update();
         }
     }

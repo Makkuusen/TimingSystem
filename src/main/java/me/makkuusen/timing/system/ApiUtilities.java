@@ -613,12 +613,12 @@ public class ApiUtilities {
 
     public static boolean hasBoatUtilsEffects(Player player) {
         if (player.hasPotionEffect(PotionEffectType.LUCK)) {
-            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 54) {
+            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 99) {
                 return true;
             }
         }
         if (player.hasPotionEffect(PotionEffectType.UNLUCK)) {
-            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 49) {
+            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 55) {
                 return true;
             }
         }
@@ -627,7 +627,7 @@ public class ApiUtilities {
 
     public static boolean hasBoatUtilsREffect(Player player) {
         if (player.hasPotionEffect(PotionEffectType.UNLUCK)) {
-            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 49) {
+            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 99) {
                 return true;
             }
         }
@@ -636,7 +636,7 @@ public class ApiUtilities {
 
     public static boolean hasBoatUtilsIEffect(Player player) {
         if (player.hasPotionEffect(PotionEffectType.LUCK)) {
-            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 54) {
+            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 55) {
                 return true;
             }
         }
@@ -649,11 +649,11 @@ public class ApiUtilities {
     }
 
     public static void giveBoatUtilsREffect(Player player) {
-        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK,999999, 49, false, false);
+        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK,999999, 99, false, false);
         player.addPotionEffect(unluckEffect);
     }
     public static void giveBoatUtilsIEffect(Player player) {
-        var luckEffect = new PotionEffect(PotionEffectType.LUCK,999999, 54, false, false);
+        var luckEffect = new PotionEffect(PotionEffectType.LUCK,999999, 55, false, false);
         player.addPotionEffect(luckEffect);
     }
 }
