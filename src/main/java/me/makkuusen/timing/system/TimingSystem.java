@@ -7,6 +7,7 @@ import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 import me.makkuusen.timing.system.commands.CommandBoat;
 import me.makkuusen.timing.system.commands.CommandEvent;
+import me.makkuusen.timing.system.commands.CommandHeat;
 import me.makkuusen.timing.system.commands.CommandRace;
 import me.makkuusen.timing.system.commands.CommandRound;
 import me.makkuusen.timing.system.commands.CommandSettings;
@@ -163,6 +164,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandRound());
         manager.registerCommand(new CommandTrack());
+        manager.registerCommand(new CommandHeat());
         manager.registerCommand(new CommandTimeTrial());
         manager.registerCommand(new CommandSettings());
         manager.registerCommand(new CommandTimingSystem());
