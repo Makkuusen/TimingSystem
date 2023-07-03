@@ -16,6 +16,7 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TrackGui;
+import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -696,6 +697,10 @@ public class CommandTrack extends BaseCommand {
     @CommandPermission("track.admin")
     public class Set extends BaseCommand {
 
+        public static List<TrackRegion> restoreRegions = new ArrayList<>();
+        public static List<TrackLocation> restoreLocations = new ArrayList<>();
+        public static Track restoreTrack = null;
+
         @Subcommand("open")
         @CommandCompletion("true|false @track")
         public static void onOpen(Player player, boolean open, Track track) {
@@ -975,15 +980,52 @@ public class CommandTrack extends BaseCommand {
 
         private static boolean createOrUpdateTrackIndexLocation(Track track, TrackLocation.Type type, String index, Player player, Location location) {
             int locationIndex;
-
             boolean remove = false;
             if (index != null) {
+
+                if (index.equalsIgnoreCase("-all")) {
+                    var trackLocations = track.getTrackLocations(type);
+                    restoreLocations = trackLocations;
+                    trackLocations.forEach(trackLocation -> track.removeTrackLocation(trackLocation));
+                    restoreTrack = track;
+                    player.sendMessage(TextUtilities.success("All " + type.name() + " locations were removed."));
+                    return true;
+                }
+
+                if (index.equalsIgnoreCase("+all")) {
+                    if (restoreLocations.isEmpty()) {
+                        player.sendMessage(TextUtilities.error("There are no locations to restore"));
+                        return false;
+                    }
+
+                    if (restoreTrack != track) {
+                        player.sendMessage(TextUtilities.error("You can't restore locations to a different track"));
+                        return false;
+                    }
+
+                    for (TrackLocation restoreLocation : restoreLocations) {
+                        var maybeLocation = track.getTrackLocation(restoreLocation.getLocationType(), restoreLocation.getIndex());
+                        if (maybeLocation.isPresent()) {
+                            player.sendMessage(TextUtilities.error(restoreLocation.getLocationType() + ":" + restoreLocation.getIndex() + " could not be created again."));
+                            continue;
+                        }
+                        track.createTrackLocation(restoreLocation.getLocationType(), restoreLocation.getIndex(), restoreLocation.getLocation());
+                    }
+                    player.sendMessage(TextUtilities.success("All locations has been restored"));
+                    return true;
+                }
+
                 remove = getParsedRemoveFlag(index);
                 if (getParsedIndex(index) == null) {
                     plugin.sendMessage(player, "messages.error.numberException");
                     return false;
                 }
                 locationIndex = getParsedIndex(index);
+
+                if (locationIndex == 0) {
+                    player.sendMessage(TextUtilities.error("Index can not be 0."));
+                    return false;
+                }
             } else {
                 if (type == TrackLocation.Type.GRID || type == TrackLocation.Type.QUALYGRID) {
                     locationIndex = track.getTrackLocations(type).size() + 1;
@@ -1014,15 +1056,26 @@ public class CommandTrack extends BaseCommand {
 
         private static boolean createOrUpdateIndexRegion(Track track, TrackRegion.RegionType regionType, String index, Player player) {
             int regionIndex;
-
             boolean remove = false;
             if (index != null) {
+                if (index.equalsIgnoreCase("-all")) {
+                    var regions = track.getRegions(regionType);
+                    regions.forEach(trackRegion -> track.removeRegion(trackRegion));
+                    player.sendMessage(TextUtilities.success("All " + regionType.name()+ " regions were removed."));
+                    return true;
+                }
+
                 remove = getParsedRemoveFlag(index);
                 if (getParsedIndex(index) == null) {
                     plugin.sendMessage(player, "messages.error.numberException");
                     return false;
                 }
                 regionIndex = getParsedIndex(index);
+
+                if (regionIndex == 0) {
+                    player.sendMessage(TextUtilities.error("Index can not be 0."));
+                    return false;
+                }
             } else {
                 if (regionType == TrackRegion.RegionType.START || regionType == TrackRegion.RegionType.END || regionType == TrackRegion.RegionType.PIT) {
                     regionIndex = 1;
