@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system;
+package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
@@ -8,6 +8,12 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import com.sk89q.worldedit.math.BlockVector2;
+import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.LeaderboardManager;
+import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TrackGui;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
@@ -24,10 +30,8 @@ import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -39,7 +43,7 @@ import java.util.List;
 
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
-    static TimingSystem plugin;
+    public static TimingSystem plugin;
 
     @Subcommand("move")
     @CommandCompletion("@track")
