@@ -613,12 +613,12 @@ public class ApiUtilities {
 
     public static boolean hasBoatUtilsEffects(Player player) {
         if (player.hasPotionEffect(PotionEffectType.LUCK)) {
-            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 99) {
+            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 55) {
                 return true;
             }
         }
         if (player.hasPotionEffect(PotionEffectType.UNLUCK)) {
-            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 55) {
+            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 99) {
                 return true;
             }
         }
