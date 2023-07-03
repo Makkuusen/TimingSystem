@@ -190,7 +190,7 @@ public class CommandRace extends BaseCommand {
 
         if (EventDatabase.heatDriverNew(player.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             player.sendMessage("§aYou have signed up for the race!");
-            heat.reloadHeat();
+            heat.addDriverToGrid(heat.getDrivers().get(player.getUniqueId()));
             return;
         }
 

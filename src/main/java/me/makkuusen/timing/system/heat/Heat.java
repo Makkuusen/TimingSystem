@@ -98,39 +98,52 @@ public class Heat {
         if (getHeatState() != HeatState.SETUP) {
             return false;
         }
-        List<Driver> pos = new ArrayList<>();
-        pos.addAll(getStartPositions());
 
-        var track = getEvent().getTrack();
 
-        boolean qualyGrid = round instanceof QualificationRound && track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0;
-
-        if (track.getTrackLocations(TrackLocation.Type.GRID).size() == 0) {
+        if (getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size() == 0) {
             return false;
         }
 
         for (Driver d : getStartPositions()) {
-            Player player = d.getTPlayer().getPlayer();
-            if (player != null) {
-                Location grid;
-                if (qualyGrid) {
-                    grid = track.getTrackLocation(TrackLocation.Type.QUALYGRID, d.getStartPosition()).get().getLocation();
-                } else {
-                    grid = track.getTrackLocation(TrackLocation.Type.GRID, d.getStartPosition()).get().getLocation();
-                }
-                if (grid != null) {
-                    gridManager.teleportPlayerToGrid(player, grid, track);
-                }
-            }
-            EventDatabase.addPlayerToRunningHeat(d);
-            d.setState(DriverState.LOADED);
+            putDriverOnGrid(d);
         }
 
-        setLivePositions(pos);
+        updateStartingLivePositions();
         setHeatState(HeatState.LOADED);
         scoreboard = new SpectatorScoreboard(this);
-        pos.forEach(driver -> driver.updateScoreboard());
+        getStartPositions().forEach(driver -> driver.updateScoreboard());
         return true;
+    }
+
+    public void putDriverOnGrid(Driver driver) {
+        var track = getEvent().getTrack();
+        boolean qualyGrid = round instanceof QualificationRound && track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0;
+        Player player = driver.getTPlayer().getPlayer();
+        if (player != null) {
+            Location grid;
+            if (qualyGrid) {
+                grid = track.getTrackLocation(TrackLocation.Type.QUALYGRID, driver.getStartPosition()).get().getLocation();
+            } else {
+                grid = track.getTrackLocation(TrackLocation.Type.GRID, driver.getStartPosition()).get().getLocation();
+            }
+            if (grid != null) {
+                gridManager.teleportPlayerToGrid(player, grid, track);
+            }
+        }
+        EventDatabase.addPlayerToRunningHeat(driver);
+        driver.setState(DriverState.LOADED);
+    }
+
+    public void addDriverToGrid(Driver driver) {
+        putDriverOnGrid(driver);
+        updateStartingLivePositions();
+        driver.updateScoreboard();
+    }
+
+    private void updateStartingLivePositions() {
+        List<Driver> pos = new ArrayList<>();
+        pos.addAll(getStartPositions());
+        setLivePositions(pos);
     }
 
     public boolean reloadHeat(){

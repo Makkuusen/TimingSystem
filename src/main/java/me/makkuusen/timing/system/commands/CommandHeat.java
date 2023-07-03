@@ -421,7 +421,7 @@ public class CommandHeat extends BaseCommand {
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             sender.sendMessage("§aAdded driver");
             if (heat.getHeatState() == HeatState.LOADED) {
-                heat.reloadHeat();
+                heat.addDriverToGrid(heat.getDrivers().get(tPlayer.getUniqueId()));
             }
             return;
         }
@@ -529,7 +529,7 @@ public class CommandHeat extends BaseCommand {
                 continue;
             }
             if (heat.getHeatState() == HeatState.LOADED) {
-                heat.reloadHeat();
+                heat.addDriverToGrid(heat.getDrivers().get(player.getUniqueId()));
             }
         }
         sender.sendMessage("§aAll online players has been added");
