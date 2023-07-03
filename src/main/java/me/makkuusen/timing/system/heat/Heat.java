@@ -111,7 +111,7 @@ public class Heat {
         updateStartingLivePositions();
         setHeatState(HeatState.LOADED);
         scoreboard = new SpectatorScoreboard(this);
-        getStartPositions().forEach(driver -> driver.updateScoreboard());
+        updateScoreboard();
         return true;
     }
 
@@ -137,7 +137,7 @@ public class Heat {
     public void addDriverToGrid(Driver driver) {
         putDriverOnGrid(driver);
         updateStartingLivePositions();
-        driver.updateScoreboard();
+        getStartPositions().forEach(d -> d.updateScoreboard());
     }
 
     private void updateStartingLivePositions() {
