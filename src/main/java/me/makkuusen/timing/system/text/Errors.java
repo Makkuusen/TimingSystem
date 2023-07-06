@@ -10,6 +10,7 @@ public enum Errors {
     PERMISSION_DENIED("Permission denied.");
 
     public final String value;
+
     Errors(String value) {
         this.value = value;
     }

@@ -86,7 +86,7 @@ public class CommandRound extends BaseCommand {
     @Subcommand("delete")
     @CommandCompletion("@round")
     public static void onDelete(Player player, Round round) {
-        if (EventDatabase.removeRound(round)){
+        if (EventDatabase.removeRound(round)) {
             player.sendMessage("§a" + round.getDisplayName() + " was removed.");
             return;
         }
@@ -98,35 +98,21 @@ public class CommandRound extends BaseCommand {
     public static void onRoundInfo(Player player, Round round) {
 
         player.sendMessage("");
-        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName()))
-                .append(TextUtilities.space())
-                .append(TextUtilities.getTitleLine(
-                        Component.text(round.getDisplayName()).color(TextUtilities.textHighlightColor)
-                                .append(TextUtilities.space())
-                                .append(TextUtilities.getParenthesized(round.getState().name())))
-                )
-                .append(TextUtilities.space())
-                .append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))
-        );
+        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(round.getDisplayName()).color(TextUtilities.textHighlightColor).append(TextUtilities.space()).append(TextUtilities.getParenthesized(round.getState().name())))).append(TextUtilities.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
 
         var heatsMessage = Component.text("Heats:").color(TextUtilities.textDarkColor);
 
         if (player.hasPermission("event.admin")) {
-            heatsMessage.append(TextUtilities.tab())
-                    .append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
+            heatsMessage.append(TextUtilities.tab()).append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
         }
         player.sendMessage(heatsMessage);
 
         for (Heat heat : round.getHeats()) {
 
-            var message = TextUtilities.tab()
-                    .append(Component.text(heat.getName()).color(TextUtilities.textHighlightColor))
-                    .append(TextUtilities.tab())
-                    .append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+            var message = TextUtilities.tab().append(Component.text(heat.getName()).color(TextUtilities.textHighlightColor)).append(TextUtilities.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
             if (player.hasPermission("event.admin")) {
-                message = message.append(TextUtilities.space())
-                        .append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
+                message = message.append(TextUtilities.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
             }
 
             player.sendMessage(message);
@@ -170,26 +156,13 @@ public class CommandRound extends BaseCommand {
         if (results.size() != 0) {
             player.sendMessage(TextUtilities.getTitleLine("Round results for event", event.getDisplayName()));
             int pos = 1;
-            if (round instanceof FinalRound){
+            if (round instanceof FinalRound) {
                 for (Driver d : results) {
-                    player.sendMessage(TextUtilities.dark(pos++ + ".")
-                            .append(TextUtilities.space())
-                            .append(TextUtilities.highlight(d.getTPlayer().getName()))
-                            .append(TextUtilities.hyphen())
-                            .append(TextUtilities.highlight(String.valueOf(d.getLaps().size())))
-                            .append(TextUtilities.dark("laps in"))
-                            .append(Component.space())
-                            .append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime())))
-                    );
+                    player.sendMessage(TextUtilities.dark(pos++ + ".").append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight(String.valueOf(d.getLaps().size()))).append(TextUtilities.dark("laps in")).append(Component.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime()))));
                 }
             } else {
                 for (Driver d : results) {
-                    player.sendMessage(TextUtilities.dark(pos++ + ".")
-                            .append(TextUtilities.space())
-                            .append(TextUtilities.highlight(d.getTPlayer().getName()))
-                            .append(TextUtilities.hyphen())
-                            .append(TextUtilities.highlight((d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0")))
-                    );
+                    player.sendMessage(TextUtilities.dark(pos++ + ".").append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0"))));
                 }
             }
         } else {
@@ -339,8 +312,8 @@ public class CommandRound extends BaseCommand {
             tPlayerList.add(finish.getPlayer());
         }
 
-        for (var subscriber : players){
-            if (!tPlayerList.contains(subscriber)){
+        for (var subscriber : players) {
+            if (!tPlayerList.contains(subscriber)) {
                 tPlayerList.add(subscriber);
             }
         }
@@ -350,15 +323,14 @@ public class CommandRound extends BaseCommand {
 
     public static List<TPlayer> getRandomList(List<TPlayer> players) {
         List<TPlayer> tPlayerList = new ArrayList<>();
-        for (var subscriber : players){
-            if (!tPlayerList.contains(subscriber)){
+        for (var subscriber : players) {
+            if (!tPlayerList.contains(subscriber)) {
                 tPlayerList.add(subscriber);
             }
         }
         Collections.shuffle(tPlayerList);
         return tPlayerList;
     }
-
 
 
     public static boolean heatAddDriver(Player sender, TPlayer tPlayer, Heat heat, boolean random) {
@@ -374,12 +346,7 @@ public class CommandRound extends BaseCommand {
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             var bestTime = heat.getEvent().getTrack().getBestFinish(tPlayer);
-            sender.sendMessage(TextUtilities.dark(heat.getDrivers().size() + ":")
-                    .append(TextUtilities.space())
-                    .append(TextUtilities.highlight(tPlayer.getName()))
-                    .append(TextUtilities.hyphen())
-                    .append(TextUtilities.highlight((bestTime == null ? "(None)" : ApiUtilities.formatAsTime(bestTime.getTime()))))
-            );
+            sender.sendMessage(TextUtilities.dark(heat.getDrivers().size() + ":").append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((bestTime == null ? "(None)" : ApiUtilities.formatAsTime(bestTime.getTime())))));
             return true;
         }
 

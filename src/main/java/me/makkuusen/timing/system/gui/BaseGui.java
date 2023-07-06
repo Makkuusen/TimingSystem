@@ -55,8 +55,8 @@ public class BaseGui {
         var tPlayer = Database.getPlayer(player.getUniqueId());
         GuiOpenEvent guiOpenEvent = new GuiOpenEvent(player, this);
         Bukkit.getServer().getPluginManager().callEvent(guiOpenEvent);
-        if (guiOpenEvent.isCancelled()){
-           return;
+        if (guiOpenEvent.isCancelled()) {
+            return;
         }
         tPlayer.setOpenGui(this);
         player.openInventory(inventory);

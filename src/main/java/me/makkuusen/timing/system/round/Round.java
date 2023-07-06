@@ -24,15 +24,11 @@ public abstract class Round {
 
     private final int id;
     private final Event event;
-    private Integer roundIndex;
     private final List<Heat> heats = new ArrayList<>();
     private final RoundType type;
+    private Integer roundIndex;
     private RoundState state;
 
-
-    public enum RoundState{
-        SETUP, RUNNING, FINISHED
-    }
 
     public Round(DbRow data) {
         id = data.getInt("id");
@@ -42,7 +38,19 @@ public abstract class Round {
         state = RoundState.valueOf(data.getString("state"));
     }
 
+    public static ContextResolver<RoundType, BukkitCommandExecutionContext> getRoundTypeContextResolver() {
+        return (c) -> {
+            String name = c.popFirstArg();
+            try {
+                return RoundType.valueOf(name);
+            } catch (IllegalArgumentException e) {
+                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
+            }
+        };
+    }
+
     public abstract String getName();
+
     public abstract String getDisplayName();
 
     public List<Heat> getHeats() {
@@ -84,7 +92,7 @@ public abstract class Round {
                 heats++;
             }
             for (int i = 0; i < heats; i++) {
-                createHeat(i+1);
+                createHeat(i + 1);
             }
         }
         addDriversToHeats(drivers);
@@ -97,7 +105,7 @@ public abstract class Round {
         if (event.getState() != Event.EventState.RUNNING) {
             return false;
         }
-        if (getHeats().stream().anyMatch(Heat::isActive)){
+        if (getHeats().stream().anyMatch(Heat::isActive)) {
             return false;
         }
 
@@ -119,12 +127,12 @@ public abstract class Round {
 
     public abstract void broadcastResults(Event event, List<Driver> drivers);
 
-    public void addDriversToHeats(List<Driver> drivers){
+    public void addDriversToHeats(List<Driver> drivers) {
         int i = 0;
         for (Heat heat : getHeats()) {
             int startPos = 1;
             for (; i < drivers.size(); i++) {
-                if (startPos > heat.getMaxDrivers()){
+                if (startPos > heat.getMaxDrivers()) {
                     break;
                 }
                 EventDatabase.heatDriverNew(drivers.get(i).getTPlayer().getUniqueId(), heat, startPos++);
@@ -132,24 +140,17 @@ public abstract class Round {
         }
     }
 
-    public static ContextResolver<RoundType, BukkitCommandExecutionContext> getRoundTypeContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return RoundType.valueOf(name);
-            } catch (IllegalArgumentException e) {
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
-
-    public void setState(RoundState state){
+    public void setState(RoundState state) {
         this.state = state;
         DB.executeUpdateAsync("UPDATE `ts_rounds` SET `state` = '" + state.name() + "' WHERE `id` = " + getId() + ";");
     }
 
-    public void setRoundIndex(Integer index){
+    public void setRoundIndex(Integer index) {
         this.roundIndex = index;
         DB.executeUpdateAsync("UPDATE `ts_rounds` SET `state` = '" + state.name() + "' WHERE `id` = " + getId() + ";");
+    }
+
+    public enum RoundState {
+        SETUP, RUNNING, FINISHED
     }
 }

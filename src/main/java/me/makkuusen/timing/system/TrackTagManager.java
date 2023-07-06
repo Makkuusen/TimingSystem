@@ -49,11 +49,11 @@ public class TrackTagManager {
         return false;
     }
 
-    public static boolean hasTag(TrackTag tag){
+    public static boolean hasTag(TrackTag tag) {
         return trackTags.contains(tag);
     }
 
-    public static List<TrackTag> getTrackTags(){
+    public static List<TrackTag> getTrackTags() {
         return trackTags.stream().toList();
     }
 

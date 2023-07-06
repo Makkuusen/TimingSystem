@@ -78,7 +78,7 @@ public class Heat {
         gridManager = new GridManager();
     }
 
-    public String getName(){
+    public String getName() {
         if (round instanceof QualificationRound) {
             return "R" + round.getRoundIndex() + "Q" + getHeatNumber();
         } else {
@@ -145,7 +145,7 @@ public class Heat {
         setLivePositions(pos);
     }
 
-    public void reloadHeat(){
+    public void reloadHeat() {
         if (!resetHeat()) {
             return;
         }
@@ -173,7 +173,7 @@ public class Heat {
         startWithDelay(getStartDelay(), false);
     }
 
-    private void startWithDelay(long startDelayMS, boolean setStartTime){
+    private void startWithDelay(long startDelayMS, boolean setStartTime) {
         TaskChain<?> chain = TimingSystem.newChain();
         for (Driver driver : getStartPositions()) {
             chain.sync(() -> {
@@ -188,7 +188,7 @@ public class Heat {
             });
             if (startDelayMS > 0) {
                 //Start delay in ms divided by 50ms to get ticks
-                chain.delay((int)(startDelayMS / 50));
+                chain.delay((int) (startDelayMS / 50));
             }
         }
         chain.execute();
@@ -232,7 +232,7 @@ public class Heat {
         getDrivers().values().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
 
         var heatResults = EventResults.generateHeatResults(this);
-        EventAnnouncements.broadcastHeatResult(heatResults,this);
+        EventAnnouncements.broadcastHeatResult(heatResults, this);
 
         return true;
     }
@@ -271,7 +271,7 @@ public class Heat {
         return true;
     }
 
-    public int getMaxDrivers(){
+    public int getMaxDrivers() {
         if (maxDrivers != null) {
             return maxDrivers;
         }
@@ -279,6 +279,11 @@ public class Heat {
             return getEvent().getTrack().getTrackLocations(TrackLocation.Type.QUALYGRID).size();
         }
         return getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size();
+    }
+
+    public void setMaxDrivers(int maxDrivers) {
+        this.maxDrivers = maxDrivers;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `maxDrivers` = " + maxDrivers + " WHERE `id` = " + getId() + ";");
     }
 
     public void addDriver(Driver driver) {
@@ -305,7 +310,7 @@ public class Heat {
             startPositions.remove(driver);
             int startPos = driver.getStartPosition();
             for (Driver d : startPositions) {
-                if (d.getStartPosition() > startPos){
+                if (d.getStartPosition() > startPos) {
                     d.setStartPosition(d.getStartPosition() - 1);
                     d.setPosition(d.getPosition() - 1);
                 }
@@ -316,7 +321,7 @@ public class Heat {
         }
     }
 
-    public boolean setDriverPosition(Driver driver, int newStartPosition){
+    public boolean setDriverPosition(Driver driver, int newStartPosition) {
         if (driver.getHeat().getHeatState() != HeatState.SETUP && driver.getHeat().getHeatState() != HeatState.LOADED) {
             return false;
         }
@@ -328,7 +333,7 @@ public class Heat {
                     d.setStartPosition(d.getStartPosition() + 1);
                     d.setPosition(d.getPosition() + 1);
                 }
-            } else if (newStartPosition > prevPos){
+            } else if (newStartPosition > prevPos) {
                 if (d.getStartPosition() > prevPos && d.getStartPosition() <= newStartPosition) {
                     d.setStartPosition(d.getStartPosition() - 1);
                     d.setPosition(d.getPosition() - 1);
@@ -343,7 +348,7 @@ public class Heat {
         return true;
     }
 
-    public boolean disqualifyDriver(Driver driver){
+    public boolean disqualifyDriver(Driver driver) {
         if (!driver.getHeat().isActive()) {
             return false;
         }
@@ -354,7 +359,7 @@ public class Heat {
         return true;
     }
 
-    public List<Participant> getParticipants(){
+    public List<Participant> getParticipants() {
         return new ArrayList<>(getEvent().getSpectators().values());
     }
 
@@ -374,7 +379,6 @@ public class Heat {
         }
         return true;
     }
-
 
     public void setHeatState(HeatState state) {
         this.heatState = state;
@@ -418,14 +422,9 @@ public class Heat {
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `startDelay` = " + startDelay + " WHERE `id` = " + getId() + ";");
     }
 
-    public void setTotalLaps(int totalLaps){
+    public void setTotalLaps(int totalLaps) {
         this.totalLaps = totalLaps;
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalLaps` = " + totalLaps + " WHERE `id` = " + getId() + ";");
-    }
-
-    public void setMaxDrivers(int maxDrivers){
-        this.maxDrivers = maxDrivers;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `maxDrivers` = " + maxDrivers + " WHERE `id` = " + getId() + ";");
     }
 
     public void setTotalPits(int totalPits) {
@@ -443,7 +442,7 @@ public class Heat {
     }
 
     public boolean isRacing() {
-        return getHeatState() == HeatState.RACING ||getHeatState() == HeatState.STARTING;
+        return getHeatState() == HeatState.RACING || getHeatState() == HeatState.STARTING;
     }
 
     public void onShutdown() {
@@ -458,7 +457,7 @@ public class Heat {
         if (getHeatState() != HeatState.SETUP && getHeatState() != HeatState.LOADED) {
             return;
         }
-        int reverseSize = Math.min((getStartPositions().size() * percentage)/100, getStartPositions().size());
+        int reverseSize = Math.min((getStartPositions().size() * percentage) / 100, getStartPositions().size());
 
         if (reverseSize == 0) {
             return;

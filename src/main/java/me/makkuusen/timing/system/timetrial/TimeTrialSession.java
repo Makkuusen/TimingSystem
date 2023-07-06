@@ -14,21 +14,20 @@ public class TimeTrialSession {
     List<TimeTrialAttempt> timeTrialAttempts = new ArrayList<>();
     TimeTrialScoreboard timeTrialScoreboard;
 
-
-    public TimeTrialSession(TPlayer tPlayer, Track track){
+    public TimeTrialSession(TPlayer tPlayer, Track track) {
         this.track = track;
         this.tPlayer = tPlayer;
     }
 
-    public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish){
+    public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish) {
         timeTrialFinishes.add(timeTrialFinish);
     }
 
-    public void addTimeTrialAttempt(TimeTrialAttempt timeTrialAttempt){
+    public void addTimeTrialAttempt(TimeTrialAttempt timeTrialAttempt) {
         timeTrialAttempts.add(timeTrialAttempt);
     }
 
-    public List<TimeTrialFinish> getTimeTrialFinishes(){
+    public List<TimeTrialFinish> getTimeTrialFinishes() {
         return timeTrialFinishes;
     }
 
@@ -40,15 +39,15 @@ public class TimeTrialSession {
         return track;
     }
 
-    public void updateScoreboard(){
+    public void updateScoreboard() {
         if (tPlayer.getPlayer() == null) {
             if (timeTrialScoreboard != null) {
                 timeTrialScoreboard.removeScoreboard();
-                timeTrialScoreboard= null;
+                timeTrialScoreboard = null;
             }
             return;
         }
-        if (timeTrialScoreboard == null){
+        if (timeTrialScoreboard == null) {
             timeTrialScoreboard = new TimeTrialScoreboard(tPlayer, this);
         }
         timeTrialScoreboard.setDriverLines();

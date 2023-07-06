@@ -11,15 +11,15 @@ public class GuiButton {
         this.stack = stack;
     }
 
-    public void setAction(Runnable runnable) {
-        this.action = runnable;
-    }
-
     public ItemStack getStack() {
         return stack;
     }
 
     public Runnable getAction() {
         return action;
+    }
+
+    public void setAction(Runnable runnable) {
+        this.action = runnable;
     }
 }

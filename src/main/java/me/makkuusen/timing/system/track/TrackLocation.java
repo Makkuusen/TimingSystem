@@ -13,7 +13,7 @@ public class TrackLocation {
     Location location;
     TrackLocation.Type locationType;
 
-    public TrackLocation(int trackId, int index, Location location, TrackLocation.Type locationType){
+    public TrackLocation(int trackId, int index, Location location, TrackLocation.Type locationType) {
         this.trackId = trackId;
         this.index = index;
         this.location = location;

@@ -46,7 +46,7 @@ public class TimingSystemAPI {
 
     public static Optional<TimeTrialFinish> getBestTime(UUID uuid, int trackId) {
         var track = TrackDatabase.getTrackById(trackId);
-        if (track.isEmpty()){
+        if (track.isEmpty()) {
             return Optional.empty();
         }
         var tPlayer = Database.getPlayer(uuid);
@@ -61,11 +61,11 @@ public class TimingSystemAPI {
         return Database.getPlayer(uuid);
     }
 
-    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location){
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location) {
         ApiUtilities.teleportPlayerAndSpawnBoat(player, track, location);
     }
 
-    public static List<Heat> getHeats(){
+    public static List<Heat> getHeats() {
         return EventDatabase.getHeats();
     }
 

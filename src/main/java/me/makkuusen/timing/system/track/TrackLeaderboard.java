@@ -17,48 +17,44 @@ public class TrackLeaderboard extends TrackLocation {
     Hologram hologram;
     Track track;
 
-    public TrackLeaderboard(int trackId, int index, Location location, TrackLocation.Type locationType){
+    public TrackLeaderboard(int trackId, int index, Location location, TrackLocation.Type locationType) {
         super(trackId, index, location, locationType);
         var maybeTrack = TrackDatabase.getTrackById(getTrackId());
-        if (maybeTrack.isPresent()) {
-            this.track = maybeTrack.get();
-        }
+        maybeTrack.ifPresent(value -> this.track = value);
     }
 
     public TrackLeaderboard(DbRow data) {
         super(data);
         var maybeTrack = TrackDatabase.getTrackById(getTrackId());
-        if (maybeTrack.isPresent()) {
-            this.track = maybeTrack.get();
-        }
+        maybeTrack.ifPresent(value -> this.track = value);
     }
 
-    public void createOrUpdateHologram(){
+    public void createOrUpdateHologram() {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
 
         Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
-        if (!getLocation().isWorldLoaded()){
-            return;
-        }
+            if (!getLocation().isWorldLoaded()) {
+                return;
+            }
 
-        if (hologram == null) {
-            hologram = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(getLocation());
-        } else if (!hologram.getPosition().isInSameWorld(getLocation())) {
-            hologram.delete();
-            hologram = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(getLocation());
-        } else if (hologram.getPosition().distance(getLocation()) > 1) {
-            hologram.delete();
-            hologram = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(getLocation());
-        }
+            if (hologram == null) {
+                hologram = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(getLocation());
+            } else if (!hologram.getPosition().isInSameWorld(getLocation())) {
+                hologram.delete();
+                hologram = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(getLocation());
+            } else if (hologram.getPosition().distance(getLocation()) > 1) {
+                hologram.delete();
+                hologram = HolographicDisplaysAPI.get(TimingSystem.getPlugin()).createHologram(getLocation());
+            }
 
-        HologramLines hologramLines = hologram.getLines();
-        hologramLines.clear();
+            HologramLines hologramLines = hologram.getLines();
+            hologramLines.clear();
 
-        for (String line : getHologramLines()) {
-            hologramLines.appendText(line);
-        }
+            for (String line : getHologramLines()) {
+                hologramLines.appendText(line);
+            }
         });
     }
 
@@ -66,9 +62,7 @@ public class TrackLeaderboard extends TrackLocation {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
-        Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
-            hologram.delete();
-        });
+        Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> hologram.delete());
     }
 
     private List<String> getHologramLines() {

@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class GuiOpenEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
@@ -12,23 +13,21 @@ public class GuiOpenEvent extends Event implements Cancellable {
     private BaseGui gui;
     private boolean cancelled = false;
 
-    public GuiOpenEvent(Player player, BaseGui gui){
+    public GuiOpenEvent(Player player, BaseGui gui) {
         this.player = player;
         this.gui = gui;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList()
-    {
-        return handlers;
-    }
-
-    public Player getPlayer()
-    {
+    public Player getPlayer() {
         return player;
     }
 

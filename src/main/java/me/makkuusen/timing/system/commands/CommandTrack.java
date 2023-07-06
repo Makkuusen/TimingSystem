@@ -58,14 +58,14 @@ public class CommandTrack extends BaseCommand {
         player.sendMessage("§2Offset is X: " + offset.getX() + ", Y: " + offset.getY() + ", Z: " + offset.getZ());
 
         var trackLocations = track.getTrackLocations();
-        for (TrackLocation tl: trackLocations) {
+        for (TrackLocation tl : trackLocations) {
             Location loc = tl.getLocation();
             var newLoc = getNewLocation(newWorld, loc, offset);
             track.updateTrackLocation(tl, newLoc);
         }
 
         var regions = track.getRegions();
-        for (TrackRegion region : regions){
+        for (TrackRegion region : regions) {
             if (region.getSpawnLocation() != null) {
                 region.setSpawn(getNewLocation(newWorld, region.getSpawnLocation(), offset));
             }
@@ -92,7 +92,7 @@ public class CommandTrack extends BaseCommand {
         player.sendMessage("§aTrack was moved from " + ApiUtilities.niceLocation(moveTo) + " to " + ApiUtilities.niceLocation(moveFrom));
     }
 
-    public static Vector getOffset(Location moveFrom, Location moveTo){
+    public static Vector getOffset(Location moveFrom, Location moveTo) {
         var vector = new Vector();
         vector.setX(moveFrom.getX() - moveTo.getX());
         vector.setY(moveFrom.getY() - moveTo.getY());
@@ -114,7 +114,7 @@ public class CommandTrack extends BaseCommand {
     @Default
     @CommandPermission("track.admin")
     public static void onTrack(Player player) {
-        new TrackGui(Database.getPlayer(player.getUniqueId()),0).show(player);
+        new TrackGui(Database.getPlayer(player.getUniqueId()), 0).show(player);
     }
 
     @Subcommand("tp")
@@ -201,7 +201,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        if(ApiUtilities.checkTrackName(name)){
+        if (ApiUtilities.checkTrackName(name)) {
             TimingSystem.getPlugin().sendMessage(player, "messages.error.trackExists");
             return;
         }
@@ -244,7 +244,7 @@ public class CommandTrack extends BaseCommand {
             if (track.getBestFinish(tPlayer) == null) {
                 bestTime = "§2" + tPlayer.getName() + "'s best time: §a(none)";
             } else {
-                bestTime = "§2"+ tPlayer.getName() + "'s best time: §a" + ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime());
+                bestTime = "§2" + tPlayer.getName() + "'s best time: §a" + ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime());
             }
 
             commandSender.sendMessage(Component.text("§2Position: §a" + (track.getPlayerTopListPosition(tPlayer) == -1 ? "(none)" : track.getPlayerTopListPosition(tPlayer))));
@@ -412,9 +412,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        var trackText = Component.text("--- Times for ").color(NamedTextColor.DARK_GREEN)
-                .append(Component.text(track.getDisplayName()).color(NamedTextColor.GREEN))
-                .append(Component.text(" ---").color(NamedTextColor.DARK_GREEN));
+        var trackText = Component.text("--- Times for ").color(NamedTextColor.DARK_GREEN).append(Component.text(track.getDisplayName()).color(NamedTextColor.GREEN)).append(Component.text(" ---").color(NamedTextColor.DARK_GREEN));
         commandSender.sendMessage(trackText);
         for (int i = start; i < stop; i++) {
             if (i == track.getTopList().size()) {
@@ -430,10 +428,7 @@ public class CommandTrack extends BaseCommand {
         }
 
         int pageEnd = (int) Math.ceil(((double) track.getTopList().size()) / ((double) itemsPerPage));
-        pageText = pageText.append(Component.text("page ").color(NamedTextColor.DARK_GREEN))
-                .append(Component.text(pageStart + " ").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD))
-                .append(Component.text("of ").color(NamedTextColor.DARK_GREEN))
-                .append(Component.text(pageEnd + " ").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD));
+        pageText = pageText.append(Component.text("page ").color(NamedTextColor.DARK_GREEN)).append(Component.text(pageStart + " ").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD)).append(Component.text("of ").color(NamedTextColor.DARK_GREEN)).append(Component.text(pageEnd + " ").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD));
 
         if (pageEnd > pageStart) {
             pageText = pageText.append(Component.text(">>> ").color(NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/t times " + track.getCommandName() + " " + (pageStart + 1))));
@@ -589,7 +584,7 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("edit")
     @CommandCompletion("@track")
     @CommandPermission("track.admin")
-    public static void onEdit(Player player, @Optional Track track){
+    public static void onEdit(Player player, @Optional Track track) {
         if (track == null) {
             TimingSystem.playerEditingSession.remove(player.getUniqueId());
             player.sendMessage("§aRemoved from editing session");
@@ -602,7 +597,7 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("options")
     @CommandCompletion("@track options")
     @CommandPermission("track.admin")
-    public static void onOptions(CommandSender commandSender, Track track, String options){
+    public static void onOptions(CommandSender commandSender, Track track, String options) {
         String newOptions = ApiUtilities.parseFlagChange(track.getOptions(), options);
         if (newOptions == null) {
             plugin.sendMessage(commandSender, "messages.save.generic");
@@ -625,7 +620,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("reload")
     @CommandPermission("track.admin")
-    public static void onReload(CommandSender commandSender){
+    public static void onReload(CommandSender commandSender) {
         commandSender.sendMessage("§cYou are doing this on your own risk, everything might break!");
         Database.reload();
     }
@@ -633,7 +628,7 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("deletebesttime")
     @CommandPermission("track.admin")
     @CommandCompletion("@track <playername>")
-    public static void onDeleteBestTime(CommandSender commandSender, Track track, String name){
+    public static void onDeleteBestTime(CommandSender commandSender, Track track, String name) {
         TPlayer TPlayer = Database.getPlayer(name);
         if (TPlayer == null) {
             plugin.sendMessage(commandSender, "messages.error.missing.player");
@@ -653,7 +648,7 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("deletealltimes")
     @CommandPermission("track.admin")
     @CommandCompletion("@track <player>")
-    public static void onDeleteAllTimes(CommandSender commandSender, Track track, @Optional String playerName){
+    public static void onDeleteAllTimes(CommandSender commandSender, Track track, @Optional String playerName) {
         if (playerName != null) {
             TPlayer tPlayer = Database.getPlayer(playerName);
             if (tPlayer == null) {
@@ -774,7 +769,7 @@ public class CommandTrack extends BaseCommand {
                 return;
             }
 
-            if(ApiUtilities.checkTrackName(name)){
+            if (ApiUtilities.checkTrackName(name)) {
                 plugin.sendMessage(commandSender, "messages.error.trackExists");
                 return;
             }
@@ -1036,7 +1031,7 @@ public class CommandTrack extends BaseCommand {
                 if (index.equalsIgnoreCase("-all")) {
                     var regions = track.getRegions(regionType);
                     regions.forEach(track::removeRegion);
-                    player.sendMessage(TextUtilities.success("All " + regionType.name()+ " regions were removed."));
+                    player.sendMessage(TextUtilities.success("All " + regionType.name() + " regions were removed."));
                     return;
                 }
 

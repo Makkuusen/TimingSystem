@@ -115,7 +115,7 @@ public class TimingSystem extends JavaPlugin {
                 Track.TrackType.class, Track.getTrackTypeContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("trackType", context -> {
             List<String> res = new ArrayList<>();
-            for(Track.TrackType type : Track.TrackType.values()){
+            for (Track.TrackType type : Track.TrackType.values()) {
                 res.add(type.name());
             }
             return res;
@@ -125,7 +125,7 @@ public class TimingSystem extends JavaPlugin {
                 TrackTag.class, TrackTagManager.getTrackTagContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("trackTag", context -> {
             List<String> res = new ArrayList<>();
-            for(TrackTag tag : TrackTagManager.getTrackTags()){
+            for (TrackTag tag : TrackTagManager.getTrackTags()) {
                 res.add(tag.getValue());
             }
             return res;
@@ -135,7 +135,7 @@ public class TimingSystem extends JavaPlugin {
                 RoundType.class, Round.getRoundTypeContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("roundType", context -> {
             List<String> res = new ArrayList<>();
-            for(RoundType type : RoundType.values()){
+            for (RoundType type : RoundType.values()) {
                 res.add(type.name());
             }
             return res;
@@ -145,7 +145,7 @@ public class TimingSystem extends JavaPlugin {
                 Track.TrackMode.class, Track.getTrackModeContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("trackMode", context -> {
             List<String> res = new ArrayList<>();
-            for (Track.TrackMode mode : Track.TrackMode.values()){
+            for (Track.TrackMode mode : Track.TrackMode.values()) {
                 res.add(mode.name());
             }
             return res;
@@ -155,7 +155,7 @@ public class TimingSystem extends JavaPlugin {
                 Boat.Type.class, TPlayer.getBoatContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("boat", context -> {
             List<String> res = new ArrayList<>();
-            for (Boat.Type tree : Boat.Type.values()){
+            for (Boat.Type tree : Boat.Type.values()) {
                 res.add(tree.name());
             }
             return res;
@@ -173,7 +173,7 @@ public class TimingSystem extends JavaPlugin {
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
 
-        if(!Database.initialize()) return;
+        if (!Database.initialize()) return;
         Database.update();
         Database.synchronize();
 

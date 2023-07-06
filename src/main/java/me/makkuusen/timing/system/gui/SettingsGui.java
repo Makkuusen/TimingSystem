@@ -13,24 +13,6 @@ public class SettingsGui extends BaseGui {
         setButtons(tPlayer);
     }
 
-    private void setButtons(TPlayer tPlayer){
-        Player player = tPlayer.getPlayer();
-        if (player != null && (player.isOp() || player.hasPermission("track.admin"))) {
-            setItem(tPlayer.isOverride() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 0);
-            setItem(getOverrideButton(tPlayer), 9);
-        }
-
-        setItem(tPlayer.isSound() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 1);
-        setItem(getSoundButton(tPlayer), 10);
-        setItem(tPlayer.isVerbose() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 2);
-        setItem(getVerboseButton(tPlayer), 11);
-        setItem(tPlayer.isTimeTrial() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 3);
-        setItem(getTimeTrialButton(tPlayer), 12);
-
-        setItem(getBoatMenuButton(tPlayer),14);
-        setItem(getColorMenuButton(tPlayer), 16);
-    }
-
     public static GuiButton getSoundButton(TPlayer tPlayer) {
         var button = new GuiButton(ButtonUtilities.sound);
         button.setAction(() -> {
@@ -93,10 +75,28 @@ public class SettingsGui extends BaseGui {
         if (dyeColor != null) {
             materialName = dyeColor.name() + "_DYE";
         }
-        var button = new GuiButton(new ItemBuilder(Material.valueOf(materialName)).setName(tPlayer.getColorCode()  + "Team Color").build());
+        var button = new GuiButton(new ItemBuilder(Material.valueOf(materialName)).setName(tPlayer.getColorCode() + "Team Color").build());
         button.setAction(() -> {
             new ColorSettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
+    }
+
+    private void setButtons(TPlayer tPlayer) {
+        Player player = tPlayer.getPlayer();
+        if (player != null && (player.isOp() || player.hasPermission("track.admin"))) {
+            setItem(tPlayer.isOverride() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 0);
+            setItem(getOverrideButton(tPlayer), 9);
+        }
+
+        setItem(tPlayer.isSound() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 1);
+        setItem(getSoundButton(tPlayer), 10);
+        setItem(tPlayer.isVerbose() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 2);
+        setItem(getVerboseButton(tPlayer), 11);
+        setItem(tPlayer.isTimeTrial() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 3);
+        setItem(getTimeTrialButton(tPlayer), 12);
+
+        setItem(getBoatMenuButton(tPlayer), 14);
+        setItem(getColorMenuButton(tPlayer), 16);
     }
 }

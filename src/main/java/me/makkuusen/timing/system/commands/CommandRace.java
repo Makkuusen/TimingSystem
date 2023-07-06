@@ -133,7 +133,7 @@ public class CommandRace extends BaseCommand {
             if (track.hasRegion(TrackRegion.RegionType.PIT) && pits == null) {
                 heat.setTotalPits(1);
             } else if (pits != null) {
-                heat.setTotalPits(Math.min(laps,pits));
+                heat.setTotalPits(Math.min(laps, pits));
             } else {
                 heat.setTotalPits(0);
             }

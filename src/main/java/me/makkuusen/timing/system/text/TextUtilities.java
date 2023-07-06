@@ -15,14 +15,13 @@ public class TextUtilities {
     public static Component getSpacersStart() {
         return Component.text("--- ").color(textDarkColor);
     }
+
     public static Component getSpacersEnd() {
         return Component.text(" ---").color(textDarkColor);
     }
 
     public static Component getTitleLine(String title) {
-        return getSpacersStart()
-                .append(Component.text(title)).color(textHighlightColor)
-                .append(getSpacersEnd());
+        return getSpacersStart().append(Component.text(title)).color(textHighlightColor).append(getSpacersEnd());
     }
 
     public static Component error(String message) {
@@ -62,28 +61,18 @@ public class TextUtilities {
     }
 
     public static Component getTitleLine(String dark, String highlight) {
-        return getSpacersStart()
-                .append(Component.text(dark).color(textDarkColor))
-                .append(space())
-                .append(Component.text(highlight).color(textHighlightColor))
-                .append(getSpacersEnd());
+        return getSpacersStart().append(Component.text(dark).color(textDarkColor)).append(space()).append(Component.text(highlight).color(textHighlightColor)).append(getSpacersEnd());
     }
 
     public static Component getTitleLine(Component title) {
-        return getSpacersStart()
-                .append(title)
-                .append(getSpacersEnd());
+        return getSpacersStart().append(title).append(getSpacersEnd());
     }
 
-    public static Component getParenthesized(String text){
-        return Component.text("(").color(textDarkColor)
-                .append(Component.text(text).color(textHighlightColor))
-                .append(Component.text(")")).color(textDarkColor);
+    public static Component getParenthesized(String text) {
+        return Component.text("(").color(textDarkColor).append(Component.text(text).color(textHighlightColor)).append(Component.text(")")).color(textDarkColor);
     }
 
-    public static Component getBrackets(String text){
-        return Component.text("[").color(textDarkColor)
-                .append(Component.text(text).color(textHighlightColor))
-                .append(Component.text("]")).color(textDarkColor);
+    public static Component getBrackets(String text) {
+        return Component.text("[").color(textDarkColor).append(Component.text(text).color(textHighlightColor)).append(Component.text("]")).color(textDarkColor);
     }
 }
