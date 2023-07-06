@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
 public class BoatSpawnEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
-    private Player player;
-    private Location location;
+    private final Player player;
+    private final Location location;
     private Boat boat = null;
-    private boolean isPermitted = false;
+    private final boolean isPermitted = false;
     private boolean cancelled = false;
 
     public BoatSpawnEvent(Player player, Location location) {

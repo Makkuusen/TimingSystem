@@ -23,10 +23,7 @@ public class TrackCuboidRegion extends TrackRegion {
     }
 
     public boolean isDefined(){
-        if (getMinP() == null || getMaxP() == null) {
-            return false;
-        }
-        return true;
+        return getMinP() != null && getMaxP() != null;
     }
 
     public boolean hasEqualBounds(TrackRegion other){

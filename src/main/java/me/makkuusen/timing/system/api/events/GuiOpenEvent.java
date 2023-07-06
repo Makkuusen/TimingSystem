@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 
 public class GuiOpenEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private Player player;
+    private final Player player;
     private BaseGui gui;
     private boolean cancelled = false;
 

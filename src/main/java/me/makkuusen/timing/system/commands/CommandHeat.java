@@ -276,7 +276,6 @@ public class CommandHeat extends BaseCommand {
     public static void onHeatSetPits(Player player, Heat heat, Integer pits) {
         if (heat.getRound() instanceof QualificationRound) {
             player.sendMessage("§cYou can only modify total pits of a final heat.");
-            return;
         } else {
             heat.setTotalPits(pits);
             player.sendMessage("§aPits has been updated");

@@ -306,7 +306,7 @@ public class TrackDatabase {
 
     public static List<String> getRegionsAsStrings(BukkitCommandCompletionContext c) {
         List<String> regions = new ArrayList<>();
-        var maybeTrack = plugin.playerEditingSession.get(c.getPlayer().getUniqueId());
+        var maybeTrack = TimingSystem.playerEditingSession.get(c.getPlayer().getUniqueId());
         if (maybeTrack == null) {
             return regions;
         }
@@ -331,7 +331,7 @@ public class TrackDatabase {
     public static ContextResolver<TrackRegion, BukkitCommandExecutionContext> getRegionContextResolver() {
         return (c) -> {
             String region = c.popFirstArg();
-            var maybeTrack = plugin.playerEditingSession.get(c.getPlayer().getUniqueId());
+            var maybeTrack = TimingSystem.playerEditingSession.get(c.getPlayer().getUniqueId());
             if (maybeTrack != null) {
                 try {
                     String[] regionName = region.split("-");

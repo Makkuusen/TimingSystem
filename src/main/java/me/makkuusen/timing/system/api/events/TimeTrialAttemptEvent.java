@@ -8,8 +8,8 @@ import org.bukkit.event.HandlerList;
 public class TimeTrialAttemptEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    private Player player;
-    private TimeTrialAttempt timeTrialAttempt;
+    private final Player player;
+    private final TimeTrialAttempt timeTrialAttempt;
 
 
     public TimeTrialAttemptEvent(Player player, TimeTrialAttempt timeTrialAttempt) {

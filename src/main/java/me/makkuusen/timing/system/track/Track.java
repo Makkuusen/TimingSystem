@@ -46,7 +46,7 @@ public class Track {
     private final Set<TrackLocation> trackLocations = new HashSet<>();
     private final Set<TrackTag> tags = new HashSet<>();
     private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
-    private Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
+    private final Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
     private TPlayer owner;
     private String displayName;
     private String commandName;
@@ -172,9 +172,7 @@ public class Track {
 
     public void addTag(DbRow dbRow) {
         var tag = new TrackTag(dbRow.get("tag"));
-        if (!tags.contains(tag)) {
-            tags.add(tag);
-        }
+        tags.add(tag);
     }
 
     public boolean createTag(TrackTag tag) {

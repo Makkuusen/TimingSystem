@@ -51,7 +51,6 @@ public class CommandRound extends BaseCommand {
         }
         var messages = event.eventSchedule.getRoundList(event);
         messages.forEach(message -> player.sendMessage(message));
-        return;
     }
 
     @Subcommand("create")

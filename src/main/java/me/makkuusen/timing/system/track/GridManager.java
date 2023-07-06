@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class GridManager {
 
-    private HashMap<UUID, ArmorStand> armorStands = new HashMap<>();
+    private final HashMap<UUID, ArmorStand> armorStands = new HashMap<>();
 
     public GridManager() {
     }
