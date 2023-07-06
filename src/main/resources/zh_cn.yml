@@ -1,0 +1,107 @@
+messages:
+  error:
+    generic: '&c发生了错误。'
+    unknownCommand: '&7未知命令。输入&n/%command% help&r&7来获得命令列表。'
+    consoleUnsupported: '你无法从控制台使用这个命令。'
+    permissionDenied: '&c权限拒绝。'
+    missing:
+      race: '&c没有在该赛道上的比赛。'
+      track:
+        name: '&c没有该名字的赛道。'
+        id: '&c没有该id的赛道。'
+      tracks: '&c没有任何赛道。'
+      player: '&c无法找到玩家。'
+      item: '&c你需要在手里拿着一件物品。'
+      bestTime: '&c无法找到最佳时间。'
+      page: '&c无法找到该页。'
+      selection: '&c你必须做一个选择。'
+    remove:
+      region: '&a区域无法被移除。'
+      checkpoint: '&a检查点无法被移除。'
+    numberException: '&c数值无法解析。它是一个数字吗？'
+    trackTypeException: '&c错误的赛道类型。'
+    trackModeException: '&c错误的赛道模式。'
+    trackIsLocked: '&c赛道已被锁定。'
+    trackIsClosed: '&c赛道已被关闭。'
+    nameToLong: '&c名字不能超过%length%字符。'
+    nameRegexException: '&c名字只能包含字母，空格或数字。'
+    selectionException: '&c你的选择无法被使用。'
+    trackExists: '&c赛道已经存在。'
+    raceExists: '&c比赛已经存在。'
+    runNotStarted: '&c你没有运行的计时器。'
+    timer:
+      missedCheckpoints: '&c时间无效，没有通过所有的检查点！'
+      leftBoat: '&c你离开了船并取消了你的时间。'
+  save:
+    generic: '&a数值已被保存。'
+  create:
+    name: '&a你创造了%name%。'
+    generic: '&a你的东西被创造了。'
+    region: '&a新的区域已被创建。'
+    checkpoint: '&a新的检查点已被创建。'
+    override: '&a激活了超控。'
+  remove:
+    generic: '&a你的东西被移除了。'
+    track: '&a赛道已被移除。'
+    region: '&a区域已被移除。'
+    checkpoint: '&a检查点已被移除。'
+    override: '&a关闭了超控。'
+    bestTime: '&a移除了%map%上%player%的最佳时间。'
+  update:
+    leaderboards: '&a正在更新排行榜。'
+  info:
+    track:
+      name: '&2--- &a赛道：%name%（%id%） &2---'
+      open: '&2开放：&a是   &2类型：&a%type%'
+      closed: '&2开放：&a否   &2类型：&a%type%'
+      created: '&2创建：&a%date%&2拥有者为&a%owner%'
+      options: '&2选项：&a+%options%'
+      mode: '&2模式：&a%mode%'
+      checkpointTeleportOn: '&2检查点传送：&a是'
+      checkpointTeleportOff: '&2检查点传送：&a否'
+      checkpoints: '&2检查点：&a%size%'
+      resets: '&2重置区域：&a%size%'
+      spawn: '&2出生点：&a%location%'
+      leaderboard: '&2排行榜：&a%location%'
+    race:
+      name: '&2--- &a比赛%name% &2---'
+      type: '&2类型：&a%type%'
+      laps: '&2圈数：&a%laps%'
+      pits: '&2进站次数：&a%pits%'
+      drivers: '&2选手数：&a%drivers%'
+  list:
+    tracks: '&2--- &a赛道（第&l%startPage% &r&a/ &l%totalPages%&r&a页） &2---'
+    times: '&2--- &a%track% &2（第&a&l%startPage% &r&2/ &a&l%totalPages%&r&a&2页） ---'
+    timesrow: '&2%pos%. &a%player% &2| &a%time%'
+  toggle:
+    track:
+      open: '&a开放了赛道。'
+      closed: '&a关闭了赛道。'
+      government: '&a公开了赛道。'
+      private: '&a隐藏了赛道。'
+    race:
+      checkpointsOn: '&a激活了检查点公告。'
+      checkpointsOff: '&a关闭了检查点公告。'
+  options:
+    allRemoved: '&a清除了所有选项。'
+    list: '&a选项现在为：%options%'
+  help: '&2---&a 帮助：/%command% &2---'
+  cancel: '&a取消了计时器。'
+  randomTrack:
+    teleport: '&2传送你到了&a%track% &2（&a#%pos%&2）.'
+    teleportNoPos: '&2传送你到了&a%track%&2.'
+    noTracks: '&c没有任何可传送到的开放赛道。'
+  timer:
+    firstFinish: '&e新的最佳时间！&6你以&e%time%&6完成了&e%map%&6。'
+    newRecord: '&e新的最佳时间！&6你以&e%time%&6完成了&e%map%&6。你之前的最佳时间为&e%oldTime%&6。'
+    finish: '&2你以&a%time%&2完成了&a%map%&2。你的最佳时间为&a%oldTime%&2。'
+    checkpoint: '&2你以&a%time%&2通过了&a检查点%checkpoint%&2。'
+  announcements:
+    pitstop: '&f%player%&7完成了第&f&l%pit%&r&7次进站'
+    finish: '&f%player%&7以第&f&lP%position%&r&7完赛，用时&f%time%'
+    finishQualy: '&f%player%&7完成了'
+    lap: '&7你以&f%time%&7完成了一圈'
+    fastestLap: '&f%player%&7以&f%time%&7以做出最快圈'
+  actionbar:
+    race: '&8圈数：&f&l%laps%/%totalLaps%&r&8 |&f&l P%pos%&r&8 |&f&l %pits%/%totalPits%&r&8进站'
+    raceSpectator: '&f%name% > &8圈数：&f&l%laps%/%totalLaps%&r&8 |&f&l P%pos%&r&8 |&f&l %pits%/%totalPits%&r&8进站'
