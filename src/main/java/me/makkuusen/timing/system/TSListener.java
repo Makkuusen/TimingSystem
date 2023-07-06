@@ -51,7 +51,7 @@ import java.util.UUID;
 public class TSListener implements Listener {
 
     static TimingSystem plugin;
-    static Set<UUID> inPits = new HashSet();
+    static Set<UUID> inPits = new HashSet<>();
 
     @EventHandler
     public void onTick(ServerTickStartEvent e) {
@@ -67,7 +67,6 @@ public class TSListener implements Listener {
 
             if (TPlayer == null) {
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Your player profile could not be loaded. Notify the server owner!");
-                return;
             }
         }
     }
@@ -147,7 +146,6 @@ public class TSListener implements Listener {
             if (passenger instanceof Player player) {
                 if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
                     e.setCancelled(true);
-                    return;
                 }
             }
         }
@@ -203,7 +201,6 @@ public class TSListener implements Listener {
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().getState() == DriverState.LOADED) {
                 event.setCancelled(true);
-                return;
             }
         }
     }
@@ -213,7 +210,6 @@ public class TSListener implements Listener {
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().getState() == DriverState.LOADED) {
                 event.setCancelled(true);
-                return;
             }
         }
     }
@@ -224,7 +220,6 @@ public class TSListener implements Listener {
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().getState() == DriverState.LOADED) {
                 event.setCancelled(true);
-                return;
             }
         }
     }
@@ -235,7 +230,6 @@ public class TSListener implements Listener {
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().getState() == DriverState.LOADED) {
                 event.setCancelled(true);
-                return;
             }
         }
     }
@@ -247,7 +241,6 @@ public class TSListener implements Listener {
              if (maybeDriver.isPresent()) {
                  if (maybeDriver.get().getState() == DriverState.LOADED) {
                      event.setCancelled(true);
-                     return;
                  }
              }
          }
@@ -272,7 +265,7 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByBlock(EntityDamageByBlockEvent event) {
-        if (event.getEntity() instanceof Player && event.getEntity().isInsideVehicle() && event.getEntity().getVehicle().getType() == EntityType.BOAT && event.getEntity().getVehicle().hasMetadata("spawned")) {
+        if (event.getEntity() instanceof Player && event.getEntity().getVehicle() != null && event.getEntity().getVehicle().getType() == EntityType.BOAT && event.getEntity().getVehicle().hasMetadata("spawned")) {
             event.setCancelled(true);
         }
     }
@@ -297,7 +290,6 @@ public class TSListener implements Listener {
             if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
                 e.getPlayer().sendMessage("§cDu får inte fiska någon annan");
                 e.setCancelled(true);
-                return;
             }
         }
     }
@@ -370,7 +362,7 @@ public class TSListener implements Listener {
             }
 
             // Check for starting new tracks
-            Iterator regions = TrackDatabase.getTrackStartRegions().iterator();
+            Iterator<TrackRegion> regions = TrackDatabase.getTrackStartRegions().iterator();
             while (true) {
                 Integer regionId;
                 TrackRegion region;
@@ -627,7 +619,6 @@ public class TSListener implements Listener {
                 TrackRegion region = maybeRegion.isEmpty() ? track.getStartRegion().get() : maybeRegion.get();
                 ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
-                return;
             }
         }
     }

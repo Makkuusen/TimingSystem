@@ -32,7 +32,7 @@ public class ButtonUtilities {
     public static void init() {
         sound = new ItemBuilder(Material.JUKEBOX).setName("§b§eToggle: Sound").build();
         verbose = new ItemBuilder(Material.GOAT_HORN).setName("§b§eToggle: Verbose").build();
-        timeTrial = new ItemBuilder(Material.BARRIER).setName("§b§eToggle: Timetrial").build();
+        timeTrial = new ItemBuilder(Material.BARRIER).setName("§b§eToggle: TimeTrial").build();
         override = new ItemBuilder(Material.IRON_DOOR).setName("§b§eToggle: Override").build();
         on = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§b§eON").build();
         off = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§b§eOFF").build();
@@ -40,7 +40,7 @@ public class ButtonUtilities {
         borderGlass = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName("§r").build();
         elytra = new ItemBuilder(Material.ELYTRA).setName("§e§lElytra").build();
         boat = new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat").build();
-        parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkours").build();
+        parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkour").build();
         for (int i = 0; i < 7; i++){
             boatPages.add(new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lBoat tracks " + (i+1)).build());
         }
@@ -98,7 +98,7 @@ public class ButtonUtilities {
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1);
     }
 
-    public static String getFilterTitel(TrackTag tag) {
+    public static String getFilterTitle(TrackTag tag) {
         if (tag == null) {
             return "- ALL";
         } else {

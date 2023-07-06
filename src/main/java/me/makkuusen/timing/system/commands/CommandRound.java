@@ -104,7 +104,7 @@ public class CommandRound extends BaseCommand {
                 .append(TextUtilities.getTitleLine(
                         Component.text(round.getDisplayName()).color(TextUtilities.textHighlightColor)
                                 .append(TextUtilities.space())
-                                .append(TextUtilities.getParenthisied(round.getState().name())))
+                                .append(TextUtilities.getParenthesized(round.getState().name())))
                 )
                 .append(TextUtilities.space())
                 .append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))

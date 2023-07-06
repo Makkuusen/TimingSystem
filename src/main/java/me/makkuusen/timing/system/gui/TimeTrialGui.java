@@ -27,10 +27,10 @@ public class TimeTrialGui extends TrackPageGui{
         var filteredTracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.hasTag(filter)).filter(Track::isWeightAboveZero);
 
         List<Track> tracks;
-        if (page == ELYTRAPAGE) {
+        if (page == ELYTRA_PAGE) {
             tracks = filteredTracks.filter(Track::isElytraTrack).collect(Collectors.toList());
             sortTracks(tracks, trackSort);
-        } else if (page == PARKOURPAGE) {
+        } else if (page == PARKOUR_PAGE) {
             tracks = filteredTracks.filter(Track::isParkourTrack).collect(Collectors.toList());
             sortTracks(tracks, trackSort);
         } else {
@@ -50,7 +50,7 @@ public class TimeTrialGui extends TrackPageGui{
     public GuiButton getSortingButton(ItemStack item, TPlayer tPlayer, int page, TrackSort sort, TrackTag tag) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(filter);
+            String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(filter);
             if (tPlayer.isSound()) {
                 ButtonUtilities.playConfirm(tPlayer.getPlayer());
             }
@@ -63,7 +63,7 @@ public class TimeTrialGui extends TrackPageGui{
     public GuiButton getFilterButton(ItemStack item, TPlayer tPlayer, int page, TrackSort sort, TrackTag tag) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(tag);
+            String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(tag);
             if (tPlayer.isSound()) {
                 ButtonUtilities.playConfirm(tPlayer.getPlayer());
             }
@@ -77,7 +77,7 @@ public class TimeTrialGui extends TrackPageGui{
     public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page){
         var button = new GuiButton(item);
         button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(filter);
+            String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(filter);
             new TimeTrialGui(tPlayer, title, page, trackSort, filter).show(tPlayer.getPlayer());
         });
         return button;

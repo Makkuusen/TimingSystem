@@ -5,6 +5,7 @@ import co.aikar.idb.DB;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import com.destroystokyo.paper.ClientOption;
 import me.makkuusen.timing.system.commands.CommandBoat;
 import me.makkuusen.timing.system.commands.CommandEvent;
 import me.makkuusen.timing.system.commands.CommandHeat;
@@ -45,6 +46,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+@SuppressWarnings("UnstableApiUsage")
 public class TimingSystem extends JavaPlugin {
 
     public Logger logger;
@@ -52,7 +54,7 @@ public class TimingSystem extends JavaPlugin {
     public static TimingSystemConfiguration configuration;
     public static boolean enableLeaderboards = true;
     public static HashMap<UUID, Track> playerEditingSession = new HashMap<>();
-    public static Map<UUID, TPlayer> players = new HashMap<UUID, TPlayer>();
+    public static Map<UUID, TPlayer> players = new HashMap<>();
     private LanguageManager languageManager;
     public static Instant currentTime = Instant.now();
     private static TaskChainFactory taskChainFactory;
@@ -78,7 +80,6 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new TimeTrialListener(), plugin);
 
         ButtonUtilities.init();
-        PlayerTimer.initPlayerTimer();
 
         PaperCommandManager manager = new PaperCommandManager(this);
         // enable brigadier integration for paper servers
@@ -106,8 +107,7 @@ public class TimingSystem extends JavaPlugin {
         );
         manager.getCommandContexts().registerContext(
                 TrackRegion.class, TrackDatabase.getRegionContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("region", context ->
-                TrackDatabase.getRegionsAsStrings(context)
+        manager.getCommandCompletions().registerAsyncCompletion("region", TrackDatabase::getRegionsAsStrings
         );
 
 
@@ -177,7 +177,7 @@ public class TimingSystem extends JavaPlugin {
         Database.update();
         Database.synchronize();
 
-        EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(heat -> heat.resetHeat());
+        EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::resetHeat);
 
 
         var tasks = new Tasks();
@@ -192,17 +192,17 @@ public class TimingSystem extends JavaPlugin {
             LeaderboardManager.startUpdateTask();
         }
 
-        logger.info("Version " + getDescription().getVersion() + " enabled.");
+        logger.info("Version " + getPluginMeta().getVersion() + " enabled.");
 
         int pluginId = 16012;
-        Metrics metrics = new Metrics(this, pluginId);
+        new Metrics(this, pluginId);
 
     }
 
     @Override
     public void onDisable() {
-        EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(heat -> heat.onShutdown());
-        logger.info("Version " + getDescription().getVersion() + " disabled.");
+        EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::onShutdown);
+        logger.info("Version " + getPluginMeta().getVersion() + " disabled.");
         DB.close();
         TrackDatabase.plugin = null;
         Database.plugin = null;
@@ -228,17 +228,13 @@ public class TimingSystem extends JavaPlugin {
         }
     }
 
-    public @Nullable String getLocalizedMessage(@NotNull CommandSender sender, @NotNull String key) {
-        return this.languageManager.getValue(key, getLocale(sender));
-    }
-
     public @Nullable String getLocalizedMessage(@NotNull CommandSender sender, @NotNull String key, String... replacements) {
         return this.languageManager.getValue(key, getLocale(sender), replacements);
     }
 
     private @NotNull String getLocale(@NotNull CommandSender sender) {
         if (sender instanceof Player) {
-            return ((Player) sender).getLocale();
+            return ((Player) sender).getClientOption(ClientOption.LOCALE);
         } else {
             return this.getConfig().getString("settings.locale", "en_us");
         }
@@ -246,10 +242,6 @@ public class TimingSystem extends JavaPlugin {
 
     public static <T> TaskChain<T> newChain() {
         return taskChainFactory.newChain();
-    }
-
-    public static <T> TaskChain<T> newSharedChain(String name) {
-        return taskChainFactory.newSharedChain(name);
     }
 
 }

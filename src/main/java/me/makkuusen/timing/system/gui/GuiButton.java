@@ -4,7 +4,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class GuiButton {
 
-    private ItemStack stack;
+    private final ItemStack stack;
     private Runnable action;
 
     public GuiButton(ItemStack stack) {

@@ -5,18 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -41,8 +40,7 @@ public class Lap implements Comparable<Lap> {
     public Lap(DbRow data) {
         player = Database.getPlayer(data.getString("uuid"));
         heatId = data.getInt("heatId");
-        Optional<Track> maybeTrack = TrackDatabase.getTrackById(data.getInt("trackId"));
-        track = maybeTrack.isEmpty() ? null : maybeTrack.get();
+        track = TrackDatabase.getTrackById(data.getInt("trackId")).orElse(null);
         lapStart = Instant.ofEpochMilli(data.getLong("lapStart"));
         lapEnd = data.getLong("lapEnd") == null ? null : Instant.ofEpochMilli(data.getLong("lapEnd"));
         pitted = data.get("pitted");
@@ -84,12 +82,6 @@ public class Lap implements Comparable<Lap> {
 
     @Override
     public int compareTo(@NotNull Lap lap) {
-        if (getLapTime() < lap.getLapTime()) {
-            return -1;
-        } else if (getLapTime() > lap.getLapTime()) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return Long.compare(getLapTime(), lap.getLapTime());
     }
 }

@@ -95,10 +95,6 @@ public class TPlayer implements Comparable<TPlayer> {
         jScoreboard.setLines(player, lines);
     }
 
-    public boolean hasOpenGui(){
-        return openGui != null;
-    }
-
     public BaseGui getOpenGui() {
         return openGui;
     }
@@ -133,7 +129,7 @@ public class TPlayer implements Comparable<TPlayer> {
     }
 
     public String getColorCode(){
-        return net.md_5.bungee.api.ChatColor.of(color) + "";
+        return String.valueOf(net.md_5.bungee.api.ChatColor.of(color));
     }
 
     public org.bukkit.Color getBukkitColor(){
@@ -143,10 +139,7 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public void setHexColor(String hexColor) {
         color = hexColor;
-        var maybeDriver = EventDatabase.getDriverFromRunningHeat(uuid);
-        if (maybeDriver.isPresent()) {
-            maybeDriver.get().getHeat().updateScoreboard();
-        }
+        EventDatabase.getDriverFromRunningHeat(uuid).ifPresent(driver -> driver.getHeat().updateScoreboard());
         DB.executeUpdateAsync("UPDATE `ts_players` SET `color` = '" + hexColor + "' WHERE `uuid` = '" + uuid + "';");
     }
 
@@ -197,16 +190,11 @@ public class TPlayer implements Comparable<TPlayer> {
 
         this.name = name;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
-
-        if (player != null) {
-            player.setDisplayName(getNameDisplay());
-        }
     }
 
     public void setBoat(Boat.Type boat) {
         this.boat = boat;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
-
     }
 
     public void switchToggleSound() {

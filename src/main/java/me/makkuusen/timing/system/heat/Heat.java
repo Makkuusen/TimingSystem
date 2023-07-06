@@ -137,23 +137,19 @@ public class Heat {
     public void addDriverToGrid(Driver driver) {
         putDriverOnGrid(driver);
         updateStartingLivePositions();
-        getStartPositions().forEach(d -> d.updateScoreboard());
+        getStartPositions().forEach(Driver::updateScoreboard);
     }
 
     private void updateStartingLivePositions() {
-        List<Driver> pos = new ArrayList<>();
-        pos.addAll(getStartPositions());
+        List<Driver> pos = new ArrayList<>(getStartPositions());
         setLivePositions(pos);
     }
 
-    public boolean reloadHeat(){
+    public void reloadHeat(){
         if (!resetHeat()) {
-            return false;
+            return;
         }
-        if (!loadHeat()) {
-            return false;
-        }
-        return true;
+        loadHeat();
     }
 
     public boolean startCountdown() {
@@ -173,7 +169,7 @@ public class Heat {
             startWithDelay(getStartDelay(), true);
             return;
         }
-        getDrivers().values().stream().forEach(driver -> driver.setStartTime(TimingSystem.currentTime));
+        getDrivers().values().forEach(driver -> driver.setStartTime(TimingSystem.currentTime));
         startWithDelay(getStartDelay(), false);
     }
 
@@ -198,11 +194,11 @@ public class Heat {
         chain.execute();
     }
 
-    public boolean passLap(Driver driver) {
+    public void passLap(Driver driver) {
         if (round instanceof QualificationRound) {
-            return QualifyHeat.passQualyLap(driver);
+            QualifyHeat.passQualyLap(driver);
         } else {
-            return FinalHeat.passLap(driver);
+            FinalHeat.passLap(driver);
         }
     }
 
@@ -213,15 +209,13 @@ public class Heat {
         updatePositions();
         setHeatState(HeatState.FINISHED);
         setEndTime(TimingSystem.currentTime);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(TimingSystem.getPlugin(), new Runnable() {
-            public void run() {
-                getDrivers().values().forEach(driver -> driver.removeScoreboard());
-                scoreboard.removeScoreboards();
-                ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
-            }
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(TimingSystem.getPlugin(), () -> {
+            getDrivers().values().forEach(Driver::removeScoreboard);
+            scoreboard.removeScoreboards();
+            ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
         }, 200);
 
-        getDrivers().values().stream().forEach(driver -> {
+        getDrivers().values().forEach(driver -> {
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
             if (driver.getEndTime() == null) {
                 driver.removeUnfinishedLap();
@@ -235,7 +229,7 @@ public class Heat {
         });
 
         //Dump all laps to database
-        getDrivers().values().stream().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
+        getDrivers().values().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
 
         var heatResults = EventResults.generateHeatResults(this);
         EventAnnouncements.broadcastHeatResult(heatResults,this);
@@ -266,7 +260,7 @@ public class Heat {
         setFastestLapUUID(null);
         setLivePositions(new ArrayList<>());
         gridManager.clearArmorstands();
-        getDrivers().values().stream().forEach(driver -> {
+        getDrivers().values().forEach(driver -> {
             driver.reset();
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
         });
@@ -291,7 +285,7 @@ public class Heat {
         drivers.put(driver.getTPlayer().getUniqueId(), driver);
         if (driver.getStartPosition() > 0) {
             startPositions.add(driver);
-            Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
+            startPositions.sort(Comparator.comparingInt(Driver::getStartPosition));
         }
         if (!event.getSpectators().containsKey(driver.getTPlayer().getUniqueId())) {
             event.addSpectator(driver.getTPlayer().getUniqueId());
@@ -345,7 +339,7 @@ public class Heat {
         }
         driver.setStartPosition(newStartPosition);
         driver.setPosition(newStartPosition);
-        Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
+        startPositions.sort(Comparator.comparingInt(Driver::getStartPosition));
         return true;
     }
 
@@ -361,14 +355,12 @@ public class Heat {
     }
 
     public List<Participant> getParticipants(){
-        List<Participant> participants = new ArrayList<>();
-        participants.addAll(getEvent().getSpectators().values());
-        return participants;
+        return new ArrayList<>(getEvent().getSpectators().values());
     }
 
     public void updateScoreboard() {
         if (Duration.between(lastScoreboardUpdate, TimingSystem.currentTime).toMillis() > updateScoreboardDelay) {
-            livePositions.stream().forEach(driver -> driver.updateScoreboard());
+            livePositions.forEach(Driver::updateScoreboard);
             scoreboard.updateScoreboard();
             lastScoreboardUpdate = TimingSystem.currentTime;
         }
@@ -459,7 +451,7 @@ public class Heat {
         if (scoreboard != null) {
             scoreboard.removeScoreboards();
         }
-        drivers.values().forEach(driver -> driver.onShutdown());
+        drivers.values().forEach(Driver::onShutdown);
     }
 
     public void reverseGrid(Integer percentage) {
@@ -482,7 +474,7 @@ public class Heat {
             driver.setStartPosition(newPos);
             driver.setPosition(newPos);
         }
-        Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
-        Collections.sort(livePositions, Comparator.comparingInt(Driver::getPosition));
+        startPositions.sort(Comparator.comparingInt(Driver::getStartPosition));
+        livePositions.sort(Comparator.comparingInt(Driver::getPosition));
     }
 }

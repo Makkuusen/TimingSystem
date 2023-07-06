@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Getter
 public class EventSchedule {
-    private List<Round> rounds = new ArrayList<>();
+    private final List<Round> rounds = new ArrayList<>();
     private Integer currentRound = null;
 
     public EventSchedule() {
@@ -118,14 +118,14 @@ public class EventSchedule {
 
     public List<Component> listRounds(){
         List<Component> message = new ArrayList<>();
-        rounds.stream().forEach(round -> message.add(Component.text(" - " + round.getName()).color(TextUtilities.textHighlightColor)));
+        rounds.forEach(round -> message.add(Component.text(" - " + round.getName()).color(TextUtilities.textHighlightColor)));
         return message;
     }
 
     public List<Component> listHeats() {
         List<Component> message = new ArrayList<>();
         for (Round round : rounds) {
-            round.getHeats().stream().forEach(heat -> message.add(Component.text(" - " + heat.getName()).color(TextUtilities.textHighlightColor)));
+            round.getHeats().forEach(heat -> message.add(Component.text(" - " + heat.getName()).color(TextUtilities.textHighlightColor)));
         }
         return message;
     }

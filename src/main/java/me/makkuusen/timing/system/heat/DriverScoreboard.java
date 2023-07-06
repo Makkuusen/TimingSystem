@@ -64,7 +64,7 @@ public class DriverScoreboard {
                 continue;
             }
             if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualy(driver, this.driver, tPlayer.getCompactScoreboard()));
+                lines.add(getDriverRowQualification(driver, this.driver, tPlayer.getCompactScoreboard()));
 
             } else {
                 lines.add(getDriverRowFinal(driver,this.driver, tPlayer.getCompactScoreboard()));
@@ -76,7 +76,7 @@ public class DriverScoreboard {
         List<String> lines = new ArrayList<>();
         for (Driver driver : heat.getLivePositions()) {
             if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualy(driver, this.driver, tPlayer.getCompactScoreboard()));
+                lines.add(getDriverRowQualification(driver, this.driver, tPlayer.getCompactScoreboard()));
 
             } else {
                 lines.add(getDriverRowFinal(driver,this.driver, tPlayer.getCompactScoreboard()));
@@ -137,7 +137,7 @@ public class DriverScoreboard {
         return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
     }
 
-    private String getDriverRowQualy(Driver driver, Driver comparingDriver, boolean compact) {
+    private String getDriverRowQualification(Driver driver, Driver comparingDriver, boolean compact) {
         if (driver.getBestLap().isEmpty()) {
             return ScoreboardUtils.getDriverLine(driver.getTPlayer().getName(), driver.getPosition(), compact);
         }
