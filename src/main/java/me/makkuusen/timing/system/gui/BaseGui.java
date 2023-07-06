@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.api.events.GuiOpenEvent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -12,11 +13,11 @@ import java.util.List;
 
 public class BaseGui {
 
-    private Inventory inventory;
-    private List<GuiButton> buttons = new ArrayList<>();
+    private final Inventory inventory;
+    private final List<GuiButton> buttons = new ArrayList<>();
 
     public BaseGui(String title, int rows) {
-        this.inventory = Bukkit.createInventory(null, rows * 9, title);
+        this.inventory = Bukkit.createInventory(null, rows * 9, Component.text(title));
     }
 
     public void setItem(GuiButton button, int slot) {

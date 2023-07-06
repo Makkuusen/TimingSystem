@@ -14,7 +14,7 @@ import java.util.List;
 
 public class SpectatorScoreboard {
 
-    private Heat heat;
+    private final Heat heat;
 
     public SpectatorScoreboard(Heat heat){
         this.heat = heat;
@@ -57,7 +57,7 @@ public class SpectatorScoreboard {
         boolean compareToFirst = true;
         for (Driver driver : heat.getLivePositions()) {
             if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualy(driver, prevDriver, tPlayer.getCompactScoreboard()));
+                lines.add(getDriverRowQualification(driver, prevDriver, tPlayer.getCompactScoreboard()));
                 if (compareToFirst) {
                     prevDriver = driver;
                     compareToFirst = false;
@@ -106,7 +106,7 @@ public class SpectatorScoreboard {
         return ScoreboardUtils.getDriverLineRaceGap(timeDiff, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
     }
 
-    private String getDriverRowQualy(Driver driver, Driver comparingDriver, boolean compact) {
+    private String getDriverRowQualification(Driver driver, Driver comparingDriver, boolean compact) {
         if (driver.getBestLap().isEmpty()) {
             return ScoreboardUtils.getDriverLine(driver.getTPlayer().getName(), driver.getPosition(), compact);
         }

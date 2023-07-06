@@ -14,9 +14,9 @@ import java.util.List;
 
 public abstract class TrackPageGui extends BaseGui {
 
-    public static final List<Integer> BOATPAGES = List.of(0,1,2,3,4,5,6);
-    public static final Integer PARKOURPAGE = 8;
-    public static final Integer ELYTRAPAGE = 7;
+    public static final List<Integer> BOAT_PAGES = List.of(0,1,2,3,4,5,6);
+    public static final Integer PARKOUR_PAGE = 8;
+    public static final Integer ELYTRA_PAGE = 7;
     public TrackSort trackSort = TrackSort.WEIGHT;
     public TrackTag filter;
     public TPlayer tPlayer;
@@ -53,9 +53,9 @@ public abstract class TrackPageGui extends BaseGui {
     }
 
     private void setPageItem(int page){
-        if (page == PARKOURPAGE) {
+        if (page == PARKOUR_PAGE) {
             setItem(ButtonUtilities.getParkourButton(), 4);
-        } else if (page == ELYTRAPAGE) {
+        } else if (page == ELYTRA_PAGE) {
             setItem(ButtonUtilities.getElytraButton(), 4);
         } else {
             setItem(ButtonUtilities.getBoatButton(), 4);
@@ -103,7 +103,7 @@ public abstract class TrackPageGui extends BaseGui {
 
     private void setNavigationItems(TPlayer tPlayer, int page){
         int slot = 45;
-        for (Integer boatPage : BOATPAGES) {
+        for (Integer boatPage : BOAT_PAGES) {
             if (boatPage != page) {
                 setItem(getPageButton(ButtonUtilities.boatPages.get(boatPage), tPlayer, boatPage), slot);
             } else {
@@ -111,14 +111,14 @@ public abstract class TrackPageGui extends BaseGui {
             }
             slot++;
         }
-        if (ELYTRAPAGE != page) {
-            setItem(getPageButton(ButtonUtilities.elytraPage, tPlayer, ELYTRAPAGE), 52);
+        if (ELYTRA_PAGE != page) {
+            setItem(getPageButton(ButtonUtilities.elytraPage, tPlayer, ELYTRA_PAGE), 52);
         } else {
             setItem(getPageButton(new ItemBuilder(Material.PAPER).setName("§e§lCurrent page").build(),tPlayer, page), 52);
         }
 
-        if (PARKOURPAGE != page) {
-            setItem(getPageButton(ButtonUtilities.parkourPage, tPlayer, PARKOURPAGE), 53);
+        if (PARKOUR_PAGE != page) {
+            setItem(getPageButton(ButtonUtilities.parkourPage, tPlayer, PARKOUR_PAGE), 53);
         } else {
             setItem(getPageButton(new ItemBuilder(Material.PAPER).setName("§e§lCurrent page").build(),tPlayer, page), 53);
         }

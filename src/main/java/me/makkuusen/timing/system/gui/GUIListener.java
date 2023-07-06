@@ -2,8 +2,6 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

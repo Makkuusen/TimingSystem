@@ -34,10 +34,10 @@ public class EventAnnouncements {
         Bukkit.getOnlinePlayers().stream()
                 .filter(player -> !event.getSpectators().containsKey(player.getUniqueId()))
                 .forEach(player -> {
-                    player.sendMessage("");
+                    player.sendMessage(Component.empty());
                     player.sendMessage(Component.text("§e§l[Click to spectate race: " + event.getDisplayName() + "]")
                         .clickEvent(ClickEvent.runCommand("/event spectate " + event.getDisplayName())));
-                    player.sendMessage("");
+                    player.sendMessage(Component.empty());
                 }
         );
 
@@ -47,7 +47,7 @@ public class EventAnnouncements {
         broadcastAnnouncement(heat, "messages.announcements.finish", "%player%", driver.getTPlayer().getName(), "%position%", String.valueOf(driver.getPosition()), "%time%", ApiUtilities.formatAsTime(time));
     }
 
-    public static void broadcastFinishQualy(Heat heat, Driver driver) {
+    public static void broadcastFinishQualification(Heat heat, Driver driver) {
         broadcastAnnouncement(heat, "messages.announcements.finishQualy", "%player%", driver.getTPlayer().getName());
     }
 
@@ -137,15 +137,6 @@ public class EventAnnouncements {
         TimingSystem.getPlugin().sendMessage(driver.getTPlayer().getPlayer(), "messages.announcements.lap", "%time%", ApiUtilities.formatAsTime(time));
     }
 
-    public static void sendStartSound(Heat heat) {
-        for (Participant participant : heat.getParticipants()) {
-            Player player = participant.getTPlayer().getPlayer();
-            if (player != null) {
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
-            }
-        }
-    }
-
     public static void sendFinishSound(Driver raceDriver) {
         if (raceDriver.getTPlayer().getPlayer() == null) {
             return;
@@ -167,7 +158,7 @@ public class EventAnnouncements {
         player.showTitle(title);
     }
 
-    public static void sendFinishTitleQualy(Driver driver) {
+    public static void sendFinishTitleQualification(Driver driver) {
         if (driver.getTPlayer().getPlayer() == null) {
             return;
         }

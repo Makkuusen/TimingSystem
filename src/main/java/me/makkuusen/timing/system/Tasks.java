@@ -24,18 +24,15 @@ public class Tasks {
     public Tasks() { }
 
     public void startParticleSpawner(TimingSystem plugin) {
-        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                for (UUID uuid : TimingSystem.playerEditingSession.keySet()) {
-                    Player player = Bukkit.getPlayer(uuid);
-                    if (player == null) continue;
-                    Track track = TimingSystem.playerEditingSession.get(uuid);
+        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+            for (UUID uuid : TimingSystem.playerEditingSession.keySet()) {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player == null) continue;
+                Track track = TimingSystem.playerEditingSession.get(uuid);
 
-                    track.getRegions().stream().forEach(trackRegion -> setParticles(player, trackRegion));
-                    track.getTrackLocations(TrackLocation.Type.GRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_OFF));
-                    track.getTrackLocations(TrackLocation.Type.QUALYGRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_ON));
-                }
+                track.getRegions().forEach(trackRegion -> setParticles(player, trackRegion));
+                track.getTrackLocations(TrackLocation.Type.GRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_OFF));
+                track.getTrackLocations(TrackLocation.Type.QUALYGRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_ON));
             }
         }, 0, 10);
     }
@@ -183,7 +180,7 @@ public class Tasks {
 
 
         if (region instanceof TrackPolyRegion polyRegion) {
-            drawPolyRegion(polyRegion, player, particle, 1);
+            drawPolyRegion(polyRegion, player, particle);
         } else {
 
             drawLineX(player, particle, min.getBlockX(), maxX, min.getBlockY(), min.getBlockZ());
@@ -220,10 +217,10 @@ public class Tasks {
         }
     }
 
-    private void drawLine(Player player, Particle particle, Location minP, Location maxP, double density){
+    private void drawLine(Player player, Particle particle, Location minP, Location maxP){
         var newP = maxP.clone();
         newP.subtract(minP);
-        var distance = minP.distance(maxP) * density;
+        var distance = minP.distance(maxP);
         double x = newP.getX()/distance;
         double z = newP.getZ()/distance;
         double y = newP.getY()/distance;
@@ -235,7 +232,7 @@ public class Tasks {
         }
     }
 
-    private void drawPolyRegion(TrackPolyRegion polyRegion, Player player, Particle particle, double density){
+    private void drawPolyRegion(TrackPolyRegion polyRegion, Player player, Particle particle){
 
         int maxY = polyRegion.getMaxP().getBlockY() + 1;
         Location firstLocation = null;
@@ -244,7 +241,7 @@ public class Tasks {
             var loc = new Location(polyRegion.getSpawnLocation().getWorld(), point.getX() + 0.5, maxY, point.getZ() + 0.5);
             // Draw top
             if (lastLocation != null) {
-                drawLine(player, particle, lastLocation, loc, density);
+                drawLine(player, particle, lastLocation, loc);
             }
 
             var bottomLocation = loc.clone();
@@ -253,18 +250,18 @@ public class Tasks {
             if (lastLocation != null) {
                 var lastBottomLocation = lastLocation.clone();
                 lastBottomLocation.setY(polyRegion.getMinP().getY());
-                drawLine(player, particle, lastBottomLocation, bottomLocation, density);
+                drawLine(player, particle, lastBottomLocation, bottomLocation);
             }
 
             //Draw edge
-            drawLine(player, particle, bottomLocation, loc, density);
+            drawLine(player, particle, bottomLocation, loc);
 
             if (lastLocation == null){
                 firstLocation = loc.clone();
             }
             lastLocation = loc.clone();
         }
-        drawLine(player, particle, lastLocation,  firstLocation, density);}
+        drawLine(player, particle, lastLocation, firstLocation);}
 }
 
 

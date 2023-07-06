@@ -8,7 +8,6 @@ import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.Round;
@@ -47,7 +46,7 @@ public class Event {
         uuid = UUID.fromString(data.getString("uuid"));
         date = data.getLong("date");
         Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : TrackDatabase.getTrackById(data.getInt("track"));
-        track = maybeTrack.isEmpty() ? null : maybeTrack.get();
+        track = maybeTrack.orElse(null);
         state = EventState.valueOf(data.getString("state"));
         openSign = data.get("open");
         eventSchedule = new EventSchedule();
@@ -79,9 +78,7 @@ public class Event {
         if (getState() == Event.EventState.RUNNING) {
             var maybeRound = getEventSchedule().getRound();
             if (maybeRound.isPresent()) {
-                if (maybeRound.get().getHeats().stream().anyMatch(Heat::isActive)) {
-                    return true;
-                }
+                return maybeRound.get().getHeats().stream().anyMatch(Heat::isActive);
             }
         }
         return false;
@@ -93,24 +90,16 @@ public class Event {
         }
 
         var maybeRound = getEventSchedule().getRound();
-        if (maybeRound.isEmpty()) {
-            return Optional.empty();
-        }
 
-        var maybeHeat = maybeRound.get().getHeats().stream().filter(Heat::isActive).findFirst();
-        if (maybeHeat.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(maybeHeat.get());
+        return maybeRound.flatMap(round -> round.getHeats().stream().filter(Heat::isActive).findFirst());
     }
 
 
     public void addSpectator(UUID uuid) {
         spectators.put(uuid, new Spectator(Database.getPlayer(uuid)));
         var maybeHeat = getRunningHeat();
-        if (maybeHeat.isPresent()) {
-            maybeHeat.get().updateScoreboard();
-        }
+
+        maybeHeat.ifPresent(Heat::updateScoreboard);
     }
 
     public boolean isSpectating(UUID uuid) {

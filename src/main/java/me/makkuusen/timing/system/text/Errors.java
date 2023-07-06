@@ -9,7 +9,7 @@ public enum Errors {
     PLAYER_NOT_FOUND("Could not find player."),
     PERMISSION_DENIED("Permission denied.");
 
-    public String value;
+    public final String value;
     Errors(String value) {
         this.value = value;
     }

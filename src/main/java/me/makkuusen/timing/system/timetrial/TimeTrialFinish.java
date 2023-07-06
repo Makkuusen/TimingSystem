@@ -15,15 +15,12 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
     private final UUID uuid;
     private final long date;
     private final long time;
-    private final boolean isRemoved;
-
     public TimeTrialFinish(DbRow data) {
         this.id = data.getInt("id");
         this.trackId = data.getInt("trackId");
         this.uuid = data.getString("uuid") == null ? null : UUID.fromString(data.getString("uuid"));
         this.date = data.getInt("date");
         this.time = data.getInt("time");
-        this.isRemoved = data.get("isRemoved");
     }
 
     public int getId() {

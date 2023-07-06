@@ -22,11 +22,11 @@ import java.util.Optional;
 @Getter
 public abstract class Round {
 
-    private int id;
+    private final int id;
     private final Event event;
     private Integer roundIndex;
     private final List<Heat> heats = new ArrayList<>();
-    private RoundType type;
+    private final RoundType type;
     private RoundState state;
 
 
@@ -72,7 +72,7 @@ public abstract class Round {
 
     public List<String> getRawHeats() {
         List<String> heatList = new ArrayList<>();
-        heats.stream().forEach(heat -> heatList.add(heat.getName()));
+        heats.forEach(heat -> heatList.add(heat.getName()));
         return heatList;
     }
 

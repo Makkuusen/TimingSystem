@@ -6,7 +6,7 @@ public enum Success {
 
     EVENT_SELECTED("Selected new event");
 
-    public String value;
+    public final String value;
     Success(String value) {
         this.value = value;
     }

@@ -15,11 +15,11 @@ public class ScoreboardUtils {
         }
 
         public static String getDriverLineQualyGap(long timeDiff, String name, int pos, boolean compact) {
-            return paddPos(pos, name) + (compact ? "" : "§7|") +  " §a+" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  " §a+" + paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
         }
 
         public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos, boolean compact) {
-            return paddPos(pos, name) + (compact ? "" : "§7|") +  " §c-" + paddGap(ApiUtilities.formatAsQualyGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
+            return paddPos(pos, name) + (compact ? "" : "§7|") +  " §c-" + paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
         }
 
         public static String getDriverLineRace(String name, int pos, boolean compact){

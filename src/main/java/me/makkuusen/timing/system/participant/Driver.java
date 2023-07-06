@@ -11,7 +11,6 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.DriverScoreboard;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
-import me.makkuusen.timing.system.heat.ScoreboardUtils;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Location;
@@ -243,8 +242,8 @@ public class Driver extends Participant implements Comparable<Driver> {
                 return 0;
             }
 
-            long timeDiff = getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
-            return timeDiff;
+            // returns time-difference
+            return getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
         } else {
 
         if (getLaps().size() < 1) {
@@ -295,7 +294,7 @@ public class Driver extends Participant implements Comparable<Driver> {
             return 0;
         } else if (bestLap.isPresent() && oBestLap.isEmpty()) {
             return -1;
-        } else if (bestLap.isEmpty() && oBestLap.isPresent()) {
+        } else if (bestLap.isEmpty()) {
             return 1;
         }
 

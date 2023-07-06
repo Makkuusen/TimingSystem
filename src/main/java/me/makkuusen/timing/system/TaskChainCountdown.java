@@ -11,9 +11,7 @@ public class TaskChainCountdown {
 
         for (int i = count; i > 0; i--) {
             int finalI = i;
-            chain.sync(() -> {
-                EventAnnouncements.broadcastCountdown(heat, finalI);
-            }).delay(20);
+            chain.sync(() -> EventAnnouncements.broadcastCountdown(heat, finalI)).delay(20);
         }
         chain.execute((finished) -> {
             heat.startHeat();

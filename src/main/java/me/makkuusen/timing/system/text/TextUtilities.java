@@ -75,7 +75,7 @@ public class TextUtilities {
                 .append(getSpacersEnd());
     }
 
-    public static Component getParenthisied(String text){
+    public static Component getParenthesized(String text){
         return Component.text("(").color(textDarkColor)
                 .append(Component.text(text).color(textHighlightColor))
                 .append(Component.text(")")).color(textDarkColor);
