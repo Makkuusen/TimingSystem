@@ -370,7 +370,7 @@ public class TSListener implements Listener {
                     label:
                     do {
                         while (regions.hasNext()) {
-                            region = (TrackRegion) regions.next();
+                            region = regions.next();
                             regionId = region.getId();
                             if (region.contains(player.getLocation())) {
                                 continue label;

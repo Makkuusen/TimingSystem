@@ -117,22 +117,22 @@ public class ScoreboardUtils {
             default -> posColour = net.md_5.bungee.api.ChatColor.of("#ffffff");
         }
 
-        if(driver.isEmpty()) return posColour + "";
+        if(driver.isEmpty()) return String.valueOf(posColour);
 
         if(driver.get().isFinished()) isFinished = true;
         if(driver.get().getHeat().getFastestLapUUID() == driver.get().getTPlayer().getUniqueId()) hasFastestLap = true;
 
-        if(isFinished && hasFastestLap) return posColour + "" + ChatColor.UNDERLINE + ChatColor.ITALIC;
-        else if(isFinished) return posColour + "" + ChatColor.ITALIC;
-        else if(hasFastestLap) return posColour + "" + ChatColor.UNDERLINE;
-        else return posColour + "";
+        if(isFinished && hasFastestLap) return posColour + String.valueOf(ChatColor.UNDERLINE) + ChatColor.ITALIC;
+        else if(isFinished) return posColour + String.valueOf(ChatColor.ITALIC);
+        else if(hasFastestLap) return posColour + String.valueOf(ChatColor.UNDERLINE);
+        else return String.valueOf(posColour);
     }
 
     private static String getColor(String name){
         var maybeDriver = EventDatabase.getDriverFromRunningHeat(Database.getPlayer(name).getUniqueId());
 
         if (maybeDriver.isEmpty()) {
-            return net.md_5.bungee.api.ChatColor.of("#ffffff") + "";
+            return String.valueOf(net.md_5.bungee.api.ChatColor.of("#ffffff"));
         }
 
         return maybeDriver.get().getTPlayer().getColorCode();
