@@ -157,41 +157,45 @@ public class ApiUtilities {
         return flagsNew.toString();
     }
 
-    private static boolean isValidFlag(char currentChar){
+    private static boolean isValidFlag(char currentChar) {
         return currentChar == 'b' || currentChar == 'c' || currentChar == 'g' || currentChar == 'e' || currentChar == 'p' || currentChar == 't' || currentChar == 's' || currentChar == 'u' || currentChar == 'r' || currentChar == 'i';
     }
 
-    public static Integer parseDurationToMillis(String input)
-    {
+    public static Integer parseDurationToMillis(String input) {
         long duration = 0;
         String tmp = "";
 
-        for (Character character : input.toCharArray())
-        {
-            if (character.toString().matches("[0-9]"))
-            {
+        for (Character character : input.toCharArray()) {
+            if (character.toString().matches("[0-9]")) {
                 tmp += character;
-            }
+            } else {
+                if (tmp.length() == 0) {
+                    return null;
+                }
 
-            else
-            {
-                if (tmp.length() == 0) { return null; }
-
-                if (character == 's') { duration += Integer.parseInt(tmp) * 1000L; }
-                else if (character == 'm') { duration += (long) Integer.parseInt(tmp) * 60 * 1000; }
-                else if (character == 'h') { duration += (long) Integer.parseInt(tmp) * 3600 * 1000; }
-                else if (character == 'd') { duration += (long) Integer.parseInt(tmp) * 86400 * 1000; }
-                else { return null; }
+                if (character == 's') {
+                    duration += Integer.parseInt(tmp) * 1000L;
+                } else if (character == 'm') {
+                    duration += (long) Integer.parseInt(tmp) * 60 * 1000;
+                } else if (character == 'h') {
+                    duration += (long) Integer.parseInt(tmp) * 3600 * 1000;
+                } else if (character == 'd') {
+                    duration += (long) Integer.parseInt(tmp) * 86400 * 1000;
+                } else {
+                    return null;
+                }
 
                 tmp = "";
             }
         }
 
         // default to milliseconds
-        if (tmp.length() != 0)
-        {
-            try { duration += Integer.parseInt(tmp); }
-            catch (Exception exception) { return null; }
+        if (tmp.length() != 0) {
+            try {
+                duration += Integer.parseInt(tmp);
+            } catch (Exception exception) {
+                return null;
+            }
         }
 
         return Integer.valueOf(String.valueOf(duration));
@@ -238,7 +242,7 @@ public class ApiUtilities {
     }
 
     public static void msgConsole(String msg) {
-            TimingSystem.getPlugin().logger.info(msg);
+        TimingSystem.getPlugin().logger.info(msg);
     }
 
     public static String formatAsTime(long time) {
@@ -373,66 +377,47 @@ public class ApiUtilities {
         return new Location(world, v.getBlockX(), v.getBlockY(), v.getBlockZ());
     }
 
-    public static long getRoundedToTick(long mapTime){
-        if ( mapTime % 50 == 0) {
+    public static long getRoundedToTick(long mapTime) {
+        if (mapTime % 50 == 0) {
             return mapTime;
         } else {
             long mapTime2 = mapTime + 1;
             if (mapTime2 % 50 == 0) {
                 return mapTime2;
-            }
-            else {
+            } else {
                 long rest = mapTime % 50;
                 if (rest < 25) {
                     return mapTime - rest;
                 } else {
-                    mapTime = mapTime + (50-rest);
+                    mapTime = mapTime + (50 - rest);
                 }
             }
         }
         return mapTime;
     }
 
-    public static boolean isRegionMatching(TrackRegion trackRegion, Region selection){
+    public static boolean isRegionMatching(TrackRegion trackRegion, Region selection) {
         if (trackRegion instanceof TrackCuboidRegion && selection instanceof CuboidRegion) {
             return true;
         } else return trackRegion instanceof TrackPolyRegion && selection instanceof Polygonal2DRegion;
     }
 
     private static final List<String> rejectedWords = Arrays.asList("random", "randomunfinished", "r", "cancel", "c", "help");
-    public static boolean checkTrackName(String name){
-        for (String rejected : rejectedWords){
-            if(name.equalsIgnoreCase(rejected)){
+
+    public static boolean checkTrackName(String name) {
+        for (String rejected : rejectedWords) {
+            if (name.equalsIgnoreCase(rejected)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static List<Material> getBoatMaterials(){
-        return List.of(
-                Material.BIRCH_BOAT,
-                Material.BIRCH_CHEST_BOAT,
-                Material.ACACIA_BOAT,
-                Material.ACACIA_CHEST_BOAT,
-                Material.DARK_OAK_BOAT,
-                Material.DARK_OAK_CHEST_BOAT,
-                Material.JUNGLE_BOAT,
-                Material.JUNGLE_CHEST_BOAT,
-                Material.MANGROVE_BOAT,
-                Material.MANGROVE_CHEST_BOAT,
-                Material.OAK_BOAT,
-                Material.OAK_CHEST_BOAT,
-                Material.SPRUCE_BOAT,
-                Material.SPRUCE_CHEST_BOAT,
-                Material.CHERRY_BOAT,
-                Material.CHERRY_CHEST_BOAT,
-                Material.BAMBOO_RAFT,
-                Material.BAMBOO_CHEST_RAFT
-        );
+    public static List<Material> getBoatMaterials() {
+        return List.of(Material.BIRCH_BOAT, Material.BIRCH_CHEST_BOAT, Material.ACACIA_BOAT, Material.ACACIA_CHEST_BOAT, Material.DARK_OAK_BOAT, Material.DARK_OAK_CHEST_BOAT, Material.JUNGLE_BOAT, Material.JUNGLE_CHEST_BOAT, Material.MANGROVE_BOAT, Material.MANGROVE_CHEST_BOAT, Material.OAK_BOAT, Material.OAK_CHEST_BOAT, Material.SPRUCE_BOAT, Material.SPRUCE_CHEST_BOAT, Material.CHERRY_BOAT, Material.CHERRY_CHEST_BOAT, Material.BAMBOO_RAFT, Material.BAMBOO_CHEST_RAFT);
     }
 
-    public static Boat.Type getBoatType(Material material){
+    public static Boat.Type getBoatType(Material material) {
         switch (material) {
             case ACACIA_BOAT, ACACIA_CHEST_BOAT -> {
                 return Boat.Type.ACACIA;
@@ -520,7 +505,7 @@ public class ApiUtilities {
         return boat;
     }
 
-    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location){
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location) {
         location.setPitch(player.getLocation().getPitch());
         player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         if (track.isBoatTrack()) {
@@ -528,7 +513,7 @@ public class ApiUtilities {
         }
     }
 
-    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location, PlayerTeleportEvent.TeleportCause teleportCause){
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location, PlayerTeleportEvent.TeleportCause teleportCause) {
         location.setPitch(player.getLocation().getPitch());
         player.teleport(location, teleportCause);
         if (track.isBoatTrack()) {
@@ -566,17 +551,18 @@ public class ApiUtilities {
         return false;
     }
 
-    public static void removeBoatUtilsEffects(Player player){
+    public static void removeBoatUtilsEffects(Player player) {
         player.removePotionEffect(PotionEffectType.UNLUCK);
         player.removePotionEffect(PotionEffectType.LUCK);
     }
 
     public static void giveBoatUtilsREffect(Player player) {
-        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK,999999, 99, false, false);
+        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK, 999999, 99, false, false);
         player.addPotionEffect(unluckEffect);
     }
+
     public static void giveBoatUtilsIEffect(Player player) {
-        var luckEffect = new PotionEffect(PotionEffectType.LUCK,999999, 55, false, false);
+        var luckEffect = new PotionEffect(PotionEffectType.LUCK, 999999, 55, false, false);
         player.addPotionEffect(luckEffect);
     }
 }

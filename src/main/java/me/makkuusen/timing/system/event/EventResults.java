@@ -19,8 +19,6 @@ public class EventResults {
         return newList;
     }
 
-
-
     public static List<Driver> generateRoundResults(List<Heat> heats) {
         List<Driver> results = new ArrayList<>();
         for (Heat heat : heats) {

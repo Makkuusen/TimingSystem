@@ -203,7 +203,7 @@ public class TimeTrial {
     public void playerStartingMap() {
         Player player = tPlayer.getPlayer();
 
-        if(!tPlayer.isTimeTrial()){
+        if (!tPlayer.isTimeTrial()) {
             return;
         }
 
@@ -286,7 +286,7 @@ public class TimeTrial {
         }
     }
 
-    private void newBestFinish(Player p, long mapTime, long oldTime){
+    private void newBestFinish(Player p, long mapTime, long oldTime) {
         callTimeTrialFinishEvent(p, mapTime, oldTime, true);
         this.bestFinish = getBestFinish(track.getBestFinish(tPlayer));
         if (tPlayer.isSound()) {
@@ -296,7 +296,7 @@ public class TimeTrial {
     }
 
 
-    private void callTimeTrialFinishEvent(Player player, long time, long oldBestTime, boolean newBestFinish){
+    private void callTimeTrialFinishEvent(Player player, long time, long oldBestTime, boolean newBestFinish) {
         var finish = track.newTimeTrialFinish(time, player.getUniqueId());
         TimeTrialFinishEvent eventTimeTrialFinish = new TimeTrialFinishEvent(player, finish, oldBestTime, newBestFinish);
         Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialFinish);

@@ -22,14 +22,9 @@ public class Database {
         try {
             String hostAndPort = TimingSystem.configuration.getSqlHost() + ":" + TimingSystem.configuration.getSqlPort();
 
-            PooledDatabaseOptions options = BukkitDB.getRecommendedOptions(TimingSystem.getPlugin(),
-                    TimingSystem.configuration.getSqlUsername(),
-                    TimingSystem.configuration.getSqlPassword(),
-                    TimingSystem.configuration.getSqlDatabase(),
-                    hostAndPort
-            );
+            PooledDatabaseOptions options = BukkitDB.getRecommendedOptions(TimingSystem.getPlugin(), TimingSystem.configuration.getSqlUsername(), TimingSystem.configuration.getSqlPassword(), TimingSystem.configuration.getSqlDatabase(), hostAndPort);
 
-            if(options.getOptions().getDataSourceClassName().equalsIgnoreCase("org.mariadb.jdbc.MariaDbDataSource")) {
+            if (options.getOptions().getDataSourceClassName().equalsIgnoreCase("org.mariadb.jdbc.MariaDbDataSource")) {
                 options.getOptions().setDsn("mariadb://" + hostAndPort + "/" + TimingSystem.configuration.getSqlDatabase());
             }
 
@@ -54,7 +49,7 @@ public class Database {
                 v1_2Update();
                 v1_3Update();
             } else {
-                if (isNewerVersion(row.getString("version") , plugin.getPluginMeta().getVersion())) {
+                if (isNewerVersion(row.getString("version"), plugin.getPluginMeta().getVersion())) {
                     updateDatabase(row.getString("version"), plugin.getPluginMeta().getVersion());
                     DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + plugin.getPluginMeta().getVersion() + "', " + ApiUtilities.getTimestamp() + ");");
                 }
@@ -78,7 +73,7 @@ public class Database {
                 TimingSystem.players.put(player.getUniqueId(), player);
             }
 
-            for(Player player: Bukkit.getOnlinePlayers()) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
                 TPlayer TPlayer = Database.getPlayer(player.getUniqueId());
 
                 TPlayer.setPlayer(player);
@@ -349,6 +344,7 @@ public class Database {
             return false;
         }
     }
+
     private static void updateDatabase(String oldVersion, String newVersion) {
         plugin.getLogger().warning("UPDATING DATABASE FROM " + oldVersion + " to " + newVersion);
 
@@ -390,7 +386,7 @@ public class Database {
             for (DbRow row : dbRows) {
                 var first = DB.getFirstRow("SELECT * FROM `ts_locations` WHERE `trackId` = " + row.getInt("id") + " AND `type` = 'LEADERBOARD' AND `index` = 1;");
                 if (first == null) {
-                    DB.executeUpdate("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + row.getInt("id") +  ", "  + 1 + ", 'LEADERBOARD', '" + row.getString("leaderboard") + "');");
+                    DB.executeUpdate("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + row.getInt("id") + ", " + 1 + ", 'LEADERBOARD', '" + row.getString("leaderboard") + "');");
                 }
 
             }
@@ -409,7 +405,7 @@ public class Database {
         }
     }
 
-    private static boolean isNewerVersion(String oldVersion, String newVersion){
+    private static boolean isNewerVersion(String oldVersion, String newVersion) {
         if (oldVersion.equalsIgnoreCase(newVersion)) {
             return false;
         }

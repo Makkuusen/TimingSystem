@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TrackGui extends TrackPageGui{
+public class TrackGui extends TrackPageGui {
 
     public TrackGui(TPlayer tPlayer, int page) {
         super(tPlayer, "§2§lTracks - ALL", 6, page);
@@ -26,7 +26,7 @@ public class TrackGui extends TrackPageGui{
     }
 
     @Override
-    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page){
+    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page) {
         var button = new GuiButton(item);
         button.setAction(() -> {
             String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(filter);
@@ -58,7 +58,7 @@ public class TrackGui extends TrackPageGui{
     }
 
     @Override
-    public GuiButton getTrackButton(Player player, Track track){
+    public GuiButton getTrackButton(Player player, Track track) {
         var item = setTrackLore(track, track.getGuiItem(player.getUniqueId()));
         var button = new GuiButton(item);
         button.setAction(() -> {
@@ -98,7 +98,7 @@ public class TrackGui extends TrackPageGui{
         return button;
     }
 
-    private ItemStack setTrackLore(Track track, ItemStack toReturn){
+    private ItemStack setTrackLore(Track track, ItemStack toReturn) {
         List<Component> loreToSet = new ArrayList<>();
         loreToSet.add(Component.text("§7Total Finishes: §e" + track.getTotalFinishes()));
         loreToSet.add(Component.text("§7Total Attempts: §e" + (track.getTotalFinishes() + track.getTotalAttempts())));

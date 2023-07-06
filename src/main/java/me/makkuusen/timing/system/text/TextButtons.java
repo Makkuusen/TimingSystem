@@ -59,8 +59,6 @@ public class TextButtons {
     }
 
     public static Component getFooterButtons(String eventName) {
-        return TextUtilities.getSpacersStart()
-                .append(Component.text("[Event]").color(buttonColor).clickEvent(ClickEvent.runCommand("/event info " + eventName)).hoverEvent(getClickToViewHoverEvent()))
-                .append(TextUtilities.getSpacersEnd());
+        return TextUtilities.getSpacersStart().append(Component.text("[Event]").color(buttonColor).clickEvent(ClickEvent.runCommand("/event info " + eventName)).hoverEvent(getClickToViewHoverEvent())).append(TextUtilities.getSpacersEnd());
     }
 }

@@ -6,7 +6,7 @@ import me.makkuusen.timing.system.TPlayer;
 
 import java.util.UUID;
 
-public class Subscriber extends Participant{
+public class Subscriber extends Participant {
 
     public Subscriber(TPlayer tPlayer) {
         super(tPlayer);

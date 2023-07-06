@@ -4,6 +4,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class TimeTrialFinishEvent extends Event {
 
@@ -21,13 +22,12 @@ public class TimeTrialFinishEvent extends Event {
         this.newBestTime = newBestTime;
     }
 
-    @Override
-    public HandlerList getHandlers() {
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList()
-    {
+    @Override
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 

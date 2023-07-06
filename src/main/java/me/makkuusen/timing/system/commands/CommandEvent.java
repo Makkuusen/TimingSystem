@@ -40,7 +40,7 @@ public class CommandEvent extends BaseCommand {
     @Default
     @Description("Active events")
     public static void onActiveEvents(CommandSender commandSender) {
-        if (commandSender instanceof Player player ){
+        if (commandSender instanceof Player player) {
             Event event;
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -59,18 +59,7 @@ public class CommandEvent extends BaseCommand {
         commandSender.sendMessage(Component.empty());
         commandSender.sendMessage(TextUtilities.dark("Active events right now:"));
         for (Event event : list) {
-            commandSender.sendMessage(TextUtilities.highlight(event.getDisplayName())
-                    .clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName()))
-                    .hoverEvent(HoverEvent.showText(Component.text("Click to select event")))
-                    .append(TextUtilities.space())
-                    .append(TextUtilities.getParenthesized(event.getState().name()))
-                    .append(TextUtilities.dark(" - "))
-                    .append(TextUtilities.dark(ApiUtilities.niceDate(event.getDate())))
-                    .append(TextUtilities.space())
-                    .append(TextUtilities.dark("by"))
-                    .append(TextUtilities.space())
-                    .append(TextUtilities.highlight(Database.getPlayer(event.getUuid()).getNameDisplay()))
-            );
+            commandSender.sendMessage(TextUtilities.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Component.text("Click to select event"))).append(TextUtilities.space()).append(TextUtilities.getParenthesized(event.getState().name())).append(TextUtilities.dark(" - ")).append(TextUtilities.dark(ApiUtilities.niceDate(event.getDate()))).append(TextUtilities.space()).append(TextUtilities.dark("by")).append(TextUtilities.space()).append(TextUtilities.highlight(Database.getPlayer(event.getUuid()).getNameDisplay())));
         }
     }
 
@@ -121,33 +110,19 @@ public class CommandEvent extends BaseCommand {
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
         }
         sender.sendMessage("");
-        sender.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName()))
-                .append(TextUtilities.space())
-                .append(TextUtilities.getTitleLine(
-                        Component.text(event.getDisplayName()).color(TextUtilities.textHighlightColor)
-                        .append(TextUtilities.space())
-                        .append(TextUtilities.getParenthesized(event.getState().name())))
-                )
-        );
+        sender.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(event.getDisplayName()).color(TextUtilities.textHighlightColor).append(TextUtilities.space()).append(TextUtilities.getParenthesized(event.getState().name())))));
 
         net.kyori.adventure.text.TextComponent trackMessage;
         if (event.getTrack() == null) {
 
-            trackMessage = Component.text("Track:").color(TextUtilities.textDarkColor)
-                    .append(TextUtilities.space())
-                    .append(Component.text("None").color(TextUtilities.textHighlightColor));
+            trackMessage = Component.text("Track:").color(TextUtilities.textDarkColor).append(TextUtilities.space()).append(Component.text("None").color(TextUtilities.textHighlightColor));
 
         } else {
-            trackMessage = Component.text("Track:").color(TextUtilities.textDarkColor)
-                    .append(TextUtilities.space())
-                    .append(Component.text(event.getTrack().getDisplayName()).color(TextUtilities.textHighlightColor))
-                    .append(TextUtilities.space())
-                    .append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+            trackMessage = Component.text("Track:").color(TextUtilities.textDarkColor).append(TextUtilities.space()).append(Component.text(event.getTrack().getDisplayName()).color(TextUtilities.textHighlightColor)).append(TextUtilities.space()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
         }
         if (sender.hasPermission("event.admin")) {
-            trackMessage = trackMessage.append(TextUtilities.space())
-                    .append(TextButtons.getEditButton().clickEvent(ClickEvent.suggestCommand("/event set track ")));
+            trackMessage = trackMessage.append(TextUtilities.space()).append(TextButtons.getEditButton().clickEvent(ClickEvent.suggestCommand("/event set track ")));
         }
         sender.sendMessage(trackMessage);
 
@@ -166,21 +141,12 @@ public class CommandEvent extends BaseCommand {
 
         sender.sendMessage(signsMessage);
 
-        sender.sendMessage(TextUtilities.dark("Signed Drivers:")
-                .append(TextUtilities.space())
-                .append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(TextUtilities.textHighlightColor))
-                .append(TextUtilities.space())
-                .append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName()))
-                        .hoverEvent(TextButtons.getClickToViewHoverEvent()))
-        );
+        sender.sendMessage(TextUtilities.dark("Signed Drivers:").append(TextUtilities.space()).append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(TextUtilities.textHighlightColor)).append(TextUtilities.space()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
 
-        var roundsMessage = Component.text("Rounds:").color(TextUtilities.textDarkColor)
-                .append(TextUtilities.space())
-                .append(Component.text(event.eventSchedule.getRounds().size()).color(TextUtilities.textHighlightColor));
+        var roundsMessage = Component.text("Rounds:").color(TextUtilities.textDarkColor).append(TextUtilities.space()).append(Component.text(event.eventSchedule.getRounds().size()).color(TextUtilities.textHighlightColor));
 
         if (sender.hasPermission("event.admin")) {
-            roundsMessage = roundsMessage.append(TextUtilities.tab())
-                    .append(TextButtons.getAddButton("Round").clickEvent(ClickEvent.suggestCommand("/round create ")).hoverEvent(TextButtons.getClickToAddHoverEvent()));
+            roundsMessage = roundsMessage.append(TextUtilities.tab()).append(TextButtons.getAddButton("Round").clickEvent(ClickEvent.suggestCommand("/round create ")).hoverEvent(TextButtons.getClickToAddHoverEvent()));
         }
 
         sender.sendMessage(roundsMessage);
@@ -188,12 +154,10 @@ public class CommandEvent extends BaseCommand {
         for (Round round : event.eventSchedule.getRounds()) {
 
             boolean currentRound = round.getRoundIndex() == event.getEventSchedule().getCurrentRound() && event.getState() != Event.EventState.FINISHED;
-            var roundMessage =  (currentRound ? TextUtilities.arrow() : TextUtilities.tab())
-                    .append(Component.text(round.getDisplayName() + ":").color(TextUtilities.textDarkColor));
+            var roundMessage = (currentRound ? TextUtilities.arrow() : TextUtilities.tab()).append(Component.text(round.getDisplayName() + ":").color(TextUtilities.textDarkColor));
 
             if (sender.hasPermission("event.admin") && round.getState() != Round.RoundState.FINISHED) {
-                roundMessage = roundMessage.append(TextUtilities.space())
-                        .append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
+                roundMessage = roundMessage.append(TextUtilities.space()).append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
 
                 if (currentRound) {
                     roundMessage = roundMessage.append(Component.space().append(Component.text("[Finish]").color(NamedTextColor.GRAY).clickEvent(ClickEvent.suggestCommand("/round finish")).hoverEvent(HoverEvent.showText(Component.text("Click to finish round")))));
@@ -209,11 +173,7 @@ public class CommandEvent extends BaseCommand {
             for (Heat heat : round.getHeats()) {
                 var heatName = Component.text(heat.getName()).color(TextUtilities.textHighlightColor);
                 heatName = heat.getHeatState() == HeatState.FINISHED ? heatName.decorate(TextDecoration.ITALIC) : heatName;
-                var heatMessage = TextUtilities.tab()
-                        .append(TextUtilities.tab())
-                        .append(heatName)
-                        .append(TextUtilities.tab())
-                        .append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+                var heatMessage = TextUtilities.tab().append(TextUtilities.tab()).append(heatName).append(TextUtilities.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
                 if (!heat.isFinished() && sender.hasPermission("event.admin")) {
                     heatMessage = heatMessage.append(TextUtilities.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
@@ -245,8 +205,8 @@ public class CommandEvent extends BaseCommand {
     @CommandPermission("event.admin")
     @Subcommand("delete")
     @CommandCompletion("@event")
-    public static void onRemove(Player player, Event event){
-        if (EventDatabase.removeEvent(event)){
+    public static void onRemove(Player player, Event event) {
+        if (EventDatabase.removeEvent(event)) {
             player.sendMessage(TextUtilities.success("The event was removed"));
             return;
         }
@@ -340,7 +300,7 @@ public class CommandEvent extends BaseCommand {
                 }
                 event.addSubscriber(tPlayer);
                 EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
-                player.sendMessage(TextUtilities.success( tPlayer.getName() + " is now signed up for " + event.getDisplayName()));
+                player.sendMessage(TextUtilities.success(tPlayer.getName() + " is now signed up for " + event.getDisplayName()));
             }
             return;
         }
@@ -388,8 +348,7 @@ public class CommandEvent extends BaseCommand {
         var message = TextUtilities.getTitleLine("Signs for", event.getDisplayName());
 
         if (player.hasPermission("event.admin") || player.hasPermission("event.sign.others")) {
-            message = message.append(Component.space())
-                    .append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/event sign " + event.getDisplayName() + " ")));
+            message = message.append(Component.space()).append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/event sign " + event.getDisplayName() + " ")));
         }
 
         player.sendMessage(message);
@@ -398,19 +357,11 @@ public class CommandEvent extends BaseCommand {
             var sortedList = CommandRound.getSortedList(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
             for (TPlayer tPlayer : sortedList) {
                 var bestTime = event.getTrack().getBestFinish(tPlayer);
-                player.sendMessage(TextUtilities.dark(count++ + ":")
-                        .append(TextUtilities.space())
-                        .append(TextUtilities.highlight(tPlayer.getName()))
-                        .append(TextUtilities.hyphen())
-                        .append(TextUtilities.highlight((bestTime == null ? "(None)" : ApiUtilities.formatAsTime(bestTime.getTime()))))
-                );
+                player.sendMessage(TextUtilities.dark(count++ + ":").append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((bestTime == null ? "(None)" : ApiUtilities.formatAsTime(bestTime.getTime())))));
             }
         } else {
             for (Subscriber s : event.getSubscribers().values()) {
-                player.sendMessage(TextUtilities.dark(count++ + ":")
-                        .append(TextUtilities.space())
-                        .append(TextUtilities.highlight(s.getTPlayer().getName()))
-                );
+                player.sendMessage(TextUtilities.dark(count++ + ":").append(TextUtilities.space()).append(TextUtilities.highlight(s.getTPlayer().getName())));
             }
         }
 
@@ -419,8 +370,7 @@ public class CommandEvent extends BaseCommand {
         message = TextUtilities.getTitleLine("Reserves for", event.getDisplayName()).append(Component.space());
 
         if (player.hasPermission("event.admin") || player.hasPermission("event.sign.others")) {
-            message = message.append(Component.space())
-                    .append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/event reserve " + event.getDisplayName() + " ")));
+            message = message.append(Component.space()).append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/event reserve " + event.getDisplayName() + " ")));
         }
 
         player.sendMessage(message);
@@ -429,20 +379,13 @@ public class CommandEvent extends BaseCommand {
             var sortedList = CommandRound.getSortedList(event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
             for (TPlayer tPlayer : sortedList) {
                 var bestTime = event.getTrack().getBestFinish(tPlayer);
-                player.sendMessage(TextUtilities.dark(count++ + ":")
-                        .append(TextUtilities.space())
-                        .append(TextUtilities.highlight(tPlayer.getName()))
-                        .append(TextUtilities.hyphen())
-                        .append(TextUtilities.highlight((bestTime == null ? "(None)" : ApiUtilities.formatAsTime(bestTime.getTime()))))
+                player.sendMessage(TextUtilities.dark(count++ + ":").append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((bestTime == null ? "(None)" : ApiUtilities.formatAsTime(bestTime.getTime()))))
 
                 );
             }
         } else {
             for (Subscriber s : event.getReserves().values()) {
-                player.sendMessage(TextUtilities.dark(count++ + ":")
-                        .append(TextUtilities.space())
-                        .append(TextUtilities.highlight(s.getTPlayer().getName()))
-                );
+                player.sendMessage(TextUtilities.dark(count++ + ":").append(TextUtilities.space()).append(TextUtilities.highlight(s.getTPlayer().getName())));
             }
         }
     }

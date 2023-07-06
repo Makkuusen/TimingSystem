@@ -13,14 +13,14 @@ public class CommandTimingSystem extends BaseCommand {
 
     @CommandAlias("tag create")
     @CommandCompletion("<tag>")
-    public void onCreateTag(CommandSender commandSender, String value){
+    public void onCreateTag(CommandSender commandSender, String value) {
 
         if (!value.matches("[A-Za-zÅÄÖåäöØÆøæ0-9]+")) {
             commandSender.sendMessage("§cBad Formatting");
             return;
         }
 
-        if (TrackTagManager.createTrackTag(value)){
+        if (TrackTagManager.createTrackTag(value)) {
             commandSender.sendMessage("§aTrack tag '" + value + "' has been created.");
             return;
         }

@@ -99,13 +99,9 @@ public class TSListener implements Listener {
             }
         }
 
-        if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN) ||
-                event.getCause().equals(PlayerTeleportEvent.TeleportCause.COMMAND) ||
-                event.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL) ||
-                event.getCause().equals(PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) ||
-                event.getCause().equals(PlayerTeleportEvent.TeleportCause.NETHER_PORTAL)) {
+        if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.COMMAND) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.NETHER_PORTAL)) {
             TimeTrialController.playerLeavingMap(event.getPlayer().getUniqueId());
-            if (ApiUtilities.hasBoatUtilsEffects(event.getPlayer())){
+            if (ApiUtilities.hasBoatUtilsEffects(event.getPlayer())) {
                 ApiUtilities.removeBoatUtilsEffects(event.getPlayer());
             }
         }
@@ -182,12 +178,12 @@ public class TSListener implements Listener {
                 if (track.hasOption('b')) {
                     plugin.sendMessage(player, "messages.error.leftBoat");
                     TimeTrialController.playerLeavingMap(player.getUniqueId());
-                    if (ApiUtilities.hasBoatUtilsEffects(player)){
+                    if (ApiUtilities.hasBoatUtilsEffects(player)) {
                         ApiUtilities.removeBoatUtilsEffects(player);
                     }
                 }
             } else {
-                if (ApiUtilities.hasBoatUtilsEffects(player)){
+                if (ApiUtilities.hasBoatUtilsEffects(player)) {
                     ApiUtilities.removeBoatUtilsEffects(player);
                 }
             }
@@ -204,6 +200,7 @@ public class TSListener implements Listener {
             }
         }
     }
+
     @EventHandler
     public void onBlockBreak(BlockPlaceEvent event) {
         var maybeDriver = EventDatabase.getDriverFromRunningHeat(event.getPlayer().getUniqueId());
@@ -236,14 +233,14 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
-         if (event.getDamager() instanceof Player player) {
-             var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
-             if (maybeDriver.isPresent()) {
-                 if (maybeDriver.get().getState() == DriverState.LOADED) {
-                     event.setCancelled(true);
-                 }
-             }
-         }
+        if (event.getDamager() instanceof Player player) {
+            var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
+            if (maybeDriver.isPresent()) {
+                if (maybeDriver.get().getState() == DriverState.LOADED) {
+                    event.setCancelled(true);
+                }
+            }
+        }
     }
 
     @EventHandler
@@ -451,7 +448,7 @@ public class TSListener implements Listener {
                     timeTrial.playerResetMap();
                 } else {
                     var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, timeTrial.getLatestCheckpoint());
-                    if (maybeRegion.isEmpty()){
+                    if (maybeRegion.isEmpty()) {
                         timeTrial.playerResetMap();
                         return;
                     }
@@ -596,7 +593,7 @@ public class TSListener implements Listener {
             // Update if in pit
             var inPitRegions = track.getRegions(TrackRegion.RegionType.INPIT);
             for (TrackRegion trackRegion : inPitRegions) {
-                if (trackRegion.contains(player.getLocation()) && !inPits.contains(player.getUniqueId())){
+                if (trackRegion.contains(player.getLocation()) && !inPits.contains(player.getUniqueId())) {
                     inPits.add(player.getUniqueId());
                     heat.updatePositions();
                 } else if (!trackRegion.contains(player.getLocation()) && inPits.contains(player.getUniqueId())) {

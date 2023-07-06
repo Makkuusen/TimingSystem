@@ -33,11 +33,11 @@ import java.util.UUID;
 @Getter
 public class EventDatabase {
 
-    public static TimingSystem plugin;
     private static final Set<Event> events = new HashSet<>();
     private static final Set<Heat> heats = new HashSet<>();
     private static final HashMap<UUID, Event> playerSelectedEvent = new HashMap<>();
     private static final HashMap<UUID, Driver> playerInRunningHeat = new HashMap<>();
+    public static TimingSystem plugin;
 
     public static void initDatabaseSynchronize() throws SQLException {
         var dbRows = DB.getResults("SELECT * FROM `ts_events` WHERE `isRemoved` = 0;");
@@ -116,18 +116,18 @@ public class EventDatabase {
         return Optional.empty();
     }
 
-    static public Optional<Driver> getClosestDriverForSpectator(Player player){
+    static public Optional<Driver> getClosestDriverForSpectator(Player player) {
         Optional<Driver> closest = Optional.empty();
         double distance = -1;
         for (Driver driver : playerInRunningHeat.values()) {
-            if (driver.getTPlayer().getPlayer() != null && driver.getHeat().getEvent().getSpectators().get(player.getUniqueId()) != null){
+            if (driver.getTPlayer().getPlayer() != null && driver.getHeat().getEvent().getSpectators().get(player.getUniqueId()) != null) {
                 if (player.getLocation().getWorld() != driver.getTPlayer().getPlayer().getWorld()) {
                     continue;
                 }
                 if (driver.isFinished()) {
                     continue;
                 }
-                if (closest.isEmpty()){
+                if (closest.isEmpty()) {
                     closest = Optional.of(driver);
                     distance = player.getLocation().distance(driver.getTPlayer().getPlayer().getLocation());
                 } else {
@@ -205,8 +205,8 @@ public class EventDatabase {
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_rounds` WHERE `id` = " + roundId + ";");
             Round round;
             if (roundType == RoundType.QUALIFICATION) {
-                 round = new QualificationRound(dbRow);
-            } else  {
+                round = new QualificationRound(dbRow);
+            } else {
                 round = new FinalRound(dbRow);
             }
             event.eventSchedule.addRound(round);
@@ -415,13 +415,13 @@ public class EventDatabase {
         playerInRunningHeat.put(driver.getTPlayer().getUniqueId(), driver);
     }
 
-    public static boolean removeEvent(Event event){
-        if (event.hasRunningHeat()){
+    public static boolean removeEvent(Event event) {
+        if (event.hasRunningHeat()) {
             return false;
         }
         List<UUID> uuids = new ArrayList<>(playerSelectedEvent.keySet());
-        for (UUID uuid : uuids){
-            if (playerSelectedEvent.get(uuid).equals(event)){
+        for (UUID uuid : uuids) {
+            if (playerSelectedEvent.get(uuid).equals(event)) {
                 playerSelectedEvent.remove(uuid);
             }
         }
@@ -431,12 +431,12 @@ public class EventDatabase {
     }
 
     public static void removeEventHard(Event event) {
-        if (event.hasRunningHeat()){
+        if (event.hasRunningHeat()) {
             event.getRunningHeat().get().finishHeat();
         }
         List<UUID> uuids = new ArrayList<>(playerSelectedEvent.keySet());
-        for (UUID uuid : uuids){
-            if (playerSelectedEvent.get(uuid).equals(event)){
+        for (UUID uuid : uuids) {
+            if (playerSelectedEvent.get(uuid).equals(event)) {
                 playerSelectedEvent.remove(uuid);
             }
         }
@@ -444,7 +444,7 @@ public class EventDatabase {
         DB.executeUpdateAsync("UPDATE `ts_events` SET `isRemoved` = 1 WHERE `id` = " + event.getId() + ";");
     }
 
-    public static boolean removeHeat(Heat heat){
+    public static boolean removeHeat(Heat heat) {
         if (heat.getRound().removeHeat(heat)) {
             heats.remove(heat);
             DB.executeUpdateAsync("UPDATE `ts_heats` SET `isRemoved` = 1 WHERE `id` = " + heat.getId() + ";");
@@ -453,7 +453,7 @@ public class EventDatabase {
         return false;
     }
 
-    public static boolean removeRound(Round round){
+    public static boolean removeRound(Round round) {
         if (round.getEvent().getEventSchedule().removeRound(round)) {
             DB.executeUpdateAsync("UPDATE `ts_rounds` SET `isRemoved` = 1 WHERE `id` = " + round.getId() + ";");
             return true;

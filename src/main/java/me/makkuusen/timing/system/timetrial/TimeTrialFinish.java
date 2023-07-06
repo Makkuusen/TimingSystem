@@ -15,6 +15,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
     private final UUID uuid;
     private final long date;
     private final long time;
+
     public TimeTrialFinish(DbRow data) {
         this.id = data.getInt("id");
         this.trackId = data.getInt("trackId");
@@ -39,7 +40,9 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
         return date;
     }
 
-    public int getTrack() {return trackId; }
+    public int getTrack() {
+        return trackId;
+    }
 
     @Override
     public int compare(TimeTrialFinish f1, TimeTrialFinish f2) {

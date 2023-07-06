@@ -15,13 +15,14 @@ public class TimeTrialAttempt {
     private final long date;
     private final long time;
 
-    public TimeTrialAttempt(int trackId, UUID uuid, long date, long time){
+    public TimeTrialAttempt(int trackId, UUID uuid, long date, long time) {
         this.trackId = trackId;
         this.uuid = uuid;
         this.date = date;
         this.time = time;
     }
-    public TimeTrialAttempt(DbRow data){
+
+    public TimeTrialAttempt(DbRow data) {
         this.trackId = data.getInt("trackId");
         this.uuid = data.getString("uuid") == null ? null : UUID.fromString(data.getString("uuid"));
         this.date = data.getInt("date");

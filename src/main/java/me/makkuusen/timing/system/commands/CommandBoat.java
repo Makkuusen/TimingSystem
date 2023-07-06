@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 public class CommandBoat extends BaseCommand {
 
     @Default
-    public static void onBoat(Player player){
+    public static void onBoat(Player player) {
         if (isPlayerInBoat(player)) {
             return;
         }

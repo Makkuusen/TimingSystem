@@ -4,6 +4,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class TimeTrialAttemptEvent extends Event {
 
@@ -17,13 +18,12 @@ public class TimeTrialAttemptEvent extends Event {
         this.timeTrialAttempt = timeTrialAttempt;
     }
 
-    @Override
-    public HandlerList getHandlers() {
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList()
-    {
+    @Override
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 

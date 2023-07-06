@@ -6,14 +6,14 @@ import me.makkuusen.timing.system.TPlayer;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 
-public class ColorSettingsGui extends BaseGui{
+public class ColorSettingsGui extends BaseGui {
 
     public ColorSettingsGui(TPlayer tPlayer) {
         super("§2§lSettings", 3);
         setButtons(tPlayer);
     }
 
-    private void setButtons(TPlayer tPlayer){
+    private void setButtons(TPlayer tPlayer) {
         int count = 0;
         for (DyeColor dyeColor : DyeColor.values()) {
             Material dye = Material.valueOf(dyeColor.name() + "_DYE");

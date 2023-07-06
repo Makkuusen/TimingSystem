@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TimeTrialGui extends TrackPageGui{
+public class TimeTrialGui extends TrackPageGui {
 
     public TimeTrialGui(TPlayer tPlayer, int page) {
-        super(tPlayer,"§2§lTracks - ALL", 6, page);
+        super(tPlayer, "§2§lTracks - ALL", 6, page);
     }
 
     public TimeTrialGui(TPlayer tPlayer, String title, int page, TrackSort trackSort, TrackTag filter) {
@@ -74,7 +74,7 @@ public class TimeTrialGui extends TrackPageGui{
 
 
     @Override
-    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page){
+    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page) {
         var button = new GuiButton(item);
         button.setAction(() -> {
             String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(filter);
@@ -84,7 +84,7 @@ public class TimeTrialGui extends TrackPageGui{
     }
 
     @Override
-    public GuiButton getTrackButton(Player player, Track track){
+    public GuiButton getTrackButton(Player player, Track track) {
         var button = new GuiButton(track.getGuiItem(player.getUniqueId()));
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {
