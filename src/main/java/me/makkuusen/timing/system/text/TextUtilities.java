@@ -71,6 +71,9 @@ public class TextUtilities {
     public static Component getParenthesized(String text) {
         return Component.text("(").color(textDarkColor).append(Component.text(text).color(textHighlightColor)).append(Component.text(")")).color(textDarkColor);
     }
+    public static Component getParenthesized(String text, TextColor outside, TextColor inside) {
+        return Component.text("(").color(outside).append(Component.text(text).color(inside)).append(Component.text(")")).color(outside);
+    }
 
     public static Component getBrackets(String text) {
         return Component.text("[").color(textDarkColor).append(Component.text(text).color(textHighlightColor)).append(Component.text("]")).color(textDarkColor);

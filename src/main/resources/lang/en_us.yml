@@ -1,3 +1,108 @@
+# Color codes
+# &h = Highlight color
+# &d = Dark color
+# &e = Error color
+# &s = Success color
+# &w = Warning color
+# &l = Bold decoration
+# &o = Italic decoration
+# &r = Reset decoration and color
+# %any% = Placeholder, do not touch.
+
+Description: >
+  Special formatting codes:
+    &h = Highlight color
+    &d = Dark color
+    &e = Error color
+    &s = Success color
+    &w = Warning color
+    &l = Bold decoration
+    &o = Italic decoration
+    &r = Reset decoration and color
+    %any% = Placeholder, do not touch.
+
+error:
+  generic: '&eSomething went wrong.'
+  only_players: "&eOnly players can execute this command!"
+  not_now: "&eYou can't do this right now."
+  world_not_loaded: "&eWorld is not loaded."
+  no_tracks: "&eNo tracks found."
+  no_regions: "&eNo regions found."
+  no_page: "&ePage not found."
+  syntax: "&eIncorrect syntax."
+  number: '&eValue could not parse. Is it a number?'
+  name_to_long: '&eName can not exceed %length% characters.'
+  name_regex: '&eName can only contain letters, spaces, or numbers.'
+  selection: '&eYour selection could not be used.'
+  teleport: "&eTeleportation failed."
+  no_item: '&eYou need to hold an item in your hand.'
+  track:
+    closed: "&eTrack is closed."
+    type: '&eInvalid track type.'
+    mode: '&eInvalid track mode.'
+    name: "&eInvalid track name."
+    exists: '&eTrack already exists.'
+    remove: "&eT"
+  race:
+    exists: '&eRace already exists.'
+  player:
+    not_found: "&ePlayer not found."
+
+success:
+  tt_cancel: "&sCancelled time trial."
+  create_name: '&s%name% was created.'
+  create: '&sYour thing was created.'
+  remove: '&hYour thing has been removed.'
+  remove_name: "&s%name% was removed."
+  track:
+    toggle_open: "&sTrack is now open."
+    toggle_closed: "&sTrack is now closed."
+    teleport: "&dTeleported you to &h%track%"
+    moved: "&sTrack moved to %to% from %from%"
+
+  session:
+    ended: "&sYour session has ended."
+    started: "&sSession started on %track%"
+
+info:
+  track:
+    times: "&d--- Times for &h%track% &d---"
+    times_row: '&d%pos%. &h%player% &d| &h%time%'
+    name: '&d--- &hTrack: %name% (%id%) &d---'
+    type: '&dType:&h %type%'
+    open: '&dOpen: &hYes'
+    closed: '&dOpen: &hNo'
+    created: '&dCreated:&h %date%&d owned by &h%owner%'
+    options: '&dOptions: &h+%options%'
+    mode: '&dMode: &h%mode%'
+    checkpoints: '&dCheckpoints:&h %size%'
+    grids: '&dGrids:&h %size%'
+    qualification_grids: '&dQualyGrids:&h %size%'
+    resets: '&dReset regions:&h %size%'
+    spawn: '&dSpawn:&h %location%'
+    leaderboard: '&dLeaderboard:&h %location%'
+    weight: "&dWeight:&h %size%"
+    tags: "&dTags:&h %tags%"
+  tt:
+    stats_title: "&d--- &h%player%&d statistics on %h%track% &d---"
+    best_lap: "&dBest time: &h%time%"
+    position: "&dPosition: &h%pos%"
+    finishes: "&dFinishes: &h%size%"
+    attempts: "&dAttempts: &h%size%"
+    time: "&dTime spent: &h%size%"
+  regions: "&d--- Regions for &h%track% &d---"
+  locations: "&d--- Locations for &h%track% &d---"
+
+
+  race:
+    name: '&d--- &hRace: %name% &d---'
+    type: '&dType:&h %type%'
+    laps: '&dLaps:&h %laps%'
+    pits: '&dPits:&h %pits%'
+    drivers: '&dDrivers:&h %drivers%'
+
+
+
 messages:
   error:
     generic: '&cSomething went wrong.'
@@ -16,8 +121,8 @@ messages:
       page: '&cThat page could not be found.'
       selection: '&cYou have to make a selection.'
     remove:
-      region: '&aRegion could not be removed.'
-      checkpoint: '&aCheckpoint could not be removed.'
+      region: '&hRegion could not be removed.'
+      checkpoint: '&hCheckpoint could not be removed.'
     numberException: '&cValue could not parse. Is it a number?'
     trackTypeException: '&cFaulty track type.'
     trackModeException: '&cFaulty track mode.'
@@ -33,69 +138,69 @@ messages:
       missedCheckpoints: '&cTime is invalid, not all checkpoints were passed!'
       leftBoat: '&cYou left the boat and cancelled your time.'
   save:
-    generic: '&aValue has been saved.'
+    generic: '&hValue has been saved.'
   create:
-    name: '&aYou created %name%.'
-    generic: '&aYour thing was created.'
-    region: '&aThe new region has been created.'
-    checkpoint: '&aThe new checkpoint has been created.'
-    override: '&aOverride activated.'
+    name: '&hYou created %name%.'
+    generic: '&hYour thing was created.'
+    region: '&hThe new region has been created.'
+    checkpoint: '&hThe new checkpoint has been created.'
+    override: '&hOverride activated.'
   remove:
-    generic: '&aYour thing was removed.'
-    track: '&aTrack has been removed.'
-    region: '&aRegion has been removed.'
-    checkpoint: '&aCheckpoint has been removed.'
-    override: '&aOverride deactivated.'
-    bestTime: '&aRemoved best time for %player% on %map%.'
+    generic: '&hYour thing was removed.'
+    track: '&hTrack has been removed.'
+    region: '&hRegion has been removed.'
+    checkpoint: '&hCheckpoint has been removed.'
+    override: '&hOverride deactivated.'
+    bestTime: '&hRemoved best time for %player% on %map%.'
   update:
-    leaderboards: '&aUpdating leaderboards.'
+    leaderboards: '&hUpdating leaderboards.'
   info:
     track:
-      name: '&2--- &aTrack: %name% (%id%) &2---'
-      open: '&2Open: &aYes   &2Type:&a %type%'
-      closed: '&2Open: &aNo   &2Type:&a %type%'
-      created: '&2Created:&a %date%&2 owned by &a%owner%'
-      options: '&2Options: &a+%options%'
-      mode: '&2Mode: &a%mode%'
-      checkpointTeleportOn: '&2Checkpoint teleports:&a Yes'
-      checkpointTeleportOff: '&2Checkpoint teleports:&a No'
-      checkpoints: '&2Checkpoints:&a %size%'
-      resets: '&2Reset regions:&a %size%'
-      spawn: '&2Spawn:&a %location%'
-      leaderboard: '&2Leaderboard:&a %location%'
+      name: '&d--- &hTrack: %name% (%id%) &d---'
+      open: '&dOpen: &hYes   &dType:&h %type%'
+      closed: '&dOpen: &hNo   &dType:&h %type%'
+      created: '&dCreated:&h %date%&d owned by &h%owner%'
+      options: '&dOptions: &h+%options%'
+      mode: '&dMode: &h%mode%'
+      checkpointTeleportOn: '&dCheckpoint teleports:&h Yes'
+      checkpointTeleportOff: '&dCheckpoint teleports:&h No'
+      checkpoints: '&dCheckpoints:&h %size%'
+      resets: '&dReset regions:&h %size%'
+      spawn: '&dSpawn:&h %location%'
+      leaderboard: '&dLeaderboard:&h %location%'
     race:
-      name: '&2--- &aRace: %name% &2---'
-      type: '&2Type:&a %type%'
-      laps: '&2Laps:&a %laps%'
-      pits: '&2Pits:&a %pits%'
-      drivers: '&2Drivers:&a %drivers%'
+      name: '&d--- &hRace: %name% &d---'
+      type: '&dType:&h %type%'
+      laps: '&dLaps:&h %laps%'
+      pits: '&dPits:&h %pits%'
+      drivers: '&dDrivers:&h %drivers%'
   list:
-    tracks: '&2--- &aTracks (page &l%startPage% &r&aof &l%totalPages%&r&a) &2---'
-    times: '&2--- &a%track% &2(page &a&l%startPage% &r&2of &a&l%totalPages%&r&a&2) ---'
-    timesrow: '&2%pos%. &a%player% &2| &a%time%'
+    tracks: '&d--- &hTracks (page &l%startPage% &r&hof &l%totalPages%&r&h) &d---'
+    times: '&d--- &h%track% &d(page &h&l%startPage% &r&dof &h&l%totalPages%&r&h&d) ---'
+    timesrow: '&d%pos%. &h%player% &d| &h%time%'
   toggle:
     track:
-      open: '&aTrack is now open.'
-      closed: '&aTrack is now closed.'
-      government: '&aTrack is now public.'
-      private: '&aTrack is now private.'
+      open: '&hTrack is now open.'
+      closed: '&hTrack is now closed.'
+      government: '&hTrack is now public.'
+      private: '&hTrack is now private.'
     race:
-      checkpointsOn: '&aCheckpoint announcements are now active.'
-      checkpointsOff: '&aCheckpoint announcements are now disabled.'
+      checkpointsOn: '&hCheckpoint announcements are now active.'
+      checkpointsOff: '&hCheckpoint announcements are now disabled.'
   options:
-    allRemoved: '&aAll options are now cleared.'
-    list: '&aOptions are now: %options%'
-  help: '&2---&a Help: /%command% &2---'
-  cancel: '&aCancelled timer.'
+    allRemoved: '&hAll options are now cleared.'
+    list: '&hOptions are now: %options%'
+  help: '&d---&h Help: /%command% &d---'
+  cancel: '&hCancelled timer.'
   randomTrack:
-    teleport: '&2Teleported you to &a%track% &2(&a#%pos%&2).'
-    teleportNoPos: '&2Teleported you to &a%track%&2.'
+    teleport: '&dTeleported you to &h%track% &d(&h#%pos%&d).'
+    teleportNoPos: '&dTeleported you to &h%track%&d.'
     noTracks: '&cThere are no open tracks to teleport to.'
   timer:
     firstFinish: '&eNew best time!&6 You finished &e%map%&6 in &e%time%&6.'
     newRecord: '&eNew best time!&6 You finished &e%map%&6 in &e%time%&6. Your previous best was &e%oldTime%&6.'
-    finish: '&2You finished &a%map%&2 in &a%time%&2. Your best is &a%oldTime%&2.'
-    checkpoint: '&2You passed &acheckpoint %checkpoint%&2 in &a%time%&2.'
+    finish: '&dYou finished &h%map%&d in &h%time%&d. Your best is &h%oldTime%&d.'
+    checkpoint: '&dYou passed &hcheckpoint %checkpoint%&d in &h%time%&d.'
   announcements:
     pitstop: '&f%player% &7completed pitstop: &f&l%pit%'
     finish: '&f%player% &7finished &f&lP%position%&r&7 in &f%time%'

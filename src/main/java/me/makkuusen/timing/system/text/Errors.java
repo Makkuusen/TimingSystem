@@ -7,7 +7,8 @@ public enum Errors {
 
     NO_EVENT_SELECTED("You have no event selected."),
     PLAYER_NOT_FOUND("Could not find player."),
-    PERMISSION_DENIED("Permission denied.");
+    PERMISSION_DENIED("Permission denied."),
+    NOT_NOW("error.not_now");
 
     public final String value;
 

@@ -22,12 +22,17 @@ import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
+import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
 import me.makkuusen.timing.system.track.TrackTag;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -230,6 +235,100 @@ public class TimingSystem extends JavaPlugin {
 
     public @Nullable String getLocalizedMessage(@NotNull CommandSender sender, @NotNull String key, String... replacements) {
         return this.languageManager.getValue(key, getLocale(sender), replacements);
+    }
+
+    public void sendMessage(@NotNull CommandSender sender, @NotNull String key) {
+        var text = this.languageManager.getNewValue(key, getLocale(sender));
+
+        if (text == null) {
+            return;
+        }
+
+        if (!text.contains("&")) {
+            sender.sendMessage(Component.text(text));
+            return;
+        }
+        sender.sendMessage(getComponentWithColors(text));
+    }
+
+    public @Nullable Component getText(CommandSender sender, String key) {
+        var text = this.languageManager.getNewValue(key, getLocale(sender));
+
+        if (text == null) {
+            return null;
+        }
+
+        if (!text.contains("&")) {
+            return Component.text(text);
+        }
+        return getComponentWithColors(text);
+    }
+
+    public @Nullable Component getText(CommandSender sender, String key, String... replacements) {
+        var text = this.languageManager.getNewValue(key, getLocale(sender), replacements);
+
+        if (text == null) {
+            return null;
+        }
+
+        if (!text.contains("&")) {
+            return Component.text(text);
+        }
+        return getComponentWithColors(text);
+    }
+
+    private Component getComponentWithColors(String text) {
+
+        TextColor color = NamedTextColor.WHITE;
+        List<TextDecoration> decorations = new ArrayList<>();
+
+        String[] strings = text.split("&");
+        Component component = Component.empty();
+
+        boolean first = true;
+        for (String string : strings) {
+            String message = first ? "" : "&";
+            if (string.length() > 0) {
+                String option = string.substring(0, 1);
+                message = string.substring(1);
+                switch (option) {
+                    case "h" -> color = TextUtilities.textHighlightColor;
+                    case "d" -> color = TextUtilities.textDarkColor;
+                    case "s" -> color = TextUtilities.textSuccess;
+                    case "w" -> color = TextUtilities.textWarn;
+                    case "e" -> color = TextUtilities.textError;
+                    case "o" -> decorations.add(TextDecoration.ITALIC);
+                    case "l" -> decorations.add(TextDecoration.BOLD);
+                    case "r" -> {
+                        decorations = new ArrayList<>();
+                        color = NamedTextColor.WHITE;
+                    }
+                    default -> {
+                        message = first ? string : "&" + string;
+                    }
+                }
+            }
+            first = false;
+            component = component.append(buildComponent(message, color, decorations));
+        }
+
+        return component;
+
+    }
+
+    private Component buildComponent(String message, TextColor color, List<TextDecoration> decorations) {
+        var newComponent = Component.text(message).color(color);
+        for (TextDecoration decoration : decorations) {
+            newComponent = newComponent.decorate(decoration);
+        }
+        return newComponent;
+    }
+
+    public void sendMessage(@NotNull CommandSender sender, @NotNull String key, TextColor textColor) {
+        var text = this.languageManager.getValue(key, getLocale(sender));
+        if (text != null && !text.isEmpty()) {
+            sender.sendMessage(Component.text(text).color(textColor));
+        }
     }
 
     private @NotNull String getLocale(@NotNull CommandSender sender) {

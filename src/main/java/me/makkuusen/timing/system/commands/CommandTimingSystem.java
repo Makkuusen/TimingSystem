@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 @CommandAlias("timingsystem|ts")
 @CommandPermission("timingsystem.admin")
 public class CommandTimingSystem extends BaseCommand {
-
     @CommandAlias("tag create")
     @CommandCompletion("<tag>")
     public void onCreateTag(CommandSender commandSender, String value) {
