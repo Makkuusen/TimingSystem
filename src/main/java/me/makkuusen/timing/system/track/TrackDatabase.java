@@ -58,7 +58,8 @@ public class TrackDatabase {
             loadTrackTags(rTrack);
         }
     }
-    private static void loadFinishes(Track rTrack) throws SQLException{
+
+    private static void loadFinishes(Track rTrack) throws SQLException {
         //var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE ( `uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `trackId` = " + rTrack.getId() + " GROUP BY `uuid` ORDER BY `time` ASC, `date` ASC;");
         var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0;");
         for (DbRow finish : resultFinishes) {
@@ -126,8 +127,7 @@ public class TrackDatabase {
     private static void clearUselessEndRegions() {
         for (Track track : tracks) {
             if (track.hasRegion(TrackRegion.RegionType.START) && track.hasRegion(TrackRegion.RegionType.END)) {
-                for (TrackRegion startRegion : track.getRegions(TrackRegion.RegionType.START))
-                {
+                for (TrackRegion startRegion : track.getRegions(TrackRegion.RegionType.START)) {
                     for (TrackRegion endRegion : track.getRegions(TrackRegion.RegionType.END)) {
                         if (startRegion.hasEqualBounds(endRegion)) {
                             track.removeRegion(endRegion);
@@ -164,7 +164,7 @@ public class TrackDatabase {
 
     public static void loadTags() throws SQLException {
         var trackTags = DB.getResults("SELECT * FROM `ts_tags`");
-        for (DbRow dbRow: trackTags) {
+        for (DbRow dbRow : trackTags) {
             TrackTagManager.addTag(new TrackTag(dbRow.getString("tag")));
         }
     }
@@ -176,13 +176,7 @@ public class TrackDatabase {
             Location leaderboard = location.clone();
             leaderboard.setY(leaderboard.getY() + 3);
             // Save the track
-            var trackId = DB.executeInsert("INSERT INTO `ts_tracks` " +
-                    "(`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `isRemoved`) " +
-                    "VALUES('" + uuid + "', " +
-                    Database.sqlString(name) + ", " + date + ", 100, " +
-                    Database.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " +
-                    Database.sqlString(type == null ? null : type.toString()) + "," +
-                    Database.sqlString(Track.TrackMode.TIMETRIAL.toString()) + ", 0, NULL , 0);");
+            var trackId = DB.executeInsert("INSERT INTO `ts_tracks` " + "(`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `isRemoved`) " + "VALUES('" + uuid + "', " + Database.sqlString(name) + ", " + date + ", 100, " + Database.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " + Database.sqlString(type == null ? null : type.toString()) + "," + Database.sqlString(Track.TrackMode.TIMETRIAL.toString()) + ", 0, NULL , 0);");
 
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_tracks` WHERE `id` = " + trackId + ";");
 
@@ -202,24 +196,22 @@ public class TrackDatabase {
         String maxP = ApiUtilities.locationToString(BukkitAdapter.adapt(location.getWorld(), selection.getMaximumPoint()));
 
         if (selection instanceof Polygonal2DRegion polySelection) {
-            regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", " + index + ", " +
-                    Database.sqlString(type.toString()) + ", " + Database.sqlString(TrackRegion.RegionShape.POLY.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
+            regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", " + index + ", " + Database.sqlString(type.toString()) + ", " + Database.sqlString(TrackRegion.RegionShape.POLY.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
             for (BlockVector2 v : polySelection.getPoints()) {
-                DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(" + regionId + ", " + v.getBlockX() + ", " + v.getBlockZ() + ");" );
+                DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(" + regionId + ", " + v.getBlockX() + ", " + v.getBlockZ() + ");");
             }
             return new TrackPolyRegion(dbRow, polySelection.getPoints());
 
         } else {
-            regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + "," + index + ", " +
-                    Database.sqlString(type.toString()) + ", " + Database.sqlString(TrackRegion.RegionShape.CUBOID.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
+            regionId = DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + "," + index + ", " + Database.sqlString(type.toString()) + ", " + Database.sqlString(TrackRegion.RegionShape.CUBOID.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
             return new TrackCuboidRegion(dbRow);
         }
     }
 
     public static TrackLocation trackLocationNew(int trackId, int index, TrackLocation.Type type, Location location) throws SQLException {
-        DB.executeInsert("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + trackId +  ", "  + index + ", '" + type.name() + "', '" + ApiUtilities.locationToString(location) + "');");
+        DB.executeInsert("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + trackId + ", " + index + ", '" + type.name() + "', '" + ApiUtilities.locationToString(location) + "');");
         if (type == TrackLocation.Type.LEADERBOARD) {
             return new TrackLeaderboard(trackId, index, location, type);
         } else {
@@ -235,7 +227,7 @@ public class TrackDatabase {
         LeaderboardManager.removeLeaderboards(track);
         startRegions.removeIf(trackRegion -> trackRegion.getTrackId() == track.getId());
         tracks.remove(track);
-        var events = EventDatabase.getEvents().stream().filter(event -> event.getTrack() != null).filter(event -> event.getTrack().equals(track.getId())).collect(Collectors.toList());
+        var events = EventDatabase.getEvents().stream().filter(event -> event.getTrack() != null).filter(event -> event.getTrack().equals(track.getId())).toList();
         for (Event event : events) {
             EventDatabase.removeEvent(event);
         }
@@ -300,17 +292,17 @@ public class TrackDatabase {
 
     public static List<String> getTracksAsStrings() {
         List<String> tracks = new ArrayList<>();
-        getTracks().stream().forEach(track -> tracks.add(track.getCommandName()));
+        getTracks().forEach(track -> tracks.add(track.getCommandName()));
         return tracks;
     }
 
     public static List<String> getRegionsAsStrings(BukkitCommandCompletionContext c) {
         List<String> regions = new ArrayList<>();
-        var maybeTrack = plugin.playerEditingSession.get(c.getPlayer().getUniqueId());
+        var maybeTrack = TimingSystem.playerEditingSession.get(c.getPlayer().getUniqueId());
         if (maybeTrack == null) {
             return regions;
         }
-        maybeTrack.getRegions().stream().forEach(region -> regions.add(region.getRegionType().name() + "-" + region.getRegionIndex()));
+        maybeTrack.getRegions().forEach(region -> regions.add(region.getRegionType().name() + "-" + region.getRegionIndex()));
 
         return regions;
     }
@@ -331,17 +323,17 @@ public class TrackDatabase {
     public static ContextResolver<TrackRegion, BukkitCommandExecutionContext> getRegionContextResolver() {
         return (c) -> {
             String region = c.popFirstArg();
-            var maybeTrack = plugin.playerEditingSession.get(c.getPlayer().getUniqueId());
+            var maybeTrack = TimingSystem.playerEditingSession.get(c.getPlayer().getUniqueId());
             if (maybeTrack != null) {
                 try {
                     String[] regionName = region.split("-");
-                    int index = Integer.valueOf(regionName[1]);
+                    int index = Integer.parseInt(regionName[1]);
                     String regionType = regionName[0];
                     var maybeRegion = maybeTrack.getRegion(TrackRegion.RegionType.valueOf(regionType), index);
-                    if (maybeRegion.isPresent()){
+                    if (maybeRegion.isPresent()) {
                         return maybeRegion.get();
                     }
-                } catch (Exception e){
+                } catch (Exception ignored) {
 
                 }
             }
@@ -349,7 +341,7 @@ public class TrackDatabase {
         };
     }
 
-    public static void unload(){
+    public static void unload() {
         tracks = new ArrayList<>();
         startRegions = new ArrayList<>();
     }

@@ -21,9 +21,9 @@ import java.util.UUID;
 
 public class TPlayer implements Comparable<TPlayer> {
     private final TimingSystem plugin;
-
-    private Player player;
     private final UUID uuid;
+    JPerPlayerMethodBasedScoreboard jScoreboard;
+    private Player player;
     private String name;
     private Boat.Type boat;
     private boolean chestBoat;
@@ -32,17 +32,11 @@ public class TPlayer implements Comparable<TPlayer> {
     private boolean timeTrial;
     private boolean override;
     private boolean compactScoreboard;
-    JPerPlayerMethodBasedScoreboard jScoreboard;
     private String color;
     private BaseGui openGui;
 
 
-    @Override
-    public int compareTo(TPlayer other) {
-        return name.compareTo(other.name);
-    }
-
-    public TPlayer (TimingSystem plugin, DbRow data) {
+    public TPlayer(TimingSystem plugin, DbRow data) {
         this.plugin = plugin;
         uuid = UUID.fromString(data.getString("uuid"));
         name = data.getString("name");
@@ -53,6 +47,23 @@ public class TPlayer implements Comparable<TPlayer> {
         timeTrial = data.get("timetrial");
         color = data.getString("color");
         compactScoreboard = data.get("compactScoreboard");
+    }
+
+    public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {
+        return (c) -> {
+            String name = c.popFirstArg();
+            try {
+                return Boat.Type.valueOf(name);
+            } catch (IllegalArgumentException e) {
+                //no matching boat types
+                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
+            }
+        };
+    }
+
+    @Override
+    public int compareTo(TPlayer other) {
+        return name.compareTo(other.name);
     }
 
     public void initScoreboard() {
@@ -83,7 +94,7 @@ public class TPlayer implements Comparable<TPlayer> {
         jScoreboard.setTitle(player, title);
     }
 
-    public void setScoreBoardLines(List<String> lines){
+    public void setScoreBoardLines(List<String> lines) {
         if (player == null) {
             return;
         }
@@ -93,10 +104,6 @@ public class TPlayer implements Comparable<TPlayer> {
         }
 
         jScoreboard.setLines(player, lines);
-    }
-
-    public boolean hasOpenGui(){
-        return openGui != null;
     }
 
     public BaseGui getOpenGui() {
@@ -124,6 +131,13 @@ public class TPlayer implements Comparable<TPlayer> {
         return name;
     }
 
+    public void setName(String name) {
+        plugin.getLogger().info("Updating name of " + uuid + " from " + this.name + " to " + name + ".");
+
+        this.name = name;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
+    }
+
     public String getNameDisplay() {
         return getName() + "§r";
     }
@@ -132,26 +146,28 @@ public class TPlayer implements Comparable<TPlayer> {
         return color;
     }
 
-    public String getColorCode(){
-        return net.md_5.bungee.api.ChatColor.of(color) + "";
+    public void setHexColor(String hexColor) {
+        color = hexColor;
+        EventDatabase.getDriverFromRunningHeat(uuid).ifPresent(driver -> driver.getHeat().updateScoreboard());
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `color` = '" + hexColor + "' WHERE `uuid` = '" + uuid + "';");
     }
 
-    public org.bukkit.Color getBukkitColor(){
+    public String getColorCode() {
+        return String.valueOf(net.md_5.bungee.api.ChatColor.of(color));
+    }
+
+    public org.bukkit.Color getBukkitColor() {
         var c = Color.decode(color);
         return org.bukkit.Color.fromRGB(c.getRed(), c.getGreen(), c.getBlue());
     }
 
-    public void setHexColor(String hexColor) {
-        color = hexColor;
-        var maybeDriver = EventDatabase.getDriverFromRunningHeat(uuid);
-        if (maybeDriver.isPresent()) {
-            maybeDriver.get().getHeat().updateScoreboard();
-        }
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `color` = '" + hexColor + "' WHERE `uuid` = '" + uuid + "';");
-    }
-
     public Boat.Type getBoat() {
         return boat;
+    }
+
+    public void setBoat(Boat.Type boat) {
+        this.boat = boat;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
     }
 
     public boolean isChestBoat() {
@@ -192,23 +208,6 @@ public class TPlayer implements Comparable<TPlayer> {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `timetrial` = " + timeTrial + " WHERE `uuid` = '" + uuid + "';");
     }
 
-    public void setName(String name) {
-        plugin.getLogger().info("Updating name of " + uuid + " from " + this.name + " to " + name + ".");
-
-        this.name = name;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
-
-        if (player != null) {
-            player.setDisplayName(getNameDisplay());
-        }
-    }
-
-    public void setBoat(Boat.Type boat) {
-        this.boat = boat;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
-
-    }
-
     public void switchToggleSound() {
         toggleSound = !toggleSound;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `toggleSound` = " + toggleSound + " WHERE `uuid` = '" + uuid + "';");
@@ -226,7 +225,7 @@ public class TPlayer implements Comparable<TPlayer> {
         this.player = player;
     }
 
-    public Material getBoatMaterial(){
+    public Material getBoatMaterial() {
         String boat = getBoat().name();
         if (chestBoat) {
             boat += "_CHEST";
@@ -239,18 +238,6 @@ public class TPlayer implements Comparable<TPlayer> {
         return Material.valueOf(boat);
     }
 
-    public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return Boat.Type.valueOf(name);
-            } catch (IllegalArgumentException e) {
-                //no matching boat types
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
-
     private Boat.Type stringToType(String boatType) {
         if (boatType == null) {
             return Boat.Type.OAK;
@@ -261,6 +248,7 @@ public class TPlayer implements Comparable<TPlayer> {
             return boatMigration(boatType);
         }
     }
+
     private Boat.Type boatMigration(String oldtype) {
         TreeSpecies oldTree = TreeSpecies.valueOf(oldtype);
         switch (oldTree) {

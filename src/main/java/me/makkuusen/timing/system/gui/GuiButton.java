@@ -4,15 +4,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class GuiButton {
 
-    private ItemStack stack;
+    private final ItemStack stack;
     private Runnable action;
 
     public GuiButton(ItemStack stack) {
         this.stack = stack;
-    }
-
-    public void setAction(Runnable runnable) {
-        this.action = runnable;
     }
 
     public ItemStack getStack() {
@@ -21,5 +17,9 @@ public class GuiButton {
 
     public Runnable getAction() {
         return action;
+    }
+
+    public void setAction(Runnable runnable) {
+        this.action = runnable;
     }
 }

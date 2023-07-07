@@ -16,7 +16,6 @@ import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -33,35 +32,20 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ApiUtilities {
 
     static TimingSystem plugin;
     private static final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-    private static final Pattern niceLocation = Pattern.compile("^\\(\\[([A-Za-z0-9_]+)\\]([\\-]{0,1}[0-9]+),[ ]{0,1}([\\-]{0,1}[0-9]+),[ ]{0,1}([\\-]{0,1}[0-9]+)\\)$");
 
     public static long getTimestamp() {
         return System.currentTimeMillis() / 1000L;
-    }
-
-    public static String concat(String[] arguments, int startIndex) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (int i = startIndex; i < arguments.length; i++) {
-            stringBuilder.append(" ");
-            stringBuilder.append(arguments[i]);
-        }
-
-        return stringBuilder.substring(1);
     }
 
     public static String locationToString(Location location) {
@@ -79,25 +63,6 @@ public class ApiUtilities {
 
         String[] split = string.split(" ");
         return new Location(Bukkit.getWorld(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Float.parseFloat(split[4]), Float.parseFloat(split[5]));
-    }
-
-    public static Location stringToBlockVector3(String string) {
-        if (string == null || string.length() == 0) {
-            return null;
-        }
-
-        String[] split = string.split(" ");
-        return new Location(Bukkit.getWorld(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Float.parseFloat(split[4]), Float.parseFloat(split[5]));
-    }
-
-    public static Location niceStringToLocation(String string) {
-        Matcher m = niceLocation.matcher(string);
-
-        if (!m.find()) {
-            return null;
-        }
-
-        return new Location(Bukkit.getWorld(m.group(1)), Double.parseDouble(m.group(2)), Double.parseDouble(m.group(3)), Double.parseDouble(m.group(4)));
     }
 
     public static String niceDate(long timestamp) {
@@ -192,44 +157,45 @@ public class ApiUtilities {
         return flagsNew.toString();
     }
 
-    private static boolean isValidFlag(char currentChar){
-        if (currentChar != 'b' && currentChar != 'c' && currentChar != 'g' && currentChar != 'e' && currentChar != 'p' && currentChar != 't' && currentChar != 's' && currentChar != 'u' && currentChar != 'r' && currentChar != 'i') {
-            return false;
-        }
-        return true;
+    private static boolean isValidFlag(char currentChar) {
+        return currentChar == 'b' || currentChar == 'c' || currentChar == 'g' || currentChar == 'e' || currentChar == 'p' || currentChar == 't' || currentChar == 's' || currentChar == 'u' || currentChar == 'r' || currentChar == 'i';
     }
 
-    public static Integer parseDurationToMillis(String input)
-    {
+    public static Integer parseDurationToMillis(String input) {
         long duration = 0;
         String tmp = "";
 
-        for (Character character : input.toCharArray())
-        {
-            if (character.toString().matches("[0-9]"))
-            {
+        for (Character character : input.toCharArray()) {
+            if (character.toString().matches("[0-9]")) {
                 tmp += character;
-            }
+            } else {
+                if (tmp.length() == 0) {
+                    return null;
+                }
 
-            else
-            {
-                if (tmp.length() == 0) { return null; }
-
-                if (character == 's') { duration += Integer.parseInt(tmp) * 1000; }
-                else if (character == 'm') { duration += Integer.parseInt(tmp) * 60 * 1000; }
-                else if (character == 'h') { duration += Integer.parseInt(tmp) * 3600 * 1000; }
-                else if (character == 'd') { duration += Integer.parseInt(tmp) * 86400 * 1000; }
-                else { return null; }
+                if (character == 's') {
+                    duration += Integer.parseInt(tmp) * 1000L;
+                } else if (character == 'm') {
+                    duration += (long) Integer.parseInt(tmp) * 60 * 1000;
+                } else if (character == 'h') {
+                    duration += (long) Integer.parseInt(tmp) * 3600 * 1000;
+                } else if (character == 'd') {
+                    duration += (long) Integer.parseInt(tmp) * 86400 * 1000;
+                } else {
+                    return null;
+                }
 
                 tmp = "";
             }
         }
 
         // default to milliseconds
-        if (tmp.length() != 0)
-        {
-            try { duration += Integer.parseInt(tmp); }
-            catch (Exception exception) { return null; }
+        if (tmp.length() != 0) {
+            try {
+                duration += Integer.parseInt(tmp);
+            } catch (Exception exception) {
+                return null;
+            }
         }
 
         return Integer.valueOf(String.valueOf(duration));
@@ -276,11 +242,7 @@ public class ApiUtilities {
     }
 
     public static void msgConsole(String msg) {
-            TimingSystem.getPlugin().logger.info(msg);
-    }
-
-    public static String color(String uncolored) {
-        return ChatColor.translateAlternateColorCodes('&', uncolored);
+        TimingSystem.getPlugin().logger.info(msg);
     }
 
     public static String formatAsTime(long time) {
@@ -289,32 +251,31 @@ public class ApiUtilities {
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String milis = String.format("%03d", (timeInMillis % 1000));
+        String millis = String.format("%03d", (timeInMillis % 1000));
 
         if (hours == 0 && minutes == 0) {
-            toReturn = String.format("%02d", seconds) + "." + milis;
+            toReturn = String.format("%02d", seconds) + "." + millis;
         } else if (hours == 0) {
-            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + milis;
+            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + millis;
         } else {
-            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
         }
         return toReturn;
     }
 
     public static String formatAsTimeNoRounding(long time) {
         String toReturn;
-        long timeInMillis = time;
-        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String milis = String.format("%03d", (timeInMillis % 1000));
+        long hours = TimeUnit.MILLISECONDS.toHours(time);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(time) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(time) % TimeUnit.MINUTES.toSeconds(1);
+        String millis = String.format("%03d", (time % 1000));
 
         if (hours == 0 && minutes == 0) {
-            toReturn = String.format("%02d", seconds) + "." + milis;
+            toReturn = String.format("%02d", seconds) + "." + millis;
         } else if (hours == 0) {
-            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + milis;
+            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + millis;
         } else {
-            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
         }
         return toReturn;
     }
@@ -350,39 +311,38 @@ public class ApiUtilities {
         return toReturn;
     }
 
-    // Used by scoreboard and bossbar
     public static String formatAsRacingGap(long time) {
         String toReturn;
         long timeInMillis = getRoundedToTick(time);
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String milis = String.format("%02d", (timeInMillis % 1000) / 10);
+        String millis = String.format("%02d", (timeInMillis % 1000) / 10);
 
         if (hours == 0 && minutes == 0) {
-            toReturn = String.format("%02d", seconds) + "." + milis;
+            toReturn = String.format("%02d", seconds) + "." + millis;
         } else if (hours == 0) {
-            toReturn = String.format("%d:%02d", minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d", minutes, seconds) + "." + millis;
         } else {
-            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
         }
         return toReturn;
     }
 
-    public static String formatAsQualyGap(long time) {
+    public static String formatAsQualificationGap(long time) {
         String toReturn;
         long timeInMillis = getRoundedToTick(time);
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String milis = String.format("%02d", (timeInMillis % 1000) / 10);
+        String millis = String.format("%02d", (timeInMillis % 1000) / 10);
 
         if (hours == 0 && minutes == 0) {
-            toReturn = String.format("%02d", seconds) + "." + milis;
+            toReturn = String.format("%02d", seconds) + "." + millis;
         } else if (hours == 0) {
-            toReturn = String.format("%d:%02d", minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d", minutes, seconds) + "." + millis;
         } else {
-            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
         }
         return toReturn;
     }
@@ -398,37 +358,9 @@ public class ApiUtilities {
             boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
         }
         boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin)), PersistentDataType.INTEGER, 1);
-        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-            boat.setBoatType(type);
-        }, 2);
+        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> boat.setBoatType(type), 2);
 
         return boat;
-    }
-
-    public static List<Location> getPositions(Player player) {
-        BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
-        LocalSession session = WorldEdit.getInstance().getSessionManager().get(bPlayer);
-        Region selection;
-        try {
-            selection = session.getSelection(bPlayer.getWorld());
-        } catch (IncompleteRegionException e) {
-            plugin.sendMessage(player, "messages.error.missing.selection");
-            return null;
-        }
-
-        if (selection instanceof CuboidRegion) {
-            List<Location> locations = new ArrayList<>();
-            BlockVector3 p1 = selection.getMinimumPoint();
-            locations.add(new Location(player.getWorld(), p1.getBlockX(), p1.getBlockY(), p1.getBlockZ()));
-            BlockVector3 p2 = selection.getMaximumPoint();
-            locations.add(new Location(player.getWorld(), p2.getBlockX(), p2.getBlockY(), p2.getBlockZ()));
-            return locations;
-        }  else if (selection instanceof Polygonal2DRegion) {
-            return null;
-        } else {
-            plugin.sendMessage(player, "messages.error.selectionException");
-            return null;
-        }
     }
 
     public static Optional<Region> getSelection(Player player) {
@@ -445,69 +377,47 @@ public class ApiUtilities {
         return new Location(world, v.getBlockX(), v.getBlockY(), v.getBlockZ());
     }
 
-    public static long getRoundedToTick(long mapTime){
-        if ( mapTime % 50 == 0) {
+    public static long getRoundedToTick(long mapTime) {
+        if (mapTime % 50 == 0) {
             return mapTime;
         } else {
             long mapTime2 = mapTime + 1;
             if (mapTime2 % 50 == 0) {
                 return mapTime2;
-            }
-            else {
+            } else {
                 long rest = mapTime % 50;
                 if (rest < 25) {
                     return mapTime - rest;
                 } else {
-                    mapTime = mapTime + (50-rest);
+                    mapTime = mapTime + (50 - rest);
                 }
             }
         }
         return mapTime;
     }
 
-    public static boolean isRegionMatching(TrackRegion trackRegion, Region selection){
+    public static boolean isRegionMatching(TrackRegion trackRegion, Region selection) {
         if (trackRegion instanceof TrackCuboidRegion && selection instanceof CuboidRegion) {
             return true;
-        } else if (trackRegion instanceof TrackPolyRegion && selection instanceof Polygonal2DRegion) {
-            return true;
-        }
-        return false;
+        } else return trackRegion instanceof TrackPolyRegion && selection instanceof Polygonal2DRegion;
     }
 
     private static final List<String> rejectedWords = Arrays.asList("random", "randomunfinished", "r", "cancel", "c", "help");
-    public static boolean checkTrackName(String name){
-        for (String rejected : rejectedWords){
-            if(name.equalsIgnoreCase(rejected)){
+
+    public static boolean checkTrackName(String name) {
+        for (String rejected : rejectedWords) {
+            if (name.equalsIgnoreCase(rejected)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static List<Material> getBoatMaterials(){
-        return List.of(
-                Material.BIRCH_BOAT,
-                Material.BIRCH_CHEST_BOAT,
-                Material.ACACIA_BOAT,
-                Material.ACACIA_CHEST_BOAT,
-                Material.DARK_OAK_BOAT,
-                Material.DARK_OAK_CHEST_BOAT,
-                Material.JUNGLE_BOAT,
-                Material.JUNGLE_CHEST_BOAT,
-                Material.MANGROVE_BOAT,
-                Material.MANGROVE_CHEST_BOAT,
-                Material.OAK_BOAT,
-                Material.OAK_CHEST_BOAT,
-                Material.SPRUCE_BOAT,
-                Material.SPRUCE_CHEST_BOAT,
-                Material.CHERRY_BOAT,
-                Material.CHERRY_CHEST_BOAT,
-                Material.BAMBOO_RAFT,
-                Material.BAMBOO_CHEST_RAFT
-        );
+    public static List<Material> getBoatMaterials() {
+        return List.of(Material.BIRCH_BOAT, Material.BIRCH_CHEST_BOAT, Material.ACACIA_BOAT, Material.ACACIA_CHEST_BOAT, Material.DARK_OAK_BOAT, Material.DARK_OAK_CHEST_BOAT, Material.JUNGLE_BOAT, Material.JUNGLE_CHEST_BOAT, Material.MANGROVE_BOAT, Material.MANGROVE_CHEST_BOAT, Material.OAK_BOAT, Material.OAK_CHEST_BOAT, Material.SPRUCE_BOAT, Material.SPRUCE_CHEST_BOAT, Material.CHERRY_BOAT, Material.CHERRY_CHEST_BOAT, Material.BAMBOO_RAFT, Material.BAMBOO_CHEST_RAFT);
     }
 
-    public static Boat.Type getBoatType(Material material){
+    public static Boat.Type getBoatType(Material material) {
         switch (material) {
             case ACACIA_BOAT, ACACIA_CHEST_BOAT -> {
                 return Boat.Type.ACACIA;
@@ -556,18 +466,20 @@ public class ApiUtilities {
         return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
     }
 
-    public static Boat spawnBoatAndAddPlayer(Player player, Location location) {
+    public static void spawnBoatAndAddPlayer(Player player, Location location) {
 
         BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
         Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
 
         if (boatSpawnEvent.getBoat() != null) {
-            return boatSpawnEvent.getBoat();
+            return;
         }
+
         var tPlayer = Database.getPlayer(player.getUniqueId());
         Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
-        boat.addPassenger(player);
-        return boat;
+        if (boat != null) {
+            boat.addPassenger(player);
+        }
     }
 
     public static Boat spawnBoatAndAddPlayerWithEffects(Player player, Location location, Track track) {
@@ -587,73 +499,70 @@ public class ApiUtilities {
         }
         var tPlayer = Database.getPlayer(player.getUniqueId());
         Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
-        boat.addPassenger(player);
+        if (boat != null) {
+            boat.addPassenger(player);
+        }
         return boat;
     }
 
-    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location){
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location) {
         location.setPitch(player.getLocation().getPitch());
         player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         if (track.isBoatTrack()) {
-            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
-            }, 3);
+            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track), 3);
         }
     }
 
-    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location, PlayerTeleportEvent.TeleportCause teleportCause){
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location, PlayerTeleportEvent.TeleportCause teleportCause) {
         location.setPitch(player.getLocation().getPitch());
         player.teleport(location, teleportCause);
         if (track.isBoatTrack()) {
-            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
-            }, 3);
+            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track), 3);
         }
     }
 
     public static boolean hasBoatUtilsEffects(Player player) {
-        if (player.hasPotionEffect(PotionEffectType.LUCK)) {
-            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 55) {
+        PotionEffect luckEffect = player.getPotionEffect(PotionEffectType.LUCK);
+        if (luckEffect != null) {
+            if (luckEffect.getAmplifier() == 55) {
                 return true;
             }
         }
-        if (player.hasPotionEffect(PotionEffectType.UNLUCK)) {
-            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 99) {
-                return true;
-            }
+        PotionEffect unluckEffect = player.getPotionEffect(PotionEffectType.UNLUCK);
+        if (unluckEffect != null) {
+            return unluckEffect.getAmplifier() == 99;
         }
         return false;
     }
 
     public static boolean hasBoatUtilsREffect(Player player) {
-        if (player.hasPotionEffect(PotionEffectType.UNLUCK)) {
-            if (player.getPotionEffect(PotionEffectType.UNLUCK).getAmplifier() == 99) {
-                return true;
-            }
+        PotionEffect unluckEffect = player.getPotionEffect(PotionEffectType.UNLUCK);
+        if (unluckEffect != null) {
+            return unluckEffect.getAmplifier() == 99;
         }
         return false;
     }
 
     public static boolean hasBoatUtilsIEffect(Player player) {
-        if (player.hasPotionEffect(PotionEffectType.LUCK)) {
-            if (player.getPotionEffect(PotionEffectType.LUCK).getAmplifier() == 55) {
-                return true;
-            }
+        PotionEffect luckEffect = player.getPotionEffect(PotionEffectType.LUCK);
+        if (luckEffect != null) {
+            return luckEffect.getAmplifier() == 55;
         }
         return false;
     }
 
-    public static void removeBoatUtilsEffects(Player player){
+    public static void removeBoatUtilsEffects(Player player) {
         player.removePotionEffect(PotionEffectType.UNLUCK);
         player.removePotionEffect(PotionEffectType.LUCK);
     }
 
     public static void giveBoatUtilsREffect(Player player) {
-        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK,999999, 99, false, false);
+        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK, 999999, 99, false, false);
         player.addPotionEffect(unluckEffect);
     }
+
     public static void giveBoatUtilsIEffect(Player player) {
-        var luckEffect = new PotionEffect(PotionEffectType.LUCK,999999, 55, false, false);
+        var luckEffect = new PotionEffect(PotionEffectType.LUCK, 999999, 55, false, false);
         player.addPotionEffect(luckEffect);
     }
 }

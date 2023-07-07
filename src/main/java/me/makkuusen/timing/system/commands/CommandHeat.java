@@ -38,7 +38,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @CommandAlias("heat")
 public class CommandHeat extends BaseCommand {
@@ -56,34 +56,17 @@ public class CommandHeat extends BaseCommand {
             }
         }
         var messages = event.eventSchedule.getHeatList(event);
-        messages.forEach(message -> player.sendMessage(message));
-        return;
+        messages.forEach(player::sendMessage);
     }
 
     @Subcommand("info")
     @CommandCompletion("@heat")
     public static void onHeatInfo(Player player, Heat heat) {
-        player.sendMessage("");
-        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName()))
-                .append(TextUtilities.space())
-                .append(TextUtilities.getTitleLine(
-                        Component.text(heat.getName()).color(TextUtilities.textHighlightColor)
-                                .append(TextUtilities.space())
-                                .append(TextUtilities.getParenthisied(heat.getHeatState().name())))
-                )
-                .append(TextUtilities.space())
-                .append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + heat.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))
-        );
+        player.sendMessage(Component.empty());
+        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(heat.getName()).color(TextUtilities.textHighlightColor).append(TextUtilities.space()).append(TextUtilities.getParenthesized(heat.getHeatState().name())))).append(TextUtilities.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + heat.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
 
         if (player.hasPermission("event.admin") && heat.getHeatState() != HeatState.FINISHED) {
-            player.sendMessage(Component.text("[Load]").color(NamedTextColor.YELLOW).clickEvent(ClickEvent.runCommand("/heat load " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to load heat")))
-                    .append(Component.space())
-                    .append(Component.text("[Reset]").color(NamedTextColor.RED).clickEvent(ClickEvent.runCommand("/heat reset " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to reset heat"))))
-                    .append(Component.space())
-                    .append(Component.text("[Start]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/heat start " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to start heat"))))
-                    .append(Component.space())
-                    .append(Component.text("[Finish]").color(NamedTextColor.GRAY).clickEvent(ClickEvent.runCommand("/heat finish " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to finish heat"))))
-            );
+            player.sendMessage(Component.text("[Load]").color(NamedTextColor.YELLOW).clickEvent(ClickEvent.runCommand("/heat load " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to load heat"))).append(Component.space()).append(Component.text("[Reset]").color(NamedTextColor.RED).clickEvent(ClickEvent.runCommand("/heat reset " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to reset heat")))).append(Component.space()).append(Component.text("[Start]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/heat start " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to start heat")))).append(Component.space()).append(Component.text("[Finish]").color(NamedTextColor.GRAY).clickEvent(ClickEvent.runCommand("/heat finish " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to finish heat")))));
         }
 
         if (heat.getTimeLimit() != null) {
@@ -139,34 +122,22 @@ public class CommandHeat extends BaseCommand {
 
         if (heat.getFastestLapUUID() != null) {
             Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
-            player.sendMessage(TextUtilities.dark("Fastest lap:")
-                    .append(TextUtilities.space())
-                    .append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime())))
-                    .append(TextUtilities.space())
-                    .append(TextUtilities.dark("by"))
-                    .append(TextUtilities.space())
-                    .append(TextUtilities.highlight(d.getTPlayer().getName()))
-            );
+            player.sendMessage(TextUtilities.dark("Fastest lap:").append(TextUtilities.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()))).append(TextUtilities.space()).append(TextUtilities.dark("by")).append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())));
         }
 
         var driverMessage = Component.text("Drivers:").color(TextUtilities.textDarkColor);
 
         if (!heat.isFinished() && player.hasPermission("event.admin")) {
-            driverMessage = driverMessage.append(TextUtilities.space())
-                    .append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/heat add " + heat.getName() + " ")));
+            driverMessage = driverMessage.append(TextUtilities.space()).append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/heat add " + heat.getName() + " ")));
         }
 
         player.sendMessage(driverMessage);
 
         for (Driver d : heat.getStartPositions()) {
-            var message = TextUtilities.tab()
-                    .append(Component.text(d.getStartPosition() + ": " + d.getTPlayer().getName()).color(NamedTextColor.WHITE));
+            var message = TextUtilities.tab().append(Component.text(d.getStartPosition() + ": " + d.getTPlayer().getName()).color(NamedTextColor.WHITE));
 
             if (!heat.isFinished() && player.hasPermission("event.admin")) {
-                message = message.append(TextUtilities.tab())
-                        .append(TextButtons.getMoveButton().clickEvent(ClickEvent.suggestCommand("/heat set driverposition " + heat.getName() + " " + d.getTPlayer().getName() + " ")).hoverEvent(HoverEvent.showText(Component.text("Change position"))))
-                        .append(Component.space())
-                        .append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete driver " + heat.getName() + " " + d.getTPlayer().getName())));
+                message = message.append(TextUtilities.tab()).append(TextButtons.getMoveButton().clickEvent(ClickEvent.suggestCommand("/heat set driverposition " + heat.getName() + " " + d.getTPlayer().getName() + " ")).hoverEvent(HoverEvent.showText(Component.text("Change position")))).append(Component.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete driver " + heat.getName() + " " + d.getTPlayer().getName())));
             }
 
             player.sendMessage(message);
@@ -193,7 +164,6 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         player.sendMessage("§cCouldn't finish " + heat.getName());
-        return;
     }
 
     @Subcommand("load")
@@ -224,20 +194,19 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatReset(Player player, Heat heat) {
-        if (heat.resetHeat()){
+        if (heat.resetHeat()) {
             EventAnnouncements.broadcastReset(heat);
             player.sendMessage("§aReset " + heat.getName());
             return;
         }
         player.sendMessage("§cCouldn't reset " + heat.getName());
-        return;
     }
 
     @Subcommand("delete")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatRemove(Player player, Heat heat) {
-        if (EventDatabase.removeHeat(heat)){
+        if (EventDatabase.removeHeat(heat)) {
             player.sendMessage("§aHeat was removed");
             return;
         }
@@ -247,7 +216,7 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("create")
     @CommandCompletion("@round")
     @CommandPermission("event.admin")
-    public static void onHeatCreate(Player player, Round round, @Optional Event event){
+    public static void onHeatCreate(Player player, Round round, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -279,7 +248,6 @@ public class CommandHeat extends BaseCommand {
     public static void onHeatSetPits(Player player, Heat heat, Integer pits) {
         if (heat.getRound() instanceof QualificationRound) {
             player.sendMessage("§cYou can only modify total pits of a final heat.");
-            return;
         } else {
             heat.setTotalPits(pits);
             player.sendMessage("§aPits has been updated");
@@ -291,7 +259,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat <h/m/s>")
     public static void onHeatStartDelay(Player player, Heat heat, String startDelay) {
         Integer delay = ApiUtilities.parseDurationToMillis(startDelay);
-        if (delay == null){
+        if (delay == null) {
             player.sendMessage("§cYou need to format the time correctly, e.g. 2s");
             return;
         }
@@ -305,7 +273,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat <h/m/s>")
     public static void onHeatSetTime(Player player, Heat heat, String time) {
         Integer timeLimit = ApiUtilities.parseDurationToMillis(time);
-        if (timeLimit == null){
+        if (timeLimit == null) {
             player.sendMessage("§cYou need to format the time correctly, e.g. 2m");
             return;
         }
@@ -324,7 +292,7 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("set driverposition")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat @players <[+/-]pos>")
-    public static void onHeatSetDriverPosition(Player sender, Heat heat, String playerName, String position){
+    public static void onHeatSetDriverPosition(Player sender, Heat heat, String playerName, String position) {
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
             sender.sendMessage(Errors.PLAYER_NOT_FOUND.message());
@@ -343,13 +311,14 @@ public class CommandHeat extends BaseCommand {
             TimingSystem.getPlugin().sendMessage(sender, "messages.error.numberException");
             return;
         }
+        int parsedIndex = Objects.requireNonNull(getParsedIndex(position));
         int pos;
         if (getParsedRemoveFlag(position)) {
-            pos = driver.getStartPosition() - getParsedIndex(position);
+            pos = driver.getStartPosition() - parsedIndex;
         } else if (getParsedAddFlag(position)) {
-            pos = driver.getStartPosition() + getParsedIndex(position);
+            pos = driver.getStartPosition() + parsedIndex;
         } else {
-            pos = getParsedIndex(position);
+            pos = parsedIndex;
         }
 
         if (pos > heat.getDrivers().size()) {
@@ -369,7 +338,7 @@ public class CommandHeat extends BaseCommand {
 
 
         if (heat.setDriverPosition(driver, pos)) {
-            sender.sendMessage("§a" + driver.getTPlayer().getName() + " is now starting " + pos );
+            sender.sendMessage("§a" + driver.getTPlayer().getName() + " is now starting " + pos);
             if (heat.getHeatState() == HeatState.LOADED) {
                 heat.reloadHeat();
             }
@@ -381,7 +350,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("set reversegrid")
     @CommandCompletion("@heat <%>")
-    public static void onReverseGrid(Player player, Heat heat, @Optional Integer percentage){
+    public static void onReverseGrid(Player player, Heat heat, @Optional Integer percentage) {
         if (percentage == null) {
             percentage = 100;
         }
@@ -389,14 +358,14 @@ public class CommandHeat extends BaseCommand {
         if (heat.getHeatState() == HeatState.LOADED) {
             heat.reloadHeat();
         }
-        player.sendMessage("§aReversed the first "+ percentage +"% of the grid");
+        player.sendMessage("§aReversed the first " + percentage + "% of the grid");
     }
 
     @Subcommand("add")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat @players ")
     public static void onHeatAddDriver(Player sender, Heat heat, String playerName) {
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1){
+        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
             sender.sendMessage("§cYou can't add driver to a future round before the current round has finished");
             return;
         }
@@ -430,11 +399,10 @@ public class CommandHeat extends BaseCommand {
     }
 
 
-
     @Subcommand("delete driver")
     @CommandPermission("event.admin")
     @CommandCompletion("@heat @players")
-    public static void onHeatRemoveDriver(Player sender, Heat heat, String playerName){
+    public static void onHeatRemoveDriver(Player sender, Heat heat, String playerName) {
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
             sender.sendMessage(Errors.PLAYER_NOT_FOUND.message());
@@ -453,7 +421,7 @@ public class CommandHeat extends BaseCommand {
                     Location loc = tPlayer.getPlayer().getBedSpawnLocation() == null ? tPlayer.getPlayer().getWorld().getSpawnLocation() : tPlayer.getPlayer().getBedSpawnLocation();
                     tPlayer.getPlayer().teleport(loc);
                 }
-                sender.sendMessage("§aDriver has been disqualifed");
+                sender.sendMessage("§aDriver has been disqualified");
                 return;
             }
             sender.sendMessage("§cDriver could not be disqualified");
@@ -469,6 +437,7 @@ public class CommandHeat extends BaseCommand {
                     for (Heat h : round.getHeats()) {
                         if (h.getDrivers().containsKey(tPlayer.getUniqueId())) {
                             removeSpectator = false;
+                            break;
                         }
                     }
                 }
@@ -484,6 +453,7 @@ public class CommandHeat extends BaseCommand {
             sender.sendMessage("§cDriver could not be removed");
         }
     }
+
     @Subcommand("quit")
     public static void onHeatDriverQuit(Player player) {
         if (EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).isEmpty()) {
@@ -508,7 +478,7 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatAddDrivers(Player sender, Heat heat) {
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1){
+        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
             sender.sendMessage("§cYou can't add drivers to a future round before the current round has finished");
             return;
         }
@@ -517,10 +487,15 @@ public class CommandHeat extends BaseCommand {
                 sender.sendMessage("§cMax allowed amount of drivers have been added");
                 return;
             }
+            boolean inOtherHeat = false;
             for (Heat h : heat.getRound().getHeats()) {
                 if (h.getDrivers().get(player.getUniqueId()) != null) {
-                    continue;
+                    inOtherHeat = true;
+                    break;
                 }
+            }
+            if (inOtherHeat) {
+                continue;
             }
             if (heat.getDrivers().get(player.getUniqueId()) != null) {
                 continue;
@@ -534,7 +509,6 @@ public class CommandHeat extends BaseCommand {
         }
         sender.sendMessage("§aAll online players has been added");
     }
-
 
 
     @Subcommand("results")
@@ -552,32 +526,13 @@ public class CommandHeat extends BaseCommand {
                 return;
             }
             Driver driver = heat.getDrivers().get(tPlayer.getUniqueId());
-            sender.sendMessage(TextUtilities.getTitleLine(
-                    TextUtilities.dark("Results for")
-                    .append(TextUtilities.space())
-                    .append(TextUtilities.highlight(tPlayer.getName()))
-                    .append(Component.space())
-                    .append(TextUtilities.dark("in"))
-                    .append(Component.space())
-                    .append(TextUtilities.highlight(heat.getName())))
-            );
+            sender.sendMessage(TextUtilities.getTitleLine(TextUtilities.dark("Results for").append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName())).append(Component.space()).append(TextUtilities.dark("in")).append(Component.space()).append(TextUtilities.highlight(heat.getName()))));
 
-            sender.sendMessage(TextUtilities.dark("Position:")
-                    .append(Component.space())
-                    .append(TextUtilities.highlight(driver.getPosition().toString()))
-            );
-            sender.sendMessage(TextUtilities.dark("Start position:")
-                    .append(Component.space())
-                    .append(TextUtilities.highlight(String.valueOf(driver.getStartPosition())))
-            );
+            sender.sendMessage(TextUtilities.dark("Position:").append(Component.space()).append(TextUtilities.highlight(driver.getPosition().toString())));
+            sender.sendMessage(TextUtilities.dark("Start position:").append(Component.space()).append(TextUtilities.highlight(String.valueOf(driver.getStartPosition()))));
 
             var maybeBestLap = driver.getBestLap();
-            if (maybeBestLap.isPresent()){
-                sender.sendMessage(TextUtilities.dark("Fastest lap:")
-                        .append(Component.space())
-                        .append(TextUtilities.highlight(ApiUtilities.formatAsTime(maybeBestLap.get().getLapTime())))
-                );
-            }
+            maybeBestLap.ifPresent(lap -> sender.sendMessage(TextUtilities.dark("Fastest lap:").append(Component.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(lap.getLapTime())))));
             int count = 1;
             for (Lap l : driver.getLaps()) {
                 String lap = "§7Lap " + count + ": §f" + ApiUtilities.formatAsTime(l.getLapTime());
@@ -597,37 +552,17 @@ public class CommandHeat extends BaseCommand {
             sender.sendMessage(TextUtilities.getTitleLine("Results for heat", heat.getName()));
             if (heat.getFastestLapUUID() != null) {
                 Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
-                sender.sendMessage(TextUtilities.dark("Fastest lap:")
-                        .append(TextUtilities.space())
-                        .append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime())))
-                        .append(TextUtilities.space())
-                        .append(TextUtilities.dark("by"))
-                        .append(TextUtilities.space())
-                        .append(TextUtilities.highlight(d.getTPlayer().getName()))
-                );
+                sender.sendMessage(TextUtilities.dark("Fastest lap:").append(TextUtilities.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()))).append(TextUtilities.space()).append(TextUtilities.dark("by")).append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())));
             }
             List<Driver> result = EventResults.generateHeatResults(heat);
-            if (heat.getRound() instanceof FinalRound){
+            if (heat.getRound() instanceof FinalRound) {
                 for (Driver d : result) {
-                    sender.sendMessage(TextUtilities.dark(d.getPosition() + ".")
-                            .append(TextUtilities.space())
-                            .append(TextUtilities.highlight(d.getTPlayer().getName()))
-                            .append(TextUtilities.hyphen())
-                            .append(TextUtilities.highlight(String.valueOf(d.getLaps().size())))
-                            .append(TextUtilities.dark("laps in"))
-                            .append(Component.space())
-                            .append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime())))
-                    );
+                    sender.sendMessage(TextUtilities.dark(d.getPosition() + ".").append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight(String.valueOf(d.getLaps().size()))).append(TextUtilities.dark("laps in")).append(Component.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime()))));
 
                 }
             } else {
                 for (Driver d : result) {
-                    sender.sendMessage(TextUtilities.dark(d.getPosition() + ".")
-                            .append(TextUtilities.space())
-                            .append(TextUtilities.highlight(d.getTPlayer().getName()))
-                            .append(TextUtilities.hyphen())
-                            .append(TextUtilities.highlight((d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0")))
-                    );
+                    sender.sendMessage(TextUtilities.dark(d.getPosition() + ".").append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0"))));
                 }
             }
         } else {
@@ -656,15 +591,14 @@ public class CommandHeat extends BaseCommand {
             return;
         }
 
-        List<TimeTrialFinish> driversWithBestTimes = heat.getEvent().getTrack().getTopList().stream().filter(tt -> heat.getDrivers().keySet().contains(tt.getPlayer().getUniqueId())).collect(Collectors.toList());
-        List<Driver> allDrivers = new ArrayList<>();
-        allDrivers.addAll(heat.getStartPositions());
+        List<TimeTrialFinish> driversWithBestTimes = heat.getEvent().getTrack().getTopList().stream().filter(tt -> heat.getDrivers().containsKey(tt.getPlayer().getUniqueId())).toList();
+        List<Driver> allDrivers = new ArrayList<>(heat.getStartPositions());
         List<Driver> noTT = new ArrayList<>();
 
         int i = 1;
-        for (Driver driver : allDrivers)  {
+        for (Driver driver : allDrivers) {
             boolean match = false;
-            for (TimeTrialFinish finish : driversWithBestTimes)  {
+            for (TimeTrialFinish finish : driversWithBestTimes) {
                 if (finish.getPlayer() == driver.getTPlayer()) {
                     heat.setDriverPosition(driver, driversWithBestTimes.indexOf(finish) + 1);
                     i++;
@@ -672,7 +606,7 @@ public class CommandHeat extends BaseCommand {
                     break;
                 }
             }
-            if (match == false){
+            if (!match) {
                 noTT.add(driver);
             }
         }
@@ -701,7 +635,7 @@ public class CommandHeat extends BaseCommand {
             player.sendMessage("§cYou cannot sort an already started heat");
             return;
         }
-        if(heat.getStartPositions().size() == 0) {
+        if (heat.getStartPositions().size() == 0) {
             player.sendMessage("§aNo drivers to sort");
             return;
         }
@@ -710,8 +644,7 @@ public class CommandHeat extends BaseCommand {
             return;
         }
 
-        List<Driver> randomDrivers = new ArrayList<>();
-        randomDrivers.addAll(heat.getStartPositions());
+        List<Driver> randomDrivers = new ArrayList<>(heat.getStartPositions());
         Collections.shuffle(randomDrivers);
 
         for (int i = 0; i < randomDrivers.size(); i++) {

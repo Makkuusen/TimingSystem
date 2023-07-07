@@ -6,12 +6,12 @@ import lombok.Getter;
 public class TrackTag {
     String value;
 
-    public TrackTag(String value){
+    public TrackTag(String value) {
         this.value = value.toUpperCase();
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         if (o instanceof TrackTag trackTag) {
             return trackTag.getValue().equalsIgnoreCase(value);
         }

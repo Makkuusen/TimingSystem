@@ -94,12 +94,13 @@ public class CommandTimeTrial extends BaseCommand {
         plugin.sendMessage(player, "messages.cancel");
     }
 
-    public static void onRandom(Player player){
+    public static void onRandom(Player player) {
         onRandom(player, null);
     }
+
     @Subcommand("random|r")
     @CommandCompletion("@trackTag")
-    public static void onRandom(Player player, @Optional TrackTag trackTag){
+    public static void onRandom(Player player, @Optional TrackTag trackTag) {
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().isRunning()) {
@@ -108,7 +109,7 @@ public class CommandTimeTrial extends BaseCommand {
             }
         }
 
-        if (TrackDatabase.getOpenTracks().isEmpty()){
+        if (TrackDatabase.getOpenTracks().isEmpty()) {
             plugin.sendMessage(player, "messages.randomTrack.noTracks");
             return;
         }
@@ -132,10 +133,8 @@ public class CommandTimeTrial extends BaseCommand {
             return;
         }
 
-        if(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1){
-            plugin.sendMessage(player, "messages.randomTrack.teleport", "%track%", t.getDisplayName(),
-                    "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())))
-            );
+        if (t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1) {
+            plugin.sendMessage(player, "messages.randomTrack.teleport", "%track%", t.getDisplayName(), "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId()))));
         } else {
             plugin.sendMessage(player, "messages.randomTrack.teleportNoPos", "%track%", t.getDisplayName());
         }
@@ -145,7 +144,7 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("randomunfinished")
     @CommandCompletion("@trackTag")
-    public static void onRandomUnfinished(Player player, @Optional TrackTag trackTag){
+    public static void onRandomUnfinished(Player player, @Optional TrackTag trackTag) {
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().isRunning()) {
@@ -154,7 +153,7 @@ public class CommandTimeTrial extends BaseCommand {
             }
         }
 
-        if (TrackDatabase.getOpenTracks().isEmpty()){
+        if (TrackDatabase.getOpenTracks().isEmpty()) {
             plugin.sendMessage(player, "messages.randomTrack.noTracks");
             return;
         }
@@ -183,10 +182,8 @@ public class CommandTimeTrial extends BaseCommand {
             return;
         }
 
-        if(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1){
-            plugin.sendMessage(player, "messages.randomTrack.teleport", "%track%", t.getDisplayName(),
-                    "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())))
-            );
+        if (t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1) {
+            plugin.sendMessage(player, "messages.randomTrack.teleport", "%track%", t.getDisplayName(), "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId()))));
         } else {
             plugin.sendMessage(player, "messages.randomTrack.teleportNoPos", "%track%", t.getDisplayName());
         }

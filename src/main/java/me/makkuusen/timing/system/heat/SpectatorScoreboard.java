@@ -14,9 +14,9 @@ import java.util.List;
 
 public class SpectatorScoreboard {
 
-    private Heat heat;
+    private final Heat heat;
 
-    public SpectatorScoreboard(Heat heat){
+    public SpectatorScoreboard(Heat heat) {
         this.heat = heat;
     }
 
@@ -34,7 +34,7 @@ public class SpectatorScoreboard {
         }
     }
 
-    public void setTitle(TPlayer tPlayer){
+    public void setTitle(TPlayer tPlayer) {
         String eventName;
         if (tPlayer.getCompactScoreboard() && heat.getEvent().getDisplayName().length() > 8) {
             eventName = heat.getEvent().getDisplayName().substring(0, 8);
@@ -51,13 +51,13 @@ public class SpectatorScoreboard {
         }
     }
 
-    public List<String> normalScoreboard(TPlayer tPlayer){
+    public List<String> normalScoreboard(TPlayer tPlayer) {
         List<String> lines = new ArrayList<>();
         Driver prevDriver = null;
         boolean compareToFirst = true;
         for (Driver driver : heat.getLivePositions()) {
             if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualy(driver, prevDriver, tPlayer.getCompactScoreboard()));
+                lines.add(getDriverRowQualification(driver, prevDriver, tPlayer.getCompactScoreboard()));
                 if (compareToFirst) {
                     prevDriver = driver;
                     compareToFirst = false;
@@ -71,7 +71,7 @@ public class SpectatorScoreboard {
         return lines;
     }
 
-    private String getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact){
+    private String getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact) {
         if (driver.getLaps().size() < 1) {
             return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPosition(), compact);
         }
@@ -84,7 +84,7 @@ public class SpectatorScoreboard {
 
         var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
         for (TrackRegion trackRegion : inPitRegions) {
-            if (trackRegion.contains(playerLoc)){
+            if (trackRegion.contains(playerLoc)) {
                 return ScoreboardUtils.getDriverLineRaceInPit(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
             }
         }
@@ -101,12 +101,12 @@ public class SpectatorScoreboard {
         Instant fasterTimeStamp = comparingDriver.getTimeStamp(driver.getLaps().size(), driver.getCurrentLap().getLatestCheckpoint());
         timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
         if (timeDiff < 0) {
-            return ScoreboardUtils.getDriverLineNegativeRaceGap(timeDiff*-1, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLineNegativeRaceGap(timeDiff * -1, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
         }
         return ScoreboardUtils.getDriverLineRaceGap(timeDiff, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
     }
 
-    private String getDriverRowQualy(Driver driver, Driver comparingDriver, boolean compact) {
+    private String getDriverRowQualification(Driver driver, Driver comparingDriver, boolean compact) {
         if (driver.getBestLap().isEmpty()) {
             return ScoreboardUtils.getDriverLine(driver.getTPlayer().getName(), driver.getPosition(), compact);
         }
@@ -117,7 +117,7 @@ public class SpectatorScoreboard {
 
         long timeDiff = driver.getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
         if (timeDiff < 0) {
-            return ScoreboardUtils.getDriverLineNegativeQualyGap(timeDiff*-1, driver.getTPlayer().getName(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLineNegativeQualyGap(timeDiff * -1, driver.getTPlayer().getName(), driver.getPosition(), compact);
         }
         return ScoreboardUtils.getDriverLineQualyGap(timeDiff, driver.getTPlayer().getName(), driver.getPosition(), compact);
     }

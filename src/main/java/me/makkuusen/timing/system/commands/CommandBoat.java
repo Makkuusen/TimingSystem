@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 public class CommandBoat extends BaseCommand {
 
     @Default
-    public static void onBoat(Player player){
+    public static void onBoat(Player player) {
         if (isPlayerInBoat(player)) {
             return;
         }
@@ -21,10 +21,9 @@ public class CommandBoat extends BaseCommand {
 
     private static boolean isPlayerInBoat(Player p) {
         Entity v = p.getVehicle();
-        if (v != null && v.getType() != null) {
-            if (v.getType().equals(EntityType.BOAT) || v.getType().equals(EntityType.CHEST_BOAT)) {
-                return true;
-            }
+        if (v != null) {
+            v.getType();
+            return v.getType().equals(EntityType.BOAT) || v.getType().equals(EntityType.CHEST_BOAT);
         }
 
         return false;

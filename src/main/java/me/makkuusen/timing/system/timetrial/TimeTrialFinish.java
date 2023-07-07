@@ -15,7 +15,6 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
     private final UUID uuid;
     private final long date;
     private final long time;
-    private final boolean isRemoved;
 
     public TimeTrialFinish(DbRow data) {
         this.id = data.getInt("id");
@@ -23,7 +22,6 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
         this.uuid = data.getString("uuid") == null ? null : UUID.fromString(data.getString("uuid"));
         this.date = data.getInt("date");
         this.time = data.getInt("time");
-        this.isRemoved = data.get("isRemoved");
     }
 
     public int getId() {
@@ -42,7 +40,9 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
         return date;
     }
 
-    public int getTrack() {return trackId; }
+    public int getTrack() {
+        return trackId;
+    }
 
     @Override
     public int compare(TimeTrialFinish f1, TimeTrialFinish f2) {

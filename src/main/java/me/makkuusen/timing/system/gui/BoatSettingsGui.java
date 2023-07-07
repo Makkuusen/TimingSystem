@@ -6,14 +6,14 @@ import me.makkuusen.timing.system.TPlayer;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 
-public class BoatSettingsGui extends BaseGui{
+public class BoatSettingsGui extends BaseGui {
 
     public BoatSettingsGui(TPlayer tPlayer) {
         super("§2§lSettings", 3);
         setButtons(tPlayer);
     }
 
-    private void setButtons(TPlayer tPlayer){
+    private void setButtons(TPlayer tPlayer) {
         int count = 0;
         for (Material boat : ApiUtilities.getBoatMaterials()) {
             setItem(getBoatTypeButton(tPlayer, boat), count);

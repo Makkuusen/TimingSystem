@@ -46,22 +46,19 @@ public class TextButtons {
         return Component.text("[Add " + extra + "]").color(buttonAddColor);
     }
 
-    public static HoverEvent getClickToViewHoverEvent() {
+    public static HoverEvent<Component> getClickToViewHoverEvent() {
         return HoverEvent.showText(Component.text("Click to view"));
     }
 
-    public static HoverEvent getClickToEditHoverEvent() {
+    public static HoverEvent<Component> getClickToEditHoverEvent() {
         return HoverEvent.showText(Component.text("Click to edit"));
     }
 
-    public static HoverEvent getClickToAddHoverEvent() {
+    public static HoverEvent<Component> getClickToAddHoverEvent() {
         return HoverEvent.showText(Component.text("Click to add"));
     }
 
     public static Component getFooterButtons(String eventName) {
-        var message = TextUtilities.getSpacersStart()
-                .append(Component.text("[Event]").color(buttonColor).clickEvent(ClickEvent.runCommand("/event info " + eventName)).hoverEvent(getClickToViewHoverEvent()))
-                .append(TextUtilities.getSpacersEnd());
-        return message;
+        return TextUtilities.getSpacersStart().append(Component.text("[Event]").color(buttonColor).clickEvent(ClickEvent.runCommand("/event info " + eventName)).hoverEvent(getClickToViewHoverEvent())).append(TextUtilities.getSpacersEnd());
     }
 }

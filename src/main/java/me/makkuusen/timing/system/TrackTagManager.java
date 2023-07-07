@@ -10,13 +10,11 @@ import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class TrackTagManager {
 
-    private static List<TrackTag> trackTags = new ArrayList<>();
+    private static final List<TrackTag> trackTags = new ArrayList<>();
 
     public static boolean createTrackTag(String value) {
 
@@ -30,12 +28,11 @@ public class TrackTagManager {
         return true;
     }
 
-    public static boolean addTag(TrackTag tag) {
+    public static void addTag(TrackTag tag) {
         if (trackTags.contains(tag)) {
-            return false;
+            return;
         }
         trackTags.add(tag);
-        return true;
     }
 
     public static boolean deleteTag(TrackTag tag) {
@@ -52,11 +49,11 @@ public class TrackTagManager {
         return false;
     }
 
-    public static boolean hasTag(TrackTag tag){
+    public static boolean hasTag(TrackTag tag) {
         return trackTags.contains(tag);
     }
 
-    public static List<TrackTag> getTrackTags(){
+    public static List<TrackTag> getTrackTags() {
         return trackTags.stream().toList();
     }
 
@@ -81,11 +78,11 @@ public class TrackTagManager {
         }
 
         boolean match = false;
-        for(int i = 0; i < tags.size(); i++) {
+        for (TrackTag trackTag : tags) {
             if (match) {
-                return tags.get(i);
+                return trackTag;
             }
-            if (tags.get(i).equals(tag)) {
+            if (trackTag.equals(tag)) {
                 match = true;
             }
         }

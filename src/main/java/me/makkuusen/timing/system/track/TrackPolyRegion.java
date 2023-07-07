@@ -18,7 +18,7 @@ import java.util.List;
 public class TrackPolyRegion extends TrackRegion {
     Polygonal2DRegion polygonal2DRegion;
 
-    public TrackPolyRegion(DbRow data, List<BlockVector2> points){
+    public TrackPolyRegion(DbRow data, List<BlockVector2> points) {
         super(data);
         setShape(RegionShape.POLY);
         polygonal2DRegion = new Polygonal2DRegion(BukkitAdapter.adapt(getSpawnLocation().getWorld()), points, getMinP().getBlockY(), getMaxP().getBlockY());
@@ -48,7 +48,7 @@ public class TrackPolyRegion extends TrackRegion {
         return true;
     }
 
-    public boolean hasEqualBounds(TrackRegion other){
+    public boolean hasEqualBounds(TrackRegion other) {
         if (other instanceof TrackPolyRegion trackPolyRegion) {
             if (!other.getWorldName().equalsIgnoreCase(getWorldName())) {
                 return false;

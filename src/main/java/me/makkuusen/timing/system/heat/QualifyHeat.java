@@ -17,8 +17,8 @@ public class QualifyHeat {
             driver.finish();
             driver.getHeat().updatePositions();
             EventAnnouncements.sendFinishSound(driver);
-            EventAnnouncements.sendFinishTitleQualy(driver);
-            EventAnnouncements.broadcastFinishQualy(driver.getHeat(), driver);
+            EventAnnouncements.sendFinishTitleQualification(driver);
+            EventAnnouncements.broadcastFinishQualification(driver.getHeat(), driver);
             if (driver.getHeat().noDriversRunning()) {
                 driver.getHeat().finishHeat();
             }

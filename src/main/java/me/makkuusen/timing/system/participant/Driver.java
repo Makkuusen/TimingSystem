@@ -11,7 +11,6 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.DriverScoreboard;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
-import me.makkuusen.timing.system.heat.ScoreboardUtils;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Location;
@@ -51,7 +50,7 @@ public class Driver extends Participant implements Comparable<Driver> {
         state = isFinished() ? DriverState.FINISHED : DriverState.SETUP;
     }
 
-    public void updateScoreboard(){
+    public void updateScoreboard() {
         if (getTPlayer().getPlayer() == null) {
             if (scoreboard != null) {
                 scoreboard.removeScoreboard();
@@ -59,7 +58,7 @@ public class Driver extends Participant implements Comparable<Driver> {
             }
             return;
         }
-        if (scoreboard == null){
+        if (scoreboard == null) {
             scoreboard = new DriverScoreboard(getTPlayer(), this);
         }
         scoreboard.setDriverLines();
@@ -71,7 +70,7 @@ public class Driver extends Participant implements Comparable<Driver> {
         state = DriverState.FINISHED;
     }
 
-    public void disqualify(){
+    public void disqualify() {
         state = DriverState.FINISHED;
     }
 
@@ -123,18 +122,18 @@ public class Driver extends Participant implements Comparable<Driver> {
         }
     }
 
-    public boolean isFinished(){
+    public boolean isFinished() {
         return endTime != null;
     }
 
-    public boolean isRunning(){
+    public boolean isRunning() {
         return state == DriverState.RUNNING || state == DriverState.LOADED || state == DriverState.STARTING;
     }
 
     public boolean isInPit(Location playerLoc) {
         var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
         for (TrackRegion trackRegion : inPitRegions) {
-            if (trackRegion.contains(playerLoc)){
+            if (trackRegion.contains(playerLoc)) {
                 return true;
             }
         }
@@ -190,8 +189,8 @@ public class Driver extends Participant implements Comparable<Driver> {
         return laps.get(laps.size() - 1);
     }
 
-    public void removeUnfinishedLap(){
-        if(laps.size() > 0 && getCurrentLap().getLapEnd() == null) {
+    public void removeUnfinishedLap() {
+        if (laps.size() > 0 && getCurrentLap().getLapEnd() == null) {
             laps.remove(getCurrentLap());
         }
     }
@@ -213,7 +212,7 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
 
-    public void onShutdown(){
+    public void onShutdown() {
         if (scoreboard != null) {
             scoreboard.removeScoreboard();
         }
@@ -243,38 +242,38 @@ public class Driver extends Participant implements Comparable<Driver> {
                 return 0;
             }
 
-            long timeDiff = getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
-            return timeDiff;
+            // returns time-difference
+            return getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
         } else {
 
-        if (getLaps().size() < 1) {
-            return 0;
-        }
-
-        long timeDiff;
-        if (getPosition() < comparingDriver.getPosition()) {
-            if (comparingDriver.isFinished()) {
-                return Duration.between(getEndTime(), comparingDriver.getEndTime()).toMillis();
+            if (getLaps().size() < 1) {
+                return 0;
             }
 
-            if (comparingDriver.getLaps().size() > 0 && comparingDriver.getCurrentLap() != null) {
-                Instant timeStamp = comparingDriver.getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
-                Instant fasterTimeStamp = getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
-                timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
-                return timeDiff;
-            }
-        }
+            long timeDiff;
+            if (getPosition() < comparingDriver.getPosition()) {
+                if (comparingDriver.isFinished()) {
+                    return Duration.between(getEndTime(), comparingDriver.getEndTime()).toMillis();
+                }
 
-        if (getPosition() > comparingDriver.getPosition()) {
-            if (isFinished()) {
-                return Duration.between(comparingDriver.getEndTime(), getEndTime()).toMillis();
+                if (comparingDriver.getLaps().size() > 0 && comparingDriver.getCurrentLap() != null) {
+                    Instant timeStamp = comparingDriver.getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
+                    Instant fasterTimeStamp = getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
+                    timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
+                    return timeDiff;
+                }
             }
+
+            if (getPosition() > comparingDriver.getPosition()) {
+                if (isFinished()) {
+                    return Duration.between(comparingDriver.getEndTime(), getEndTime()).toMillis();
+                }
                 Instant timeStamp = getTimeStamp(getLaps().size(), getCurrentLap().getLatestCheckpoint());
                 Instant fasterTimeStamp = comparingDriver.getTimeStamp(getLaps().size(), getCurrentLap().getLatestCheckpoint());
                 timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
                 return timeDiff;
-        }
-        return 0;
+            }
+            return 0;
         }
     }
 
@@ -288,14 +287,14 @@ public class Driver extends Participant implements Comparable<Driver> {
         }
     }
 
-    private int compareToQualification(Driver o){
+    private int compareToQualification(Driver o) {
         var bestLap = getBestLap();
         var oBestLap = o.getBestLap();
         if (bestLap.isEmpty() && oBestLap.isEmpty()) {
             return 0;
         } else if (bestLap.isPresent() && oBestLap.isEmpty()) {
             return -1;
-        } else if (bestLap.isEmpty() && oBestLap.isPresent()) {
+        } else if (bestLap.isEmpty()) {
             return 1;
         }
 
@@ -310,7 +309,7 @@ public class Driver extends Participant implements Comparable<Driver> {
         return 0;
     }
 
-    private int compareToFinaldriver(Driver o){
+    private int compareToFinaldriver(Driver o) {
         if (isFinished() && !o.isFinished()) {
             return -1;
         } else if (!isFinished() && o.isFinished()) {

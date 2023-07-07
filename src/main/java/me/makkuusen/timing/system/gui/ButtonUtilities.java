@@ -32,7 +32,7 @@ public class ButtonUtilities {
     public static void init() {
         sound = new ItemBuilder(Material.JUKEBOX).setName("§b§eToggle: Sound").build();
         verbose = new ItemBuilder(Material.GOAT_HORN).setName("§b§eToggle: Verbose").build();
-        timeTrial = new ItemBuilder(Material.BARRIER).setName("§b§eToggle: Timetrial").build();
+        timeTrial = new ItemBuilder(Material.BARRIER).setName("§b§eToggle: TimeTrial").build();
         override = new ItemBuilder(Material.IRON_DOOR).setName("§b§eToggle: Override").build();
         on = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§b§eON").build();
         off = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§b§eOFF").build();
@@ -40,9 +40,9 @@ public class ButtonUtilities {
         borderGlass = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName("§r").build();
         elytra = new ItemBuilder(Material.ELYTRA).setName("§e§lElytra").build();
         boat = new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat").build();
-        parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkours").build();
-        for (int i = 0; i < 7; i++){
-            boatPages.add(new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lBoat tracks " + (i+1)).build());
+        parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkour").build();
+        for (int i = 0; i < 7; i++) {
+            boatPages.add(new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lBoat tracks " + (i + 1)).build());
         }
         elytraPage = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§lElytra tracks").build();
         parkourPage = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§a§lParkour tracks").build();
@@ -66,25 +66,29 @@ public class ButtonUtilities {
 
     public static GuiButton getBorderGlassButton() {
         var button = new GuiButton(borderGlass);
-        button.setAction(() -> {});
+        button.setAction(() -> {
+        });
         return button;
     }
 
     public static GuiButton getBoatButton() {
         var button = new GuiButton(boat);
-        button.setAction(() -> {});
+        button.setAction(() -> {
+        });
         return button;
     }
 
     public static GuiButton getParkourButton() {
         var button = new GuiButton(parkour);
-        button.setAction(() -> {});
+        button.setAction(() -> {
+        });
         return button;
     }
 
     public static GuiButton getElytraButton() {
         var button = new GuiButton(elytra);
-        button.setAction(() -> {});
+        button.setAction(() -> {
+        });
         return button;
     }
 
@@ -98,7 +102,7 @@ public class ButtonUtilities {
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1);
     }
 
-    public static String getFilterTitel(TrackTag tag) {
+    public static String getFilterTitle(TrackTag tag) {
         if (tag == null) {
             return "- ALL";
         } else {

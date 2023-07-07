@@ -11,20 +11,17 @@ import com.sk89q.worldedit.regions.Region;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.ItemBuilder;
-import me.makkuusen.timing.system.api.events.TimeTrialFinishEvent;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.stringtemplate.v4.ST;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -45,8 +42,8 @@ public class Track {
     private final Set<TrackRegion> regions = new HashSet<>();
     private final Set<TrackLocation> trackLocations = new HashSet<>();
     private final Set<TrackTag> tags = new HashSet<>();
+    private final Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
     private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
-    private Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
     private TPlayer owner;
     private String displayName;
     private String commandName;
@@ -158,7 +155,7 @@ public class Track {
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `weight` = " + weight + " WHERE `id` = " + id + ";");
     }
 
-    public boolean isWeightAboveZero(){
+    public boolean isWeightAboveZero() {
         return weight > 0;
     }
 
@@ -172,9 +169,7 @@ public class Track {
 
     public void addTag(DbRow dbRow) {
         var tag = new TrackTag(dbRow.get("tag"));
-        if (!tags.contains(tag)) {
-            tags.add(tag);
-        }
+        tags.add(tag);
     }
 
     public boolean createTag(TrackTag tag) {
@@ -195,7 +190,7 @@ public class Track {
         return false;
     }
 
-    public List<TrackTag> getTags(){
+    public List<TrackTag> getTags() {
         return tags.stream().toList();
     }
 
@@ -226,15 +221,15 @@ public class Track {
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `toggleOpen` = " + open + " WHERE `id` = " + id + ";");
     }
 
-    public void addRegion(TrackRegion trackRegion){
+    public void addRegion(TrackRegion trackRegion) {
         regions.add(trackRegion);
     }
 
-    public boolean hasRegion(TrackRegion.RegionType regionType){
+    public boolean hasRegion(TrackRegion.RegionType regionType) {
         return regions.stream().anyMatch(trackRegion -> trackRegion.getRegionType().equals(regionType));
     }
 
-    public boolean hasRegion(TrackRegion.RegionType regionType, int index){
+    public boolean hasRegion(TrackRegion.RegionType regionType, int index) {
         return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).anyMatch(trackRegion -> trackRegion.getRegionIndex() == index);
     }
 
@@ -244,11 +239,11 @@ public class Track {
         return list;
     }
 
-    public Optional<TrackRegion> getRegion(TrackRegion.RegionType regionType){
+    public Optional<TrackRegion> getRegion(TrackRegion.RegionType regionType) {
         return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).findFirst();
     }
 
-    public Optional<TrackRegion> getRegion(TrackRegion.RegionType regionType, int index){
+    public Optional<TrackRegion> getRegion(TrackRegion.RegionType regionType, int index) {
         return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).filter(trackRegion -> trackRegion.getRegionIndex() == index).findFirst();
     }
 
@@ -268,7 +263,7 @@ public class Track {
             region.setMinP(ApiUtilities.getLocationFromBlockVector3(location.getWorld(), selection.getMinimumPoint()));
             region.setSpawn(location);
             if (region instanceof TrackPolyRegion trackPolyRegion) {
-                trackPolyRegion.updateRegion(((Polygonal2DRegion)selection).getPoints());
+                trackPolyRegion.updateRegion(((Polygonal2DRegion) selection).getPoints());
             }
         } else {
             removeRegion(region);
@@ -277,11 +272,11 @@ public class Track {
         return true;
     }
 
-    public boolean createRegion(TrackRegion.RegionType regionType, Region selection, Location location){
-        return createRegion(regionType, 0, selection,  location);
+    public boolean createRegion(TrackRegion.RegionType regionType, Region selection, Location location) {
+        return createRegion(regionType, 0, selection, location);
     }
 
-    public boolean createRegion(TrackRegion.RegionType regionType, int index, Region selection, Location location){
+    public boolean createRegion(TrackRegion.RegionType regionType, int index, Region selection, Location location) {
         try {
             var region = TrackDatabase.trackRegionNew(selection, getId(), index, regionType, location);
             addRegion(region);
@@ -309,11 +304,11 @@ public class Track {
         return false;
     }
 
-    public void addTrackLocation(TrackLocation trackLocation){
+    public void addTrackLocation(TrackLocation trackLocation) {
         trackLocations.add(trackLocation);
     }
 
-    public boolean hasTrackLocation(TrackLocation.Type locationType){
+    public boolean hasTrackLocation(TrackLocation.Type locationType) {
         return trackLocations.stream().anyMatch(trackLocation -> trackLocation.getLocationType().equals(locationType));
     }
 
@@ -342,11 +337,11 @@ public class Track {
         }
     }
 
-    public boolean createTrackLocation(TrackLocation.Type type, Location location){
+    public boolean createTrackLocation(TrackLocation.Type type, Location location) {
         return createTrackLocation(type, 0, location);
     }
 
-    public boolean createTrackLocation(TrackLocation.Type type, int index, Location location){
+    public boolean createTrackLocation(TrackLocation.Type type, int index, Location location) {
         try {
             var trackLocation = TrackDatabase.trackLocationNew(getId(), index, type, location);
             addTrackLocation(trackLocation);
@@ -366,7 +361,7 @@ public class Track {
                 trackLeaderboard.removeHologram();
             }
             trackLocations.remove(trackLocation);
-            DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = " + getId() + " AND `index` = " + trackLocation.getIndex() + " AND `type` = '" +  trackLocation.getLocationType() + "';");
+            DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = " + getId() + " AND `index` = " + trackLocation.getIndex() + " AND `type` = '" + trackLocation.getLocationType() + "';");
             return true;
         }
         return false;
@@ -550,7 +545,7 @@ public class Track {
         return false;
     }
 
-    public int getPlayerTotalFinishes(TPlayer tPlayer){
+    public int getPlayerTotalFinishes(TPlayer tPlayer) {
         if (!timeTrialFinishes.containsKey(tPlayer)) {
             return 0;
         }
@@ -564,7 +559,7 @@ public class Track {
         return timeTrialAttempts.get(tPlayer).size();
     }
 
-    public int getTotalFinishes(){
+    public int getTotalFinishes() {
         int laps = 0;
         for (List<TimeTrialFinish> l : timeTrialFinishes.values()) {
             laps += l.size();
@@ -573,7 +568,7 @@ public class Track {
 
     }
 
-    public int getTotalAttempts(){
+    public int getTotalAttempts() {
         int laps = 0;
         for (List<TimeTrialAttempt> l : timeTrialAttempts.values()) {
             laps += l.size();
@@ -584,12 +579,12 @@ public class Track {
     public long getPlayerTotalTimeSpent(TPlayer tPlayer) {
         long time = 0L;
 
-        if (timeTrialAttempts.containsKey(tPlayer)){
+        if (timeTrialAttempts.containsKey(tPlayer)) {
             for (TimeTrialAttempt l : timeTrialAttempts.get(tPlayer)) {
                 time += l.getTime();
             }
         }
-        if (timeTrialFinishes.containsKey(tPlayer)){
+        if (timeTrialFinishes.containsKey(tPlayer)) {
             for (TimeTrialFinish l : timeTrialFinishes.get(tPlayer)) {
                 time += l.getTime();
             }
@@ -629,7 +624,7 @@ public class Track {
         return time;
     }
 
-    public boolean isStage(){
+    public boolean isStage() {
         return hasRegion(TrackRegion.RegionType.END);
     }
 

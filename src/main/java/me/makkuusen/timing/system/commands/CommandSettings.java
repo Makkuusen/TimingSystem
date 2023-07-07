@@ -22,7 +22,7 @@ public class CommandSettings extends BaseCommand {
     public static TimingSystem plugin;
 
     @Default
-    public static void onSettings(Player player){
+    public static void onSettings(Player player) {
         new SettingsGui(Database.getPlayer(player.getUniqueId())).show(player);
     }
 
@@ -40,7 +40,7 @@ public class CommandSettings extends BaseCommand {
 
     @Subcommand("boat")
     @CommandCompletion("@boat")
-    public static void onBoat(Player player, Boat.Type type){
+    public static void onBoat(Player player, Boat.Type type) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.setBoat(type);
         if (player.getVehicle() instanceof Boat boat) {
@@ -50,14 +50,14 @@ public class CommandSettings extends BaseCommand {
     }
 
     @Subcommand("sound")
-    public static void onTTSound(Player player){
+    public static void onTTSound(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.switchToggleSound();
         player.sendMessage("§2Switched sounds to §a" + (tPlayer.isSound() ? "on" : "off") + "§2.");
     }
 
     @Subcommand("compactScoreboard")
-    public static void onCompactScoreboard(Player player){
+    public static void onCompactScoreboard(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.setCompactScoreboard(!tPlayer.getCompactScoreboard());
         player.sendMessage("§2Switched compact scoreboards to §a" + (tPlayer.getCompactScoreboard() ? "on" : "off") + "§2.");
@@ -78,7 +78,6 @@ public class CommandSettings extends BaseCommand {
     }
 
 
-
     @Subcommand("color")
     @CommandCompletion("<hexcolorcode>")
     public static void onColor(Player player, String hex) {
@@ -94,8 +93,7 @@ public class CommandSettings extends BaseCommand {
         player.sendMessage("§cYou didn't enter a valid hexadecimal color code");
     }
 
-    public static boolean isValidHexaCode(String str)
-    {
+    public static boolean isValidHexaCode(String str) {
         // Regex to check valid hexadecimal color code.
         String regex = "^#([A-Fa-f0-9]{6})$";
 

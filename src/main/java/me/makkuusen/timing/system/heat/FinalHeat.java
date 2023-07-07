@@ -6,15 +6,14 @@ import me.makkuusen.timing.system.participant.Driver;
 
 public class FinalHeat {
 
-    public static boolean passLap(Driver driver){
+    public static boolean passLap(Driver driver) {
         if (driver.getHeat().getHeatState() != HeatState.RACING) {
             return false;
         }
 
-        if (driver.getHeat().getTotalLaps() <= driver.getLaps().size() && driver.getHeat().getTotalPits() <= driver.getPits())
-        {
+        if (driver.getHeat().getTotalLaps() <= driver.getLaps().size() && driver.getHeat().getTotalPits() <= driver.getPits()) {
             finishDriver(driver);
-            if (driver.getHeat().noDriversRunning()){
+            if (driver.getHeat().noDriversRunning()) {
                 driver.getHeat().finishHeat();
             }
             return true;

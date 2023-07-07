@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TrackGui extends TrackPageGui{
+public class TrackGui extends TrackPageGui {
 
     public TrackGui(TPlayer tPlayer, int page) {
         super(tPlayer, "§2§lTracks - ALL", 6, page);
@@ -26,10 +26,10 @@ public class TrackGui extends TrackPageGui{
     }
 
     @Override
-    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page){
+    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(filter);
+            String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(filter);
             new TrackGui(tPlayer, title, page, trackSort, filter).show(tPlayer.getPlayer());
         });
         return button;
@@ -39,10 +39,10 @@ public class TrackGui extends TrackPageGui{
         var filteredTracks = TrackDatabase.getTracks().stream().filter(track -> track.hasTag(filter)).filter(Track::isWeightAboveZero);
 
         List<Track> tracks;
-        if (page == ELYTRAPAGE) {
+        if (page == ELYTRA_PAGE) {
             tracks = filteredTracks.filter(Track::isElytraTrack).collect(Collectors.toList());
             sortTracks(tracks, trackSort);
-        } else if (page == PARKOURPAGE) {
+        } else if (page == PARKOUR_PAGE) {
             tracks = filteredTracks.filter(Track::isParkourTrack).collect(Collectors.toList());
             sortTracks(tracks, trackSort);
         } else {
@@ -58,7 +58,7 @@ public class TrackGui extends TrackPageGui{
     }
 
     @Override
-    public GuiButton getTrackButton(Player player, Track track){
+    public GuiButton getTrackButton(Player player, Track track) {
         var item = setTrackLore(track, track.getGuiItem(player.getUniqueId()));
         var button = new GuiButton(item);
         button.setAction(() -> {
@@ -76,7 +76,7 @@ public class TrackGui extends TrackPageGui{
     public GuiButton getSortingButton(ItemStack item, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(filter);
+            String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(filter);
             if (tPlayer.isSound()) {
                 ButtonUtilities.playConfirm(tPlayer.getPlayer());
             }
@@ -89,7 +89,7 @@ public class TrackGui extends TrackPageGui{
     public GuiButton getFilterButton(ItemStack item, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(tag);
+            String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(tag);
             if (tPlayer.isSound()) {
                 ButtonUtilities.playConfirm(tPlayer.getPlayer());
             }
@@ -98,7 +98,7 @@ public class TrackGui extends TrackPageGui{
         return button;
     }
 
-    private ItemStack setTrackLore(Track track, ItemStack toReturn){
+    private ItemStack setTrackLore(Track track, ItemStack toReturn) {
         List<Component> loreToSet = new ArrayList<>();
         loreToSet.add(Component.text("§7Total Finishes: §e" + track.getTotalFinishes()));
         loreToSet.add(Component.text("§7Total Attempts: §e" + (track.getTotalFinishes() + track.getTotalAttempts())));

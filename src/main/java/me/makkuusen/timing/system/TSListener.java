@@ -51,7 +51,7 @@ import java.util.UUID;
 public class TSListener implements Listener {
 
     static TimingSystem plugin;
-    static Set<UUID> inPits = new HashSet();
+    static Set<UUID> inPits = new HashSet<>();
 
     @EventHandler
     public void onTick(ServerTickStartEvent e) {
@@ -67,7 +67,6 @@ public class TSListener implements Listener {
 
             if (TPlayer == null) {
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Your player profile could not be loaded. Notify the server owner!");
-                return;
             }
         }
     }
@@ -100,13 +99,9 @@ public class TSListener implements Listener {
             }
         }
 
-        if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN) ||
-                event.getCause().equals(PlayerTeleportEvent.TeleportCause.COMMAND) ||
-                event.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL) ||
-                event.getCause().equals(PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) ||
-                event.getCause().equals(PlayerTeleportEvent.TeleportCause.NETHER_PORTAL)) {
+        if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.COMMAND) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.NETHER_PORTAL)) {
             TimeTrialController.playerLeavingMap(event.getPlayer().getUniqueId());
-            if (ApiUtilities.hasBoatUtilsEffects(event.getPlayer())){
+            if (ApiUtilities.hasBoatUtilsEffects(event.getPlayer())) {
                 ApiUtilities.removeBoatUtilsEffects(event.getPlayer());
             }
         }
@@ -147,7 +142,6 @@ public class TSListener implements Listener {
             if (passenger instanceof Player player) {
                 if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
                     e.setCancelled(true);
-                    return;
                 }
             }
         }
@@ -184,12 +178,12 @@ public class TSListener implements Listener {
                 if (track.hasOption('b')) {
                     plugin.sendMessage(player, "messages.error.leftBoat");
                     TimeTrialController.playerLeavingMap(player.getUniqueId());
-                    if (ApiUtilities.hasBoatUtilsEffects(player)){
+                    if (ApiUtilities.hasBoatUtilsEffects(player)) {
                         ApiUtilities.removeBoatUtilsEffects(player);
                     }
                 }
             } else {
-                if (ApiUtilities.hasBoatUtilsEffects(player)){
+                if (ApiUtilities.hasBoatUtilsEffects(player)) {
                     ApiUtilities.removeBoatUtilsEffects(player);
                 }
             }
@@ -203,17 +197,16 @@ public class TSListener implements Listener {
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().getState() == DriverState.LOADED) {
                 event.setCancelled(true);
-                return;
             }
         }
     }
+
     @EventHandler
     public void onBlockBreak(BlockPlaceEvent event) {
         var maybeDriver = EventDatabase.getDriverFromRunningHeat(event.getPlayer().getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().getState() == DriverState.LOADED) {
                 event.setCancelled(true);
-                return;
             }
         }
     }
@@ -224,7 +217,6 @@ public class TSListener implements Listener {
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().getState() == DriverState.LOADED) {
                 event.setCancelled(true);
-                return;
             }
         }
     }
@@ -235,22 +227,20 @@ public class TSListener implements Listener {
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().getState() == DriverState.LOADED) {
                 event.setCancelled(true);
-                return;
             }
         }
     }
 
     @EventHandler
     public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
-         if (event.getDamager() instanceof Player player) {
-             var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
-             if (maybeDriver.isPresent()) {
-                 if (maybeDriver.get().getState() == DriverState.LOADED) {
-                     event.setCancelled(true);
-                     return;
-                 }
-             }
-         }
+        if (event.getDamager() instanceof Player player) {
+            var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
+            if (maybeDriver.isPresent()) {
+                if (maybeDriver.get().getState() == DriverState.LOADED) {
+                    event.setCancelled(true);
+                }
+            }
+        }
     }
 
     @EventHandler
@@ -272,7 +262,7 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByBlock(EntityDamageByBlockEvent event) {
-        if (event.getEntity() instanceof Player && event.getEntity().isInsideVehicle() && event.getEntity().getVehicle().getType() == EntityType.BOAT && event.getEntity().getVehicle().hasMetadata("spawned")) {
+        if (event.getEntity() instanceof Player && event.getEntity().getVehicle() != null && event.getEntity().getVehicle().getType() == EntityType.BOAT && event.getEntity().getVehicle().hasMetadata("spawned")) {
             event.setCancelled(true);
         }
     }
@@ -297,7 +287,6 @@ public class TSListener implements Listener {
             if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
                 e.getPlayer().sendMessage("§cDu får inte fiska någon annan");
                 e.setCancelled(true);
-                return;
             }
         }
     }
@@ -370,7 +359,7 @@ public class TSListener implements Listener {
             }
 
             // Check for starting new tracks
-            Iterator regions = TrackDatabase.getTrackStartRegions().iterator();
+            Iterator<TrackRegion> regions = TrackDatabase.getTrackStartRegions().iterator();
             while (true) {
                 Integer regionId;
                 TrackRegion region;
@@ -378,7 +367,7 @@ public class TSListener implements Listener {
                     label:
                     do {
                         while (regions.hasNext()) {
-                            region = (TrackRegion) regions.next();
+                            region = regions.next();
                             regionId = region.getId();
                             if (region.contains(player.getLocation())) {
                                 continue label;
@@ -459,7 +448,7 @@ public class TSListener implements Listener {
                     timeTrial.playerResetMap();
                 } else {
                     var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, timeTrial.getLatestCheckpoint());
-                    if (maybeRegion.isEmpty()){
+                    if (maybeRegion.isEmpty()) {
                         timeTrial.playerResetMap();
                         return;
                     }
@@ -604,7 +593,7 @@ public class TSListener implements Listener {
             // Update if in pit
             var inPitRegions = track.getRegions(TrackRegion.RegionType.INPIT);
             for (TrackRegion trackRegion : inPitRegions) {
-                if (trackRegion.contains(player.getLocation()) && !inPits.contains(player.getUniqueId())){
+                if (trackRegion.contains(player.getLocation()) && !inPits.contains(player.getUniqueId())) {
                     inPits.add(player.getUniqueId());
                     heat.updatePositions();
                 } else if (!trackRegion.contains(player.getLocation()) && inPits.contains(player.getUniqueId())) {
@@ -627,7 +616,6 @@ public class TSListener implements Listener {
                 TrackRegion region = maybeRegion.isEmpty() ? track.getStartRegion().get() : maybeRegion.get();
                 ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
-                return;
             }
         }
     }

@@ -10,18 +10,18 @@ public class TimeTrialScoreboard {
     TPlayer tPlayer;
     TimeTrialSession timeTrialSession;
 
-    public TimeTrialScoreboard(TPlayer tPlayer, TimeTrialSession timeTrialsession){
+    public TimeTrialScoreboard(TPlayer tPlayer, TimeTrialSession timeTrialsession) {
         this.tPlayer = tPlayer;
         tPlayer.initScoreboard();
         this.timeTrialSession = timeTrialsession;
         tPlayer.setScoreBoardTitle("&7&l" + timeTrialsession.track.getDisplayName());
     }
 
-    public void removeScoreboard(){
+    public void removeScoreboard() {
         tPlayer.clearScoreboard();
     }
 
-    public void setDriverLines(){
+    public void setDriverLines() {
         setLines();
     }
 
@@ -56,7 +56,7 @@ public class TimeTrialScoreboard {
         long averageTime = -1;
         long percentage = 0;
         if (totalAttempts != 0) {
-             percentage = totalFinishes * 100 / totalAttempts;
+            percentage = totalFinishes * 100 / totalAttempts;
         }
 
         if (totalFinishes != 0) {
@@ -72,7 +72,7 @@ public class TimeTrialScoreboard {
 
         lines.add("§7Finishes: " + color + (totalAttempts != 0 ? totalFinishes + "/" + totalAttempts + " (" + percentage + "%)" : "(none)"));
         lines.add("§7Avg time: §f" + (averageTime != -1 ? ApiUtilities.formatAsTimeNoRounding(averageTime) : "(none)"));
-        lines.add("§7Best time: §a" + (bestTime != -1 ? ApiUtilities.formatAsTime(bestTime): "(none)"));
+        lines.add("§7Best time: §a" + (bestTime != -1 ? ApiUtilities.formatAsTime(bestTime) : "(none)"));
         lines.add("");
         int count = timeTrialSession.getTimeTrialFinishes().size();
 

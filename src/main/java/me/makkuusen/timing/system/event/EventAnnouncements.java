@@ -31,15 +31,11 @@ public class EventAnnouncements {
     }
 
     public static void broadcastSpectate(Event event) {
-        Bukkit.getOnlinePlayers().stream()
-                .filter(player -> !event.getSpectators().containsKey(player.getUniqueId()))
-                .forEach(player -> {
-                    player.sendMessage("");
-                    player.sendMessage(Component.text("§e§l[Click to spectate race: " + event.getDisplayName() + "]")
-                        .clickEvent(ClickEvent.runCommand("/event spectate " + event.getDisplayName())));
-                    player.sendMessage("");
-                }
-        );
+        Bukkit.getOnlinePlayers().stream().filter(player -> !event.getSpectators().containsKey(player.getUniqueId())).forEach(player -> {
+            player.sendMessage(Component.empty());
+            player.sendMessage(Component.text("§e§l[Click to spectate race: " + event.getDisplayName() + "]").clickEvent(ClickEvent.runCommand("/event spectate " + event.getDisplayName())));
+            player.sendMessage(Component.empty());
+        });
 
     }
 
@@ -47,7 +43,7 @@ public class EventAnnouncements {
         broadcastAnnouncement(heat, "messages.announcements.finish", "%player%", driver.getTPlayer().getName(), "%position%", String.valueOf(driver.getPosition()), "%time%", ApiUtilities.formatAsTime(time));
     }
 
-    public static void broadcastFinishQualy(Heat heat, Driver driver) {
+    public static void broadcastFinishQualification(Heat heat, Driver driver) {
         broadcastAnnouncement(heat, "messages.announcements.finishQualy", "%player%", driver.getTPlayer().getName());
     }
 
@@ -59,19 +55,20 @@ public class EventAnnouncements {
         broadcastAnnouncement(heat, "messages.announcements.fastestLap", "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time));
 
     }
-    public static void broadcastQualificationResults(Event event, List<Driver> drivers){
+
+    public static void broadcastQualificationResults(Event event, List<Driver> drivers) {
         for (Spectator s : event.getSpectators().values()) {
             if (s.getTPlayer().getPlayer() != null) {
                 s.getTPlayer().getPlayer().sendMessage("§7Qualifying results for §f" + event.getDisplayName());
                 int pos = 1;
                 for (Driver d : drivers) {
-                    s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f"  + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-"));
+                    s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-"));
                 }
             }
         }
     }
 
-    public static void broadcastFinalResults(Event event, List<Driver> drivers){
+    public static void broadcastFinalResults(Event event, List<Driver> drivers) {
         for (Spectator s : event.getSpectators().values()) {
             if (s.getTPlayer().getPlayer() != null) {
                 s.getTPlayer().getPlayer().sendMessage("§7Final results for §f" + event.getDisplayName());
@@ -94,16 +91,16 @@ public class EventAnnouncements {
                 int pos = 1;
                 for (Driver d : drivers) {
                     if (heat.getRound() instanceof QualificationRound) {
-                        s.getTPlayer().getPlayer().sendMessage("§7" +  pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-"));
-                    } else  {
-                        s.getTPlayer().getPlayer().sendMessage("§7" +  pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + d.getLaps().size() + " §7laps in §f" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                        s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-"));
+                    } else {
+                        s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + d.getLaps().size() + " §7laps in §f" + ApiUtilities.formatAsTime(d.getFinishTime()));
                     }
                 }
             }
         }
     }
 
-    public static void broadcastCountdown(Heat heat, Integer count){
+    public static void broadcastCountdown(Heat heat, Integer count) {
         for (Participant participant : heat.getParticipants()) {
             Player player = participant.getTPlayer().getPlayer();
             if (player != null) {
@@ -137,15 +134,6 @@ public class EventAnnouncements {
         TimingSystem.getPlugin().sendMessage(driver.getTPlayer().getPlayer(), "messages.announcements.lap", "%time%", ApiUtilities.formatAsTime(time));
     }
 
-    public static void sendStartSound(Heat heat) {
-        for (Participant participant : heat.getParticipants()) {
-            Player player = participant.getTPlayer().getPlayer();
-            if (player != null) {
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
-            }
-        }
-    }
-
     public static void sendFinishSound(Driver raceDriver) {
         if (raceDriver.getTPlayer().getPlayer() == null) {
             return;
@@ -167,7 +155,7 @@ public class EventAnnouncements {
         player.showTitle(title);
     }
 
-    public static void sendFinishTitleQualy(Driver driver) {
+    public static void sendFinishTitleQualification(Driver driver) {
         if (driver.getTPlayer().getPlayer() == null) {
             return;
         }
