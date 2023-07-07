@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.makkuusen.timing.system</groupId>
     <artifactId>TimingSystem</artifactId>
-    <version>1.5</version>
+    <version>1.6-226-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,12 +14,11 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
                 <includes>
                     <include>config.yml</include>
                     <include>plugin.yml</include>
-                    <include>en_us.yml</include>
-                    <include>sv_se.yml</include>
+                    <include>**/*.yml</include>
                 </includes>
             </resource>
         </resources>

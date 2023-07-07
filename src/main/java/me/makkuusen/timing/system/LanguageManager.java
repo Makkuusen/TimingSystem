@@ -20,6 +20,7 @@ public class LanguageManager {
 
     private final TimingSystem plugin;
     private final String defaultLocale;
+    private final String LANG_FOLDER = "lang/";
     private final Map<String, YamlConfiguration> locales;
 
     public LanguageManager(@NotNull TimingSystem plugin, @NotNull String defaultLocale) {
@@ -48,7 +49,7 @@ public class LanguageManager {
             }
         }
 
-        File file = new File(plugin.getDataFolder(), locale + ".yml");
+        File file = new File(plugin.getDataFolder(), LANG_FOLDER + locale + ".yml");
         YamlConfiguration localeConfig;
 
         if (!file.exists()) {
@@ -56,7 +57,7 @@ public class LanguageManager {
             try {
                 localeConfigDefaults.save(file);
             } catch (IOException e) {
-                plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + locale + ".yml", e);
+                plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + LANG_FOLDER + locale + ".yml", e);
             }
         } else {
             localeConfig = YamlConfiguration.loadConfiguration(file);
@@ -81,7 +82,7 @@ public class LanguageManager {
                 try {
                     localeConfig.save(file);
                 } catch (IOException e) {
-                    plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + locale + ".yml", e);
+                    plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + LANG_FOLDER + locale + ".yml", e);
                 }
             }
         }
