@@ -30,8 +30,6 @@ import me.makkuusen.timing.system.track.TrackRegion;
 import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -419,19 +417,8 @@ public class CommandTrack extends BaseCommand {
             plugin.sendMessage(commandSender, "info.track.times_row", "%pos%", String.valueOf(i + 1), "%player%", finish.getPlayer().getName(), "%time%", ApiUtilities.formatAsTime(finish.getTime()));
         }
 
-        var pageText = Component.text("--- ").color(NamedTextColor.DARK_GREEN);
-        if (pageStart > 1) {
-            pageText = pageText.append(Component.text("<<< ").color(NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/t times " + track.getCommandName() + " " + (pageStart - 1))));
-        }
-
         int pageEnd = (int) Math.ceil(((double) track.getTopList().size()) / ((double) itemsPerPage));
-        pageText = pageText.append(Component.text("page ").color(NamedTextColor.DARK_GREEN)).append(Component.text(pageStart + " ").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD)).append(Component.text("of ").color(NamedTextColor.DARK_GREEN)).append(Component.text(pageEnd + " ").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD));
-
-        if (pageEnd > pageStart) {
-            pageText = pageText.append(Component.text(">>> ").color(NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/t times " + track.getCommandName() + " " + (pageStart + 1))));
-        }
-        pageText = pageText.append(Component.text("---").color(NamedTextColor.DARK_GREEN));
-        commandSender.sendMessage(pageText);
+        commandSender.sendMessage(TextUtilities.getPageSelector(commandSender, pageStart, pageEnd, "/t times " + track.getCommandName()));
     }
 
     @Subcommand("mytimes")
@@ -457,29 +444,18 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        var trackText = Component.text("§2--- §a" + player.getName() + "§2 best times on §a" + track.getDisplayName() + " §2--- ");
+        plugin.sendMessage(player, "info.track.best_times", "%player%", player.getName(), "%track%", track.getDisplayName());
 
-        player.sendMessage(trackText);
         for (int i = start; i < stop; i++) {
             if (i == allTimes.size()) {
                 break;
             }
             TimeTrialFinish finish = allTimes.get(i);
-            player.sendMessage("§2" + (i + 1) + ". §a" + ApiUtilities.formatAsTime(finish.getTime()) + " §2| §a" + ApiUtilities.niceDate(finish.getDate()));
+            plugin.sendMessage(player, "info.track.times_row", "%pos%", String.valueOf(i + 1), "%player%", ApiUtilities.formatAsTime(finish.getTime()), "%time%", ApiUtilities.niceDate(finish.getDate()));
         }
 
-        var pageText = Component.text("§2--- ");
-        if (pageStart > 1) {
-            pageText = pageText.append(Component.text("§a<<< ").clickEvent(ClickEvent.runCommand("/t mytimes " + track.getCommandName() + " " + (pageStart - 1))));
-        }
         int pageEnd = (int) Math.ceil(((double) allTimes.size()) / ((double) itemsPerPage));
-
-        pageText = pageText.append(Component.text("§2page §a§l" + pageStart + " §r§2of §a§l" + pageEnd + " "));
-        if (pageEnd > pageStart) {
-            pageText = pageText.append(Component.text("§a>>>").clickEvent(ClickEvent.runCommand("/t mytimes " + track.getCommandName() + " " + (pageStart + 1))));
-        }
-        pageText = pageText.append(Component.text(" §2---"));
-        player.sendMessage(pageText);
+        player.sendMessage(TextUtilities.getPageSelector(player, pageStart, pageEnd, "/t mytimes " + track.getCommandName()));
     }
 
     @Subcommand("alltimes")
@@ -492,7 +468,7 @@ public class CommandTrack extends BaseCommand {
         if (name != null) {
             tPlayer = Database.getPlayer(name);
             if (tPlayer == null) {
-                player.sendMessage("§cCould not find player");
+                plugin.sendMessage(player, "error.player.not_found");
                 return;
             }
         } else {
@@ -513,69 +489,33 @@ public class CommandTrack extends BaseCommand {
         int stop = pageStart * itemsPerPage;
 
         if (start >= allTimes.size()) {
-            plugin.sendMessage(player, "messages.error.missing.page");
+            plugin.sendMessage(player, "error.no_page");
             return;
         }
 
-        var trackText = Component.text("§2--- §a" + tPlayer.getName() + "§2 most recent times §2--- ");
+        plugin.sendMessage(player, "info.track.best_times", "%player%", tPlayer.getName());
 
-        player.sendMessage(trackText);
         for (int i = start; i < stop; i++) {
             if (i == allTimes.size()) {
                 break;
             }
             TimeTrialFinish finish = allTimes.get(i);
-            player.sendMessage("§2" + (i + 1) + ". §a" + ApiUtilities.formatAsTime(finish.getTime()) + " §2| §a" + TrackDatabase.getTrackById(finish.getTrack()).get().getDisplayName() + " §2| §a" + ApiUtilities.niceDate(finish.getDate()));
-        }
+            var row = Component.text((i + 1) + ".").color(TextUtilities.textDarkColor)
+                    .append(Component.space())
+                    .append(Component.text(ApiUtilities.formatAsTime(finish.getTime()))).color(TextUtilities.textHighlightColor)
+                    .append(Component.space())
+                    .append(Component.text("|")).color(TextUtilities.textDarkColor)
+                    .append(Component.space())
+                    .append(Component.text(TrackDatabase.getTrackById(finish.getTrack()).get().getDisplayName())).color(TextUtilities.textHighlightColor)
+                    .append(Component.space())
+                    .append(Component.text("|")).color(TextUtilities.textDarkColor)
+                    .append(Component.space())
+                    .append(Component.text(ApiUtilities.niceDate(finish.getDate())).color(TextUtilities.textHighlightColor));
 
-        var pageText = Component.text("§2--- ");
-        if (pageStart > 1) {
-            pageText = pageText.append(Component.text("§a<<< ").clickEvent(ClickEvent.runCommand("/t alltimes " + tPlayer.getName() + " " + (pageStart - 1))));
+            player.sendMessage(row);
         }
         int pageEnd = (int) Math.ceil(((double) allTimes.size()) / ((double) itemsPerPage));
-
-        pageText = pageText.append(Component.text("§2page §a§l" + pageStart + " §r§2of §a§l" + pageEnd + " "));
-        if (pageEnd > pageStart) {
-            pageText = pageText.append(Component.text("§a>>>").clickEvent(ClickEvent.runCommand("/t alltimes " + tPlayer.getName() + " " + (pageStart + 1))));
-        }
-        pageText = pageText.append(Component.text(" §2---"));
-        player.sendMessage(pageText);
-    }
-
-    @Subcommand("list")
-    @CommandCompletion("<page>")
-    public static void onList(CommandSender commandSender, @Optional Integer pageStart) {
-        if (TrackDatabase.getTracks().size() == 0) {
-            plugin.sendMessage(commandSender, "messages.error.missing.tracks");
-            return;
-        }
-        if (pageStart == null) {
-            pageStart = 1;
-        }
-        StringBuilder tmpMessage = new StringBuilder();
-
-        int itemsPerPage = 25;
-        int start = (pageStart * itemsPerPage) - itemsPerPage;
-        int stop = pageStart * itemsPerPage;
-
-        if (start >= TrackDatabase.getTracks().size()) {
-            plugin.sendMessage(commandSender, "messages.error.missing.page");
-            return;
-        }
-
-        for (int i = start; i < stop; i++) {
-            if (i == TrackDatabase.getTracks().size()) {
-                break;
-            }
-
-            Track track = TrackDatabase.getTracks().get(i);
-
-            tmpMessage.append(track.getDisplayName()).append(", ");
-
-        }
-        plugin.sendMessage(commandSender, "messages.list.tracks", "%startPage%", String.valueOf(pageStart), "%totalPages%", String.valueOf((int) Math.ceil(((double) TrackDatabase.getTracks().size()) / ((double) itemsPerPage))));
-        commandSender.sendMessage("§2" + tmpMessage.substring(0, tmpMessage.length() - 2));
-
+        player.sendMessage(TextUtilities.getPageSelector(player, pageStart, pageEnd, "/t alltimes " + tPlayer.getName()));
     }
 
     @Subcommand("edit")
@@ -584,11 +524,11 @@ public class CommandTrack extends BaseCommand {
     public static void onEdit(Player player, @Optional Track track) {
         if (track == null) {
             TimingSystem.playerEditingSession.remove(player.getUniqueId());
-            player.sendMessage("§aRemoved from editing session");
+            plugin.sendMessage(player, "session.ended");
             return;
         }
         TimingSystem.playerEditingSession.put(player.getUniqueId(), track);
-        plugin.sendMessage(player, "messages.save.generic");
+        plugin.sendMessage(player, "success.save");
     }
 
     @Subcommand("options")
@@ -597,22 +537,16 @@ public class CommandTrack extends BaseCommand {
     public static void onOptions(CommandSender commandSender, Track track, String options) {
         String newOptions = ApiUtilities.parseFlagChange(track.getOptions(), options);
         if (newOptions == null) {
-            plugin.sendMessage(commandSender, "messages.save.generic");
+            plugin.sendMessage(commandSender, "success.save");
             return;
         }
 
         if (newOptions.length() == 0) {
-            plugin.sendMessage(commandSender, "messages.options.allRemoved");
+            plugin.sendMessage(commandSender, "success.options_cleared");
         } else {
-            plugin.sendMessage(commandSender, "messages.options.list", "%options%", ApiUtilities.formatPermissions(newOptions.toCharArray()));
+            plugin.sendMessage(commandSender, "success.options_new", "%options%", ApiUtilities.formatPermissions(newOptions.toCharArray()));
         }
         track.setOptions(newOptions);
-    }
-
-    @Subcommand("override")
-    @CommandPermission("track.admin")
-    public static void onOverride(Player player) {
-        player.sendMessage("§cDid you mean /settings override?");
     }
 
     @Subcommand("reload")
@@ -628,17 +562,17 @@ public class CommandTrack extends BaseCommand {
     public static void onDeleteBestTime(CommandSender commandSender, Track track, String name) {
         TPlayer TPlayer = Database.getPlayer(name);
         if (TPlayer == null) {
-            plugin.sendMessage(commandSender, "messages.error.missing.player");
+            plugin.sendMessage(commandSender, "error.player.not_found");
             return;
         }
 
         TimeTrialFinish bestFinish = track.getBestFinish(TPlayer);
         if (bestFinish == null) {
-            plugin.sendMessage(commandSender, "messages.error.missing.bestTime");
+            plugin.sendMessage(commandSender, "error.no_remove");
             return;
         }
         track.deleteBestFinish(TPlayer, bestFinish);
-        plugin.sendMessage(commandSender, "messages.remove.bestTime", "%player%", TPlayer.getName(), "%map%", track.getDisplayName());
+        plugin.sendMessage(commandSender, "success.remove_best_time", "%player%", TPlayer.getName(), "%map%", track.getDisplayName());
         LeaderboardManager.updateFastestTimeLeaderboard(track);
     }
 
@@ -649,16 +583,16 @@ public class CommandTrack extends BaseCommand {
         if (playerName != null) {
             TPlayer tPlayer = Database.getPlayer(playerName);
             if (tPlayer == null) {
-                commandSender.sendMessage("§cCould not find player");
+                plugin.sendMessage(commandSender, "error.player.not_found");
                 return;
             }
-            commandSender.sendMessage("§aAll finishes has been reset for " + tPlayer.getNameDisplay());
+            commandSender.sendMessage("§aAll finishes has been removed for " + tPlayer.getNameDisplay());
             track.deleteAllFinishes(tPlayer);
             LeaderboardManager.updateFastestTimeLeaderboard(track);
             return;
         }
         track.deleteAllFinishes();
-        commandSender.sendMessage("§aAll finishes has been reset");
+        commandSender.sendMessage("§aAll finishes has been removed");
         LeaderboardManager.updateFastestTimeLeaderboard(track);
 
     }

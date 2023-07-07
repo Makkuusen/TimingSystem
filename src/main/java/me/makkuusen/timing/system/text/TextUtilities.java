@@ -1,8 +1,11 @@
 package me.makkuusen.timing.system.text;
 
+import me.makkuusen.timing.system.TimingSystem;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.command.CommandSender;
 
 public class TextUtilities {
 
@@ -77,5 +80,22 @@ public class TextUtilities {
 
     public static Component getBrackets(String text) {
         return Component.text("[").color(textDarkColor).append(Component.text(text).color(textHighlightColor)).append(Component.text("]")).color(textDarkColor);
+    }
+
+    public static Component getPageSelector(CommandSender sender, Integer pageStart, int pageEnd, String command) {
+        var pageText = TextUtilities.getSpacersStart();
+        if (pageStart > 1) {
+            pageText = pageText.append(Component.text("<<< ").color(TextUtilities.textHighlightColor).clickEvent(ClickEvent.runCommand(command + " " + (pageStart - 1))));
+        }
+
+        pageText = pageText.append(TimingSystem.getPlugin().getText(sender, "info.page", "%current%", String.valueOf(pageStart), "%max%", String.valueOf(pageEnd)));
+
+        if (pageEnd > pageStart) {
+            pageText = pageText.append(Component.text(">>> ").color(TextUtilities.textHighlightColor).clickEvent(ClickEvent.runCommand(command + " " + (pageStart + 1))));
+        }
+
+        pageText = pageText.append(TextUtilities.getSpacersEnd());
+
+        return pageText;
     }
 }

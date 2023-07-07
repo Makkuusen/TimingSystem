@@ -226,11 +226,13 @@ public class TimingSystem extends JavaPlugin {
     }
 
     public void sendMessage(@NotNull CommandSender sender, @NotNull String key, String... replacements) {
-        String message = this.languageManager.getValue(key, getLocale(sender), replacements);
+        String text = this.languageManager.getNewValue(key, getLocale(sender), replacements);
 
-        if (message != null && !message.isEmpty()) {
-            sender.sendMessage(message);
+        if (!text.contains("&")) {
+            sender.sendMessage(Component.text(text));
+            return;
         }
+        sender.sendMessage(getComponentWithColors(text));
     }
 
     public @Nullable String getLocalizedMessage(@NotNull CommandSender sender, @NotNull String key, String... replacements) {
@@ -251,11 +253,11 @@ public class TimingSystem extends JavaPlugin {
         sender.sendMessage(getComponentWithColors(text));
     }
 
-    public @Nullable Component getText(CommandSender sender, String key) {
+    public Component getText(CommandSender sender, String key) {
         var text = this.languageManager.getNewValue(key, getLocale(sender));
 
         if (text == null) {
-            return null;
+            return Component.empty();
         }
 
         if (!text.contains("&")) {
@@ -264,11 +266,11 @@ public class TimingSystem extends JavaPlugin {
         return getComponentWithColors(text);
     }
 
-    public @Nullable Component getText(CommandSender sender, String key, String... replacements) {
+    public Component getText(CommandSender sender, String key, String... replacements) {
         var text = this.languageManager.getNewValue(key, getLocale(sender), replacements);
 
         if (text == null) {
-            return null;
+            return Component.empty();
         }
 
         if (!text.contains("&")) {

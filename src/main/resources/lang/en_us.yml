@@ -23,6 +23,7 @@ Description: >
 
 error:
   generic: '&eSomething went wrong.'
+  no_remove: '&eNothing to remove.'
   only_players: "&eOnly players can execute this command!"
   not_now: "&eYou can't do this right now."
   world_not_loaded: "&eWorld is not loaded."
@@ -48,25 +49,35 @@ error:
   player:
     not_found: "&ePlayer not found."
 
+warn:
+  danger: "&wThis command is dangerous, use it on own risk"
+
 success:
   tt_cancel: "&sCancelled time trial."
   create_name: '&s%name% was created.'
   create: '&sYour thing was created.'
   remove: '&hYour thing has been removed.'
   remove_name: "&s%name% was removed."
+  remove_best_time: '&hRemoved best time for %player% on %map%.'
+  save: "&sValue has been saved."
   track:
     toggle_open: "&sTrack is now open."
     toggle_closed: "&sTrack is now closed."
     teleport: "&dTeleported you to &h%track%"
     moved: "&sTrack moved to %to% from %from%"
-
+    options_cleared: '&hAll options are now cleared.'
+    options_new: '&hOptions are now: %options%'
   session:
     ended: "&sYour session has ended."
     started: "&sSession started on %track%"
 
+
 info:
+  page: "&dpage &l&h%current% &r&dof &l&h%max%"
   track:
     times: "&d--- Times for &h%track% &d---"
+    best_times: "&d--- &h%player% &dbest times on &h%track% &d---"
+    recent_times: "&d--- &h%player% &dmost recent times &d---"
     times_row: '&d%pos%. &h%player% &d| &h%time%'
     name: '&d--- &hTrack: %name% (%id%) &d---'
     type: '&dType:&h %type%'
@@ -83,8 +94,9 @@ info:
     leaderboard: '&dLeaderboard:&h %location%'
     weight: "&dWeight:&h %size%"
     tags: "&dTags:&h %tags%"
+
   tt:
-    stats_title: "&d--- &h%player%&d statistics on %h%track% &d---"
+    stats_title: "&d--- &h%player%&d statistics on &h%track% &d---"
     best_lap: "&dBest time: &h%time%"
     position: "&dPosition: &h%pos%"
     finishes: "&dFinishes: &h%size%"
