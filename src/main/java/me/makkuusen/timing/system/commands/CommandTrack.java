@@ -56,7 +56,7 @@ public class CommandTrack extends BaseCommand {
         player.sendMessage("§2Offset is X: " + offset.getX() + ", Y: " + offset.getY() + ", Z: " + offset.getZ());
 
         var trackLocations = track.getTrackLocations();
-        for (TrackLocation tl : trackLocations) {
+        for (TrackLocation tl : trackLocations) {       return;
             Location loc = tl.getLocation();
             var newLoc = getNewLocation(newWorld, loc, offset);
             track.updateTrackLocation(tl, newLoc);
@@ -138,7 +138,7 @@ public class CommandTrack extends BaseCommand {
 
             if (trackRegion != null) {
                 player.teleport(trackRegion.getSpawnLocation());
-                plugin.sendMessage(player, "success.track.teleport", "%track", trackRegion.getRegionType().name() + " : " + trackRegion.getRegionIndex());
+                plugin.sendMessage(player, "success.track.teleport", "%track%", trackRegion.getRegionType().name() + " : " + trackRegion.getRegionIndex());
                 return;
             }
 
@@ -146,7 +146,7 @@ public class CommandTrack extends BaseCommand {
 
             if (trackLocation != null) {
                 player.teleport(trackLocation.getLocation());
-                plugin.sendMessage(player, "success.track.teleport", "%track", trackLocation.getLocationType().name() + " : " + trackLocation.getIndex());
+                plugin.sendMessage(player, "success.track.teleport", "%track%", trackLocation.getLocationType().name() + " : " + trackLocation.getIndex());
                 return;
             }
             plugin.sendMessage(player, "error.teleport");
@@ -205,7 +205,7 @@ public class CommandTrack extends BaseCommand {
 
         if (!TrackDatabase.trackNameAvailable(name)) {
             plugin.sendMessage(player, "error.track.exists");
-            return;
+
         }
 
         if (player.getInventory().getItemInMainHand().getItemMeta() == null) {
@@ -232,7 +232,7 @@ public class CommandTrack extends BaseCommand {
         if (name != null && commandSender.isOp()) {
             tPlayer = Database.getPlayer(name);
             if (tPlayer == null) {
-                plugin.sendMessage(commandSender, "error.player.not_found");
+                plugin.sendMessage(commandSender, "error.no_player");
                 return;
             }
             commandSender.sendMessage(Component.empty());
@@ -468,7 +468,7 @@ public class CommandTrack extends BaseCommand {
         if (name != null) {
             tPlayer = Database.getPlayer(name);
             if (tPlayer == null) {
-                plugin.sendMessage(player, "error.player.not_found");
+                plugin.sendMessage(player, "error.no_player");
                 return;
             }
         } else {
@@ -562,7 +562,7 @@ public class CommandTrack extends BaseCommand {
     public static void onDeleteBestTime(CommandSender commandSender, Track track, String name) {
         TPlayer TPlayer = Database.getPlayer(name);
         if (TPlayer == null) {
-            plugin.sendMessage(commandSender, "error.player.not_found");
+            plugin.sendMessage(commandSender, "error.no_player");
             return;
         }
 
@@ -583,16 +583,17 @@ public class CommandTrack extends BaseCommand {
         if (playerName != null) {
             TPlayer tPlayer = Database.getPlayer(playerName);
             if (tPlayer == null) {
-                plugin.sendMessage(commandSender, "error.player.not_found");
+                plugin.sendMessage(commandSender, "error.no_player");
                 return;
             }
-            commandSender.sendMessage("§aAll finishes has been removed for " + tPlayer.getNameDisplay());
+            var message = plugin.getText(commandSender,"success.tt.remove_all").append(TextUtilities.success(" -> " + tPlayer.getNameDisplay()));
+            commandSender.sendMessage(message);
             track.deleteAllFinishes(tPlayer);
             LeaderboardManager.updateFastestTimeLeaderboard(track);
             return;
         }
         track.deleteAllFinishes();
-        commandSender.sendMessage("§aAll finishes has been removed");
+        plugin.sendMessage(commandSender, "success.tt.remove_all");
         LeaderboardManager.updateFastestTimeLeaderboard(track);
 
     }
@@ -601,7 +602,7 @@ public class CommandTrack extends BaseCommand {
     @CommandPermission("track.admin")
     public static void onUpdateLeaderboards(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(player));
-        plugin.sendMessage(player, "messages.update.leaderboards");
+        plugin.sendMessage(player, "info.leaderboards");
     }
 
     @Subcommand("set")
@@ -617,9 +618,9 @@ public class CommandTrack extends BaseCommand {
         public static void onOpen(Player player, boolean open, Track track) {
             track.setOpen(open);
             if (track.isOpen()) {
-                plugin.sendMessage(player, "messages.toggle.track.open");
+                plugin.sendMessage(player, "success.track.toggle_open");
             } else {
-                plugin.sendMessage(player, "messages.toggle.track.closed");
+                plugin.sendMessage(player, "success.track.toggle_closed");
             }
         }
 
@@ -627,7 +628,7 @@ public class CommandTrack extends BaseCommand {
         @CommandCompletion("<value> @track")
         public static void onWeight(Player player, int weight, Track track) {
             track.setWeight(weight);
-            plugin.sendMessage(player, "messages.save.generic");
+            plugin.sendMessage(player, "success.save");
         }
 
         @Subcommand("tag")
@@ -635,40 +636,38 @@ public class CommandTrack extends BaseCommand {
         public static void onTag(CommandSender sender, Track track, String plusOrMinus, TrackTag tag) {
 
             if (!TrackTagManager.hasTag(tag)) {
-                sender.sendMessage("§cTag does not exist");
+                plugin.sendMessage(sender, "error.track.tag_not_found");
                 return;
             }
             if (plusOrMinus.equalsIgnoreCase("-")) {
                 if (track.removeTag(tag)) {
-                    sender.sendMessage("§aTag '" + tag.getValue() + "' was removed.");
+                    plugin.sendMessage(sender,"success.remove");
                     return;
                 }
-
-                sender.sendMessage("§cTag '" + tag.getValue() + "' could not be removed.");
+                plugin.sendMessage(sender, "error.track.tag_remove");
                 return;
             }
 
             if (track.createTag(tag)) {
-                sender.sendMessage("§aTag '" + tag.getValue() + "' was added.");
+                plugin.sendMessage(sender, "success.add_name", "%name%", tag.getValue());
                 return;
             }
 
-            sender.sendMessage("§cTag '" + tag.getValue() + "' could not be added.");
-
+            plugin.sendMessage(sender, "error.track.tag_add");
         }
 
         @Subcommand("type")
         @CommandCompletion("@trackType @track")
         public static void onType(Player player, Track.TrackType type, Track track) {
             track.setTrackType(type);
-            plugin.sendMessage(player, "messages.save.generic");
+            plugin.sendMessage(player, "success.save");
         }
 
         @Subcommand("mode")
         @CommandCompletion("@trackMode @track")
         public static void onMode(Player player, Track.TrackMode mode, Track track) {
             track.setMode(mode);
-            plugin.sendMessage(player, "messages.save.generic");
+            plugin.sendMessage(player, "success.save");
         }
 
         @Subcommand("spawn")
@@ -676,11 +675,11 @@ public class CommandTrack extends BaseCommand {
         public static void onSpawn(Player player, Track track, @Optional TrackRegion region) {
             if (region != null) {
                 region.setSpawn(player.getLocation());
-                plugin.sendMessage(player, "messages.save.generic");
+                plugin.sendMessage(player, "success.save");
                 return;
             }
             track.setSpawnLocation(player.getLocation());
-            plugin.sendMessage(player, "messages.save.generic");
+            plugin.sendMessage(player, "success.save");
         }
 
         @Subcommand("leaderboard")
@@ -696,26 +695,26 @@ public class CommandTrack extends BaseCommand {
         public static void onName(CommandSender commandSender, Track track, String name) {
             int maxLength = 25;
             if (name.length() > maxLength) {
-                plugin.sendMessage(commandSender, "messages.error.nametoLong", "%length%", String.valueOf(maxLength));
+                plugin.sendMessage(commandSender, "error.name_to_long", "%length%", String.valueOf(maxLength));
                 return;
             }
 
             if (ApiUtilities.checkTrackName(name)) {
-                plugin.sendMessage(commandSender, "messages.error.trackExists");
+                plugin.sendMessage(commandSender, "error.track.exists");
                 return;
             }
 
             if (!name.matches("[A-Za-zÅÄÖåäöØÆøæ0-9 ]+")) {
-                plugin.sendMessage(commandSender, "messages.error.nameRegexException");
+                plugin.sendMessage(commandSender, "error.name_regex");
                 return;
             }
 
             if (!TrackDatabase.trackNameAvailable(name)) {
-                plugin.sendMessage(commandSender, "messages.error.trackExists");
+                plugin.sendMessage(commandSender, "error.track.exists");
                 return;
             }
             track.setName(name);
-            plugin.sendMessage(commandSender, "messages.save.generic");
+            plugin.sendMessage(commandSender, "success.save");
             LeaderboardManager.updateFastestTimeLeaderboard(track);
 
         }
@@ -725,11 +724,11 @@ public class CommandTrack extends BaseCommand {
         public static void onGui(Player player, Track track) {
             var item = player.getInventory().getItemInMainHand();
             if (item.getItemMeta() == null) {
-                plugin.sendMessage(player, "messages.error.missing.item");
+                plugin.sendMessage(player, "error.no_item");
                 return;
             }
             track.setGuiItem(item);
-            plugin.sendMessage(player, "messages.save.generic");
+            plugin.sendMessage(player, "success.save");
         }
 
         @Subcommand("owner")
@@ -737,11 +736,11 @@ public class CommandTrack extends BaseCommand {
         public static void onOwner(CommandSender commandSender, Track track, String name) {
             TPlayer TPlayer = Database.getPlayer(name);
             if (TPlayer == null) {
-                plugin.sendMessage(commandSender, "messages.error.missing.player");
+                plugin.sendMessage(commandSender, "error.no_player");
                 return;
             }
             track.setOwner(TPlayer);
-            plugin.sendMessage(commandSender, "messages.save.generic");
+            plugin.sendMessage(commandSender, "success.save");
         }
 
         @Subcommand("startregion")
@@ -786,17 +785,17 @@ public class CommandTrack extends BaseCommand {
                 var maybeRegion = track.getRegion(TrackRegion.RegionType.LAGSTART);
                 if (maybeRegion.isPresent()) {
                     if (track.removeRegion(maybeRegion.get())) {
-                        plugin.sendMessage(player, "messages.remove.region");
+                        plugin.sendMessage(player, "success.remove");
                     } else {
-                        plugin.sendMessage(player, "messages.error.remove.region");
+                        plugin.sendMessage(player, "error.no_remove");
                     }
                 } else {
-                    player.sendMessage("§cRegion doesn't currently exist");
+                    plugin.sendMessage(player, "error.fail_remove");
                 }
                 return;
             }
             if (createOrUpdateRegion(track, TrackRegion.RegionType.LAGSTART, player)) {
-                plugin.sendMessage(player, "messages.create.region");
+                plugin.sendMessage(player, "success.create");
             }
         }
 
@@ -812,17 +811,17 @@ public class CommandTrack extends BaseCommand {
                 var maybeRegion = track.getRegion(TrackRegion.RegionType.LAGEND);
                 if (maybeRegion.isPresent()) {
                     if (track.removeRegion(maybeRegion.get())) {
-                        plugin.sendMessage(player, "messages.remove.region");
+                        plugin.sendMessage(player, "success.remove");
                     } else {
-                        plugin.sendMessage(player, "messages.error.remove.region");
+                        plugin.sendMessage(player, "error.no_remove");
                     }
                 } else {
-                    player.sendMessage("§cRegion doesn't currently exist");
+                    plugin.sendMessage(player, "error.fail_remove");
                 }
                 return;
             }
             if (createOrUpdateRegion(track, TrackRegion.RegionType.LAGEND, player)) {
-                plugin.sendMessage(player, "messages.create.region");
+                plugin.sendMessage(player, "success.create");
             }
         }
 
@@ -847,7 +846,7 @@ public class CommandTrack extends BaseCommand {
         private static boolean createOrUpdateRegion(Track track, TrackRegion.RegionType regionType, Player player) {
             var maybeSelection = ApiUtilities.getSelection(player);
             if (maybeSelection.isEmpty()) {
-                plugin.sendMessage(player, "messages.error.missing.selection");
+                plugin.sendMessage(player, "error.selection");
                 return false;
             }
             var selection = maybeSelection.get();
@@ -862,7 +861,7 @@ public class CommandTrack extends BaseCommand {
         private static boolean createOrUpdateRegion(Track track, TrackRegion.RegionType regionType, int index, Player player) {
             var maybeSelection = ApiUtilities.getSelection(player);
             if (maybeSelection.isEmpty()) {
-                plugin.sendMessage(player, "messages.error.missing.selection");
+                plugin.sendMessage(player, "error.selection");
                 return false;
             }
             var selection = maybeSelection.get();
@@ -892,42 +891,41 @@ public class CommandTrack extends BaseCommand {
                     restoreLocations = trackLocations;
                     trackLocations.forEach(track::removeTrackLocation);
                     restoreTrack = track;
-                    player.sendMessage(TextUtilities.success("All " + type.name() + " locations were removed."));
+                    plugin.sendMessage(player, "success.track.location_remove", "%type%", type.name());
                     return;
                 }
 
                 if (index.equalsIgnoreCase("+all")) {
                     if (restoreLocations.isEmpty()) {
-                        player.sendMessage(TextUtilities.error("There are no locations to restore"));
+                        plugin.sendMessage(player, "error.no_restore");
                         return;
                     }
 
                     if (restoreTrack != track) {
-                        player.sendMessage(TextUtilities.error("You can't restore locations to a different track"));
+                        plugin.sendMessage(player, "error.no_restore");
                         return;
                     }
 
                     for (TrackLocation restoreLocation : restoreLocations) {
                         var maybeLocation = track.getTrackLocation(restoreLocation.getLocationType(), restoreLocation.getIndex());
                         if (maybeLocation.isPresent()) {
-                            player.sendMessage(TextUtilities.error(restoreLocation.getLocationType() + ":" + restoreLocation.getIndex() + " could not be created again."));
                             continue;
                         }
                         track.createTrackLocation(restoreLocation.getLocationType(), restoreLocation.getIndex(), restoreLocation.getLocation());
                     }
-                    player.sendMessage(TextUtilities.success("All locations has been restored"));
+                    plugin.sendMessage(player, "success.track.location_restore");
                     return;
                 }
 
                 remove = getParsedRemoveFlag(index);
                 if (getParsedIndex(index) == null) {
-                    plugin.sendMessage(player, "messages.error.numberException");
+                    plugin.sendMessage(player, "error.number");
                     return;
                 }
                 locationIndex = getParsedIndex(index);
 
                 if (locationIndex == 0) {
-                    player.sendMessage(TextUtilities.error("Index can not be 0."));
+                    plugin.sendMessage(player, "error.track.index_zero");
                     return;
                 }
             } else {
@@ -941,17 +939,17 @@ public class CommandTrack extends BaseCommand {
                 var maybeLocation = track.getTrackLocation(type, locationIndex);
                 if (maybeLocation.isPresent()) {
                     if (track.removeTrackLocation(maybeLocation.get())) {
-                        plugin.sendMessage(player, "messages.remove.generic");
+                        plugin.sendMessage(player, "success.remove");
                     } else {
-                        player.sendMessage("§cTrack location could not be removed.");
+                        plugin.sendMessage(player, "error.fail_remove");
                     }
                 } else {
-                    player.sendMessage("§cTrack location doesn't currently exist");
+                    plugin.sendMessage(player, "error.no_remove");
                 }
                 return;
             }
             createOrUpdateTrackLocation(track, type, locationIndex, location);
-            player.sendMessage("§aTrack Location has been updated");
+            plugin.sendMessage(player, "error.success_save");
 
         }
 
@@ -962,19 +960,19 @@ public class CommandTrack extends BaseCommand {
                 if (index.equalsIgnoreCase("-all")) {
                     var regions = track.getRegions(regionType);
                     regions.forEach(track::removeRegion);
-                    player.sendMessage(TextUtilities.success("All " + regionType.name() + " regions were removed."));
+                    plugin.sendMessage(player, "success.track.regions_remove", "%type%", regionType.name());
                     return;
                 }
 
                 remove = getParsedRemoveFlag(index);
                 if (getParsedIndex(index) == null) {
-                    plugin.sendMessage(player, "messages.error.numberException");
+                    plugin.sendMessage(player, "error.number");
                     return;
                 }
                 regionIndex = getParsedIndex(index);
 
                 if (regionIndex == 0) {
-                    player.sendMessage(TextUtilities.error("Index can not be 0."));
+                    plugin.sendMessage(player, "error.track.index_zero");
                     return;
                 }
             } else {
@@ -988,20 +986,18 @@ public class CommandTrack extends BaseCommand {
                 var maybeRegion = track.getRegion(regionType, regionIndex);
                 if (maybeRegion.isPresent()) {
                     if (track.removeRegion(maybeRegion.get())) {
-                        plugin.sendMessage(player, "messages.remove.region");
+                        plugin.sendMessage(player, "success.remove");
                     } else {
-                        plugin.sendMessage(player, "messages.error.remove.region");
+                        plugin.sendMessage(player, "error.fail_remove");
                     }
                 } else {
-                    player.sendMessage("§cRegion doesn't currently exist");
+                    plugin.sendMessage(player, "error.no_remove");
                 }
                 return;
             }
             if (createOrUpdateRegion(track, regionType, regionIndex, player)) {
-                plugin.sendMessage(player, "messages.create.region");
-                return;
+                plugin.sendMessage(player, "error.success_save");
             }
-            player.sendMessage("§cRegion could not be created/updated");
         }
 
         private static boolean getParsedRemoveFlag(String index) {

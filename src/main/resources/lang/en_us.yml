@@ -1,14 +1,3 @@
-# Color codes
-# &h = Highlight color
-# &d = Dark color
-# &e = Error color
-# &s = Success color
-# &w = Warning color
-# &l = Bold decoration
-# &o = Italic decoration
-# &r = Reset decoration and color
-# %any% = Placeholder, do not touch.
-
 Description: >
   Special formatting codes:
     &h = Highlight color
@@ -23,54 +12,60 @@ Description: >
 
 error:
   generic: '&eSomething went wrong.'
-  no_remove: '&eNothing to remove.'
-  only_players: "&eOnly players can execute this command!"
   not_now: "&eYou can't do this right now."
+  only_players: "&eOnly players can execute this command!"
   world_not_loaded: "&eWorld is not loaded."
-  no_tracks: "&eNo tracks found."
-  no_regions: "&eNo regions found."
-  no_page: "&ePage not found."
   syntax: "&eIncorrect syntax."
-  number: '&eValue could not parse. Is it a number?'
-  name_to_long: '&eName can not exceed %length% characters.'
-  name_regex: '&eName can only contain letters, spaces, or numbers.'
-  selection: '&eYour selection could not be used.'
-  teleport: "&eTeleportation failed."
-  no_item: '&eYou need to hold an item in your hand.'
-  track:
-    closed: "&eTrack is closed."
-    type: '&eInvalid track type.'
-    mode: '&eInvalid track mode.'
-    name: "&eInvalid track name."
-    exists: '&eTrack already exists.'
-    remove: "&eT"
-  race:
-    exists: '&eRace already exists.'
-  player:
-    not_found: "&ePlayer not found."
+  number_format: '&eValue could not parse. Is it a number?'
+  length_exceeded: '&eName can not exceed %length% characters.'
+  name_format: '&eName can only contain letters, spaces, or numbers.'
+  selection: '&eYour World Edit selection could not be used.'
+  no_zero_index: "&eIndex can't be 0."
+  nothing_to_remove: '&eNothing to remove.'
+  nothing_to_restore: "&eNothing to restore."
+  player_not_found: "&ePlayer not found."
+  tracks_not_found: "&eNo tracks found."
+  regions_not_found: "&eNo regions found."
+  page_not_found: "&ePage not found."
+  item_not_found: '&eYou need to hold an item in your hand.'
+  tag_not_found: "&eTag not found."
+  failed_to_teleport: "&eTeleportation failed."
+  failed_to_remove: "&eFailed to remove."
+  failed_to_remove_tag: "&eTag could not be removed."
+  failed_to_add_tag: "&eTag could not be added."
+  track_is_closed: "&eTrack is closed."
+  track_exists: '&eTrack already exists.'
+  race_exists: '&eRace already exists.'
+  invalid_track_type: '&eInvalid track type.'
+  invalid_track_name: '&eInvalid track name.'
+  invalid_track_mode: '&eInvalid track mode.'
 
 warn:
   danger: "&wThis command is dangerous, use it on own risk"
 
 success:
-  tt_cancel: "&sCancelled time trial."
-  create_name: '&s%name% was created.'
-  create: '&sYour thing was created.'
-  remove: '&hYour thing has been removed.'
-  remove_name: "&s%name% was removed."
-  remove_best_time: '&hRemoved best time for %player% on %map%.'
-  save: "&sValue has been saved."
-  track:
-    toggle_open: "&sTrack is now open."
-    toggle_closed: "&sTrack is now closed."
-    teleport: "&dTeleported you to &h%track%"
-    moved: "&sTrack moved to %to% from %from%"
-    options_cleared: '&hAll options are now cleared.'
-    options_new: '&hOptions are now: %options%'
+  saved: "&sValue has been saved."
+  created: '&sYour thing was created.'
+  added_tag: "&sTag %tag% was added."
+  removed: '&sYour thing has been removed.'
+  removed_best_time: '&sRemoved best time for %player% on %map%.'
+  removed_tag: "&sTag was removed."
+  removed_locations: "&sAll %type% locations has been removed."
+  removed_regions: "&sAll %type% regions has been removed."
+  restored_locations: "&sLocations has been restored."
+  restored_regions: "&sRegions has been restored."
+  time_trial_cancelled: "&sTime trials was cancelled."
+  track_now_open: "&sTrack is now open."
+  track_now_closed: "&sTrack is now closed."
+  teleport_to_track: "&dTeleported you to &h%track%"
+  track_moved: "&sTrack moved to %to% from %from%"
+  track_options_cleared: '&sAll options are now cleared.'
+  track_options_new: '&sOptions are now: %options%'
   session:
     ended: "&sYour session has ended."
     started: "&sSession started on %track%"
-
+  tt:
+    remove_all: "&sAll finishes has been removed"
 
 info:
   page: "&dpage &l&h%current% &r&dof &l&h%max%"
@@ -94,7 +89,6 @@ info:
     leaderboard: '&dLeaderboard:&h %location%'
     weight: "&dWeight:&h %size%"
     tags: "&dTags:&h %tags%"
-
   tt:
     stats_title: "&d--- &h%player%&d statistics on &h%track% &d---"
     best_lap: "&dBest time: &h%time%"
@@ -104,8 +98,7 @@ info:
     time: "&dTime spent: &h%size%"
   regions: "&d--- Regions for &h%track% &d---"
   locations: "&d--- Locations for &h%track% &d---"
-
-
+  leaderboard: '&hUpdating leaderboards.'
   race:
     name: '&d--- &hRace: %name% &d---'
     type: '&dType:&h %type%'
