@@ -1,6 +1,5 @@
 package me.makkuusen.timing.system;
 
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -124,41 +123,10 @@ public class LanguageManager {
     }
 
     @Nullable
-    public String getValue(@NotNull String key, @Nullable String locale) {
-        String value = getOrLoadLocale(locale == null ? defaultLocale : locale.toLowerCase()).getString(key);
-        if (value == null || value.isEmpty()) {
-            return null;
-        }
-
-        value = ChatColor.translateAlternateColorCodes('&', value);
-
-        return value;
-    }
-
-    @Nullable
     public String getNewValue(@NotNull String key, @Nullable String locale) {
         String value = getOrLoadLocale(locale == null ? defaultLocale : locale.toLowerCase()).getString(key);
         if (value == null || value.isEmpty()) {
             return null;
-        }
-
-        return value;
-    }
-
-    @Nullable
-    public String getValue(@NotNull String key, @Nullable String locale, @NotNull String... replacements) {
-        if (replacements.length % 2 != 0) {
-            plugin.getLogger().log(Level.WARNING, "[LanguageManager] Replacement data is uneven", new Exception());
-        }
-
-        String value = getValue(key, locale);
-
-        if (value == null) {
-            return null;
-        }
-
-        for (int i = 0; i < replacements.length; i += 2) {
-            value = value.replace(replacements[i], replacements[i + 1]);
         }
 
         return value;

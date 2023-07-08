@@ -15,6 +15,8 @@ public class TextUtilities {
     public static TextColor textWarn = TextColor.color(NamedTextColor.YELLOW);
     public static TextColor textSuccess = TextColor.color(NamedTextColor.GREEN);
 
+    public static TextColor textBroadcast = TextColor.color(NamedTextColor.GREEN);
+
     public static Component getSpacersStart() {
         return Component.text("--- ").color(textDarkColor);
     }
@@ -88,10 +90,10 @@ public class TextUtilities {
             pageText = pageText.append(Component.text("<<< ").color(TextUtilities.textHighlightColor).clickEvent(ClickEvent.runCommand(command + " " + (pageStart - 1))));
         }
 
-        pageText = pageText.append(TimingSystem.getPlugin().getText(sender, "info.page", "%current%", String.valueOf(pageStart), "%max%", String.valueOf(pageEnd)));
+        pageText = pageText.append(TimingSystem.getPlugin().getText(sender, Info.PAGE_CURRENT_OF_MAX, "%current%", String.valueOf(pageStart), "%max%", String.valueOf(pageEnd)));
 
         if (pageEnd > pageStart) {
-            pageText = pageText.append(Component.text(">>> ").color(TextUtilities.textHighlightColor).clickEvent(ClickEvent.runCommand(command + " " + (pageStart + 1))));
+            pageText = pageText.append(Component.text(" >>>").color(TextUtilities.textHighlightColor).clickEvent(ClickEvent.runCommand(command + " " + (pageStart + 1))));
         }
 
         pageText = pageText.append(TextUtilities.getSpacersEnd());

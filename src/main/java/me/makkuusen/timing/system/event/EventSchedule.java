@@ -96,11 +96,8 @@ public class EventSchedule {
         return message;
     }
 
-    public List<Component> getRoundList(Event event) {
-        List<Component> message = new ArrayList<>();
-        message.add(TextUtilities.getTitleLine("Rounds for", event.getDisplayName()));
-        message.addAll(listRounds());
-        return message;
+    public List<Component> getRoundList() {
+        return new ArrayList<>(listRounds());
     }
 
     public Optional<Heat> getHeat(String name) {

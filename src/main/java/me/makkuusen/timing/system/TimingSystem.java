@@ -22,9 +22,7 @@ import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
-import me.makkuusen.timing.system.text.Error;
-import me.makkuusen.timing.system.text.Info;
-import me.makkuusen.timing.system.text.Success;
+import me.makkuusen.timing.system.text.MessageLevel;
 import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
@@ -246,16 +244,10 @@ public class TimingSystem extends JavaPlugin {
         sender.sendMessage(getComponentWithColors(text));
     }
 
-    public void sendMessage(@NotNull CommandSender sender, @NotNull Success key, String... replacements) {
-        sendMessage(sender, "success." + key.name().toLowerCase(), replacements);
-    }
-    public void sendMessage(@NotNull CommandSender sender, @NotNull Error key, String... replacements) {
-        sendMessage(sender, "error." + key.name().toLowerCase(), replacements);
+    public void sendMessage(@NotNull CommandSender sender, @NotNull MessageLevel key, String... replacements) {
+        sendMessage(sender, key.getKey(), replacements);
     }
 
-    public void sendMessage(@NotNull CommandSender sender, @NotNull Info key, String... replacements) {
-        sendMessage(sender, "info." + key.name().toLowerCase(), replacements);
-    }
 
     public @Nullable String getLocalizedMessage(@NotNull CommandSender sender, @NotNull String key, String... replacements) {
         return this.languageManager.getValue(key, getLocale(sender), replacements);
@@ -275,14 +267,8 @@ public class TimingSystem extends JavaPlugin {
         sender.sendMessage(getComponentWithColors(text));
     }
 
-    public void sendMessage(@NotNull CommandSender sender, @NotNull Error key) {
-        sendMessage(sender, "errors." + key.name().toLowerCase());
-    }
-    public void sendMessage(@NotNull CommandSender sender, @NotNull Success key) {
-        sendMessage(sender, "success." + key.name().toLowerCase());
-    }
-    public void sendMessage(@NotNull CommandSender sender, @NotNull Info key) {
-        sendMessage(sender, "info." + key.name().toLowerCase());
+    public void sendMessage(@NotNull CommandSender sender, @NotNull MessageLevel key) {
+        sendMessage(sender, key.getKey());
     }
 
 
@@ -312,14 +298,8 @@ public class TimingSystem extends JavaPlugin {
         return getComponentWithColors(text);
     }
 
-    public Component getText(CommandSender sender, Error key, String... replacements) {
-        return getText(sender, "errors." + key.name().toLowerCase(), replacements);
-    }
-    public Component getText(CommandSender sender, Success key, String... replacements) {
-        return getText(sender, "success." + key.name().toLowerCase(), replacements);
-    }
-    public Component getText(CommandSender sender, Info key, String... replacements) {
-        return getText(sender, "info." + key.name().toLowerCase(), replacements);
+    public Component getText(CommandSender sender, MessageLevel key, String... replacements) {
+        return getText(sender, key.getKey(), replacements);
     }
 
 

@@ -1,12 +1,16 @@
 package me.makkuusen.timing.system.text;
 
-public enum Success {
+public enum Success implements MessageLevel{
 
     SAVED,
     CREATED,
     CREATED_TAG,
     CREATED_TRACK,
+    CREATED_ROUND,
+    CREATED_HEAT,
+    CREATED_EVENT,
     ADDED_TAG,
+    ADDING_DRIVERS,
     REMOVED,
     REMOVED_TAG,
     REMOVED_LOCATIONS,
@@ -14,6 +18,10 @@ public enum Success {
     REMOVED_BEST_FINISH,
     REMOVED_ALL_FINISHES,
     REMOVED_TRACK,
+    REMOVED_ROUND,
+    REMOVED_HEAT,
+    REMOVED_EVENT,
+    REMOVED_DRIVERS,
     RESTORED_LOCATIONS,
     RESTORED_REGIONS,
     TIME_TRIAL_CANCELLED,
@@ -33,5 +41,23 @@ public enum Success {
     OVERRIDE_ON,
     OVERRIDE_OFF,
     COLOR_UPDATED,
+    ROUND_FINISHED,
+    HEAT_FINISHED,
+    EVENT_FINISHED,
+    EVENT_SELECTED,
+    TRACK_SELECTED,
+    EVENT_STARTED,
+    SIGNS_NOW_OPEN,
+    SIGNS_NOW_CLOSED,
+    SPECTATING,
+    SIGNED,
+    RESERVE,
+    PLAYER_SIGNED,
+    PLAYER_RESERVE,
     TELEPORT_TO_TRACK;
+
+    @Override
+    public String getKey() {
+        return "success." + this.name().toLowerCase();
+    }
 }

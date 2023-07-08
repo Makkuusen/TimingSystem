@@ -23,6 +23,7 @@ import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.text.Error;
+import me.makkuusen.timing.system.text.Success;
 import me.makkuusen.timing.system.text.TextButtons;
 import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -161,10 +162,10 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     public static void onHeatFinish(Player player, Heat heat) {
         if (heat.finishHeat()) {
-            player.sendMessage(TextUtilities.success("Finished " + heat.getName()));
+            plugin.sendMessage(player, Success.HEAT_FINISHED);
             return;
         }
-        player.sendMessage("§cCouldn't finish " + heat.getName());
+        plugin.sendMessage(player, Error.FAILED_TO_FINISH_HEAT);
     }
 
     @Subcommand("load")
@@ -208,10 +209,10 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     public static void onHeatRemove(Player player, Heat heat) {
         if (EventDatabase.removeHeat(heat)) {
-            player.sendMessage("§aHeat was removed");
+            plugin.sendMessage(player, Success.REMOVED_HEAT, "%heat%", heat.getName());
             return;
         }
-        player.sendMessage("§cHeat could not be removed. Is the event already finished?");
+        plugin.sendMessage(player, Error.FAILED_TO_REMOVE_HEAT);
     }
 
     @Subcommand("create")
@@ -223,16 +224,16 @@ public class CommandHeat extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage("§cYou have no event selected, /event select <name>");
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
         if (event.getTrack() == null) {
-            player.sendMessage("§cYour event needs a track, /event set track <name>");
+            plugin.sendMessage(player, Error.TRACK_NOT_FOUND_FOR_EVENT);
             return;
         }
         round.createHeat(round.getHeats().size() + 1);
-        player.sendMessage("§aCreated heat for " + round.getDisplayName());
+        plugin.sendMessage(player, Success.CREATED_HEAT, "%round%", round.getDisplayName());
     }
 
     @Subcommand("set laps")
@@ -240,7 +241,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat <laps>")
     public static void onHeatSetLaps(Player player, Heat heat, Integer laps) {
         heat.setTotalLaps(laps);
-        player.sendMessage("§aLaps has been updated");
+        plugin.sendMessage(player, Success.SAVED);
     }
 
     @Subcommand("set pits")
@@ -251,7 +252,7 @@ public class CommandHeat extends BaseCommand {
             player.sendMessage("§cYou can only modify total pits of a final heat.");
         } else {
             heat.setTotalPits(pits);
-            player.sendMessage("§aPits has been updated");
+            plugin.sendMessage(player, Success.SAVED);
         }
     }
 
@@ -265,7 +266,7 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         heat.setStartDelayInTicks(delay);
-        player.sendMessage("§aStart delay has been updated");
+        plugin.sendMessage(player, Success.SAVED);
 
     }
 
@@ -279,7 +280,7 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         heat.setTimeLimit(timeLimit);
-        player.sendMessage("§aTime limit has been updated");
+        plugin.sendMessage(player, Success.SAVED);
     }
 
     @Subcommand("set maxdrivers")
@@ -287,7 +288,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat <max>")
     public static void onHeatMaxDrivers(Player player, Heat heat, Integer maxDrivers) {
         heat.setMaxDrivers(maxDrivers);
-        player.sendMessage("§aMax drivers has been updated");
+        plugin.sendMessage(player, Success.SAVED);
     }
 
     @Subcommand("set driverposition")
@@ -576,7 +577,7 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     public static void onSortByTT(Player player, Heat heat) {
         if (heat.getHeatState() == HeatState.FINISHED) {
-            player.sendMessage("§cYou cannot sort an finished started heat");
+            player.sendMessage("§cYou cannot sort an already finished heat");
             return;
         }
         if (heat.isRacing()) {

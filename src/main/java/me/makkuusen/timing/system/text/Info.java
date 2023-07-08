@@ -1,6 +1,6 @@
 package me.makkuusen.timing.system.text;
 
-public enum Info {
+public enum Info implements MessageLevel{
 
     PAGE_CURRENT_OF_MAX,
     TRACK_TITLE,
@@ -10,6 +10,13 @@ public enum Info {
     PLAYER_STATS_TITLE,
     REGIONS_TITLE,
     LOCATIONS_TITLE,
+    ROUNDS_TITLE,
+    HEATS_TITLE,
+    ROUND_RESULT_TITLE,
+    HEAT_RESULT_TITLE,
+    SIGNS_TITLE,
+    RESERVES_TITLE,
+    ACTIVE_EVENTS_TITLE,
     TRACK_TYPE,
     TRACK_OPEN,
     TRACK_CLOSED,
@@ -33,5 +40,10 @@ public enum Info {
 
     Info() {
 
+    }
+
+    @Override
+    public String getKey() {
+        return "info." + this.name().toLowerCase();
     }
 }

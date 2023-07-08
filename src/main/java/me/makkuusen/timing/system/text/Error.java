@@ -1,14 +1,25 @@
 package me.makkuusen.timing.system.text;
 
 
-public enum Error {
+public enum Error implements MessageLevel {
     GENERIC,
     NOT_NOW,
     FAILED_TELEPORT,
     FAILED_TO_REMOVE,
     FAILED_TO_REMOVE_TAG,
+    FAILED_TO_REMOVE_ROUND,
+    FAILED_TO_REMOVE_HEAT,
+    FAILED_TO_REMOVE_EVENT,
+    FAILED_TO_REMOVE_DRIVERS,
     FAILED_TO_ADD_TAG,
     FAILED_TO_CREATE_TAG,
+    FAILED_TO_CREATE_ROUND,
+    FAILED_TO_CREATE_HEAT,
+    FAILED_TO_CREATE_EVENT,
+    FAILED_TO_FINISH_ROUND,
+    FAILED_TO_FINISH_HEAT,
+    FAILED_TO_FINISH_EVENT,
+    FAILED_TO_START_EVENT,
     ONLY_PLAYERS,
     WORLD_NOT_LOADED,
     SYNTAX,
@@ -26,8 +37,17 @@ public enum Error {
     PAGE_NOT_FOUND,
     ITEM_NOT_FOUND,
     TAG_NOT_FOUND,
+    ROUND_NOT_FOUND,
+    HEAT_NOT_FOUND,
+    EVENT_NOT_FOUND,
+    ALREADY_SIGNED,
+    TRACK_NOT_FOUND_FOR_EVENT,
     TRACK_IS_CLOSED,
     TRACK_EXISTS,
+    ROUND_NOT_FINISHED,
+    QUALIFICATION_NOT_SUPPORTED,
+    EVENT_ALREADY_STARTED,
+    EVENT_NOT_SELECTED,
     RACE_EXISTS,
     INVALID_TRACK_TYPE,
     INVALID_TRACK_NAME,
@@ -36,5 +56,12 @@ public enum Error {
     NO_EVENT_SELECTED,
     PERMISSION_DENIED;
 
+
+
     Error() {}
+
+    @Override
+    public String getKey() {
+        return "error." + this.name().toLowerCase();
+    }
 }
