@@ -10,6 +10,8 @@ import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.gui.SettingsGui;
+import me.makkuusen.timing.system.text.Error;
+import me.makkuusen.timing.system.text.Success;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
@@ -29,13 +31,8 @@ public class CommandSettings extends BaseCommand {
     @Subcommand("verbose")
     public static void onVerbose(Player player) {
         var tPlayer = Database.getPlayer(player);
-        if (tPlayer.isVerbose()) {
-            tPlayer.toggleVerbose();
-            plugin.sendMessage(player, "messages.toggle.race.checkpointsOff");
-        } else {
-            tPlayer.toggleVerbose();
-            plugin.sendMessage(player, "messages.toggle.race.checkpointsOn");
-        }
+        tPlayer.toggleVerbose();
+        plugin.sendMessage(player, tPlayer.isVerbose() ? Success.CHECKPOINTS_ANNOUNCEMENTS_ON : Success.CHECKPOINTS_ANNOUNCEMENTS_OFF);
     }
 
     @Subcommand("boat")
@@ -46,35 +43,29 @@ public class CommandSettings extends BaseCommand {
         if (player.getVehicle() instanceof Boat boat) {
             boat.setBoatType(type);
         }
-        plugin.sendMessage(player, "messages.save.generic");
+        plugin.sendMessage(player, Success.SAVED);
     }
 
     @Subcommand("sound")
     public static void onTTSound(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.switchToggleSound();
-        player.sendMessage("§2Switched sounds to §a" + (tPlayer.isSound() ? "on" : "off") + "§2.");
+        plugin.sendMessage(player, tPlayer.isSound() ? Success.SOUND_ON : Success.SOUND_OFF);
     }
 
     @Subcommand("compactScoreboard")
     public static void onCompactScoreboard(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.setCompactScoreboard(!tPlayer.getCompactScoreboard());
-        player.sendMessage("§2Switched compact scoreboards to §a" + (tPlayer.getCompactScoreboard() ? "on" : "off") + "§2.");
+        plugin.sendMessage(player, tPlayer.isSound() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
     }
 
     @Subcommand("override")
     @CommandPermission("track.admin")
     public static void onOverride(Player player) {
         var tPlayer = Database.getPlayer(player);
-
-        if (tPlayer.isOverride()) {
-            tPlayer.toggleOverride();
-            plugin.sendMessage(player, "messages.remove.override");
-        } else {
-            tPlayer.toggleOverride();
-            plugin.sendMessage(player, "messages.create.override");
-        }
+        tPlayer.toggleOverride();
+        plugin.sendMessage(player, tPlayer.isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
     }
 
 
@@ -84,16 +75,16 @@ public class CommandSettings extends BaseCommand {
         if (!hex.startsWith("#")) {
             hex = "#" + hex;
         }
-        if (isValidHexaCode(hex)) {
+        if (isValidHexCode(hex)) {
             var tPlayer = Database.getPlayer(player);
             tPlayer.setHexColor(hex);
-            player.sendMessage("§aYour " + tPlayer.getColorCode() + "color §awas updated");
+            player.sendMessage(plugin.getText(player, Success.COLOR_UPDATED).color(tPlayer.getTextColor()));
             return;
         }
-        player.sendMessage("§cYou didn't enter a valid hexadecimal color code");
+        plugin.sendMessage(player, Error.COLOR_FORMAT);
     }
 
-    public static boolean isValidHexaCode(String str) {
+    public static boolean isValidHexCode(String str) {
         // Regex to check valid hexadecimal color code.
         String regex = "^#([A-Fa-f0-9]{6})$";
 

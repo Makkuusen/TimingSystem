@@ -98,4 +98,27 @@ public class TextUtilities {
 
         return pageText;
     }
+
+    public static Component getTimesRow(String row, String first, String second) {
+        return Component.text(row + ".").color(TextUtilities.textDarkColor)
+                .append(Component.space())
+                .append(Component.text(first).color(TextUtilities.textHighlightColor))
+                .append(Component.space())
+                .append(Component.text("|").color(TextUtilities.textDarkColor))
+                .append(Component.space())
+                .append(Component.text(second).color(TextUtilities.textHighlightColor));
+    }
+    public static Component getTimesRow(String row, String first, String second, String third) {
+        return Component.text(row + ".").color(TextUtilities.textDarkColor)
+                .append(Component.space())
+                .append(Component.text(first).color(TextUtilities.textHighlightColor))
+                .append(Component.space())
+                .append(Component.text("|").color(TextUtilities.textDarkColor))
+                .append(Component.space())
+                .append(Component.text(second).color(TextUtilities.textHighlightColor))
+                .append(Component.space())
+                .append(Component.text("|").color(TextUtilities.textDarkColor))
+                .append(Component.space())
+                .append(Component.text(third).color(TextUtilities.textHighlightColor));
+    }
 }

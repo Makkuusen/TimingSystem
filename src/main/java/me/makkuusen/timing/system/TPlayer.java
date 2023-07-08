@@ -10,6 +10,7 @@ import co.aikar.idb.DbRow;
 import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
@@ -159,6 +160,10 @@ public class TPlayer implements Comparable<TPlayer> {
     public org.bukkit.Color getBukkitColor() {
         var c = Color.decode(color);
         return org.bukkit.Color.fromRGB(c.getRed(), c.getGreen(), c.getBlue());
+    }
+
+    public TextColor getTextColor() {
+        return TextColor.fromHexString(color);
     }
 
     public Boat.Type getBoat() {

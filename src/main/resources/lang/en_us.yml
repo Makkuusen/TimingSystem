@@ -17,6 +17,7 @@ error:
   world_not_loaded: "&eWorld is not loaded."
   syntax: "&eIncorrect syntax."
   number_format: '&eValue could not parse. Is it a number?'
+  color_format: "&eColor could not parse. Is it a valid hex code?"
   length_exceeded: '&eName can not exceed %length% characters.'
   name_format: '&eName can only contain letters, spaces, or numbers.'
   selection: '&eYour World Edit selection could not be used.'
@@ -33,79 +34,81 @@ error:
   failed_to_remove: "&eFailed to remove."
   failed_to_remove_tag: "&eTag could not be removed."
   failed_to_add_tag: "&eTag could not be added."
+  failed_to_create_tag: "&eTag could not be created."
   track_is_closed: "&eTrack is closed."
   track_exists: '&eTrack already exists.'
   race_exists: '&eRace already exists.'
   invalid_track_type: '&eInvalid track type.'
   invalid_track_name: '&eInvalid track name.'
   invalid_track_mode: '&eInvalid track mode.'
+  invalid_name: "&eInvalid name."
 
 warn:
   danger: "&wThis command is dangerous, use it on own risk"
 
 success:
   saved: "&sValue has been saved."
-  created: '&sYour thing was created.'
-  added_tag: "&sTag %tag% was added."
+  created: '&sYour thing has been created.'
+  created_tag: "&sTag %tag% has been created."
+  created_track: "&sTrack %track% has been created."
+  added_tag: "&sTag %tag% has been added."
   removed: '&sYour thing has been removed.'
-  removed_best_time: '&sRemoved best time for %player% on %map%.'
+  removed_best_finish: '&sRemoved best finish for %player% on %track%.'
+  removed_all_finishes: "&sAll finishes has been removed"
   removed_tag: "&sTag was removed."
   removed_locations: "&sAll %type% locations has been removed."
   removed_regions: "&sAll %type% regions has been removed."
+  removed_track: "&s%track% has been removed."
   restored_locations: "&sLocations has been restored."
   restored_regions: "&sRegions has been restored."
   time_trial_cancelled: "&sTime trials was cancelled."
   track_now_open: "&sTrack is now open."
   track_now_closed: "&sTrack is now closed."
-  teleport_to_track: "&dTeleported you to &h%track%"
   track_moved: "&sTrack moved to %to% from %from%"
   track_options_cleared: '&sAll options are now cleared.'
   track_options_new: '&sOptions are now: %options%'
-  session:
-    ended: "&sYour session has ended."
-    started: "&sSession started on %track%"
-  tt:
-    remove_all: "&sAll finishes has been removed"
+  teleport_to_track: "&dTeleported you to &h%track%"
+  session_ended: "&sYour session has ended."
+  session_started: "&sSession started on %track%"
+  checkpoints_announcements_on: '&sCheckpoint announcements are now active.'
+  checkpoints_announcements_off: '&sCheckpoint announcements are now disabled.'
+  sound_on: "&sSwitched sound to on."
+  sound_off: "&sSwitched sound to &eoff&s."
+  compact_scoreboard_on: "&sSwitched compact scoreboard to on."
+  compact_scoreboard_off: "&sSwitched compact scoreboard to &eoff&s."
+  override_on: "&sSwitched override to on."
+  override_off: "&sSwtiched override to &eoff&s."
+  color_updated: "Your color was updated."
+
 
 info:
-  page: "&dpage &l&h%current% &r&dof &l&h%max%"
-  track:
-    times: "&d--- Times for &h%track% &d---"
-    best_times: "&d--- &h%player% &dbest times on &h%track% &d---"
-    recent_times: "&d--- &h%player% &dmost recent times &d---"
-    times_row: '&d%pos%. &h%player% &d| &h%time%'
-    name: '&d--- &hTrack: %name% (%id%) &d---'
-    type: '&dType:&h %type%'
-    open: '&dOpen: &hYes'
-    closed: '&dOpen: &hNo'
-    created: '&dCreated:&h %date%&d owned by &h%owner%'
-    options: '&dOptions: &h+%options%'
-    mode: '&dMode: &h%mode%'
-    checkpoints: '&dCheckpoints:&h %size%'
-    grids: '&dGrids:&h %size%'
-    qualification_grids: '&dQualyGrids:&h %size%'
-    resets: '&dReset regions:&h %size%'
-    spawn: '&dSpawn:&h %location%'
-    leaderboard: '&dLeaderboard:&h %location%'
-    weight: "&dWeight:&h %size%"
-    tags: "&dTags:&h %tags%"
-  tt:
-    stats_title: "&d--- &h%player%&d statistics on &h%track% &d---"
-    best_lap: "&dBest time: &h%time%"
-    position: "&dPosition: &h%pos%"
-    finishes: "&dFinishes: &h%size%"
-    attempts: "&dAttempts: &h%size%"
-    time: "&dTime spent: &h%size%"
-  regions: "&d--- Regions for &h%track% &d---"
-  locations: "&d--- Locations for &h%track% &d---"
-  leaderboard: '&hUpdating leaderboards.'
-  race:
-    name: '&d--- &hRace: %name% &d---'
-    type: '&dType:&h %type%'
-    laps: '&dLaps:&h %laps%'
-    pits: '&dPits:&h %pits%'
-    drivers: '&dDrivers:&h %drivers%'
-
+  page_current_of_max: "&dpage &l&h%current% &r&dof &l&h%max%"
+  track_title: '&d--- &hTrack: %name% (%id%) &d---'
+  track_times_title: "&d--- Times for &h%track% &d---"
+  player_best_times_title: "&d--- &h%player% &dbest times on &h%track% &d---"
+  player_recent_times_title: "&d--- &h%player% &dmost recent times &d---"
+  player_stats_title: "&d--- &h%player%&d statistics on &h%track% &d---"
+  regions_title: "&d--- Regions for &h%track% &d---"
+  locations_title: "&d--- Locations for &h%track% &d---"
+  track_type: '&dType:&h %type%'
+  track_open: '&dOpen: &hYes'
+  track_closed: '&dOpen: &hNo'
+  track_date_created: '&dCreated:&h %date%&d owned by &h%owner%'
+  track_options: '&dOptions: &h+%options%'
+  track_mode: '&dMode: &h%mode%'
+  track_checkpoints: '&dCheckpoints:&h %size%'
+  track_grids: '&dGrids:&h %size%'
+  track_qualification_grids: '&dQualyGrids:&hc %size%'
+  track_reset_regions: '&dReset regions:&h %size%'
+  track_spawn_location: '&dSpawn:&h %location%'
+  track_weight: "&dWeight:&h %size%"
+  track_tags: "&dTags:&h %tags%"
+  player_stats_best_lap: "&dBest time: &h%time%"
+  player_stats_position: "&dPosition: &h%pos%"
+  player_stats_finishes: "&dFinishes: &h%size%"
+  player_stats_attempts: "&dAttempts: &h%size%"
+  player_stats_time_spent: "&dTime spent: &h%size%"
+  updating_leaderboards: '&hUpdating leaderboards.'
 
 
 messages:

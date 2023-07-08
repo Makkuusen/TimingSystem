@@ -9,6 +9,7 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
@@ -19,7 +20,7 @@ import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
-import me.makkuusen.timing.system.text.Errors;
+import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.text.TextButtons;
 import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 
 @CommandAlias("round")
 public class CommandRound extends BaseCommand {
-
+    public static TimingSystem plugin;
     @Default
     @Subcommand("list")
     public static void onRounds(Player player, @Optional Event event) {
@@ -45,7 +46,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -62,7 +63,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -128,7 +129,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -147,7 +148,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -178,7 +179,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -218,7 +219,7 @@ public class CommandRound extends BaseCommand {
         if (maybeEvent.isPresent()) {
             event = maybeEvent.get();
         } else {
-            player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+            plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
             return;
         }
 
@@ -333,24 +334,22 @@ public class CommandRound extends BaseCommand {
     }
 
 
-    public static boolean heatAddDriver(Player sender, TPlayer tPlayer, Heat heat, boolean random) {
+    public static void heatAddDriver(Player sender, TPlayer tPlayer, Heat heat, boolean random) {
         if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
-            return false;
+            return;
         }
 
         for (Heat h : heat.getRound().getHeats()) {
             if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
-                return false;
+                return;
             }
         }
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             var bestTime = heat.getEvent().getTrack().getBestFinish(tPlayer);
             sender.sendMessage(TextUtilities.dark(heat.getDrivers().size() + ":").append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((bestTime == null ? "(None)" : ApiUtilities.formatAsTime(bestTime.getTime())))));
-            return true;
         }
 
-        return false;
     }
 
 }

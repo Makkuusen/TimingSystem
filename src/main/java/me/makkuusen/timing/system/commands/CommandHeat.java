@@ -22,7 +22,7 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
-import me.makkuusen.timing.system.text.Errors;
+import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.text.TextButtons;
 import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -42,6 +42,7 @@ import java.util.Objects;
 
 @CommandAlias("heat")
 public class CommandHeat extends BaseCommand {
+    public static TimingSystem plugin;
 
     @Default
     @Subcommand("list")
@@ -51,7 +52,7 @@ public class CommandHeat extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -295,7 +296,7 @@ public class CommandHeat extends BaseCommand {
     public static void onHeatSetDriverPosition(Player sender, Heat heat, String playerName, String position) {
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
-            sender.sendMessage(Errors.PLAYER_NOT_FOUND.message());
+            plugin.sendMessage(sender, Error.PLAYER_NOT_FOUND);
             return;
         }
         if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
@@ -376,7 +377,7 @@ public class CommandHeat extends BaseCommand {
         }
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
-            sender.sendMessage(Errors.PLAYER_NOT_FOUND.message());
+            plugin.sendMessage(sender, Error.PLAYER_NOT_FOUND);
             return;
         }
 
@@ -405,7 +406,7 @@ public class CommandHeat extends BaseCommand {
     public static void onHeatRemoveDriver(Player sender, Heat heat, String playerName) {
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
-            sender.sendMessage(Errors.PLAYER_NOT_FOUND.message());
+            plugin.sendMessage(sender, Error.PLAYER_NOT_FOUND);
             return;
         }
         if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
@@ -518,7 +519,7 @@ public class CommandHeat extends BaseCommand {
         if (name != null) {
             TPlayer tPlayer = Database.getPlayer(name);
             if (tPlayer == null) {
-                sender.sendMessage(Errors.PLAYER_NOT_FOUND.message());
+                plugin.sendMessage(sender, Error.PLAYER_NOT_FOUND);
                 return;
             }
             if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
