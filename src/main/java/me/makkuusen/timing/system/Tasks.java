@@ -5,6 +5,7 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.text.ActionBar;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
@@ -57,8 +58,7 @@ public class Tasks {
                         var driver = maybeDriver.get();
                         if (driver.getHeat().getRound() instanceof FinalRound) {
                             if (!driver.isFinished()) {
-                                String message = TimingSystem.getPlugin().getLocalizedMessage(p, "messages.actionbar.race", "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits()));
-                                ApiUtilities.sendActionBar(message, p);
+                                p.sendActionBar(plugin.getText(p, ActionBar.RACE,"%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
                             }
                         } else if (driver.getHeat().getRound() instanceof QualificationRound) {
                             if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
@@ -84,8 +84,7 @@ public class Tasks {
                             var driver = mightBeDriver.get();
                             if (driver.getHeat().getRound() instanceof FinalRound) {
                                 if (!driver.isFinished()) {
-                                    String message = TimingSystem.getPlugin().getLocalizedMessage(p, "messages.actionbar.raceSpectator", "%name%", driver.getTPlayer().getName(), "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits()));
-                                    ApiUtilities.sendActionBar(message, p);
+                                    p.sendActionBar(plugin.getText(p, ActionBar.RACE_SPECTATOR, "%name%", driver.getTPlayer().getName(), "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
 
                                 }
                             } else if (driver.getHeat().getRound() instanceof QualificationRound) {

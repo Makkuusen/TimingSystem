@@ -6,13 +6,16 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
-import me.makkuusen.timing.system.text.TextUtilities;
+import me.makkuusen.timing.system.text.Broadcast;
+import me.makkuusen.timing.system.text.Error;
+import me.makkuusen.timing.system.text.Success;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
@@ -22,7 +25,7 @@ import org.bukkit.entity.Player;
 
 @CommandAlias("race")
 public class CommandRace extends BaseCommand {
-
+    public static TimingSystem plugin;
     public static Event event;
     public static Round round;
     public static Heat heat;
@@ -32,14 +35,15 @@ public class CommandRace extends BaseCommand {
     public void onStart(Player player) {
 
         if (heat == null) {
-            player.sendMessage("§cFirst you need to create a race with /race create");
+            plugin.sendMessage(player, Error.RACE_NOT_FOUND);
+
             return;
         }
         if (heat.startCountdown()) {
-            player.sendMessage(TextUtilities.success("Started countdown for " + heat.getName()));
+            plugin.sendMessage(player, Success.HEAT_COUNTDOWN_STARTED);
             return;
         }
-        player.sendMessage(TextUtilities.error("Couldn't start " + heat.getName()));
+        plugin.sendMessage(player, Error.FAILED_TO_START_HEAT);
 
     }
 
@@ -47,20 +51,18 @@ public class CommandRace extends BaseCommand {
     @Subcommand("end")
     public void onEnd(Player player) {
         if (event == null) {
-            player.sendMessage("§cThere is no race to end.");
+            plugin.sendMessage(player, Error.RACE_NOT_FOUND);
             return;
         }
         if (heat != null && heat.getHeatState() == HeatState.RACING) {
-            if (!heat.finishHeat()) {
-                player.sendMessage("§cCouldn't end " + heat.getName());
-                return;
-            }
+            heat.finishHeat();
         } else if (heat != null && heat.getHeatState() == HeatState.LOADED) {
             heat.resetHeat();
         }
 
         deleteEvent();
-        player.sendMessage("§aPrevious race has ended.");
+        plugin.sendMessage(player, Success.RACE_FINISHED);
+
     }
 
     @CommandPermission("race.admin")
@@ -72,13 +74,13 @@ public class CommandRace extends BaseCommand {
             if (heat.isFinished()) {
                 deleteEvent();
             } else {
-                player.sendMessage("§cIs old race still running? If you want to end it, do /race end.");
+                plugin.sendMessage(player, Error.RACE_IN_PROGRESS, "%track%", heat.getEvent().getTrack().getDisplayName());
                 return;
             }
         }
 
         if (!track.isOpen()) {
-            player.sendMessage("§cTrack is closed and can't be used.");
+            plugin.sendMessage(player, Error.TRACK_IS_CLOSED);
             return;
         }
 
@@ -86,23 +88,22 @@ public class CommandRace extends BaseCommand {
         String name = "QuickRace";
         var maybeEvent = EventDatabase.eventNew(player.getUniqueId(), name);
         if (maybeEvent.isEmpty()) {
-            player.sendMessage(TextUtilities.error("Could not create QuickRace, check with an administrator to find out why."));
+            plugin.sendMessage(player, Error.GENERIC);
             return;
         }
-        player.sendMessage("§aCreated " + RoundType.FINAL.name() + " round.");
 
         event = maybeEvent.get();
         event.setTrack(track);
 
         if (!EventDatabase.roundNew(event, RoundType.FINAL, 1)) {
-            player.sendMessage("§cCould not create new round");
+            plugin.sendMessage(player, Error.FAILED_TO_CREATE_ROUND);
             return;
         }
 
         var maybeRound = event.getEventSchedule().getRound(1);
 
         if (maybeRound.isEmpty()) {
-            player.sendMessage("§cCould not create heat");
+            plugin.sendMessage(player, Error.GENERIC);
             return;
         }
 
@@ -113,7 +114,7 @@ public class CommandRace extends BaseCommand {
         var maybeHeat = round.getHeat("R1F1");
 
         if (maybeHeat.isEmpty()) {
-            player.sendMessage("§cCould not create heat");
+            plugin.sendMessage(player, Error.FAILED_TO_CREATE_HEAT);
             return;
         }
 
@@ -142,26 +143,25 @@ public class CommandRace extends BaseCommand {
         var state = heat.getHeatState();
         if (state != HeatState.SETUP) {
             if (!heat.resetHeat()) {
-                player.sendMessage("§cCouldn't reload " + heat.getName());
+                plugin.sendMessage(player, Error.FAILED_TO_RESET_HEAT);
                 return;
             }
         }
 
         if (!heat.loadHeat()) {
-            player.sendMessage("§cCouldn't load " + heat.getName());
+            plugin.sendMessage(player,Error.FAILED_TO_LOAD_HEAT);
             deleteEvent();
             return;
         }
 
-        var message = Component.text("§3--> Click to join a " + heat.getTotalLaps() + " laps race on §b§l" + event.getTrack().getDisplayName() + " §3<--").clickEvent(ClickEvent.runCommand("/race join"));
         for (Player p : Bukkit.getOnlinePlayers()) {
 
             if (heat.getDrivers().containsKey(p.getUniqueId())) {
                 continue;
             }
-            p.sendMessage("");
-            p.sendMessage(message);
-            p.sendMessage("");
+            p.sendMessage(Component.empty());
+            p.sendMessage(plugin.getText(p, Broadcast.CLICK_TO_JOIN_RACE, "%track%", event.getTrack().getDisplayName(), "%laps%", String.valueOf(heat.getTotalLaps())).clickEvent(ClickEvent.runCommand("/race join")));
+            p.sendMessage(Component.empty());
         }
     }
 
@@ -169,32 +169,33 @@ public class CommandRace extends BaseCommand {
     public void onClickToJoin(Player player) {
 
         if (heat == null) {
-            player.sendMessage("§cYou can not sign up for a race right now.");
+            plugin.sendMessage(player, Error.NOT_NOW);
             return;
         }
 
         if (heat.getHeatState() != HeatState.LOADED) {
-            player.sendMessage("§cYou can not sign up for a race right now.");
+            plugin.sendMessage(player, Error.NOT_NOW);
             return;
         }
 
         if (heat.getDrivers().get(player.getUniqueId()) != null) {
-            player.sendMessage("§cYou are already signed up for this race!");
+            plugin.sendMessage(player, Error.ALREADY_SIGNED_RACE);
+
             return;
         }
 
         if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
-            player.sendMessage("§cMax allowed amount of drivers have been added");
+            plugin.sendMessage(player, Error.RACE_FULL);
             return;
         }
 
         if (EventDatabase.heatDriverNew(player.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
-            player.sendMessage("§aYou have signed up for the race!");
+            plugin.sendMessage(player, Success.SIGNED_RACE);
             heat.addDriverToGrid(heat.getDrivers().get(player.getUniqueId()));
             return;
         }
 
-        player.sendMessage("§cYou can not sign up for a race right now.");
+        plugin.sendMessage(player, Error.NOT_NOW);
     }
 
     private void deleteEvent() {

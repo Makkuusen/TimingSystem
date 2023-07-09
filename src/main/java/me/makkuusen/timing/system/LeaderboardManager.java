@@ -5,7 +5,6 @@ import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackLeaderboard;
 import me.makkuusen.timing.system.track.TrackLocation;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -34,16 +33,6 @@ public class LeaderboardManager {
         for (Track t : TrackDatabase.getTracks()) {
             updateFastestTimeLeaderboard(t);
         }
-    }
-
-    public static void updateAllFastestTimeLeaderboard(CommandSender toNotify) {
-        if (!TimingSystem.enableLeaderboards) {
-            return;
-        }
-        for (Track rTrack : TrackDatabase.getTracks()) {
-            updateFastestTimeLeaderboard(rTrack);
-        }
-        toNotify.sendMessage("§aFinished updating all of the fastest time leaderboards.");
     }
 
     public static void removeLeaderboards(Track track) {

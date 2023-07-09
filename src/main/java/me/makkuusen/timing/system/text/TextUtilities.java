@@ -14,8 +14,9 @@ public class TextUtilities {
     public static TextColor textError = TextColor.color(NamedTextColor.RED);
     public static TextColor textWarn = TextColor.color(NamedTextColor.YELLOW);
     public static TextColor textSuccess = TextColor.color(NamedTextColor.GREEN);
-
-    public static TextColor textBroadcast = TextColor.color(NamedTextColor.GREEN);
+    public static TextColor textBroadcast = TextColor.color(NamedTextColor.AQUA);
+    public static TextColor textAwardHighlightColor = TextColor.color(NamedTextColor.YELLOW);
+    public static TextColor textAwardDarkColor = TextColor.color(NamedTextColor.GOLD);
 
     public static Component getSpacersStart() {
         return Component.text("--- ").color(textDarkColor);

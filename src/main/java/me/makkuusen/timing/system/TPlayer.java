@@ -123,11 +123,6 @@ public class TPlayer implements Comparable<TPlayer> {
         return compactScoreboard;
     }
 
-    public void setCompactScoreboard(boolean compactScoreboard) {
-        this.compactScoreboard = compactScoreboard;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
-    }
-
     public String getName() {
         return name;
     }
@@ -194,6 +189,15 @@ public class TPlayer implements Comparable<TPlayer> {
         return override;
     }
 
+    public boolean isTimeTrial() {
+        return timeTrial;
+    }
+
+    public boolean isCompactScoreboard() {
+        return compactScoreboard;
+    }
+
+
     public void toggleOverride() {
         override = !override;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `override` = " + override + " WHERE `uuid` = '" + uuid + "';");
@@ -204,18 +208,19 @@ public class TPlayer implements Comparable<TPlayer> {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `verbose` = " + verbose + " WHERE `uuid` = '" + uuid + "';");
     }
 
-    public boolean isTimeTrial() {
-        return timeTrial;
-    }
-
     public void toggleTimeTrial() {
         timeTrial = !timeTrial;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `timetrial` = " + timeTrial + " WHERE `uuid` = '" + uuid + "';");
     }
 
-    public void switchToggleSound() {
+    public void toggleSound() {
         toggleSound = !toggleSound;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `toggleSound` = " + toggleSound + " WHERE `uuid` = '" + uuid + "';");
+    }
+
+    public void toggleCompactScoreboard() {
+        this.compactScoreboard = !compactScoreboard;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
     }
 
     public boolean isSound() {

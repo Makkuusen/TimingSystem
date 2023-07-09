@@ -6,6 +6,8 @@ Description: >
     &s = Success color
     &w = Warning color
     &b = Broadcast color
+    &a = Award highlight color
+    &c = Award dark color
     &l = Bold decoration
     &o = Italic decoration
     &r = Reset decoration and color
@@ -13,11 +15,13 @@ Description: >
 
 error:
   generic: '&eSomething went wrong.'
-  not_now: "&eYou can't do this right now."
+  not_now: "&eYou can not do this right now."
+  can_not: "&eYou can not do that."
   only_players: "&eOnly players can execute this command!"
   world_not_loaded: "&eWorld is not loaded."
   syntax: "&eIncorrect syntax."
   number_format: '&eValue could not parse. Is it a number?'
+  time_format: "&eYou need to format time correctly, e.g. 2s [s=seconds, m=minutes]"
   color_format: "&eColor could not parse. Is it a valid hex code?"
   length_exceeded: '&eName can not exceed %length% characters.'
   name_format: '&eName can only contain letters, spaces, or numbers.'
@@ -35,13 +39,18 @@ error:
   heat_not_found: "&eHeat not found."
   event_not_found: "&eEvent not found."
   track_not_found_for_event: "&eTrack not found for this event. /event set track <name>"
+  race_not_found: "&eRace not found. Create one with /race create"
   track_is_closed: "&eTrack is closed."
   track_exists: '&eTrack already exists.'
   round_not_finished: "&eRound has not finished yet."
   qualification_not_supported: "&eQualification is not supported by this track."
   event_already_started: "&eEvent has already started."
-  event_not_selected: "&eYou have no event selected, /event select <name>"
+  heat_already_started: "&eHeat haas already started."
+  no_event_selected: "&eYou have no event selected, /event select <name>"
   already_signed: "&eYou are already signed up for %event%."
+  already_signed_race: "&eYou are already signed up for the race."
+  player_already_in_round: "&ePlayer is already in this round."
+  failed_to_add_driver: "&eDriver could not be added."
   failed_to_teleport: "&eTeleportation failed."
   failed_to_remove: "&eFailed to remove."
   failed_to_remove_tag: "&eTag could not be removed."
@@ -49,6 +58,8 @@ error:
   failed_to_remove_heat: "&eHeat could not be removed."
   failed_to_remove_drivers: "&eDrivers could not be removed."
   failed_to_remove_event: "&eEvent could not be removed, is there any heat running?"
+  failed_to_remove_driver: "&eDriver could not be removed."
+  failed_to_disqualify_driver: "&eDriver could not be disqualified."
   failed_to_add_tag: "&eTag could not be added."
   failed_to_create_tag: "&eTag could not be created."
   failed_to_create_round: "&eRound could not be created."
@@ -58,11 +69,32 @@ error:
   failed_to_finish_heat: "&eHeat could not finish."
   failed_to_finish_event: "&eEvent could not finish."
   failed_to_start_event: "&eEvent could not start. Setup is not finished."
+  failed_to_start_heat: "&eHeat could not start."
+  failed_to_load_heat: "&eHeat could not be loaded."
+  failed_to_reset_heat: "&eHeat could not be reset."
+  failed_to_abort_heat: "&eYou could not abort the heat."
   race_exists: '&eRace already exists.'
+  race_full: "&eRace is already full."
+  heat_full: "&eHeat is already full."
+  add_driver_future_round: "&eYou can not add drivers to a future round. You first need to finish the current round."
+  sort_drivers_future_round: "&eYou can't sort drivers in a future round. You first need to finish the current round."
   invalid_track_type: '&eInvalid track type.'
   invalid_track_name: '&eInvalid track name.'
   invalid_track_mode: '&eInvalid track mode.'
   invalid_name: "&eInvalid name."
+  left_boat: "&eYou left your boat and your time trial was cancelled."
+  race_in_progress: "&eThere is currently a race in progress at %track%."
+  no_hooking_others: "&eYou are not allowed to hook others."
+  no_fishing_others: "&eYou are not allowed to fish others."
+  no_elytra: "&eYou are not allowed to have elytra on this track."
+  stopped_flying: "&eYou stopped flying and your time trial ended."
+  no_potion_effects: "&eYou are not allowed to have effects on this track."
+  no_riptide: "&eYou are not allowed to riptide on this track."
+  no_soul_speed: "&eYou are not allowed to have soul speed on your shoes."
+  no_step_assist_effect: "&eYou are not allowed to use BoatUtils step assist on this track."
+  no_slippery_effect: "&eYou are not allowed to use BoatUtils slippery effect on this track."
+  lag_detected: "&eTimingSystem detected some lag and unfortunately your time trial has been invalidated."
+  missed_checkpoints: "&eTime is invalid, not all checkpoints were passed!"
 
 warning:
   dangerous_command: "&wThis command is dangerous, use it on own risk"
@@ -83,6 +115,8 @@ success:
   created_event: "&sEvent %event% has been created."
   added_tag: "&sTag %tag% has been added."
   adding_drivers: "&sAdding drivers to %heat%."
+  added_driver: "&sAdded driver."
+  added_all_drivers: "&sAll online players has been added."
   removed: '&sYour thing has been removed.'
   removed_best_finish: '&sRemoved best finish for %player% on %track%.'
   removed_all_finishes: "&sAll finishes has been removed"
@@ -96,9 +130,9 @@ success:
   removed_drivers: "&sDrivers has been removed."
   restored_locations: "&sLocations has been restored."
   restored_regions: "&sRegions has been restored."
-  time_trial_cancelled: "&sTime trials was cancelled."
+  time_trial_cancelled: "&sTime trial was cancelled."
   track_now_open: "&sTrack is now open."
-  track_now_closed: "&sTrack is now closed."
+  track_now_closed: "&sTrack is now &eclosed&s."
   track_moved: "&sTrack moved to %to% from %from%"
   track_options_cleared: '&sAll options are now cleared.'
   track_options_new: '&sOptions are now: %options%'
@@ -116,17 +150,29 @@ success:
   color_updated: "Your color was updated."
   round_finished: "&sRound has been finished."
   event_finished: "&sEvent has been finished."
+  race_finished: "&sRace has been finished."
   heat_finished: "&sHeat has been finished."
   event_selected: "&sEvent selected."
   track_selected: "&sTrack selected."
   event_started: "&sEvent started."
+  heat_countdown_started: "&sCountdown started."
+  heat_loaded: "&sHeat loaded."
+  heat_reset: "&sHeat reset."
+  heat_reversed_grid: "&sReversed the first %percent%% of the grid."
+  heat_aborted: "&sYou have aborted the heat."
+  heat_sorted_by_time: "&sThe heat has been sorted by fastest times."
+  heat_sorted_by_random: "&sThe heat has been sorted by random."
   signs_now_open: "&sSigns are now open."
   signs_now_closed: "&sSigns are now &eclosed&s."
   spectating: "&sYou are now spectating %event%."
   signed: "&sYou are now signed up for %event%."
   reserve: "&sYou are now signed up as reserve for %event%."
+  signed_race: "&sYou are now signed up for the race."
   player_signed: "&s%player% is now signed up for %event%."
   player_reserve: "&s%player% is now signed up as reserve for %event%."
+  driver_new_start_position: "&s%driver% is now starting %pos%."
+  driver_disqualified: "&sDriver has been disqualified."
+  driver_removed: "&sDriver has been removed."
 
 info:
   page_current_of_max: "&dpage &l&h%current% &r&dof &l&h%max%"
@@ -163,115 +209,30 @@ info:
   player_stats_attempts: "&dAttempts: &h%size%"
   player_stats_time_spent: "&dTime spent: &h%size%"
   updating_leaderboards: '&hUpdating leaderboards.'
+  time_trial_first_finish: '&aNew best time!&c You finished &a%track%&c in &a%time% &c(&a%pos%&c).'
+  time_trial_new_record: '&aNew best time!&c You finished &a%track%&c in &a%time%&c. Your previous best was &a%oldTime% &c(&a%oldPos% &c->&a%pos%&c).'
+  time_trial_finish: '&dYou finished &h%track%&d in &h%time%&d. Your best is &h%oldTime%&d.'
+  time_trial_checkpoint: '&dYou passed &hcheckpoint %checkpoint%&d in &h%time%&d.'
+  time_trial_lag_start: '&dYou passed &hlagstart &din &h%time%&d.'
+  time_trial_lag_end: '&dYou passed &hlagend &din &h%time%&d.'
 
 broadcast:
   click_to_sign: "&b--> Click to sign up for &l%event%&r&b <--"
   click_to_reserve: "&b--> Click to sign up as reserve for &l%event%&r&b <--"
+  click_to_join_race: "&b--> Click to join a race on &l%track%&r&b (%laps% laps) <--"
+  click_to_spectate_event: "&a--> Click to spectate &l%event%&r&a <--"
+  event_player_pit: '&h%player% &dcompleted pit: &h&l%pit%'
+  event_player_finish: '&h%player% &dfinished &h&lP%position%&r&d in &h%time%'
+  event_player_finish_basic: '&h%player% &dfinished.'
+  event_player_finished_lap: '&dYou finished lap in: &h%time%'
+  event_player_fastest_lap: '&h%player% &dset new fastest lap of &h%time%'
+  event_results: "&dFinal results for &h%event%"
+  event_results_qualification: "&dQualification results for &h%event%"
+  heat_results: "&dResults for &h%heat%"
+  heat_reset: "&eHeat Reset"
+  heat_finish_title_pos: "&aYou finished P%pos%"
+  heat_finish_title: "&aYou finished"
 
-messages:
-  error:
-    generic: '&cSomething went wrong.'
-    unknownCommand: '&7Unknown command. Write &n/%command% help&r&7 for a list of commands.'
-    consoleUnsupported: 'You cannot use this command from console.'
-    permissionDenied: '&cPermission denied.'
-    missing:
-      race: '&cThere is no race on that track.'
-      track:
-        name: '&cThere is no track with that name.'
-        id: '&cThere is no track with that id'
-      tracks: '&cThere are no tracks.'
-      player: '&cPlayer could not be found.'
-      item: '&cYou need to hold an item in your hand.'
-      bestTime: '&cBest time could not be found.'
-      page: '&cThat page could not be found.'
-      selection: '&cYou have to make a selection.'
-    remove:
-      region: '&hRegion could not be removed.'
-      checkpoint: '&hCheckpoint could not be removed.'
-    numberException: '&cValue could not parse. Is it a number?'
-    trackTypeException: '&cFaulty track type.'
-    trackModeException: '&cFaulty track mode.'
-    trackIsLocked: '&cTrack is locked.'
-    trackIsClosed: '&cTrack is closed.'
-    nameToLong: '&cName can not exceed %length% characters.'
-    nameRegexException: '&cName can only contain letters, spaces, or numbers.'
-    selectionException: '&cYour selection could not be used.'
-    trackExists: '&cTrack already exists.'
-    raceExists: '&cRace already exists.'
-    runNotStarted: '&cYou have no timer running.'
-    timer:
-      missedCheckpoints: '&cTime is invalid, not all checkpoints were passed!'
-      leftBoat: '&cYou left the boat and cancelled your time.'
-  save:
-    generic: '&hValue has been saved.'
-  create:
-    name: '&hYou created %name%.'
-    generic: '&hYour thing was created.'
-    region: '&hThe new region has been created.'
-    checkpoint: '&hThe new checkpoint has been created.'
-    override: '&hOverride activated.'
-  remove:
-    generic: '&hYour thing was removed.'
-    track: '&hTrack has been removed.'
-    region: '&hRegion has been removed.'
-    checkpoint: '&hCheckpoint has been removed.'
-    override: '&hOverride deactivated.'
-    bestTime: '&hRemoved best time for %player% on %map%.'
-  update:
-    leaderboards: '&hUpdating leaderboards.'
-  info:
-    track:
-      name: '&d--- &hTrack: %name% (%id%) &d---'
-      open: '&dOpen: &hYes   &dType:&h %type%'
-      closed: '&dOpen: &hNo   &dType:&h %type%'
-      created: '&dCreated:&h %date%&d owned by &h%owner%'
-      options: '&dOptions: &h+%options%'
-      mode: '&dMode: &h%mode%'
-      checkpointTeleportOn: '&dCheckpoint teleports:&h Yes'
-      checkpointTeleportOff: '&dCheckpoint teleports:&h No'
-      checkpoints: '&dCheckpoints:&h %size%'
-      resets: '&dReset regions:&h %size%'
-      spawn: '&dSpawn:&h %location%'
-      leaderboard: '&dLeaderboard:&h %location%'
-    race:
-      name: '&d--- &hRace: %name% &d---'
-      type: '&dType:&h %type%'
-      laps: '&dLaps:&h %laps%'
-      pits: '&dPits:&h %pits%'
-      drivers: '&dDrivers:&h %drivers%'
-  list:
-    tracks: '&d--- &hTracks (page &l%startPage% &r&hof &l%totalPages%&r&h) &d---'
-    times: '&d--- &h%track% &d(page &h&l%startPage% &r&dof &h&l%totalPages%&r&h&d) ---'
-    timesrow: '&d%pos%. &h%player% &d| &h%time%'
-  toggle:
-    track:
-      open: '&hTrack is now open.'
-      closed: '&hTrack is now closed.'
-      government: '&hTrack is now public.'
-      private: '&hTrack is now private.'
-    race:
-      checkpointsOn: '&hCheckpoint announcements are now active.'
-      checkpointsOff: '&hCheckpoint announcements are now disabled.'
-  options:
-    allRemoved: '&hAll options are now cleared.'
-    list: '&hOptions are now: %options%'
-  help: '&d---&h Help: /%command% &d---'
-  cancel: '&hCancelled timer.'
-  randomTrack:
-    teleport: '&dTeleported you to &h%track% &d(&h#%pos%&d).'
-    teleportNoPos: '&dTeleported you to &h%track%&d.'
-    noTracks: '&cThere are no open tracks to teleport to.'
-  timer:
-    firstFinish: '&eNew best time!&6 You finished &e%map%&6 in &e%time%&6.'
-    newRecord: '&eNew best time!&6 You finished &e%map%&6 in &e%time%&6. Your previous best was &e%oldTime%&6.'
-    finish: '&dYou finished &h%map%&d in &h%time%&d. Your best is &h%oldTime%&d.'
-    checkpoint: '&dYou passed &hcheckpoint %checkpoint%&d in &h%time%&d.'
-  announcements:
-    pitstop: '&f%player% &7completed pitstop: &f&l%pit%'
-    finish: '&f%player% &7finished &f&lP%position%&r&7 in &f%time%'
-    finishQualy: '&f%player% &7finished'
-    lap: '&7You finished lap in: &f%time%'
-    fastestLap: '&f%player% &7set new fastest lap of &f%time%'
-  actionbar:
-    race: '&8Lap: &f&l%laps%/%totalLaps%&r&8 |&f&l P%pos%&r&8 |&f&l %pits%/%totalPits%&r&8 Pits'
-    raceSpectator: '&f%name% > &8Lap: &f&l%laps%/%totalLaps%&r&8 |&f&l P%pos%&r&8 |&f&l %pits%/%totalPits%&r&8 Pits'
+actionbar:
+  race: '&dLap: &h&l%laps%/%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%/%totalPits%&r&d Pits'
+  raceSpectator: '&h%name% > &dLap: &h&l%laps%/%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%/%totalPits%&r&d Pits'

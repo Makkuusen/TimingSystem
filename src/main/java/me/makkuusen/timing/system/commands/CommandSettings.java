@@ -49,15 +49,15 @@ public class CommandSettings extends BaseCommand {
     @Subcommand("sound")
     public static void onTTSound(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.switchToggleSound();
+        tPlayer.toggleSound();
         plugin.sendMessage(player, tPlayer.isSound() ? Success.SOUND_ON : Success.SOUND_OFF);
     }
 
     @Subcommand("compactScoreboard")
     public static void onCompactScoreboard(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.setCompactScoreboard(!tPlayer.getCompactScoreboard());
-        plugin.sendMessage(player, tPlayer.isSound() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
+        tPlayer.toggleCompactScoreboard();
+        plugin.sendMessage(player, tPlayer.isCompactScoreboard() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
     }
 
     @Subcommand("override")

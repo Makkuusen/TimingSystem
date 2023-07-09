@@ -1,6 +1,10 @@
 package me.makkuusen.timing.system;
 
+import co.aikar.commands.BukkitCommandExecutionContext;
+import co.aikar.commands.InvalidCommandArgument;
+import co.aikar.commands.MessageKeys;
 import co.aikar.commands.PaperCommandManager;
+import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
@@ -16,6 +20,7 @@ import me.makkuusen.timing.system.commands.CommandTimeTrial;
 import me.makkuusen.timing.system.commands.CommandTimingSystem;
 import me.makkuusen.timing.system.commands.CommandTrack;
 import me.makkuusen.timing.system.event.Event;
+import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.ButtonUtilities;
 import me.makkuusen.timing.system.gui.GUIListener;
@@ -24,6 +29,7 @@ import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.text.MessageLevel;
 import me.makkuusen.timing.system.text.TextUtilities;
+import me.makkuusen.timing.system.text.TimingSystemColor;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
 import me.makkuusen.timing.system.track.Track;
@@ -78,10 +84,12 @@ public class TimingSystem extends JavaPlugin {
         CommandEvent.plugin = this;
         CommandRound.plugin = this;
         CommandHeat.plugin = this;
+        CommandRace.plugin = this;
         TSListener.plugin = this;
         TimeTrial.plugin = this;
         Database.plugin = this;
         ApiUtilities.plugin = this;
+        EventAnnouncements.plugin = this;
         languageManager = new LanguageManager(this, "en_us");
 
         PluginManager pm = Bukkit.getPluginManager();
@@ -171,6 +179,26 @@ public class TimingSystem extends JavaPlugin {
             return res;
         });
 
+        manager.getCommandContexts().registerContext(
+                TimingSystemColor.class, TimingSystemColor.getColorContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("tsColor", context -> {
+            List<String> res = new ArrayList<>();
+            for (TimingSystemColor color : TimingSystemColor.values()) {
+                res.add(color.name().toLowerCase());
+            }
+            return res;
+        });
+
+        manager.getCommandContexts().registerContext(
+                NamedTextColor.class, getColorContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("namedColor", context -> {
+            List<String> res = new ArrayList<>();
+            for (NamedTextColor color : NamedTextColor.NAMES.values()) {
+                res.add(color.toString());
+            }
+            return res;
+        });
+
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandRound());
         manager.registerCommand(new CommandTrack());
@@ -209,6 +237,18 @@ public class TimingSystem extends JavaPlugin {
 
     }
 
+    private ContextResolver<NamedTextColor, BukkitCommandExecutionContext> getColorContextResolver() {
+        return (c) -> {
+            String name = c.popFirstArg();
+            try {
+                return NamedTextColor.NAMES.value(name);
+            } catch (IllegalArgumentException e) {
+                //no matching boat types
+                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
+            }
+        };
+    }
+
     @Override
     public void onDisable() {
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::onShutdown);
@@ -223,9 +263,11 @@ public class TimingSystem extends JavaPlugin {
         CommandRound.plugin = null;
         CommandHeat.plugin = null;
         CommandEvent.plugin = null;
+        CommandRace.plugin = null;
         TSListener.plugin = null;
         TimeTrial.plugin = null;
         ApiUtilities.plugin = null;
+        EventAnnouncements.plugin = null;
         logger = null;
         plugin = null;
     }
@@ -323,6 +365,9 @@ public class TimingSystem extends JavaPlugin {
                     case "s" -> color = TextUtilities.textSuccess;
                     case "w" -> color = TextUtilities.textWarn;
                     case "e" -> color = TextUtilities.textError;
+                    case "b" -> color = TextUtilities.textBroadcast;
+                    case "a" -> color = TextUtilities.textAwardHighlightColor;
+                    case "c" -> color = TextUtilities.textAwardDarkColor;
                     case "o" -> decorations.add(TextDecoration.ITALIC);
                     case "l" -> decorations.add(TextDecoration.BOLD);
                     case "r" -> {

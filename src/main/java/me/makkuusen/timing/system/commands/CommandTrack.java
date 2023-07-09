@@ -56,7 +56,6 @@ public class CommandTrack extends BaseCommand {
         World newWorld = moveTo.getWorld();
         track.setSpawnLocation(moveTo);
         var offset = getOffset(moveFrom, moveTo);
-        player.sendMessage("§2Offset is X: " + offset.getX() + ", Y: " + offset.getY() + ", Z: " + offset.getZ());
 
         var trackLocations = track.getTrackLocations();
         for (TrackLocation tl : trackLocations) {
@@ -89,7 +88,7 @@ public class CommandTrack extends BaseCommand {
             }
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(player));
+        Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), LeaderboardManager::updateAllFastestTimeLeaderboard);
         plugin.sendMessage(player, Success.TRACK_MOVED, "to", ApiUtilities.niceLocation(moveTo), "from", ApiUtilities.niceLocation(moveFrom));
     }
 
@@ -596,7 +595,7 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("updateleaderboards")
     @CommandPermission("track.admin")
     public static void onUpdateLeaderboards(Player player) {
-        Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> LeaderboardManager.updateAllFastestTimeLeaderboard(player));
+        Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), LeaderboardManager::updateAllFastestTimeLeaderboard);
         plugin.sendMessage(player, Info.UPDATING_LEADERBOARDS);
     }
 

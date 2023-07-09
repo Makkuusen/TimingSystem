@@ -151,10 +151,10 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     public static void onHeatStart(Player player, Heat heat) {
         if (heat.startCountdown()) {
-            player.sendMessage(TextUtilities.success("Started countdown for " + heat.getName()));
+            plugin.sendMessage(player, Success.HEAT_COUNTDOWN_STARTED);
             return;
         }
-        player.sendMessage(TextUtilities.error("Couldn't start " + heat.getName()));
+        plugin.sendMessage(player, Error.FAILED_TO_START_HEAT);
     }
 
     @Subcommand("finish")
@@ -176,7 +176,7 @@ public class CommandHeat extends BaseCommand {
         var state = heat.getHeatState();
         if (state != HeatState.SETUP) {
             if (!heat.resetHeat()) {
-                player.sendMessage("§cCouldn't reload " + heat.getName());
+                plugin.sendMessage(player, Error.FAILED_TO_RESET_HEAT);
                 return;
             }
         }
@@ -185,10 +185,10 @@ public class CommandHeat extends BaseCommand {
             if (state == HeatState.SETUP) {
                 EventAnnouncements.broadcastSpectate(heat.getEvent());
             }
-            player.sendMessage(TextUtilities.success("Loaded " + heat.getName()));
+            plugin.sendMessage(player, Success.HEAT_LOADED);
             return;
         }
-        player.sendMessage("§cCouldn't load " + heat.getName());
+        plugin.sendMessage(player, Error.FAILED_TO_LOAD_HEAT);
 
     }
 
@@ -198,10 +198,10 @@ public class CommandHeat extends BaseCommand {
     public static void onHeatReset(Player player, Heat heat) {
         if (heat.resetHeat()) {
             EventAnnouncements.broadcastReset(heat);
-            player.sendMessage("§aReset " + heat.getName());
+            plugin.sendMessage(player, Success.HEAT_RESET);
             return;
         }
-        player.sendMessage("§cCouldn't reset " + heat.getName());
+        plugin.sendMessage(player, Error.FAILED_TO_RESET_HEAT);
     }
 
     @Subcommand("delete")
@@ -249,7 +249,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat <pits>")
     public static void onHeatSetPits(Player player, Heat heat, Integer pits) {
         if (heat.getRound() instanceof QualificationRound) {
-            player.sendMessage("§cYou can only modify total pits of a final heat.");
+            plugin.sendMessage(player, Error.CAN_NOT);
         } else {
             heat.setTotalPits(pits);
             plugin.sendMessage(player, Success.SAVED);
@@ -262,7 +262,7 @@ public class CommandHeat extends BaseCommand {
     public static void onHeatStartDelay(Player player, Heat heat, String startDelay) {
         Integer delay = ApiUtilities.parseDurationToMillis(startDelay);
         if (delay == null) {
-            player.sendMessage("§cYou need to format the time correctly, e.g. 2s");
+            plugin.sendMessage(player, Error.TIME_FORMAT);
             return;
         }
         heat.setStartDelayInTicks(delay);
@@ -276,7 +276,7 @@ public class CommandHeat extends BaseCommand {
     public static void onHeatSetTime(Player player, Heat heat, String time) {
         Integer timeLimit = ApiUtilities.parseDurationToMillis(time);
         if (timeLimit == null) {
-            player.sendMessage("§cYou need to format the time correctly, e.g. 2m");
+            plugin.sendMessage(player, Error.TIME_FORMAT);
             return;
         }
         heat.setTimeLimit(timeLimit);
@@ -301,16 +301,16 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
-            sender.sendMessage("§cPlayer is not in heat!");
+            plugin.sendMessage(sender, Error.PLAYER_NOT_FOUND);
             return;
         }
         Driver driver = heat.getDrivers().get(tPlayer.getUniqueId());
         if (heat.isRacing()) {
-            sender.sendMessage("§cHeat is currently running");
+            plugin.sendMessage(sender, Error.HEAT_ALREADY_STARTED);
             return;
         }
         if (getParsedIndex(position) == null) {
-            TimingSystem.getPlugin().sendMessage(sender, "messages.error.numberException");
+            plugin.sendMessage(sender, Error.NUMBER_FORMAT);
             return;
         }
         int parsedIndex = Objects.requireNonNull(getParsedIndex(position));
@@ -324,29 +324,29 @@ public class CommandHeat extends BaseCommand {
         }
 
         if (pos > heat.getDrivers().size()) {
-            sender.sendMessage("§cYou can't start further back than there are drivers");
+            plugin.sendMessage(sender, Error.CAN_NOT);
             return;
         }
 
         if (pos < 1) {
-            sender.sendMessage("§cYou can't start further forward than 1");
+            plugin.sendMessage(sender, Error.CAN_NOT);
             return;
         }
 
         if (pos == driver.getStartPosition()) {
-            sender.sendMessage("§cYou can't move the driver to the same position");
+            plugin.sendMessage(sender, Error.CAN_NOT);
             return;
         }
 
 
         if (heat.setDriverPosition(driver, pos)) {
-            sender.sendMessage("§a" + driver.getTPlayer().getName() + " is now starting " + pos);
+            plugin.sendMessage(sender, Success.DRIVER_NEW_START_POSITION, "%driver%", driver.getTPlayer().getName(), "%pos%", String.valueOf(pos));
             if (heat.getHeatState() == HeatState.LOADED) {
                 heat.reloadHeat();
             }
             return;
         }
-        sender.sendMessage("§cCould not change position of driver");
+        plugin.sendMessage(sender, Error.GENERIC);
 
     }
 
@@ -360,7 +360,7 @@ public class CommandHeat extends BaseCommand {
         if (heat.getHeatState() == HeatState.LOADED) {
             heat.reloadHeat();
         }
-        player.sendMessage("§aReversed the first " + percentage + "% of the grid");
+        plugin.sendMessage(player, Success.HEAT_REVERSED_GRID, "%percent%", String.valueOf(percentage));
     }
 
     @Subcommand("add")
@@ -368,12 +368,12 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat @players ")
     public static void onHeatAddDriver(Player sender, Heat heat, String playerName) {
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
-            sender.sendMessage("§cYou can't add driver to a future round before the current round has finished");
+            plugin.sendMessage(sender, Error.ADD_DRIVER_FUTURE_ROUND);
             return;
         }
 
         if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
-            sender.sendMessage("§cMax allowed amount of drivers have been added");
+            plugin.sendMessage(sender, Error.HEAT_FULL);
             return;
         }
         TPlayer tPlayer = Database.getPlayer(playerName);
@@ -384,20 +384,20 @@ public class CommandHeat extends BaseCommand {
 
         for (Heat h : heat.getRound().getHeats()) {
             if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
-                sender.sendMessage("§cPlayer is already in this round!");
+                plugin.sendMessage(sender, Error.PLAYER_ALREADY_IN_ROUND);
                 return;
             }
         }
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
-            sender.sendMessage("§aAdded driver");
+            plugin.sendMessage(sender, Success.ADDED_DRIVER);
             if (heat.getHeatState() == HeatState.LOADED) {
                 heat.addDriverToGrid(heat.getDrivers().get(tPlayer.getUniqueId()));
             }
             return;
         }
 
-        sender.sendMessage("§cCould not add driver to heat");
+        plugin.sendMessage(sender, Error.FAILED_TO_ADD_DRIVER);
     }
 
 
@@ -411,7 +411,7 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
-            sender.sendMessage("§cPlayer is not in heat!");
+            plugin.sendMessage(sender, Error.PLAYER_NOT_FOUND);
             return;
         }
         if (heat.isRacing()) {
@@ -423,10 +423,10 @@ public class CommandHeat extends BaseCommand {
                     Location loc = tPlayer.getPlayer().getBedSpawnLocation() == null ? tPlayer.getPlayer().getWorld().getSpawnLocation() : tPlayer.getPlayer().getBedSpawnLocation();
                     tPlayer.getPlayer().teleport(loc);
                 }
-                sender.sendMessage("§aDriver has been disqualified");
+                plugin.sendMessage(sender, Success.DRIVER_DISQUALIFIED);
                 return;
             }
-            sender.sendMessage("§cDriver could not be disqualified");
+           plugin.sendMessage(sender, Error.FAILED_TO_DISQUALIFY_DRIVER);
         } else {
             boolean reload = false;
             if (heat.getHeatState() == HeatState.LOADED) {
@@ -446,20 +446,20 @@ public class CommandHeat extends BaseCommand {
                 if (removeSpectator) {
                     heat.getEvent().removeSpectator(tPlayer.getUniqueId());
                 }
-                sender.sendMessage("§aDriver has been removed");
+                plugin.sendMessage(sender, Success.DRIVER_REMOVED);
                 if (reload) {
                     heat.loadHeat();
                 }
                 return;
             }
-            sender.sendMessage("§cDriver could not be removed");
+            plugin.sendMessage(sender,Error.FAILED_TO_REMOVE_DRIVER);
         }
     }
 
     @Subcommand("quit")
     public static void onHeatDriverQuit(Player player) {
         if (EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).isEmpty()) {
-            player.sendMessage("§cYou are not in a running heat!");
+            plugin.sendMessage(player, Error.NOT_NOW);
             return;
         }
         Driver driver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).get();
@@ -469,10 +469,10 @@ public class CommandHeat extends BaseCommand {
             }
             Location loc = player.getBedSpawnLocation() == null ? player.getWorld().getSpawnLocation() : player.getBedSpawnLocation();
             player.teleport(loc);
-            player.sendMessage("§aYou have aborted the heat");
+            plugin.sendMessage(player, Success.HEAT_ABORTED);
             return;
         }
-        player.sendMessage("§cYou could not abort the event.");
+        plugin.sendMessage(player, Error.FAILED_TO_ABORT_HEAT);
     }
 
 
@@ -481,12 +481,12 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     public static void onHeatAddDrivers(Player sender, Heat heat) {
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
-            sender.sendMessage("§cYou can't add drivers to a future round before the current round has finished");
+            plugin.sendMessage(sender, Error.ADD_DRIVER_FUTURE_ROUND);
             return;
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
-                sender.sendMessage("§cMax allowed amount of drivers have been added");
+                plugin.sendMessage(sender, Error.HEAT_FULL);
                 return;
             }
             boolean inOtherHeat = false;
@@ -509,7 +509,7 @@ public class CommandHeat extends BaseCommand {
                 heat.addDriverToGrid(heat.getDrivers().get(player.getUniqueId()));
             }
         }
-        sender.sendMessage("§aAll online players has been added");
+        plugin.sendMessage(sender, Success.ADDED_ALL_DRIVERS);
     }
 
 
@@ -524,7 +524,7 @@ public class CommandHeat extends BaseCommand {
                 return;
             }
             if (heat.getDrivers().get(tPlayer.getUniqueId()) == null) {
-                sender.sendMessage("§cPlayer is not in heat!");
+                plugin.sendMessage(sender, Error.PLAYER_NOT_FOUND);
                 return;
             }
             Driver driver = heat.getDrivers().get(tPlayer.getUniqueId());
@@ -577,19 +577,19 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     public static void onSortByTT(Player player, Heat heat) {
         if (heat.getHeatState() == HeatState.FINISHED) {
-            player.sendMessage("§cYou cannot sort an already finished heat");
+            plugin.sendMessage(player, Error.NOT_NOW);
             return;
         }
         if (heat.isRacing()) {
-            player.sendMessage("§cYou cannot sort an already started heat");
+            plugin.sendMessage(player, Error.HEAT_ALREADY_STARTED);
             return;
         }
         if (heat.getStartPositions().size() == 0) {
-            player.sendMessage("§aNo drivers to sort");
+            plugin.sendMessage(player, Error.NOT_NOW);
             return;
         }
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
-            player.sendMessage("§cYou can't sort drivers in a future round before the current round has finished");
+            plugin.sendMessage(player, Error.SORT_DRIVERS_FUTURE_ROUND);
             return;
         }
 
@@ -622,7 +622,7 @@ public class CommandHeat extends BaseCommand {
             heat.reloadHeat();
         }
 
-        player.sendMessage("§aThe heat has been sorted by fastest times");
+        plugin.sendMessage(player, Success.HEAT_SORTED_BY_TIME);
     }
 
     @Subcommand("sort random")
@@ -630,19 +630,19 @@ public class CommandHeat extends BaseCommand {
     @CommandPermission("event.admin")
     public static void onSortByRandom(Player player, Heat heat) {
         if (heat.getHeatState() == HeatState.FINISHED) {
-            player.sendMessage("§cYou cannot sort an finished started heat");
+            plugin.sendMessage(player, Error.NOT_NOW);
             return;
         }
         if (heat.isRacing()) {
-            player.sendMessage("§cYou cannot sort an already started heat");
+            plugin.sendMessage(player, Error.HEAT_ALREADY_STARTED);
             return;
         }
         if (heat.getStartPositions().size() == 0) {
-            player.sendMessage("§aNo drivers to sort");
+            plugin.sendMessage(player, Error.NOT_NOW);
             return;
         }
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
-            player.sendMessage("§cYou can't sort drivers in a future round before the current round has finished");
+            plugin.sendMessage(player, Error.SORT_DRIVERS_FUTURE_ROUND);
             return;
         }
 
@@ -657,7 +657,7 @@ public class CommandHeat extends BaseCommand {
             heat.reloadHeat();
         }
 
-        player.sendMessage("§aThe heat has been sorted randomly");
+        plugin.sendMessage(player, Success.HEAT_SORTED_BY_RANDOM);
     }
 
     private static boolean getParsedRemoveFlag(String index) {

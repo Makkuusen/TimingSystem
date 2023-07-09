@@ -2,6 +2,8 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
@@ -63,7 +65,7 @@ public class TrackGui extends TrackPageGui {
         var button = new GuiButton(item);
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {
-                player.sendMessage("§cWorld is not loaded!");
+                TimingSystem.getPlugin().sendMessage(player, Error.WORLD_NOT_LOADED);
                 return;
             }
             player.teleport(track.getSpawnLocation());

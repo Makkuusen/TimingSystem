@@ -98,7 +98,7 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);;
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -358,6 +358,7 @@ public class CommandEvent extends BaseCommand {
         }
 
         player.sendMessage(message);
+        player.sendMessage(Component.empty());
 
         if (event.getTrack() != null) {
             var sortedList = CommandRound.getSortedList(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
