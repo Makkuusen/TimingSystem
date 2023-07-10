@@ -234,5 +234,5 @@ broadcast:
   heat_finish_title: "&aYou finished"
 
 actionbar:
-  race: '&dLap: &h&l%laps%/%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%/%totalPits%&r&d Pits'
-  raceSpectator: '&h%name% > &dLap: &h&l%laps%/%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%/%totalPits%&r&d Pits'
+  race: '&dLap: &h&l%laps%&d/&h%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%&d/&h%totalPits%&r&d Pits'
+  raceSpectator: '&h%name% > &dLap: &h&l%laps%&d/&h%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%&d/&h%totalPits%&r&d Pits'

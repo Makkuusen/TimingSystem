@@ -27,7 +27,9 @@ import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
+import me.makkuusen.timing.system.text.ActionBar;
 import me.makkuusen.timing.system.text.MessageLevel;
+import me.makkuusen.timing.system.text.Success;
 import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.text.TimingSystemColor;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
@@ -48,7 +50,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -276,46 +277,33 @@ public class TimingSystem extends JavaPlugin {
         return plugin;
     }
 
-    public void sendMessage(@NotNull CommandSender sender, @NotNull String key, String... replacements) {
-        String text = this.languageManager.getNewValue(key, getLocale(sender), replacements);
-
-        if (!text.contains("&")) {
-            sender.sendMessage(Component.text(text));
-            return;
-        }
-        sender.sendMessage(getComponentWithColors(text));
-    }
-
     public void sendMessage(@NotNull CommandSender sender, @NotNull MessageLevel key, String... replacements) {
-        sendMessage(sender, key.getKey(), replacements);
-    }
-
-
-    public @Nullable String getLocalizedMessage(@NotNull CommandSender sender, @NotNull String key, String... replacements) {
-        return this.languageManager.getValue(key, getLocale(sender), replacements);
-    }
-
-    public void sendMessage(@NotNull CommandSender sender, @NotNull String key) {
-        var text = this.languageManager.getNewValue(key, getLocale(sender));
-
-        if (text == null) {
-            return;
-        }
+        String text = this.languageManager.getNewValue(key.getKey(), getLocale(sender), replacements);
 
         if (!text.contains("&")) {
             sender.sendMessage(Component.text(text));
             return;
         }
-        sender.sendMessage(getComponentWithColors(text));
+        sender.sendMessage(getComponentWithColors(text, key));
     }
 
     public void sendMessage(@NotNull CommandSender sender, @NotNull MessageLevel key) {
-        sendMessage(sender, key.getKey());
+        var text = this.languageManager.getNewValue(key.getKey(), getLocale(sender));
+
+        if (text == null) {
+            return;
+        }
+
+        if (!text.contains("&")) {
+            sender.sendMessage(Component.text(text));
+            return;
+        }
+        sender.sendMessage(getComponentWithColors(text, key));
     }
 
 
-    public Component getText(CommandSender sender, String key) {
-        var text = this.languageManager.getNewValue(key, getLocale(sender));
+    public Component getText(CommandSender sender, MessageLevel key) {
+        var text = this.languageManager.getNewValue(key.getKey(), getLocale(sender));
 
         if (text == null) {
             return Component.empty();
@@ -324,28 +312,32 @@ public class TimingSystem extends JavaPlugin {
         if (!text.contains("&")) {
             return Component.text(text);
         }
-        return getComponentWithColors(text);
-    }
-
-    public Component getText(CommandSender sender, String key, String... replacements) {
-        var text = this.languageManager.getNewValue(key, getLocale(sender), replacements);
-
-        if (text == null) {
-            return Component.empty();
-        }
-
-        if (!text.contains("&")) {
-            return Component.text(text);
-        }
-        return getComponentWithColors(text);
+        return getComponentWithColors(text, key);
     }
 
     public Component getText(CommandSender sender, MessageLevel key, String... replacements) {
-        return getText(sender, key.getKey(), replacements);
+        var text = this.languageManager.getNewValue(key.getKey(), getLocale(sender), replacements);
+
+        if (text == null) {
+            return Component.empty();
+        }
+
+        if (!text.contains("&")) {
+            return Component.text(text);
+        }
+        return getComponentWithColors(text, key);
+    }
+
+    public Component getActionBarText(CommandSender sender, String message) {
+        return getComponentWithColors(message, ActionBar.RACE);
+    }
+
+    public Component getText(CommandSender sender, String message) {
+        return getComponentWithColors(message, Success.CREATED);
     }
 
 
-    private Component getComponentWithColors(String text) {
+    private Component getComponentWithColors(String text, MessageLevel level) {
 
         TextColor color = NamedTextColor.WHITE;
         List<TextDecoration> decorations = new ArrayList<>();
@@ -380,6 +372,11 @@ public class TimingSystem extends JavaPlugin {
                 }
             }
             first = false;
+            if (level instanceof ActionBar) {
+                if (!color.asHexString().equalsIgnoreCase("#ffffff")) {
+                    color = TextColor.fromHexString(darkenHexColor(color.asHexString(), 0.1));
+                }
+            }
             component = component.append(buildComponent(message, color, decorations));
         }
 
@@ -412,6 +409,28 @@ public class TimingSystem extends JavaPlugin {
 
     public static <T> TaskChain<T> newChain() {
         return taskChainFactory.newChain();
+    }
+
+
+    public static String darkenHexColor(String hexColor, double darkenAmount) {
+        // Remove the '#' symbol and convert to RGB values
+        int r = Integer.parseInt(hexColor.substring(1, 3), 16);
+        int g = Integer.parseInt(hexColor.substring(3, 5), 16);
+        int b = Integer.parseInt(hexColor.substring(5, 7), 16);
+
+        // Darken each color component
+        r = (int) (r * (1 - darkenAmount));
+        g = (int) (g * (1 - darkenAmount));
+        b = (int) (b * (1 - darkenAmount));
+
+        // Ensure the color components are within the valid range (0-255)
+        r = Math.max(0, Math.min(255, r));
+        g = Math.max(0, Math.min(255, g));
+        b = Math.max(0, Math.min(255, b));
+
+        // Convert the darkened RGB values back to hex
+        String darkenedHexColor = String.format("#%02X%02X%02X", r, g, b);
+        return darkenedHexColor;
     }
 
 }

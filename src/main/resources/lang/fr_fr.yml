@@ -235,5 +235,5 @@ broadcast:
 
 
 actionbar:
-  race: "&dTour : &h&l%laps%/%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%/%totalPits%&r&d Arrêts au stand"
-  raceSpectator: "&h%name% > &dTour : &h&l%laps%/%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%/%totalPits%&r&d Arrêts au stand"
+  race: "&dTour : &h&l%laps%&d/&h%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%&d/&h%totalPits%&r&d Arrêts au stand"
+  raceSpectator: "&h%name% > &dTour : &h&l%laps%&d/&h%totalLaps%&r&d |&h&l P%pos%&r&d |&h&l %pits%&d/&h%totalPits%&r&d Arrêts au stand"

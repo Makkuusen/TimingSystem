@@ -60,12 +60,13 @@ public class EventAnnouncements {
 
     public static void broadcastQualificationResults(Event event, List<Driver> drivers) {
         for (Spectator s : event.getSpectators().values()) {
-            if (s.getTPlayer().getPlayer() != null) {
-                plugin.sendMessage(s.getTPlayer().getPlayer(), Broadcast.EVENT_RESULTS_QUALIFICATION, "%event%", event.getDisplayName());
+            Player player = s.getTPlayer().getPlayer();
+            if (player != null) {
+                plugin.sendMessage(player, Broadcast.EVENT_RESULTS_QUALIFICATION, "%event%", event.getDisplayName());
 
                 int pos = 1;
                 for (Driver d : drivers) {
-                    s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-"));
+                    player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName() + "&d - &h" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
                 }
             }
         }
@@ -74,13 +75,14 @@ public class EventAnnouncements {
     public static void broadcastFinalResults(Event event, List<Driver> drivers) {
         for (Spectator s : event.getSpectators().values()) {
             if (s.getTPlayer().getPlayer() != null) {
-                plugin.sendMessage(s.getTPlayer().getPlayer(), Broadcast.EVENT_RESULTS, "%event%", event.getDisplayName());
+                Player player = s.getTPlayer().getPlayer();
+                plugin.sendMessage(player, Broadcast.EVENT_RESULTS, "%event%", event.getDisplayName());
                 int pos = 1;
                 for (Driver d : drivers) {
                     if (d.isFinished()) {
-                        s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + d.getLaps().size() + " §7laps in §f" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                        player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName() + "&d - &h" + d.getLaps().size() + " &dlaps in &h" + ApiUtilities.formatAsTime(d.getFinishTime())));
                     } else {
-                        s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName());
+                        player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName()));
                     }
                 }
             }
@@ -90,13 +92,14 @@ public class EventAnnouncements {
     public static void broadcastHeatResult(List<Driver> drivers, Heat heat) {
         for (Spectator s : heat.getEvent().getSpectators().values()) {
             if (s.getTPlayer().getPlayer() != null) {
-                plugin.sendMessage(s.getTPlayer().getPlayer(), Broadcast.HEAT_RESULTS, "%heat%", heat.getName());
+                Player player = s.getTPlayer().getPlayer();
+                plugin.sendMessage(player, Broadcast.HEAT_RESULTS, "%heat%", heat.getName());
                 int pos = 1;
                 for (Driver d : drivers) {
                     if (heat.getRound() instanceof QualificationRound) {
-                        s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-"));
+                        player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName() + "&d - &h" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
                     } else {
-                        s.getTPlayer().getPlayer().sendMessage("§7" + pos++ + ". §f" + d.getTPlayer().getName() + "§7 - §f" + d.getLaps().size() + " §7laps in §f" + ApiUtilities.formatAsTime(d.getFinishTime()));
+                        player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName() + "&d - &h" + d.getLaps().size() + " &dlaps in &h" + ApiUtilities.formatAsTime(d.getFinishTime())));
                     }
                 }
             }

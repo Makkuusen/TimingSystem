@@ -537,14 +537,15 @@ public class CommandHeat extends BaseCommand {
             maybeBestLap.ifPresent(lap -> sender.sendMessage(TextUtilities.dark("Fastest lap:").append(Component.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(lap.getLapTime())))));
             int count = 1;
             for (Lap l : driver.getLaps()) {
-                String lap = "§7Lap " + count + ": §f" + ApiUtilities.formatAsTime(l.getLapTime());
+                String lap = "&dLap " + count + ": &h" + ApiUtilities.formatAsTime(l.getLapTime());
                 if (l.equals(maybeBestLap.get())) {
-                    lap += " §7(F)";
+                    lap += " &d(F)";
                 }
                 if (l.isPitted()) {
-                    lap += " §7(P)";
+                    lap += " &d(P)";
                 }
                 sender.sendMessage(lap);
+                sender.sendMessage(plugin.getText(sender, lap));
                 count++;
             }
             return;

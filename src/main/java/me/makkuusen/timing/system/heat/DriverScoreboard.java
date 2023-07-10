@@ -30,7 +30,7 @@ public class DriverScoreboard {
             eventName = heat.getEvent().getDisplayName();
         }
 
-        tPlayer.setScoreBoardTitle("&7&l" + heat.getName() + " | " + eventName);
+        tPlayer.setScoreBoardTitle(ScoreboardUtils.getDarkColor() + "&l" + heat.getName() + " | " + eventName);
     }
 
     public void removeScoreboard() {

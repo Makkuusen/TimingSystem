@@ -9,14 +9,14 @@ import org.bukkit.command.CommandSender;
 
 public class TextUtilities {
 
-    public static TextColor textDarkColor = TextColor.color(NamedTextColor.GRAY);
+    public static TextColor textDarkColor = TextColor.fromHexString("#7bf200"); //7bf200 //gray
     public static TextColor textHighlightColor = TextColor.color(NamedTextColor.WHITE);
-    public static TextColor textError = TextColor.color(NamedTextColor.RED);
+    public static TextColor textError = TextColor.fromHexString("#ff7a75"); //#ff7a75 //red
     public static TextColor textWarn = TextColor.color(NamedTextColor.YELLOW);
-    public static TextColor textSuccess = TextColor.color(NamedTextColor.GREEN);
-    public static TextColor textBroadcast = TextColor.color(NamedTextColor.AQUA);
-    public static TextColor textAwardHighlightColor = TextColor.color(NamedTextColor.YELLOW);
-    public static TextColor textAwardDarkColor = TextColor.color(NamedTextColor.GOLD);
+    public static TextColor textSuccess = TextColor.fromHexString("#7bf200"); //7bf200 //green
+    public static TextColor textBroadcast = TextColor.fromHexString("#ff80ff"); //#ff80ff //Aqua
+    public static TextColor textAwardHighlightColor = TextColor.fromHexString("#ff80ff"); //#ff80ff //yellow
+    public static TextColor textAwardDarkColor = TextColor.fromHexString("#ce00ce"); //#ce00ce //gold
 
     public static Component getSpacersStart() {
         return Component.text("--- ").color(textDarkColor);
