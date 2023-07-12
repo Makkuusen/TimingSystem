@@ -66,7 +66,7 @@ public class EventAnnouncements {
 
                 int pos = 1;
                 for (Driver d : drivers) {
-                    player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName() + "&d - &h" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
+                    player.sendMessage(plugin.getText(player, "&2" + pos++ + ". &1" + d.getTPlayer().getName() + "&2 - &1" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
                 }
             }
         }
@@ -80,9 +80,9 @@ public class EventAnnouncements {
                 int pos = 1;
                 for (Driver d : drivers) {
                     if (d.isFinished()) {
-                        player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName() + "&d - &h" + d.getLaps().size() + " &dlaps in &h" + ApiUtilities.formatAsTime(d.getFinishTime())));
+                        player.sendMessage(plugin.getText(player, "&2" + pos++ + ". &1" + d.getTPlayer().getName() + "&2 - &1" + d.getLaps().size() + " &2laps in &1" + ApiUtilities.formatAsTime(d.getFinishTime())));
                     } else {
-                        player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName()));
+                        player.sendMessage(plugin.getText(player, "&2" + pos++ + ". &1" + d.getTPlayer().getName()));
                     }
                 }
             }
@@ -97,9 +97,9 @@ public class EventAnnouncements {
                 int pos = 1;
                 for (Driver d : drivers) {
                     if (heat.getRound() instanceof QualificationRound) {
-                        player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName() + "&d - &h" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
+                        player.sendMessage(plugin.getText(player, "&2" + pos++ + ". &1" + d.getTPlayer().getName() + "&2 - &1" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
                     } else {
-                        player.sendMessage(plugin.getText(player, "&d" + pos++ + ". &h" + d.getTPlayer().getName() + "&d - &h" + d.getLaps().size() + " &dlaps in &h" + ApiUtilities.formatAsTime(d.getFinishTime())));
+                        player.sendMessage(plugin.getText(player, "&2" + pos++ + ". &1" + d.getTPlayer().getName() + "&2 - &1" + d.getLaps().size() + " &2laps in &1" + ApiUtilities.formatAsTime(d.getFinishTime())));
                     }
                 }
             }

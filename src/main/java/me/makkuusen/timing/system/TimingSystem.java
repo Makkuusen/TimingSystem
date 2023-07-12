@@ -30,8 +30,9 @@ import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.text.ActionBar;
 import me.makkuusen.timing.system.text.MessageLevel;
 import me.makkuusen.timing.system.text.Success;
-import me.makkuusen.timing.system.text.TextUtilities;
-import me.makkuusen.timing.system.text.TimingSystemColor;
+import me.makkuusen.timing.system.text.TSColor;
+import me.makkuusen.timing.system.theme.DefaultTheme;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
 import me.makkuusen.timing.system.track.Track;
@@ -135,7 +136,7 @@ public class TimingSystem extends JavaPlugin {
         manager.getCommandCompletions().registerAsyncCompletion("trackType", context -> {
             List<String> res = new ArrayList<>();
             for (Track.TrackType type : Track.TrackType.values()) {
-                res.add(type.name());
+                res.add(type.name().toLowerCase());
             }
             return res;
         });
@@ -145,7 +146,7 @@ public class TimingSystem extends JavaPlugin {
         manager.getCommandCompletions().registerAsyncCompletion("trackTag", context -> {
             List<String> res = new ArrayList<>();
             for (TrackTag tag : TrackTagManager.getTrackTags()) {
-                res.add(tag.getValue());
+                res.add(tag.getValue().toLowerCase());
             }
             return res;
         });
@@ -155,7 +156,7 @@ public class TimingSystem extends JavaPlugin {
         manager.getCommandCompletions().registerAsyncCompletion("roundType", context -> {
             List<String> res = new ArrayList<>();
             for (RoundType type : RoundType.values()) {
-                res.add(type.name());
+                res.add(type.name().toLowerCase());
             }
             return res;
         });
@@ -165,7 +166,7 @@ public class TimingSystem extends JavaPlugin {
         manager.getCommandCompletions().registerAsyncCompletion("trackMode", context -> {
             List<String> res = new ArrayList<>();
             for (Track.TrackMode mode : Track.TrackMode.values()) {
-                res.add(mode.name());
+                res.add(mode.name().toLowerCase());
             }
             return res;
         });
@@ -175,16 +176,16 @@ public class TimingSystem extends JavaPlugin {
         manager.getCommandCompletions().registerAsyncCompletion("boat", context -> {
             List<String> res = new ArrayList<>();
             for (Boat.Type tree : Boat.Type.values()) {
-                res.add(tree.name());
+                res.add(tree.name().toLowerCase());
             }
             return res;
         });
 
         manager.getCommandContexts().registerContext(
-                TimingSystemColor.class, TimingSystemColor.getColorContextResolver());
+                TSColor.class, TSColor.getColorContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("tsColor", context -> {
             List<String> res = new ArrayList<>();
-            for (TimingSystemColor color : TimingSystemColor.values()) {
+            for (TSColor color : TSColor.values()) {
                 res.add(color.name().toLowerCase());
             }
             return res;
@@ -284,7 +285,7 @@ public class TimingSystem extends JavaPlugin {
             sender.sendMessage(Component.text(text));
             return;
         }
-        sender.sendMessage(getComponentWithColors(text, key));
+        sender.sendMessage(getComponentWithColors(text, key,  getTheme(sender)));
     }
 
     public void sendMessage(@NotNull CommandSender sender, @NotNull MessageLevel key) {
@@ -298,7 +299,7 @@ public class TimingSystem extends JavaPlugin {
             sender.sendMessage(Component.text(text));
             return;
         }
-        sender.sendMessage(getComponentWithColors(text, key));
+        sender.sendMessage(getComponentWithColors(text, key, getTheme(sender)));
     }
 
 
@@ -312,7 +313,7 @@ public class TimingSystem extends JavaPlugin {
         if (!text.contains("&")) {
             return Component.text(text);
         }
-        return getComponentWithColors(text, key);
+        return getComponentWithColors(text, key, getTheme(sender));
     }
 
     public Component getText(CommandSender sender, MessageLevel key, String... replacements) {
@@ -325,19 +326,23 @@ public class TimingSystem extends JavaPlugin {
         if (!text.contains("&")) {
             return Component.text(text);
         }
-        return getComponentWithColors(text, key);
+        return getComponentWithColors(text, key, getTheme(sender));
     }
 
     public Component getActionBarText(CommandSender sender, String message) {
-        return getComponentWithColors(message, ActionBar.RACE);
+        return getComponentWithColors(message, ActionBar.RACE,  getTheme(sender));
     }
 
     public Component getText(CommandSender sender, String message) {
-        return getComponentWithColors(message, Success.CREATED);
+        return getComponentWithColors(message, Success.CREATED, getTheme(sender));
+    }
+
+    private Theme getTheme(CommandSender sender) {
+        return sender instanceof Player ? Database.getPlayer(((Player) sender).getUniqueId()).getTheme() : new DefaultTheme();
     }
 
 
-    private Component getComponentWithColors(String text, MessageLevel level) {
+    private Component getComponentWithColors(String text, MessageLevel level, Theme theme) {
 
         TextColor color = NamedTextColor.WHITE;
         List<TextDecoration> decorations = new ArrayList<>();
@@ -352,14 +357,14 @@ public class TimingSystem extends JavaPlugin {
                 String option = string.substring(0, 1);
                 message = string.substring(1);
                 switch (option) {
-                    case "h" -> color = TextUtilities.textHighlightColor;
-                    case "d" -> color = TextUtilities.textDarkColor;
-                    case "s" -> color = TextUtilities.textSuccess;
-                    case "w" -> color = TextUtilities.textWarn;
-                    case "e" -> color = TextUtilities.textError;
-                    case "b" -> color = TextUtilities.textBroadcast;
-                    case "a" -> color = TextUtilities.textAwardHighlightColor;
-                    case "c" -> color = TextUtilities.textAwardDarkColor;
+                    case "1" -> color = theme.getSecondary();
+                    case "2" -> color = theme.getPrimary();
+                    case "s" -> color = theme.getSuccess();
+                    case "w" -> color = theme.getWarning();
+                    case "e" -> color = theme.getError();
+                    case "b" -> color = theme.getBroadcast();
+                    case "a" -> color = theme.getAwardSecondary();
+                    case "c" -> color = theme.getAward();
                     case "o" -> decorations.add(TextDecoration.ITALIC);
                     case "l" -> decorations.add(TextDecoration.BOLD);
                     case "r" -> {
@@ -429,8 +434,7 @@ public class TimingSystem extends JavaPlugin {
         b = Math.max(0, Math.min(255, b));
 
         // Convert the darkened RGB values back to hex
-        String darkenedHexColor = String.format("#%02X%02X%02X", r, g, b);
-        return darkenedHexColor;
+        return String.format("#%02X%02X%02X", r, g, b);
     }
 
 }

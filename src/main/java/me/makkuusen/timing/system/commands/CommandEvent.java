@@ -26,6 +26,8 @@ import me.makkuusen.timing.system.text.TextButtons;
 import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.text.Warning;
+import me.makkuusen.timing.system.theme.DefaultTheme;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -64,8 +66,9 @@ public class CommandEvent extends BaseCommand {
         var list = EventDatabase.getEvents().stream().filter(Event::isActive).sorted(Comparator.comparingLong(Event::getDate)).toList();
         commandSender.sendMessage(Component.empty());
         plugin.sendMessage(commandSender, Info.ACTIVE_EVENTS_TITLE);
+        Theme theme = TextUtilities.getTheme(commandSender);
         for (Event event : list) {
-            commandSender.sendMessage(TextUtilities.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Component.text("Click to select event"))).append(TextUtilities.space()).append(TextUtilities.getParenthesized(event.getState().name())).append(TextUtilities.dark(" - ")).append(TextUtilities.dark(ApiUtilities.niceDate(event.getDate()))).append(TextUtilities.space()).append(TextUtilities.dark("by")).append(TextUtilities.space()).append(TextUtilities.highlight(Database.getPlayer(event.getUuid()).getNameDisplay())));
+            commandSender.sendMessage(TextUtilities.highlight(event.getDisplayName(), theme).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Component.text("Click to select event"))).append(TextUtilities.space()).append(TextUtilities.getParenthesized(event.getState().name(), theme)).append(TextUtilities.primary(" - ", theme)).append(TextUtilities.primary(ApiUtilities.niceDate(event.getDate()), theme)).append(TextUtilities.space()).append(TextUtilities.primary("by", theme)).append(TextUtilities.space()).append(TextUtilities.highlight(Database.getPlayer(event.getUuid()).getNameDisplay(), theme)));
         }
     }
 
@@ -112,19 +115,22 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("info")
     @CommandCompletion("@event")
     public static void onInfo(CommandSender sender, Event event) {
+        Theme theme = new DefaultTheme();
         if (sender instanceof Player player) {
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
+            theme = Database.getPlayer(player).getTheme();
         }
+
         sender.sendMessage("");
-        sender.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(event.getDisplayName()).color(TextUtilities.textHighlightColor).append(TextUtilities.space()).append(TextUtilities.getParenthesized(event.getState().name())))));
+        sender.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(event.getDisplayName()).color(theme.getSecondary()).append(TextUtilities.space()).append(TextUtilities.getParenthesized(event.getState().name(), theme)), theme)));
 
         net.kyori.adventure.text.TextComponent trackMessage;
         if (event.getTrack() == null) {
 
-            trackMessage = Component.text("Track:").color(TextUtilities.textDarkColor).append(TextUtilities.space()).append(Component.text("None").color(TextUtilities.textHighlightColor));
+            trackMessage = Component.text("Track:").color(theme.getPrimary()).append(TextUtilities.space()).append(Component.text("None").color(theme.getSecondary()));
 
         } else {
-            trackMessage = Component.text("Track:").color(TextUtilities.textDarkColor).append(TextUtilities.space()).append(Component.text(event.getTrack().getDisplayName()).color(TextUtilities.textHighlightColor)).append(TextUtilities.space()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+            trackMessage = Component.text("Track:").color(theme.getPrimary()).append(TextUtilities.space()).append(Component.text(event.getTrack().getDisplayName()).color(theme.getSecondary())).append(TextUtilities.space()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
         }
         if (sender.hasPermission("event.admin")) {
@@ -132,24 +138,24 @@ public class CommandEvent extends BaseCommand {
         }
         sender.sendMessage(trackMessage);
 
-        var signsMessage = TextUtilities.dark("Signs:").append(Component.space());
+        var signsMessage = TextUtilities.primary("Signs:", theme).append(Component.space());
 
 
         if (sender.hasPermission("event.admin")) {
             if (event.isOpenSign()) {
-                signsMessage = signsMessage.append(TextUtilities.getBrackets("Open").clickEvent(ClickEvent.runCommand("/event set signs closed")).hoverEvent(HoverEvent.showText(Component.text("Click to close"))));
+                signsMessage = signsMessage.append(TextUtilities.getBrackets("Open", theme).clickEvent(ClickEvent.runCommand("/event set signs closed")).hoverEvent(HoverEvent.showText(Component.text("Click to close"))));
             } else {
-                signsMessage = signsMessage.append(TextUtilities.getBrackets("Closed").clickEvent(ClickEvent.runCommand("/event set signs open")).hoverEvent(HoverEvent.showText(Component.text("Click to open"))));
+                signsMessage = signsMessage.append(TextUtilities.getBrackets("Closed", theme).clickEvent(ClickEvent.runCommand("/event set signs open")).hoverEvent(HoverEvent.showText(Component.text("Click to open"))));
             }
         } else {
-            signsMessage = event.isOpenSign() ? signsMessage.append(TextUtilities.highlight("Open")) : signsMessage.append(TextUtilities.highlight("Closed"));
+            signsMessage = event.isOpenSign() ? signsMessage.append(TextUtilities.highlight("Open", theme)) : signsMessage.append(TextUtilities.highlight("Closed", theme));
         }
 
         sender.sendMessage(signsMessage);
 
-        sender.sendMessage(TextUtilities.dark("Signed Drivers:").append(TextUtilities.space()).append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(TextUtilities.textHighlightColor)).append(TextUtilities.space()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
+        sender.sendMessage(TextUtilities.primary("Signed Drivers:", theme).append(TextUtilities.space()).append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(theme.getSecondary())).append(TextUtilities.space()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
 
-        var roundsMessage = Component.text("Rounds:").color(TextUtilities.textDarkColor).append(TextUtilities.space()).append(Component.text(event.eventSchedule.getRounds().size()).color(TextUtilities.textHighlightColor));
+        var roundsMessage = Component.text("Rounds:").color(theme.getPrimary()).append(TextUtilities.space()).append(Component.text(event.eventSchedule.getRounds().size()).color(theme.getSecondary()));
 
         if (sender.hasPermission("event.admin")) {
             roundsMessage = roundsMessage.append(TextUtilities.tab()).append(TextButtons.getAddButton("Round").clickEvent(ClickEvent.suggestCommand("/round create ")).hoverEvent(TextButtons.getClickToAddHoverEvent()));
@@ -160,7 +166,7 @@ public class CommandEvent extends BaseCommand {
         for (Round round : event.eventSchedule.getRounds()) {
 
             boolean currentRound = round.getRoundIndex() == event.getEventSchedule().getCurrentRound() && event.getState() != Event.EventState.FINISHED;
-            var roundMessage = (currentRound ? TextUtilities.arrow() : TextUtilities.tab()).append(Component.text(round.getDisplayName() + ":").color(TextUtilities.textDarkColor));
+            var roundMessage = (currentRound ? TextUtilities.arrow(theme) : TextUtilities.tab()).append(Component.text(round.getDisplayName() + ":").color(theme.getPrimary()));
 
             if (sender.hasPermission("event.admin") && round.getState() != Round.RoundState.FINISHED) {
                 roundMessage = roundMessage.append(TextUtilities.space()).append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
@@ -177,7 +183,7 @@ public class CommandEvent extends BaseCommand {
             sender.sendMessage(roundMessage);
 
             for (Heat heat : round.getHeats()) {
-                var heatName = Component.text(heat.getName()).color(TextUtilities.textHighlightColor);
+                var heatName = Component.text(heat.getName()).color(theme.getSecondary());
                 heatName = heat.getHeatState() == HeatState.FINISHED ? heatName.decorate(TextDecoration.ITALIC) : heatName;
                 var heatMessage = TextUtilities.tab().append(TextUtilities.tab()).append(heatName).append(TextUtilities.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
@@ -349,6 +355,8 @@ public class CommandEvent extends BaseCommand {
             }
         }
 
+        Theme theme = Database.getPlayer(player).getTheme();
+
         int count = 1;
         player.sendMessage(Component.empty());
         var message = plugin.getText(player, Info.SIGNS_TITLE, "%event%", event.getDisplayName());
@@ -364,11 +372,11 @@ public class CommandEvent extends BaseCommand {
             var sortedList = CommandRound.getSortedList(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
             for (TPlayer tPlayer : sortedList) {
                 var bestTime = event.getTrack().getBestFinish(tPlayer);
-                player.sendMessage(TextUtilities.dark(count++ + ":").append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime())))));
+                player.sendMessage(TextUtilities.primary(count++ + ":", theme).append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()), theme)));
             }
         } else {
             for (Subscriber s : event.getSubscribers().values()) {
-                player.sendMessage(TextUtilities.dark(count++ + ":").append(TextUtilities.space()).append(TextUtilities.highlight(s.getTPlayer().getName())));
+                player.sendMessage(TextUtilities.primary(count++ + ":", theme).append(TextUtilities.space()).append(TextUtilities.highlight(s.getTPlayer().getName(), theme)));
             }
         }
 
@@ -386,13 +394,13 @@ public class CommandEvent extends BaseCommand {
             var sortedList = CommandRound.getSortedList(event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
             for (TPlayer tPlayer : sortedList) {
                 var bestTime = event.getTrack().getBestFinish(tPlayer);
-                player.sendMessage(TextUtilities.dark(count++ + ":").append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()))))
+                player.sendMessage(TextUtilities.primary(count++ + ":", theme).append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()), theme))
 
                 );
             }
         } else {
             for (Subscriber s : event.getReserves().values()) {
-                player.sendMessage(TextUtilities.dark(count++ + ":").append(TextUtilities.space()).append(TextUtilities.highlight(s.getTPlayer().getName())));
+                player.sendMessage(TextUtilities.primary(count++ + ":", theme).append(TextUtilities.space()).append(TextUtilities.highlight(s.getTPlayer().getName(), theme)));
             }
         }
     }

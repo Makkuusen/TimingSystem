@@ -4,6 +4,7 @@ import lombok.Getter;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.text.TextUtilities;
+import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
@@ -89,15 +90,15 @@ public class EventSchedule {
     }
 
 
-    public List<Component> getHeatList(Event event) {
+    public List<Component> getHeatList(Event event, Theme theme) {
         List<Component> message = new ArrayList<>();
-        message.add(TextUtilities.getTitleLine("Heats for", event.getDisplayName()));
-        message.addAll(listHeats());
+        message.add(TextUtilities.getTitleLine("Heats for", event.getDisplayName(), theme));
+        message.addAll(listHeats(theme));
         return message;
     }
 
-    public List<Component> getRoundList() {
-        return new ArrayList<>(listRounds());
+    public List<Component> getRoundList(Theme theme) {
+        return new ArrayList<>(listRounds(theme));
     }
 
     public Optional<Heat> getHeat(String name) {
@@ -113,16 +114,16 @@ public class EventSchedule {
         return rounds.stream().filter(round -> name.equalsIgnoreCase(round.getName())).findFirst();
     }
 
-    public List<Component> listRounds() {
+    public List<Component> listRounds(Theme theme) {
         List<Component> message = new ArrayList<>();
-        rounds.forEach(round -> message.add(Component.text(" - " + round.getName()).color(TextUtilities.textHighlightColor)));
+        rounds.forEach(round -> message.add(Component.text(" - " + round.getName()).color(theme.getSecondary())));
         return message;
     }
 
-    public List<Component> listHeats() {
+    public List<Component> listHeats(Theme theme) {
         List<Component> message = new ArrayList<>();
         for (Round round : rounds) {
-            round.getHeats().forEach(heat -> message.add(Component.text(" - " + heat.getName()).color(TextUtilities.textHighlightColor)));
+            round.getHeats().forEach(heat -> message.add(Component.text(" - " + heat.getName()).color(theme.getSecondary())));
         }
         return message;
     }

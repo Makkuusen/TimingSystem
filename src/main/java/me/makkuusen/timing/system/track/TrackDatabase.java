@@ -302,7 +302,7 @@ public class TrackDatabase {
         if (maybeTrack == null) {
             return regions;
         }
-        maybeTrack.getRegions().forEach(region -> regions.add(region.getRegionType().name() + "-" + region.getRegionIndex()));
+        maybeTrack.getRegions().forEach(region -> regions.add(region.getRegionType().name().toLowerCase() + "-" + region.getRegionIndex()));
 
         return regions;
     }
@@ -329,7 +329,7 @@ public class TrackDatabase {
                     String[] regionName = region.split("-");
                     int index = Integer.parseInt(regionName[1]);
                     String regionType = regionName[0];
-                    var maybeRegion = maybeTrack.getRegion(TrackRegion.RegionType.valueOf(regionType), index);
+                    var maybeRegion = maybeTrack.getRegion(TrackRegion.RegionType.valueOf(regionType.toUpperCase()), index);
                     if (maybeRegion.isPresent()) {
                         return maybeRegion.get();
                     }

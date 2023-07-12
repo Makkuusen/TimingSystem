@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system;
 
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.commands.CommandRace;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
@@ -179,11 +180,11 @@ public class TSListener implements Listener {
             if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
                 Track track = TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack();
                 if (track.hasOption('b')) {
-                    plugin.sendMessage(player, Error.LEFT_BOAT);
-                    TimeTrialController.playerLeavingMap(player.getUniqueId());
-                    if (ApiUtilities.hasBoatUtilsEffects(player)) {
-                        ApiUtilities.removeBoatUtilsEffects(player);
+                    if (!track.getSpawnLocation().isWorldLoaded()) {
+                        TimingSystem.getPlugin().sendMessage(player, Error.WORLD_NOT_LOADED);
+                        return;
                     }
+                    TimingSystemAPI.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
                 }
             } else {
                 if (ApiUtilities.hasBoatUtilsEffects(player)) {

@@ -110,11 +110,11 @@ public class ScoreboardUtils {
     }
 
     public static String getHighlightColor() {
-        return String.valueOf(net.md_5.bungee.api.ChatColor.of(TextUtilities.textHighlightColor.asHexString()));
+        return String.valueOf(net.md_5.bungee.api.ChatColor.of(TextUtilities.secondary.asHexString()));
     }
 
     public static String getDarkColor() {
-        return String.valueOf(net.md_5.bungee.api.ChatColor.of(TextUtilities.textDarkColor.asHexString()));
+        return String.valueOf(net.md_5.bungee.api.ChatColor.of(TextUtilities.primary.asHexString()));
     }
 
     private static String getPosFormat(int pos, String name) {

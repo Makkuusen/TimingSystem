@@ -8,8 +8,9 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.text.Success;
+import me.makkuusen.timing.system.text.TSColor;
 import me.makkuusen.timing.system.text.TextUtilities;
-import me.makkuusen.timing.system.text.TimingSystemColor;
+import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.command.CommandSender;
@@ -40,22 +41,23 @@ public class CommandTimingSystem extends BaseCommand {
 
     @CommandAlias("hexcolor")
     @CommandCompletion("@tscolor <hexcolorcode>")
-    public void onColorChange(CommandSender sender, TimingSystemColor tsColor, String hex) {
+    public void onColorChange(CommandSender sender, TSColor tsColor, String hex) {
         if (!hex.startsWith("#")) {
             hex = "#" + hex;
         }
         TextColor color;
+        Theme theme = TextUtilities.getTheme(sender);
         if (isValidHexCode(hex)) {
             color = TextColor.fromHexString(hex);
             switch (tsColor) {
-                case HIGHLIGHT -> TextUtilities.textHighlightColor = color;
-                case DARK -> TextUtilities.textDarkColor = color;
-                case AWARD_HIGHLIGHT -> TextUtilities.textAwardHighlightColor = color;
-                case AWARD_DARK -> TextUtilities.textAwardDarkColor = color;
-                case ERROR -> TextUtilities.textError = color;
-                case BROADCAST -> TextUtilities.textBroadcast = color;
-                case SUCCESS -> TextUtilities.textSuccess = color;
-                case WARNING -> TextUtilities.textWarn = color;
+                case SECONDARY -> theme.setSecondary(color);
+                case PRIMARY -> theme.setPrimary(color);
+                case AWARD -> theme.setAward(color);
+                case AWARD_SECONDARY -> theme.setAwardSecondary(color);
+                case ERROR -> theme.setError(color);
+                case BROADCAST -> theme.setBroadcast(color);
+                case SUCCESS -> theme.setSuccess(color);
+                case WARNING -> theme.setWarning(color);
                 default -> {
                 }
             }
@@ -67,16 +69,17 @@ public class CommandTimingSystem extends BaseCommand {
 
     @CommandAlias("color")
     @CommandCompletion("@tscolor @namedColor")
-    public void onNamedColorChange(CommandSender sender, TimingSystemColor tsColor, NamedTextColor color) {
+    public void onNamedColorChange(CommandSender sender, TSColor tsColor, NamedTextColor color) {
+        Theme theme = TextUtilities.getTheme(sender);
         switch (tsColor) {
-            case HIGHLIGHT -> TextUtilities.textHighlightColor = color;
-            case DARK -> TextUtilities.textDarkColor = color;
-            case AWARD_HIGHLIGHT -> TextUtilities.textAwardHighlightColor = color;
-            case AWARD_DARK -> TextUtilities.textAwardDarkColor = color;
-            case ERROR -> TextUtilities.textError = color;
-            case BROADCAST -> TextUtilities.textBroadcast = color;
-            case SUCCESS -> TextUtilities.textSuccess = color;
-            case WARNING -> TextUtilities.textWarn = color;
+            case SECONDARY -> theme.setSecondary(color);
+            case PRIMARY -> theme.setPrimary(color);
+            case AWARD -> theme.setAward(color);
+            case AWARD_SECONDARY -> theme.setAwardSecondary(color);
+            case ERROR -> theme.setError(color);
+            case BROADCAST -> theme.setBroadcast(color);
+            case SUCCESS -> theme.setSuccess(color);
+            case WARNING -> theme.setWarning(color);
             default -> {
             }
         }

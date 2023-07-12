@@ -5,21 +5,21 @@ import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 
-public enum TimingSystemColor {
-    DARK,
-    HIGHLIGHT,
+public enum TSColor {
+    PRIMARY,
+    SECONDARY,
     ERROR,
     WARNING,
     SUCCESS,
     BROADCAST,
-    AWARD_HIGHLIGHT,
-    AWARD_DARK;
+    AWARD,
+    AWARD_SECONDARY;
 
-    public static ContextResolver<TimingSystemColor, BukkitCommandExecutionContext> getColorContextResolver() {
+    public static ContextResolver<TSColor, BukkitCommandExecutionContext> getColorContextResolver() {
         return (c) -> {
             String name = c.popFirstArg();
             try {
-                return TimingSystemColor.valueOf(name.toUpperCase());
+                return TSColor.valueOf(name.toUpperCase());
             } catch (IllegalArgumentException e) {
                 //no matching boat types
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);

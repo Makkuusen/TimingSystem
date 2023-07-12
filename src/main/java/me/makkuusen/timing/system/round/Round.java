@@ -42,7 +42,7 @@ public abstract class Round {
         return (c) -> {
             String name = c.popFirstArg();
             try {
-                return RoundType.valueOf(name);
+                return RoundType.valueOf(name.toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }

@@ -8,6 +8,7 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
@@ -26,6 +27,7 @@ import me.makkuusen.timing.system.text.Success;
 import me.makkuusen.timing.system.text.TextButtons;
 import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.text.Warning;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
@@ -53,8 +55,9 @@ public class CommandRound extends BaseCommand {
                 return;
             }
         }
+        Theme theme = Database.getPlayer(player).getTheme();
         plugin.sendMessage(player, Info.ROUNDS_TITLE);
-        event.eventSchedule.listRounds().forEach(player::sendMessage);
+        event.eventSchedule.listRounds(theme).forEach(player::sendMessage);
     }
 
     @Subcommand("create")
@@ -100,11 +103,11 @@ public class CommandRound extends BaseCommand {
     @Subcommand("info")
     @CommandCompletion("@round")
     public static void onRoundInfo(Player player, Round round) {
-
+        Theme theme = Database.getPlayer(player).getTheme();
         player.sendMessage("");
-        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(round.getDisplayName()).color(TextUtilities.textHighlightColor).append(TextUtilities.space()).append(TextUtilities.getParenthesized(round.getState().name())))).append(TextUtilities.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
+        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(TextUtilities.space()).append(TextUtilities.getParenthesized(round.getState().name(), theme)), theme)).append(TextUtilities.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
 
-        var heatsMessage = Component.text("Heats:").color(TextUtilities.textDarkColor);
+        var heatsMessage = Component.text("Heats:").color(theme.getPrimary());
 
         if (player.hasPermission("event.admin")) {
             heatsMessage.append(TextUtilities.tab()).append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
@@ -113,7 +116,7 @@ public class CommandRound extends BaseCommand {
 
         for (Heat heat : round.getHeats()) {
 
-            var message = TextUtilities.tab().append(Component.text(heat.getName()).color(TextUtilities.textHighlightColor)).append(TextUtilities.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+            var message = TextUtilities.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(TextUtilities.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
             if (player.hasPermission("event.admin")) {
                 message = message.append(TextUtilities.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
@@ -158,15 +161,16 @@ public class CommandRound extends BaseCommand {
         List<Driver> results = EventResults.generateRoundResults(round.getHeats());
 
         if (results.size() != 0) {
+            Theme theme = Database.getPlayer(player).getTheme();
             plugin.sendMessage(player, Info.ROUND_RESULT_TITLE, "%round%", round.getDisplayName());
             int pos = 1;
             if (round instanceof FinalRound) {
                 for (Driver d : results) {
-                    player.sendMessage(TextUtilities.dark(pos++ + ".").append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight(String.valueOf(d.getLaps().size()))).append(TextUtilities.dark("laps in")).append(Component.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime()))));
+                    player.sendMessage(TextUtilities.primary(pos++ + ".", theme).append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(String.valueOf(d.getLaps().size()), theme)).append(TextUtilities.primary("laps in", theme)).append(Component.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime()), theme)));
                 }
             } else {
                 for (Driver d : results) {
-                    player.sendMessage(TextUtilities.dark(pos++ + ".").append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0"))));
+                    player.sendMessage(TextUtilities.primary(pos++ + ".", theme).append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0", theme)));
                 }
             }
         } else {
@@ -300,7 +304,8 @@ public class CommandRound extends BaseCommand {
                 while (!tPlayerList.isEmpty()) {
                     message.append(", ").append(tPlayerList.pop().getName());
                 }
-                player.sendMessage(TextUtilities.warn(message.toString()));
+                Theme theme = Database.getPlayer(player).getTheme();
+                player.sendMessage(TextUtilities.warning(message.toString(), theme));
             }
         } else {
             plugin.sendMessage(player, Error.ROUND_NOT_FOUND);
@@ -348,7 +353,8 @@ public class CommandRound extends BaseCommand {
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             var bestTime = heat.getEvent().getTrack().getBestFinish(tPlayer);
-            sender.sendMessage(TextUtilities.dark(heat.getDrivers().size() + ":").append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime())))));
+            Theme theme = Database.getPlayer(sender).getTheme();
+            sender.sendMessage(TextUtilities.primary(heat.getDrivers().size() + ":", theme).append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()), theme)));
         }
 
     }

@@ -179,7 +179,7 @@ public class CommandTimeTrial extends BaseCommand {
         if (t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1) {
             Component message = plugin.getText(player, Success.TELEPORT_TO_TRACK, "%track%", t.getDisplayName());
             var leaderboardPosition = t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId()));
-            Component positionComponent = TextUtilities.getParenthesized(String.valueOf(leaderboardPosition));
+            Component positionComponent = TextUtilities.getParenthesized(String.valueOf(leaderboardPosition), Database.getPlayer(player).getTheme());
             if (message != null) {
                 player.sendMessage(message.append(Component.space()).append(positionComponent));
             }

@@ -6,7 +6,6 @@ import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.text.ActionBar;
-import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
@@ -49,9 +48,9 @@ public class Tasks {
                     long mapTime = timeTrial.getCurrentTime();
                     Component timer = Component.text(ApiUtilities.formatAsTime(mapTime));
                     if (timeTrial.getBestFinish() == -1 || mapTime < timeTrial.getBestFinish()) {
-                        p.sendActionBar(timer.color(TextUtilities.textSuccess));
+                        p.sendActionBar(timer.color(Database.getPlayer(p).getTheme().getSuccess()));
                     } else {
-                        p.sendActionBar(timer.color(TextUtilities.textError));
+                        p.sendActionBar(timer.color(Database.getPlayer(p).getTheme().getError()));
                     }
                 } else {
                     var maybeDriver = EventDatabase.getDriverFromRunningHeat(p.getUniqueId());
@@ -66,16 +65,16 @@ public class Tasks {
                                 long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                                 long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                 if (timeLeft < 0) {
-                                    p.sendActionBar(plugin.getActionBarText(p, "&s" + ApiUtilities.formatAsTime(lapTime) + "&d |&h&l P" + driver.getPosition() + "&r&d |&h&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
+                                    p.sendActionBar(plugin.getActionBarText(p, "&s" + ApiUtilities.formatAsTime(lapTime) + "&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
                                 } else {
-                                    p.sendActionBar(plugin.getActionBarText(p, "&s" + ApiUtilities.formatAsTime(lapTime) + "&r&d |&h&l P" + driver.getPosition() + "&r&d |&h&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+                                    p.sendActionBar(plugin.getActionBarText(p, "&s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
                                 }
                             } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
                                 long timeLeft = driver.getHeat().getTimeLimit();
                                 if (driver.getStartTime() != null) {
                                     timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                 }
-                                p.sendActionBar(plugin.getActionBarText(p, "&s00.000&r&d |&h&l P" + driver.getPosition() + "&r&d |&h&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+                                p.sendActionBar(plugin.getActionBarText(p, "&s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
                             }
                         }
                     } else {
@@ -93,16 +92,16 @@ public class Tasks {
                                     long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                                     long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                     if (timeLeft < 0) {
-                                        p.sendActionBar(plugin.getActionBarText(p, "&h" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&d |&h&l P" + driver.getPosition() + "&r&d |&h&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
+                                        p.sendActionBar(plugin.getActionBarText(p, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
                                     } else {
-                                        p.sendActionBar(plugin.getActionBarText(p, "&h" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&d |&h&l P" + driver.getPosition() + "&r&d |&h&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+                                        p.sendActionBar(plugin.getActionBarText(p, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
                                     }
                                 } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
                                     long timeLeft = driver.getHeat().getTimeLimit();
                                     if (driver.getStartTime() != null) {
                                         timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                     }
-                                    p.sendActionBar(plugin.getActionBarText(p, "&h" + driver.getTPlayer().getName() + " &d> &s00.000&r&d |&h&l P" + driver.getPosition() + "&r&d |&h&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+                                    p.sendActionBar(plugin.getActionBarText(p, "&1" + driver.getTPlayer().getName() + " &2> &s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
                                 }
                             }
                         }
