@@ -16,7 +16,7 @@ public class SettingsGui extends BaseGui {
     public static GuiButton getSoundButton(TPlayer tPlayer) {
         var button = new GuiButton(ButtonUtilities.sound);
         button.setAction(() -> {
-            tPlayer.switchToggleSound();
+            tPlayer.toggleSound();
             if (tPlayer.isSound()) {
                 ButtonUtilities.playConfirm(tPlayer.getPlayer());
             }

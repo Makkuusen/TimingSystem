@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system;
 
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.commands.CommandRace;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
@@ -9,11 +10,14 @@ import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
+import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -176,11 +180,11 @@ public class TSListener implements Listener {
             if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
                 Track track = TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack();
                 if (track.hasOption('b')) {
-                    plugin.sendMessage(player, "messages.error.leftBoat");
-                    TimeTrialController.playerLeavingMap(player.getUniqueId());
-                    if (ApiUtilities.hasBoatUtilsEffects(player)) {
-                        ApiUtilities.removeBoatUtilsEffects(player);
+                    if (!track.getSpawnLocation().isWorldLoaded()) {
+                        TimingSystem.getPlugin().sendMessage(player, Error.WORLD_NOT_LOADED);
+                        return;
                     }
+                    TimingSystemAPI.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
                 }
             } else {
                 if (ApiUtilities.hasBoatUtilsEffects(player)) {
@@ -277,7 +281,7 @@ public class TSListener implements Listener {
     public void onPlayerFishEvent(PlayerFishEvent e) {
         if (e.getHook().getHookedEntity() instanceof Player hooked) {
             if (TimeTrialController.timeTrials.containsKey(hooked.getUniqueId())) {
-                e.getPlayer().sendMessage("§cDu får inte kroka någon annan");
+                plugin.sendMessage(e.getPlayer(), Error.NO_HOOKING_OTHERS);
                 e.setCancelled(true);
                 return;
             }
@@ -285,7 +289,7 @@ public class TSListener implements Listener {
 
         if (e.getCaught() instanceof Player player) {
             if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
-                e.getPlayer().sendMessage("§cDu får inte fiska någon annan");
+                plugin.sendMessage(e.getPlayer(), Error.NO_FISHING_OTHERS);
                 e.setCancelled(true);
             }
         }
@@ -297,26 +301,26 @@ public class TSListener implements Listener {
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             Track track = TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack();
             if (player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType().equals(Material.ELYTRA) && track.hasOption('e')) {
-                player.sendMessage("§cDu får inte ha elytra på den här banan.");
+                plugin.sendMessage(player, Error.NO_ELYTRA);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             } else if (!player.isGliding() && track.hasOption('g')) {
-                player.sendMessage("§cDu slutade flyga och tiden avbröts.");
+                plugin.sendMessage(player, Error.STOPPED_FLYING);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             } else if (player.getActivePotionEffects().size() > 0 && track.hasOption('p')) {
-                player.sendMessage("§cDu får inte ha effekter på den här banan.");
+                plugin.sendMessage(player, Error.NO_POTION_EFFECTS);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             } else if (player.isRiptiding() && track.hasOption('t')) {
-                player.sendMessage("§cDu får inte använda trident på den här banan.");
+                plugin.sendMessage(player, Error.NO_RIPTIDE);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             } else if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.SOUL_SPEED) && track.hasOption('s')) {
-                player.sendMessage("§cDu får inte ha själhastighet på dina skor.");
+                plugin.sendMessage(player, Error.NO_SOUL_SPEED);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             } else if (ApiUtilities.hasBoatUtilsREffect(player) && !track.hasOption('r')) {
-                player.sendMessage("§cYou are not allowed to use BoatUtils step assist on this track");
+                plugin.sendMessage(player, Error.NO_STEP_ASSIST_EFFECT);
                 ApiUtilities.removeBoatUtilsEffects(player);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             } else if (ApiUtilities.hasBoatUtilsIEffect(player) && !track.hasOption('i')) {
-                player.sendMessage("§cYou are not allowed to use BoatUtils slippery effect on this track");
+                plugin.sendMessage(player, Error.NO_SLIPPERY_EFFECT);
                 ApiUtilities.removeBoatUtilsEffects(player);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             }
@@ -334,7 +338,7 @@ public class TSListener implements Listener {
 
         for (TrackRegion region : track.getRegions()) {
             if (region.contains(player.getLocation())) {
-                ApiUtilities.sendActionBar("§a" + region.getRegionType() + " : " + region.getRegionIndex(), player);
+                player.sendActionBar(Component.text(region.getRegionType() + " : " + region.getRegionIndex()).color(NamedTextColor.GREEN));
                 return;
             }
         }
@@ -463,7 +467,7 @@ public class TSListener implements Listener {
                 timeTrial.setLagStartTrue();
                 timeTrial.playerPassingLagStart();
                 if (ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime)) == 0) {
-                    player.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
+                    plugin.sendMessage(player, Error.LAG_DETECTED);
                     plugin.logger.warning(player.getName() + " failed lagstart on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
                     timeTrial.playerResetMap();
                     return;
@@ -478,12 +482,12 @@ public class TSListener implements Listener {
                 timeTrial.setLagEnd(true);
                 timeTrial.playerPassingLagEnd();
                 if (!timeTrial.isLagStart()) {
-                    player.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
+                    plugin.sendMessage(player, Error.LAG_DETECTED);
                     plugin.logger.warning(player.getName() + " failed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
                     timeTrial.playerResetMap();
                     return;
                 } else if (TimingSystem.currentTime.toEpochMilli() == timeTrial.getLagStart().toEpochMilli()) {
-                    player.sendMessage("§cTimingSystem detected some lag and unfortunately your time has been invalidated.");
+                    plugin.sendMessage(player, Error.LAG_DETECTED);
                     plugin.logger.warning(player.getName() + " failed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
                     timeTrial.playerResetMap();
                     return;
@@ -532,10 +536,9 @@ public class TSListener implements Listener {
                     if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
                         int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                         var maybeCheckpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
-                        if (maybeCheckpoint.isPresent()) {
-                            ApiUtilities.teleportPlayerAndSpawnBoat(player, track, maybeCheckpoint.get().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                        }
-                        plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
+                        maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
+                        plugin.sendMessage(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
+
                         return;
                     }
                     heat.passLap(driver);
@@ -554,7 +557,7 @@ public class TSListener implements Listener {
                         if (maybeCheckpoint.isPresent()) {
                             ApiUtilities.teleportPlayerAndSpawnBoat(player, track, maybeCheckpoint.get().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                         }
-                        plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
+                        plugin.sendMessage(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
                         return;
                     }
                     heat.passLap(driver);
@@ -615,7 +618,7 @@ public class TSListener implements Listener {
                 var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
                 TrackRegion region = maybeRegion.isEmpty() ? track.getStartRegion().get() : maybeRegion.get();
                 ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                plugin.sendMessage(driver.getTPlayer().getPlayer(), "messages.error.timer.missedCheckpoints");
+                plugin.sendMessage(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
             }
         }
     }

@@ -61,7 +61,7 @@ public class TrackTagManager {
         return (c) -> {
             String name = c.popFirstArg();
             try {
-                return new TrackTag(name);
+                return new TrackTag(name.toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }

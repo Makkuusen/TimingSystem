@@ -1,18 +1,77 @@
 package me.makkuusen.timing.system.text;
 
-import net.kyori.adventure.text.Component;
+public enum Success implements MessageLevel{
 
-public enum Success {
+    SAVED,
+    CREATED,
+    CREATED_TAG,
+    CREATED_TRACK,
+    CREATED_ROUND,
+    CREATED_HEAT,
+    CREATED_EVENT,
+    ADDED_TAG,
+    ADDING_DRIVERS,
+    ADDED_DRIVER,
+    ADDED_ALL_DRIVERS,
+    REMOVED,
+    REMOVED_TAG,
+    REMOVED_LOCATIONS,
+    REMOVED_REGIONS,
+    REMOVED_BEST_FINISH,
+    REMOVED_ALL_FINISHES,
+    REMOVED_TRACK,
+    REMOVED_ROUND,
+    REMOVED_HEAT,
+    REMOVED_EVENT,
+    REMOVED_DRIVERS,
+    RESTORED_LOCATIONS,
+    RESTORED_REGIONS,
+    TIME_TRIAL_CANCELLED,
+    TRACK_NOW_OPEN,
+    TRACK_NOW_CLOSED,
+    TRACK_MOVED,
+    TRACK_OPTIONS_CLEARED,
+    TRACK_OPTIONS_NEW,
+    SESSION_ENDED,
+    SESSION_STARTED,
+    CHECKPOINTS_ANNOUNCEMENTS_ON,
+    CHECKPOINTS_ANNOUNCEMENTS_OFF,
+    SOUND_ON,
+    SOUND_OFF,
+    COMPACT_SCOREBOARD_ON,
+    COMPACT_SCOREBOARD_OFF,
+    OVERRIDE_ON,
+    OVERRIDE_OFF,
+    COLOR_UPDATED,
+    ROUND_FINISHED,
+    HEAT_FINISHED,
+    EVENT_FINISHED,
+    RACE_FINISHED,
+    EVENT_SELECTED,
+    TRACK_SELECTED,
+    EVENT_STARTED,
+    HEAT_COUNTDOWN_STARTED,
+    HEAT_LOADED,
+    HEAT_RESET,
+    HEAT_REVERSED_GRID,
+    HEAT_ABORTED,
+    HEAT_SORTED_BY_TIME,
+    HEAT_SORTED_BY_RANDOM,
+    SIGNS_NOW_OPEN,
+    SIGNS_NOW_CLOSED,
+    SPECTATING,
+    SIGNED,
+    RESERVE,
+    SIGNED_RACE,
+    PLAYER_SIGNED,
+    PLAYER_RESERVE,
+    DRIVER_NEW_START_POSITION,
+    DRIVER_DISQUALIFIED,
+    DRIVER_REMOVED,
+    TELEPORT_TO_TRACK;
 
-    EVENT_SELECTED("Selected new event");
-
-    public final String value;
-
-    Success(String value) {
-        this.value = value;
-    }
-
-    public Component message() {
-        return Component.text(value).color(TextUtilities.textSuccess);
+    @Override
+    public String getKey() {
+        return "success." + this.name().toLowerCase();
     }
 }

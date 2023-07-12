@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system.text;
 
+import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -22,8 +23,8 @@ public class TextButtons {
         return Component.text("[Edit]").color(buttonColor).hoverEvent(getClickToEditHoverEvent());
     }
 
-    public static Component getEditButton(String value) {
-        return TextUtilities.getBrackets(value).hoverEvent(getClickToEditHoverEvent());
+    public static Component getEditButton(String value, Theme theme) {
+        return TextUtilities.getBrackets(value, theme).hoverEvent(getClickToEditHoverEvent());
     }
 
     public static Component getAddButton() {
@@ -58,7 +59,7 @@ public class TextButtons {
         return HoverEvent.showText(Component.text("Click to add"));
     }
 
-    public static Component getFooterButtons(String eventName) {
-        return TextUtilities.getSpacersStart().append(Component.text("[Event]").color(buttonColor).clickEvent(ClickEvent.runCommand("/event info " + eventName)).hoverEvent(getClickToViewHoverEvent())).append(TextUtilities.getSpacersEnd());
+    public static Component getFooterButtons(String eventName, Theme theme) {
+        return TextUtilities.getSpacersStart(theme).append(Component.text("[Event]").color(buttonColor).clickEvent(ClickEvent.runCommand("/event info " + eventName)).hoverEvent(getClickToViewHoverEvent())).append(TextUtilities.getSpacersEnd(theme));
     }
 }

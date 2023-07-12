@@ -76,7 +76,7 @@ public class Track {
         return (c) -> {
             String name = c.popFirstArg();
             try {
-                return TrackType.valueOf(name);
+                return TrackType.valueOf(name.toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }

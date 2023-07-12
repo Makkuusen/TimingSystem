@@ -5,12 +5,14 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.text.ActionBar;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -44,12 +46,11 @@ public class Tasks {
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
                     TimeTrial timeTrial = TimeTrialController.timeTrials.get(p.getUniqueId());
                     long mapTime = timeTrial.getCurrentTime();
-                    if (timeTrial.getBestFinish() == -1) {
-                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(mapTime), p);
-                    } else if (mapTime < timeTrial.getBestFinish()) {
-                        ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(mapTime), p);
+                    Component timer = Component.text(ApiUtilities.formatAsTime(mapTime));
+                    if (timeTrial.getBestFinish() == -1 || mapTime < timeTrial.getBestFinish()) {
+                        p.sendActionBar(timer.color(Database.getPlayer(p).getTheme().getSuccess()));
                     } else {
-                        ApiUtilities.sendActionBar("§c" + ApiUtilities.formatAsTime(mapTime), p);
+                        p.sendActionBar(timer.color(Database.getPlayer(p).getTheme().getError()));
                     }
                 } else {
                     var maybeDriver = EventDatabase.getDriverFromRunningHeat(p.getUniqueId());
@@ -57,24 +58,23 @@ public class Tasks {
                         var driver = maybeDriver.get();
                         if (driver.getHeat().getRound() instanceof FinalRound) {
                             if (!driver.isFinished()) {
-                                String message = TimingSystem.getPlugin().getLocalizedMessage(p, "messages.actionbar.race", "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits()));
-                                ApiUtilities.sendActionBar(message, p);
+                                p.sendActionBar(plugin.getText(p, ActionBar.RACE,"%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
                             }
                         } else if (driver.getHeat().getRound() instanceof QualificationRound) {
                             if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
                                 long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                                 long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                 if (timeLeft < 0) {
-                                    ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(lapTime) + "§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §c-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1), p);
+                                    p.sendActionBar(plugin.getActionBarText(p, "&s" + ApiUtilities.formatAsTime(lapTime) + "&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
                                 } else {
-                                    ApiUtilities.sendActionBar("§a" + ApiUtilities.formatAsTime(lapTime) + "§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §e" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft), p);
+                                    p.sendActionBar(plugin.getActionBarText(p, "&s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
                                 }
                             } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
                                 long timeLeft = driver.getHeat().getTimeLimit();
                                 if (driver.getStartTime() != null) {
                                     timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                 }
-                                ApiUtilities.sendActionBar("§a00.000§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §e" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft), p);
+                                p.sendActionBar(plugin.getActionBarText(p, "&s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
                             }
                         }
                     } else {
@@ -84,8 +84,7 @@ public class Tasks {
                             var driver = mightBeDriver.get();
                             if (driver.getHeat().getRound() instanceof FinalRound) {
                                 if (!driver.isFinished()) {
-                                    String message = TimingSystem.getPlugin().getLocalizedMessage(p, "messages.actionbar.raceSpectator", "%name%", driver.getTPlayer().getName(), "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits()));
-                                    ApiUtilities.sendActionBar(message, p);
+                                    p.sendActionBar(plugin.getText(p, ActionBar.RACE_SPECTATOR, "%name%", driver.getTPlayer().getName(), "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
 
                                 }
                             } else if (driver.getHeat().getRound() instanceof QualificationRound) {
@@ -93,16 +92,16 @@ public class Tasks {
                                     long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                                     long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                     if (timeLeft < 0) {
-                                        ApiUtilities.sendActionBar("§f" + driver.getTPlayer().getName() + " > §a" + ApiUtilities.formatAsTime(lapTime) + "§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §c-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1), p);
+                                        p.sendActionBar(plugin.getActionBarText(p, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
                                     } else {
-                                        ApiUtilities.sendActionBar("§f" + driver.getTPlayer().getName() + " > §a" + ApiUtilities.formatAsTime(lapTime) + "§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §e" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft), p);
+                                        p.sendActionBar(plugin.getActionBarText(p, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
                                     }
                                 } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
                                     long timeLeft = driver.getHeat().getTimeLimit();
                                     if (driver.getStartTime() != null) {
                                         timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                                     }
-                                    ApiUtilities.sendActionBar("§f" + driver.getTPlayer().getName() + " > §a00.000§r§8 |§f§l P" + driver.getPosition() + "§r§8 |§f§l §e" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft), p);
+                                    p.sendActionBar(plugin.getActionBarText(p, "&1" + driver.getTPlayer().getName() + " &2> &s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
                                 }
                             }
                         }

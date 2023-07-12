@@ -8,7 +8,9 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
@@ -19,9 +21,13 @@ import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
-import me.makkuusen.timing.system.text.Errors;
+import me.makkuusen.timing.system.text.Error;
+import me.makkuusen.timing.system.text.Info;
+import me.makkuusen.timing.system.text.Success;
 import me.makkuusen.timing.system.text.TextButtons;
 import me.makkuusen.timing.system.text.TextUtilities;
+import me.makkuusen.timing.system.text.Warning;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
@@ -36,7 +42,7 @@ import java.util.stream.Collectors;
 
 @CommandAlias("round")
 public class CommandRound extends BaseCommand {
-
+    public static TimingSystem plugin;
     @Default
     @Subcommand("list")
     public static void onRounds(Player player, @Optional Event event) {
@@ -45,12 +51,13 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
-        var messages = event.eventSchedule.getRoundList(event);
-        messages.forEach(message -> player.sendMessage(message));
+        Theme theme = Database.getPlayer(player).getTheme();
+        plugin.sendMessage(player, Info.ROUNDS_TITLE);
+        event.eventSchedule.listRounds(theme).forEach(player::sendMessage);
     }
 
     @Subcommand("create")
@@ -62,45 +69,45 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
 
         if (event.getTrack() == null) {
-            player.sendMessage("§cYou need to select a track first");
+            plugin.sendMessage(player, Error.TRACK_NOT_FOUND_FOR_EVENT);
             return;
         }
         if (event.getTrack().isStage() && roundType.equals(RoundType.QUALIFICATION)) {
-            player.sendMessage("§cThis track does not support qualification");
+            plugin.sendMessage(player, Error.QUALIFICATION_NOT_SUPPORTED);
             return;
         }
 
         if (EventDatabase.roundNew(event, roundType, event.getEventSchedule().getRounds().size() + 1)) {
-            player.sendMessage("§aCreated " + roundType.name() + " round.");
+            plugin.sendMessage(player, Success.CREATED_ROUND, "%round%", roundType.name());
             return;
         }
-        player.sendMessage("§cCould not create new round");
+        plugin.sendMessage(player, Error.FAILED_TO_CREATE_ROUND);
     }
 
     @Subcommand("delete")
     @CommandCompletion("@round")
     public static void onDelete(Player player, Round round) {
         if (EventDatabase.removeRound(round)) {
-            player.sendMessage("§a" + round.getDisplayName() + " was removed.");
+            plugin.sendMessage(player, Success.REMOVED_ROUND, "%round%", round.getDisplayName());
             return;
         }
-        player.sendMessage("§c" + round.getDisplayName() + " could not be removed");
+        plugin.sendMessage(player, Error.FAILED_TO_REMOVE_ROUND);
     }
 
     @Subcommand("info")
     @CommandCompletion("@round")
     public static void onRoundInfo(Player player, Round round) {
-
+        Theme theme = Database.getPlayer(player).getTheme();
         player.sendMessage("");
-        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(round.getDisplayName()).color(TextUtilities.textHighlightColor).append(TextUtilities.space()).append(TextUtilities.getParenthesized(round.getState().name())))).append(TextUtilities.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
+        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(TextUtilities.space()).append(TextUtilities.getParenthesized(round.getState().name(), theme)), theme)).append(TextUtilities.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
 
-        var heatsMessage = Component.text("Heats:").color(TextUtilities.textDarkColor);
+        var heatsMessage = Component.text("Heats:").color(theme.getPrimary());
 
         if (player.hasPermission("event.admin")) {
             heatsMessage.append(TextUtilities.tab()).append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
@@ -109,7 +116,7 @@ public class CommandRound extends BaseCommand {
 
         for (Heat heat : round.getHeats()) {
 
-            var message = TextUtilities.tab().append(Component.text(heat.getName()).color(TextUtilities.textHighlightColor)).append(TextUtilities.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+            var message = TextUtilities.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(TextUtilities.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
             if (player.hasPermission("event.admin")) {
                 message = message.append(TextUtilities.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
@@ -128,14 +135,14 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
         if (event.eventSchedule.getRound().get().finish(event)) {
-            player.sendMessage("§aRound has been finished!");
+            plugin.sendMessage(player, Success.ROUND_FINISHED);
         } else {
-            player.sendMessage("§cRound could not be finished");
+            plugin.sendMessage(player, Error.FAILED_TO_FINISH_ROUND);
         }
     }
 
@@ -147,26 +154,27 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
         List<Driver> results = EventResults.generateRoundResults(round.getHeats());
 
         if (results.size() != 0) {
-            player.sendMessage(TextUtilities.getTitleLine("Round results for event", event.getDisplayName()));
+            Theme theme = Database.getPlayer(player).getTheme();
+            plugin.sendMessage(player, Info.ROUND_RESULT_TITLE, "%round%", round.getDisplayName());
             int pos = 1;
             if (round instanceof FinalRound) {
                 for (Driver d : results) {
-                    player.sendMessage(TextUtilities.dark(pos++ + ".").append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight(String.valueOf(d.getLaps().size()))).append(TextUtilities.dark("laps in")).append(Component.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime()))));
+                    player.sendMessage(TextUtilities.primary(pos++ + ".", theme).append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(String.valueOf(d.getLaps().size()), theme)).append(TextUtilities.primary("laps in", theme)).append(Component.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime()), theme)));
                 }
             } else {
                 for (Driver d : results) {
-                    player.sendMessage(TextUtilities.dark(pos++ + ".").append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0"))));
+                    player.sendMessage(TextUtilities.primary(pos++ + ".", theme).append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0", theme)));
                 }
             }
         } else {
-            player.sendMessage("§cRound has not been finished");
+            plugin.sendMessage(player, Error.ROUND_NOT_FINISHED);
         }
     }
 
@@ -178,7 +186,7 @@ public class CommandRound extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -193,18 +201,16 @@ public class CommandRound extends BaseCommand {
 
             for (Heat h : round.getHeats()) {
                 if (h.getHeatState() != HeatState.SETUP) {
-                    player.sendMessage(TextUtilities.error("Drivers can not be removed from " + h.getName() + " because it is either running or finished."));
+                    plugin.sendMessage(player, Error.FAILED_TO_REMOVE_DRIVERS);
                     return;
                 }
 
-                List<Driver> drivers = new ArrayList<>();
-                drivers.addAll(h.getDrivers().values());
+                List<Driver> drivers = new ArrayList<>(h.getDrivers().values());
                 for (Driver d : drivers) {
                     h.removeDriver(d);
                 }
             }
-            player.sendMessage(TextUtilities.success("Drivers have been removed!"));
-
+            plugin.sendMessage(player, Success.REMOVED_DRIVERS);
         }
     }
 
@@ -218,14 +224,14 @@ public class CommandRound extends BaseCommand {
         if (maybeEvent.isPresent()) {
             event = maybeEvent.get();
         } else {
-            player.sendMessage(Errors.NO_EVENT_SELECTED.message());
+            plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
             return;
         }
 
         boolean random = sort.equalsIgnoreCase("random");
 
         if (event.getState() != Event.EventState.SETUP) {
-            player.sendMessage(TextUtilities.error("Event has already been started and drivers can't be distributed"));
+            plugin.sendMessage(player, Error.EVENT_ALREADY_STARTED);
             return;
         }
 
@@ -247,7 +253,7 @@ public class CommandRound extends BaseCommand {
 
             List<TPlayer> listOfSubscribers = new ArrayList<>();
             if (group.equalsIgnoreCase("all")) {
-                listOfSubscribers.addAll(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
+                listOfSubscribers.addAll(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).toList());
                 int reserveSlots = numberOfSlots - numberOfDrivers;
                 var reserves = event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList());
                 if (reserveSlots > 0 && event.getReserves().values().size() > 0) {
@@ -267,7 +273,7 @@ public class CommandRound extends BaseCommand {
                 }
             } else {
                 var subscriberMap = group.equalsIgnoreCase("signed") ? event.getSubscribers() : event.getReserves();
-                listOfSubscribers.addAll(subscriberMap.values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()));
+                listOfSubscribers.addAll(subscriberMap.values().stream().map(Subscriber::getTPlayer).toList());
             }
             Collections.shuffle(listOfSubscribers);
 
@@ -278,7 +284,7 @@ public class CommandRound extends BaseCommand {
             }
 
             for (Heat heat : heats) {
-                player.sendMessage(TextUtilities.getTitleLine("Adding drivers to", heat.getName()));
+                plugin.sendMessage(player,Success.ADDING_DRIVERS, "%heat%", heat.getName());
                 int size = heat.getMaxDrivers() - heat.getDrivers().size();
                 for (int i = 0; i < size; i++) {
                     if (tPlayerList.size() < 1) {
@@ -291,23 +297,24 @@ public class CommandRound extends BaseCommand {
             tPlayerList.addAll(excludedList);
 
             if (!tPlayerList.isEmpty()) {
-                player.sendMessage(TextUtilities.warn("Drivers left out: "));
-                String message = "";
-                message += tPlayerList.pop().getName();
+                plugin.sendMessage(player, Warning.DRIVERS_LEFT_OUT);
+                StringBuilder message = new StringBuilder();
+                message.append(tPlayerList.pop().getName());
 
                 while (!tPlayerList.isEmpty()) {
-                    message += ", " + tPlayerList.pop().getName();
+                    message.append(", ").append(tPlayerList.pop().getName());
                 }
-                player.sendMessage(TextUtilities.warn(message));
+                Theme theme = Database.getPlayer(player).getTheme();
+                player.sendMessage(TextUtilities.warning(message.toString(), theme));
             }
         } else {
-            player.sendMessage(TextUtilities.error("Round could not be found"));
+            plugin.sendMessage(player, Error.ROUND_NOT_FOUND);
         }
     }
 
     public static List<TPlayer> getSortedList(List<TPlayer> players, Track track) {
         List<TPlayer> tPlayerList = new ArrayList<>();
-        List<TimeTrialFinish> driversWithBestTimes = track.getTopList().stream().filter(tt -> players.contains(tt.getPlayer())).collect(Collectors.toList());
+        List<TimeTrialFinish> driversWithBestTimes = track.getTopList().stream().filter(tt -> players.contains(tt.getPlayer())).toList();
         for (var finish : driversWithBestTimes) {
             tPlayerList.add(finish.getPlayer());
         }
@@ -333,24 +340,23 @@ public class CommandRound extends BaseCommand {
     }
 
 
-    public static boolean heatAddDriver(Player sender, TPlayer tPlayer, Heat heat, boolean random) {
+    public static void heatAddDriver(Player sender, TPlayer tPlayer, Heat heat, boolean random) {
         if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
-            return false;
+            return;
         }
 
         for (Heat h : heat.getRound().getHeats()) {
             if (h.getDrivers().get(tPlayer.getUniqueId()) != null) {
-                return false;
+                return;
             }
         }
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             var bestTime = heat.getEvent().getTrack().getBestFinish(tPlayer);
-            sender.sendMessage(TextUtilities.dark(heat.getDrivers().size() + ":").append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName())).append(TextUtilities.hyphen()).append(TextUtilities.highlight((bestTime == null ? "(None)" : ApiUtilities.formatAsTime(bestTime.getTime())))));
-            return true;
+            Theme theme = Database.getPlayer(sender).getTheme();
+            sender.sendMessage(TextUtilities.primary(heat.getDrivers().size() + ":", theme).append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()), theme)));
         }
 
-        return false;
     }
 
 }

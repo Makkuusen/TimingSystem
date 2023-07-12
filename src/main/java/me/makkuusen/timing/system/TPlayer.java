@@ -10,6 +10,9 @@ import co.aikar.idb.DbRow;
 import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
+import me.makkuusen.timing.system.theme.DefaultTheme;
+import me.makkuusen.timing.system.theme.Theme;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
@@ -34,6 +37,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private boolean compactScoreboard;
     private String color;
     private BaseGui openGui;
+    private Theme theme;
 
 
     public TPlayer(TimingSystem plugin, DbRow data) {
@@ -47,13 +51,14 @@ public class TPlayer implements Comparable<TPlayer> {
         timeTrial = data.get("timetrial");
         color = data.getString("color");
         compactScoreboard = data.get("compactScoreboard");
+        theme = new DefaultTheme();
     }
 
     public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {
         return (c) -> {
             String name = c.popFirstArg();
             try {
-                return Boat.Type.valueOf(name);
+                return Boat.Type.valueOf(name.toUpperCase());
             } catch (IllegalArgumentException e) {
                 //no matching boat types
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
@@ -122,11 +127,6 @@ public class TPlayer implements Comparable<TPlayer> {
         return compactScoreboard;
     }
 
-    public void setCompactScoreboard(boolean compactScoreboard) {
-        this.compactScoreboard = compactScoreboard;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
-    }
-
     public String getName() {
         return name;
     }
@@ -161,6 +161,10 @@ public class TPlayer implements Comparable<TPlayer> {
         return org.bukkit.Color.fromRGB(c.getRed(), c.getGreen(), c.getBlue());
     }
 
+    public TextColor getTextColor() {
+        return TextColor.fromHexString(color);
+    }
+
     public Boat.Type getBoat() {
         return boat;
     }
@@ -189,6 +193,15 @@ public class TPlayer implements Comparable<TPlayer> {
         return override;
     }
 
+    public boolean isTimeTrial() {
+        return timeTrial;
+    }
+
+    public boolean isCompactScoreboard() {
+        return compactScoreboard;
+    }
+
+
     public void toggleOverride() {
         override = !override;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `override` = " + override + " WHERE `uuid` = '" + uuid + "';");
@@ -199,22 +212,27 @@ public class TPlayer implements Comparable<TPlayer> {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `verbose` = " + verbose + " WHERE `uuid` = '" + uuid + "';");
     }
 
-    public boolean isTimeTrial() {
-        return timeTrial;
-    }
-
     public void toggleTimeTrial() {
         timeTrial = !timeTrial;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `timetrial` = " + timeTrial + " WHERE `uuid` = '" + uuid + "';");
     }
 
-    public void switchToggleSound() {
+    public void toggleSound() {
         toggleSound = !toggleSound;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `toggleSound` = " + toggleSound + " WHERE `uuid` = '" + uuid + "';");
     }
 
+    public void toggleCompactScoreboard() {
+        this.compactScoreboard = !compactScoreboard;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
+    }
+
     public boolean isSound() {
         return toggleSound;
+    }
+
+    public Theme getTheme() {
+        return theme;
     }
 
     public Player getPlayer() {

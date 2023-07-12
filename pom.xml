@@ -14,12 +14,11 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
                 <includes>
                     <include>config.yml</include>
                     <include>plugin.yml</include>
-                    <include>en_us.yml</include>
-                    <include>sv_se.yml</include>
+                    <include>lang/*.yml</include>
                 </includes>
             </resource>
         </resources>
