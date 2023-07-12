@@ -17,6 +17,8 @@ public abstract class TrackPageGui extends BaseGui {
     public static final List<Integer> BOAT_PAGES = List.of(0, 1, 2, 3, 4, 5, 6);
     public static final Integer PARKOUR_PAGE = 8;
     public static final Integer ELYTRA_PAGE = 7;
+
+    public Integer page;
     public TrackSort trackSort = TrackSort.WEIGHT;
     public TrackTag filter;
     public TPlayer tPlayer;
@@ -32,12 +34,8 @@ public abstract class TrackPageGui extends BaseGui {
     public TrackPageGui(TPlayer tPlayer, String title, int rows, int page) {
         super(title, rows);
         this.tPlayer = tPlayer;
-        setBorder();
-        setPageItem(page);
-        setNavigationItems(tPlayer, page);
-        setTrackButtons(tPlayer, page);
-        setSortingItems(tPlayer, page);
-        setFilterItems(tPlayer, page);
+        this.page = page;
+        update();
     }
 
     public TrackPageGui(TPlayer tPlayer, String title, int rows, int page, TrackSort trackSort, TrackTag filter) {
@@ -45,12 +43,17 @@ public abstract class TrackPageGui extends BaseGui {
         this.trackSort = trackSort;
         this.filter = filter;
         this.tPlayer = tPlayer;
+        this.page = page;
+        update();
+    }
+
+    public void update() {
         setBorder();
-        setPageItem(page);
-        setNavigationItems(tPlayer, page);
-        setTrackButtons(tPlayer, page);
-        setSortingItems(tPlayer, page);
-        setFilterItems(tPlayer, page);
+        setPageItem();
+        setNavigationItems();
+        setTrackButtons();
+        setSortingItems();
+        setFilterItems();
     }
 
     private void setBorder() {
@@ -60,7 +63,7 @@ public abstract class TrackPageGui extends BaseGui {
         }
     }
 
-    private void setPageItem(int page) {
+    private void setPageItem() {
         if (page == PARKOUR_PAGE) {
             setItem(ButtonUtilities.getParkourButton(), 4);
         } else if (page == ELYTRA_PAGE) {
@@ -70,32 +73,32 @@ public abstract class TrackPageGui extends BaseGui {
         }
     }
 
-    private void setSortingItems(TPlayer tPlayer, int page) {
+    private void setSortingItems() {
         if (trackSort == TrackSort.CREATION) {
-            setItem(getSortingButtons(tPlayer, page, TrackSort.POPULARITY), 0);
+            setItem(getSortingButtons(TrackSort.POPULARITY), 0);
         } else if (trackSort == TrackSort.POPULARITY) {
-            setItem(getSortingButtons(tPlayer, page, TrackSort.WEIGHT), 0);
+            setItem(getSortingButtons(TrackSort.WEIGHT), 0);
         } else if (trackSort == TrackSort.WEIGHT) {
-            setItem(getSortingButtons(tPlayer, page, TrackSort.POSITION), 0);
+            setItem(getSortingButtons(TrackSort.POSITION), 0);
         } else {
-            setItem(getSortingButtons(tPlayer, page, TrackSort.CREATION), 0);
+            setItem(getSortingButtons(TrackSort.CREATION), 0);
         }
     }
 
-    private void setFilterItems(TPlayer tPlayer, int page) {
-        setItem(getFilterButtons(tPlayer, page, filter, TrackTagManager.getNext(filter)), 2);
+    private void setFilterItems() {
+        setItem(getFilterButtons(TrackTagManager.getNext(filter)), 2);
     }
 
-    private GuiButton getFilterButtons(TPlayer tPlayer, int page, TrackTag current, TrackTag next) {
+    private GuiButton getFilterButtons(TrackTag next) {
         if (filter == null) {
             return getFilterButton(new ItemBuilder(Material.HOPPER).setName("§eFilter by: None").build(), tPlayer, page, trackSort, next);
         }
-        return getFilterButton(new ItemBuilder(Material.HOPPER).setName("§eFilter by: " + current.getValue()).build(), tPlayer, page, trackSort, next);
+        return getFilterButton(new ItemBuilder(Material.HOPPER).setName("§eFilter by: " + filter.getValue()).build(), tPlayer, page, trackSort, next);
     }
 
     public abstract GuiButton getFilterButton(ItemStack itemStack, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag);
 
-    private GuiButton getSortingButtons(TPlayer tPlayer, int page, TrackSort trackSort) {
+    private GuiButton getSortingButtons(TrackSort trackSort) {
         if (trackSort == TrackSort.POPULARITY) {
             return getSortingButton(new ItemBuilder(Material.CLOCK).setName("§eSorted by: Date Created").build(), tPlayer, page, trackSort, filter);
         } else if (trackSort == TrackSort.WEIGHT) {
@@ -109,30 +112,26 @@ public abstract class TrackPageGui extends BaseGui {
 
     public abstract GuiButton getSortingButton(ItemStack itemStack, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag);
 
-    private void setNavigationItems(TPlayer tPlayer, int page) {
-        int slot = 45;
-        for (Integer boatPage : BOAT_PAGES) {
-            if (boatPage != page) {
-                setItem(getPageButton(ButtonUtilities.boatPages.get(boatPage), tPlayer, boatPage), slot);
-            } else {
-                setItem(getPageButton(new ItemBuilder(Material.PAPER).setName("§e§lCurrent page").build(), tPlayer, page), slot);
-            }
-            slot++;
-        }
-        if (ELYTRA_PAGE != page) {
-            setItem(getPageButton(ButtonUtilities.elytraPage, tPlayer, ELYTRA_PAGE), 52);
-        } else {
-            setItem(getPageButton(new ItemBuilder(Material.PAPER).setName("§e§lCurrent page").build(), tPlayer, page), 52);
+    private void setNavigationItems() {
+        int slot = 49;
+
+        ItemStack previous = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§e§lPrevious page").build();
+        ItemStack next = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§e§lNext page").build();
+        ItemStack boat = new ItemBuilder(Material.PAPER).setName("§e§lCurrent page").build();
+
+        if (page > 0) {
+            setItem(getPageButton(previous, tPlayer, page - 1), slot - 1);
         }
 
-        if (PARKOUR_PAGE != page) {
-            setItem(getPageButton(ButtonUtilities.parkourPage, tPlayer, PARKOUR_PAGE), 53);
-        } else {
-            setItem(getPageButton(new ItemBuilder(Material.PAPER).setName("§e§lCurrent page").build(), tPlayer, page), 53);
+        boat.setAmount(page + 1);
+        setItem(getPageButton(boat, tPlayer, page), slot);
+
+        if (page < 9) {
+            setItem(getPageButton(next, tPlayer, page + 1), slot + 1);
         }
     }
 
-    private void setTrackButtons(TPlayer tPlayer, int page) {
+    private void setTrackButtons() {
         List<Track> tracks = getTracks(page, trackSort);
         setTracks(tracks, tPlayer, getTrackSlots());
     }

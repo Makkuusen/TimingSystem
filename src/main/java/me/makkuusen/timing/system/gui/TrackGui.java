@@ -28,11 +28,11 @@ public class TrackGui extends TrackPageGui {
     }
 
     @Override
-    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page) {
+    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int newPage) {
         var button = new GuiButton(item);
         button.setAction(() -> {
             String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(filter);
-            new TrackGui(tPlayer, title, page, trackSort, filter).show(tPlayer.getPlayer());
+            new TrackGui(tPlayer, title, newPage, trackSort, filter).show(tPlayer.getPlayer());
         });
         return button;
     }
