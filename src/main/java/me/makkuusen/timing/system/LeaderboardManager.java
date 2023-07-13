@@ -35,6 +35,15 @@ public class LeaderboardManager {
         }
     }
 
+    public static void removeAllLeaderboards() {
+        if (!TimingSystem.enableLeaderboards) {
+            return;
+        }
+        for (Track t : TrackDatabase.getTracks()) {
+            removeLeaderboards(t);
+        }
+    }
+
     public static void removeLeaderboards(Track track) {
         if (!TimingSystem.enableLeaderboards) {
             return;

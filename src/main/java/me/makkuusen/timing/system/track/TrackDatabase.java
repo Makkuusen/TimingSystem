@@ -342,6 +342,7 @@ public class TrackDatabase {
     }
 
     public static void unload() {
+        LeaderboardManager.removeAllLeaderboards();
         tracks = new ArrayList<>();
         startRegions = new ArrayList<>();
     }
