@@ -5,7 +5,6 @@ import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.text.Gui;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -57,8 +56,8 @@ public abstract class TrackPageGui extends BaseGui {
         update();
     }
 
-    public Component getTitle(TrackTag filter) {
-        return TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE).append(ButtonUtilities.getFilterTitle(filter, tPlayer.getTheme()));
+    public Component getTitle() {
+        return TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE);
     }
 
     public void update() {

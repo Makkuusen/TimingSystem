@@ -8,6 +8,7 @@ Description: >
     &b = broadcast color
     &a = award color
     &c = award secondary color
+    &t = title color
     &l = bold decoration
     &o = italic decoration
     &r = reset decoration and color
@@ -239,6 +240,8 @@ actionbar:
 
 
 gui:
-  settings_title: "&2&lSettings"
-  tracks_title: "&2&lTracks"
-  medals_title: "&2&lMedals"
+  settings_title: "&tSettings"
+  tracks_title: "&tTracks"
+  medals_title: "&tMedals"
+  filter_title: "&tFilters"
+  ranked_title: "&tRanked"

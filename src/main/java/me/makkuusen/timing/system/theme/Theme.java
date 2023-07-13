@@ -20,4 +20,7 @@ import net.kyori.adventure.text.format.TextColor;
         TextColor getBroadcast();
         void setBroadcast(TextColor color);
 
+        TextColor getTitle();
+        void setTitle(TextColor color);
+
 }

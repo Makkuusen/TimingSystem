@@ -15,7 +15,7 @@ import java.util.List;
 public class TimeTrialGui extends TrackPageGui {
 
     public TimeTrialGui(TPlayer tPlayer, int page) {
-        super(tPlayer, TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE).append(ButtonUtilities.getFilterTitle(null, tPlayer.getTheme())), 6, page);
+        super(tPlayer, TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE), 6, page);
     }
 
     public TimeTrialGui(TPlayer tPlayer, Component title, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {

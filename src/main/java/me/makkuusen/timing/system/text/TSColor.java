@@ -13,6 +13,7 @@ public enum TSColor {
     SUCCESS,
     BROADCAST,
     AWARD,
+    TITLE,
     AWARD_SECONDARY;
 
     public static ContextResolver<TSColor, BukkitCommandExecutionContext> getColorContextResolver() {

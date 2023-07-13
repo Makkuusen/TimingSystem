@@ -6,22 +6,11 @@ import me.makkuusen.timing.system.theme.DefaultTheme;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class TextUtilities {
-
-    public static TextColor primary = TextColor.fromHexString("#7bf200"); //7bf200 //gray
-    public static TextColor secondary = TextColor.color(NamedTextColor.WHITE);
-    public static TextColor award = TextColor.fromHexString("#ce00ce"); //#ce00ce //gold
-    public static TextColor awardSecondary = TextColor.fromHexString("#ff80ff"); //#ff80ff //yellow
-    public static TextColor error = TextColor.fromHexString("#ff7a75"); //#ff7a75 //red
-    public static TextColor warning = TextColor.color(NamedTextColor.YELLOW);
-    public static TextColor success = TextColor.fromHexString("#7bf200"); //7bf200 //green
-    public static TextColor broadcast = TextColor.fromHexString("#ff80ff"); //#ff80ff //Aqua
-
 
     public static Component getSpacersStart(Theme theme) {
         return Component.text("--- ").color(theme.getPrimary());

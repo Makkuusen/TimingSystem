@@ -17,6 +17,7 @@ public class BoatLabsTheme implements Theme {
     private TextColor warning = TextColor.color(NamedTextColor.YELLOW);
     private TextColor success = TextColor.fromHexString("#7bf200");
     private TextColor broadcast = TextColor.fromHexString("#ff80ff");
+    public TextColor title = TextColor.color(NamedTextColor.DARK_GRAY);
 
     public BoatLabsTheme() { }
 }

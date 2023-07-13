@@ -365,6 +365,7 @@ public class TimingSystem extends JavaPlugin {
                     case "b" -> color = theme.getBroadcast();
                     case "a" -> color = theme.getAwardSecondary();
                     case "c" -> color = theme.getAward();
+                    case "t" -> color = theme.getTitle();
                     case "o" -> decorations.add(TextDecoration.ITALIC);
                     case "l" -> decorations.add(TextDecoration.BOLD);
                     case "r" -> {

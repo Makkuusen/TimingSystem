@@ -53,7 +53,7 @@ public class TrackFilter {
             tagList.add(tag.getValue());
         }
         String tags = String.join(", ", tagList);
-        loreToSet.add(Component.text("§7Tags: §e" + tags));
+        loreToSet.add(Component.text("§e" + tags));
 
         ItemMeta im = item.getItemMeta();
         im.lore(loreToSet);

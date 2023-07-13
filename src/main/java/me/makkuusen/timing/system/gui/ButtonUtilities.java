@@ -2,18 +2,11 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.theme.Theme;
-import me.makkuusen.timing.system.track.TrackTag;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ButtonUtilities {
 
@@ -25,12 +18,6 @@ public class ButtonUtilities {
     public static ItemStack off;
     public static ItemStack goBack;
     public static ItemStack borderGlass;
-    public static ItemStack elytra;
-    public static ItemStack boat;
-    public static ItemStack parkour;
-    public static List<ItemStack> boatPages = new ArrayList<>();
-    public static ItemStack parkourPage;
-    public static ItemStack elytraPage;
 
     public static void init() {
         sound = new ItemBuilder(Material.JUKEBOX).setName("§b§eToggle: Sound").build();
@@ -74,13 +61,5 @@ public class ButtonUtilities {
 
     public static void playConfirm(Player player) {
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1);
-    }
-
-    public static Component getFilterTitle(TrackTag tag, Theme theme) {
-        if (tag == null) {
-            return Component.text(" - ALL").color(theme.getPrimary()).decorate(TextDecoration.BOLD);
-        } else {
-            return Component.text(" - " + tag.getValue()).color(theme.getPrimary()).decorate(TextDecoration.BOLD);
-        }
     }
 }

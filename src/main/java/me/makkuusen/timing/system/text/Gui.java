@@ -4,6 +4,8 @@ public enum Gui implements MessageLevel {
 
     SETTINGS_TITLE,
     MEDALS_TITLE,
+    FILTER_TITLE,
+    RANKED_TITLE,
     TRACKS_TITLE;
 
     Gui() {}

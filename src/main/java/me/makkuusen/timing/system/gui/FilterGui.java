@@ -1,9 +1,10 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
+import me.makkuusen.timing.system.text.Gui;
 import me.makkuusen.timing.system.track.TrackTag;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 
 public class FilterGui extends BaseGui{
@@ -11,7 +12,7 @@ public class FilterGui extends BaseGui{
     TrackPageGui oldTrackPage;
     TrackFilter filter;
     public FilterGui(TrackPageGui trackPage) {
-        super(Component.text("title"), 3);
+        super(TimingSystem.getPlugin().getText(trackPage.tPlayer.getPlayer(), Gui.FILTER_TITLE), 3);
         oldTrackPage = trackPage;
         this.filter = trackPage.filter;
         setButtons();
