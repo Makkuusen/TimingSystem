@@ -58,6 +58,7 @@ public class CommandTimingSystem extends BaseCommand {
                 case BROADCAST -> theme.setBroadcast(color);
                 case SUCCESS -> theme.setSuccess(color);
                 case WARNING -> theme.setWarning(color);
+                case TITLE -> theme.setTitle(color);
                 default -> {
                 }
             }
@@ -80,6 +81,7 @@ public class CommandTimingSystem extends BaseCommand {
             case BROADCAST -> theme.setBroadcast(color);
             case SUCCESS -> theme.setSuccess(color);
             case WARNING -> theme.setWarning(color);
+            case TITLE -> theme.setTitle(color);
             default -> {
             }
         }

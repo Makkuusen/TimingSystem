@@ -8,6 +8,7 @@ Description: >
     &b = broadcast color
     &a = award color
     &c = award secondary color
+    &t = title color
     &l = bold decoration
     &o = italic decoration
     &r = reset decoration and color
@@ -236,3 +237,11 @@ broadcast:
 actionbar:
   race: '&2Lap: &1&l%laps%&2/&1%totalLaps%&r&2 |&1&l P%pos%&r&2 |&1&l %pits%&2/&1%totalPits%&r&2 Pits'
   raceSpectator: '&1%name% > &2Lap: &1&l%laps%&2/&1%totalLaps%&r&2 |&1&l P%pos%&r&2 |&1&l %pits%&2/&1%totalPits%&r&2 Pits'
+
+
+gui:
+  settings_title: "&tSettings"
+  tracks_title: "&tTracks"
+  medals_title: "&tMedals"
+  filter_title: "&tFilters"
+  ranked_title: "&tRanked"

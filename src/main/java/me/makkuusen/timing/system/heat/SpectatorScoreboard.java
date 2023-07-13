@@ -4,6 +4,7 @@ import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.TrackRegion;
 import org.bukkit.Location;
 
@@ -42,7 +43,7 @@ public class SpectatorScoreboard {
             eventName = heat.getEvent().getDisplayName();
         }
 
-        tPlayer.setScoreBoardTitle(ScoreboardUtils.getDarkColor() + "&l" + heat.getName() + " | " + eventName);
+        tPlayer.setScoreBoardTitle(ScoreboardUtils.getPrimaryColor(tPlayer.getTheme()) + "&l" + heat.getName() + " | " + eventName);
     }
 
     public void removeScoreboards() {
@@ -57,68 +58,68 @@ public class SpectatorScoreboard {
         boolean compareToFirst = true;
         for (Driver driver : heat.getLivePositions()) {
             if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualification(driver, prevDriver, tPlayer.getCompactScoreboard()));
+                lines.add(getDriverRowQualification(driver, prevDriver, tPlayer.getCompactScoreboard(), tPlayer.getTheme()));
                 if (compareToFirst) {
                     prevDriver = driver;
                     compareToFirst = false;
                 }
 
             } else {
-                lines.add(getDriverRowFinal(driver, prevDriver, tPlayer.getCompactScoreboard()));
+                lines.add(getDriverRowFinal(driver, prevDriver, tPlayer.getCompactScoreboard(), tPlayer.getTheme()));
                 prevDriver = driver;
             }
         }
         return lines;
     }
 
-    private String getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact) {
+    private String getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
         if (driver.getLaps().size() < 1) {
-            return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLineRace(driver.getTPlayer().getName(), driver.getPosition(), compact, theme);
         }
         long timeDiff;
 
         if (driver.getTPlayer().getPlayer() == null) {
-            return ScoreboardUtils.getDriverLineRaceOffline(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLineRaceOffline(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact, theme);
         }
         Location playerLoc = driver.getTPlayer().getPlayer().getLocation();
 
         var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
         for (TrackRegion trackRegion : inPitRegions) {
             if (trackRegion.contains(playerLoc)) {
-                return ScoreboardUtils.getDriverLineRaceInPit(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
+                return ScoreboardUtils.getDriverLineRaceInPit(driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact, theme);
             }
         }
 
         if (comparingDriver == null) {
-            return ScoreboardUtils.getDriverLineRaceLaps(driver.getLaps().size(), driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLineRaceLaps(driver.getLaps().size(), driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact, theme);
         }
         if (driver.isFinished()) {
             timeDiff = Duration.between(comparingDriver.getEndTime(), driver.getEndTime()).toMillis();
-            return ScoreboardUtils.getDriverLineRaceGap(timeDiff, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLineRaceGap(timeDiff, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact, theme);
         }
 
         Instant timeStamp = driver.getTimeStamp(driver.getLaps().size(), driver.getCurrentLap().getLatestCheckpoint());
         Instant fasterTimeStamp = comparingDriver.getTimeStamp(driver.getLaps().size(), driver.getCurrentLap().getLatestCheckpoint());
         timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
         if (timeDiff < 0) {
-            return ScoreboardUtils.getDriverLineNegativeRaceGap(timeDiff * -1, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLineNegativeRaceGap(timeDiff * -1, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact, theme);
         }
-        return ScoreboardUtils.getDriverLineRaceGap(timeDiff, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact);
+        return ScoreboardUtils.getDriverLineRaceGap(timeDiff, driver.getTPlayer().getName(), driver.getPits(), driver.getPosition(), compact, theme);
     }
 
-    private String getDriverRowQualification(Driver driver, Driver comparingDriver, boolean compact) {
+    private String getDriverRowQualification(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
         if (driver.getBestLap().isEmpty()) {
-            return ScoreboardUtils.getDriverLine(driver.getTPlayer().getName(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLine(driver.getTPlayer().getName(), driver.getPosition(), compact, theme);
         }
 
         if (comparingDriver == null) {
-            return ScoreboardUtils.getDriverLineQualyTime(driver.getBestLap().get().getLapTime(), driver.getTPlayer().getName(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLineQualyTime(driver.getBestLap().get().getLapTime(), driver.getTPlayer().getName(), driver.getPosition(), compact, theme);
         }
 
         long timeDiff = driver.getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
         if (timeDiff < 0) {
-            return ScoreboardUtils.getDriverLineNegativeQualyGap(timeDiff * -1, driver.getTPlayer().getName(), driver.getPosition(), compact);
+            return ScoreboardUtils.getDriverLineNegativeQualyGap(timeDiff * -1, driver.getTPlayer().getName(), driver.getPosition(), compact, theme);
         }
-        return ScoreboardUtils.getDriverLineQualyGap(timeDiff, driver.getTPlayer().getName(), driver.getPosition(), compact);
+        return ScoreboardUtils.getDriverLineQualyGap(timeDiff, driver.getTPlayer().getName(), driver.getPosition(), compact, theme);
     }
 }

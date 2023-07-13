@@ -91,6 +91,6 @@ public enum Error implements MessageLevel {
 
     @Override
     public String getKey() {
-        return ".error" + this.name().toLowerCase();
+        return "error." + this.name().toLowerCase();
     }
 }

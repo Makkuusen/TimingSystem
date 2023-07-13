@@ -3,56 +3,56 @@ package me.makkuusen.timing.system.heat;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.event.EventDatabase;
-import me.makkuusen.timing.system.text.TextUtilities;
+import me.makkuusen.timing.system.theme.Theme;
 import org.bukkit.ChatColor;
 
 public class ScoreboardUtils {
-    public static String getDriverLine(String name, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + "           " + getTeamIcon(name) + paddName(name, compact);
+    public static String getDriverLine(String name, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + "           " + getTeamIcon(name) + paddName(name, compact);
     }
 
-    public static String getDriverLineQualyTime(long laptime, String name, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + " " + getHighlightColor() + paddTime(ApiUtilities.formatAsTime(laptime)) + getTeamIcon(name) + paddName(name, compact);
+    public static String getDriverLineQualyTime(long laptime, String name, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + " " + getSecondaryColor(theme) + paddTime(ApiUtilities.formatAsTime(laptime)) + getTeamIcon(name) + paddName(name, compact);
     }
 
-    public static String getDriverLineQualyGap(long timeDiff, String name, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + " §a+" + paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
+    public static String getDriverLineQualyGap(long timeDiff, String name, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + " §a+" + paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
     }
 
-    public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + " §c-" + paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
+    public static String getDriverLineNegativeQualyGap(long timeDiff, String name, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + " §c-" + paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)) + getTeamIcon(name) + paddName(name, compact);
     }
 
-    public static String getDriverLineRace(String name, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + "§f0";
+    public static String getDriverLineRace(String name, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact, theme) + "§f0";
     }
 
-    public static String getDriverLineRace(String name, int pits, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+    public static String getDriverLineRace(String name, int pits, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + "           " + getTeamIcon(name) + paddName(name, compact) + getPits(compact, theme) + getPitColour(name, pits);
     }
 
-    public static String getDriverLineRaceInPit(String name, int pits, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + " In Pit   " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+    public static String getDriverLineRaceInPit(String name, int pits, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + " In Pit   " + getTeamIcon(name) + paddName(name, compact) + getPits(compact, theme) + getPitColour(name, pits);
     }
 
-    public static String getDriverLineRaceOffline(String name, int pits, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + " Offline  " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+    public static String getDriverLineRaceOffline(String name, int pits, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + " Offline  " + getTeamIcon(name) + paddName(name, compact) + getPits(compact, theme) + getPitColour(name, pits);
     }
 
-    public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + " Lap: " + getHighlightColor() + paddLaps(laps) + " " + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+    public static String getDriverLineRaceLaps(int laps, String name, int pits, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + " Lap: " + getSecondaryColor(theme) + paddLaps(laps) + " " + getTeamIcon(name) + paddName(name, compact) + getPits(compact, theme) + getPitColour(name, pits);
     }
 
-    public static String getDriverLineRaceGap(long gap, String name, int pits, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + " §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+    public static String getDriverLineRaceGap(long gap, String name, int pits, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + " §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name, compact) + getPits(compact, theme) + getPitColour(name, pits);
     }
 
-    public static String getDriverLineNegativeRaceGap(long gap, String name, int pits, int pos, boolean compact) {
-        return paddPos(pos, name) + (compact ? "" : getDivider()) + " §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name, compact) + getPits(compact) + getPitColour(name, pits);
+    public static String getDriverLineNegativeRaceGap(long gap, String name, int pits, int pos, boolean compact, Theme theme) {
+        return paddPos(pos, name) + (compact ? "" : getDivider(theme)) + " §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(name) + paddName(name, compact) + getPits(compact, theme) + getPitColour(name, pits);
     }
 
-    private static String getDivider() {
-        return getDarkColor() + "|";
+    private static String getDivider(Theme theme) {
+        return getPrimaryColor(theme) + "|";
     }
 
     public static String paddName(String name, boolean compact) {
@@ -109,12 +109,12 @@ public class ScoreboardUtils {
         else return "§c" + pits;
     }
 
-    public static String getHighlightColor() {
-        return String.valueOf(net.md_5.bungee.api.ChatColor.of(TextUtilities.secondary.asHexString()));
+    public static String getSecondaryColor(Theme theme) {
+        return String.valueOf(net.md_5.bungee.api.ChatColor.of(theme.getSecondary().asHexString()));
     }
 
-    public static String getDarkColor() {
-        return String.valueOf(net.md_5.bungee.api.ChatColor.of(TextUtilities.primary.asHexString()));
+    public static String getPrimaryColor(Theme theme) {
+        return String.valueOf(net.md_5.bungee.api.ChatColor.of(theme.getPrimary().asHexString()));
     }
 
     private static String getPosFormat(int pos, String name) {
@@ -157,11 +157,11 @@ public class ScoreboardUtils {
         return getColor(name) + "§l§o||§r ";
     }
 
-    private static String getPits(boolean compact) {
+    private static String getPits(boolean compact, Theme theme) {
         if (compact) {
             return " ";
         }
-        return getDarkColor() + "Pits: ";
+        return getPrimaryColor(theme) + "Pits: ";
     }
 
 }
