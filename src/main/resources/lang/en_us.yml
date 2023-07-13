@@ -236,3 +236,9 @@ broadcast:
 actionbar:
   race: '&2Lap: &1&l%laps%&2/&1%totalLaps%&r&2 |&1&l P%pos%&r&2 |&1&l %pits%&2/&1%totalPits%&r&2 Pits'
   raceSpectator: '&1%name% > &2Lap: &1&l%laps%&2/&1%totalLaps%&r&2 |&1&l P%pos%&r&2 |&1&l %pits%&2/&1%totalPits%&r&2 Pits'
+
+
+gui:
+  settings_title: "&2&lSettings"
+  tracks_title: "&2&lTracks"
+  medals_title: "&2&lMedals"

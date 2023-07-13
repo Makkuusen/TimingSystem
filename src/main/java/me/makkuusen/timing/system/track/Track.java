@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.gui.TrackFilter;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
@@ -164,6 +165,32 @@ public class Track {
             return true;
         }
         return tags.contains(tag);
+    }
+
+    public boolean hasAnyTag(TrackFilter filter) {
+        if (filter.getTags().size() == 0) {
+            return true;
+        }
+
+        for (TrackTag tag : filter.getTags()) {
+            if (tags.contains(tag)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasAllTags(TrackFilter filter) {
+        if (filter.getTags().size() == 0) {
+            return false;
+        }
+
+        for (TrackTag tag : filter.getTags()) {
+            if (!tags.contains(tag)){
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -494,6 +521,10 @@ public class Track {
 
     public boolean isParkourTrack() {
         return getType().equals(TrackType.PARKOUR);
+    }
+
+    public boolean isTrackType(TrackType trackType) {
+        return getType().equals(trackType);
     }
 
     public String getTypeAsString() {

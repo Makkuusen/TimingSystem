@@ -2,6 +2,8 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.text.Gui;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,7 +11,7 @@ import org.bukkit.entity.Player;
 public class SettingsGui extends BaseGui {
 
     public SettingsGui(TPlayer tPlayer) {
-        super("§2§lSettings", 3);
+        super(TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
         setButtons(tPlayer);
     }
 

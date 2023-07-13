@@ -4,6 +4,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.text.Error;
+import me.makkuusen.timing.system.text.Gui;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
@@ -14,49 +15,19 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TrackGui extends TrackPageGui {
 
     public TrackGui(TPlayer tPlayer, int page) {
-        super(tPlayer, "§2§lTracks - ALL", 6, page);
+        super(tPlayer, TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE).append(ButtonUtilities.getFilterTitle(null, tPlayer.getTheme())), 6, page);
     }
 
-    public TrackGui(TPlayer tPlayer, String title, int page, TrackSort trackSort, TrackTag filter) {
-        super(tPlayer, title, 6, page, trackSort, filter);
-
+    public TrackGui(TPlayer tPlayer, Component title, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {
+        super(tPlayer, title, 6, page, trackSort, filter, trackType);
     }
 
-    @Override
-    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int newPage) {
-        var button = new GuiButton(item);
-        button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(filter);
-            new TrackGui(tPlayer, title, newPage, trackSort, filter).show(tPlayer.getPlayer());
-        });
-        return button;
-    }
-
-    public List<Track> getTracks(int page, TrackSort trackSort) {
-        var filteredTracks = TrackDatabase.getTracks().stream().filter(track -> track.hasTag(filter)).filter(Track::isWeightAboveZero);
-
-        List<Track> tracks;
-        if (page == ELYTRA_PAGE) {
-            tracks = filteredTracks.filter(Track::isElytraTrack).collect(Collectors.toList());
-            sortTracks(tracks, trackSort);
-        } else if (page == PARKOUR_PAGE) {
-            tracks = filteredTracks.filter(Track::isParkourTrack).collect(Collectors.toList());
-            sortTracks(tracks, trackSort);
-        } else {
-            List<Track> tempTracks = filteredTracks.filter(Track::isBoatTrack).collect(Collectors.toList());
-            sortTracks(tempTracks, trackSort);
-            int start = 36 * page;
-            tracks = new ArrayList<>();
-            for (int i = start; i < Math.min(start + 36, tempTracks.size()); i++) {
-                tracks.add(tempTracks.get(i));
-            }
-        }
-        return tracks;
+    public List<Track> getTracks() {
+        return TrackDatabase.getTracks();
     }
 
     @Override
@@ -70,32 +41,6 @@ public class TrackGui extends TrackPageGui {
             }
             player.teleport(track.getSpawnLocation());
             player.closeInventory();
-        });
-        return button;
-    }
-
-    @Override
-    public GuiButton getSortingButton(ItemStack item, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag) {
-        var button = new GuiButton(item);
-        button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(filter);
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
-            new TrackGui(tPlayer, title, page, trackSort, tag).show(tPlayer.getPlayer());
-        });
-        return button;
-    }
-
-    @Override
-    public GuiButton getFilterButton(ItemStack item, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag) {
-        var button = new GuiButton(item);
-        button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitle(tag);
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
-            new TrackGui(tPlayer, title, page, trackSort, tag).show(tPlayer.getPlayer());
         });
         return button;
     }
@@ -121,4 +66,6 @@ public class TrackGui extends TrackPageGui {
         toReturn.setItemMeta(im);
         return toReturn;
     }
+
+
 }

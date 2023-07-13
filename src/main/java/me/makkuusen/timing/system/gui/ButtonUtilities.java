@@ -2,7 +2,10 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.TrackTag;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -38,14 +41,6 @@ public class ButtonUtilities {
         off = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§b§eOFF").build();
         goBack = new ItemBuilder(Material.ARROW).setName("§b§eReturn").build();
         borderGlass = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName("§r").build();
-        elytra = new ItemBuilder(Material.ELYTRA).setName("§e§lElytra").build();
-        boat = new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat").build();
-        parkour = new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkour").build();
-        for (int i = 0; i < 7; i++) {
-            boatPages.add(new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("§b§lBoat tracks " + (i + 1)).build());
-        }
-        elytraPage = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§lElytra tracks").build();
-        parkourPage = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§a§lParkour tracks").build();
     }
 
     public static GuiButton getStatusOnButton() {
@@ -71,27 +66,6 @@ public class ButtonUtilities {
         return button;
     }
 
-    public static GuiButton getBoatButton() {
-        var button = new GuiButton(boat);
-        button.setAction(() -> {
-        });
-        return button;
-    }
-
-    public static GuiButton getParkourButton() {
-        var button = new GuiButton(parkour);
-        button.setAction(() -> {
-        });
-        return button;
-    }
-
-    public static GuiButton getElytraButton() {
-        var button = new GuiButton(elytra);
-        button.setAction(() -> {
-        });
-        return button;
-    }
-
     public static GuiButton getReturnToSettingsButton(TPlayer tPlayer) {
         var button = new GuiButton(goBack);
         button.setAction(() -> new SettingsGui(tPlayer).show(tPlayer.getPlayer()));
@@ -102,12 +76,11 @@ public class ButtonUtilities {
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1);
     }
 
-    public static String getFilterTitle(TrackTag tag) {
+    public static Component getFilterTitle(TrackTag tag, Theme theme) {
         if (tag == null) {
-            return "- ALL";
+            return Component.text(" - ALL").color(theme.getPrimary()).decorate(TextDecoration.BOLD);
         } else {
-            return "- " + tag.getValue();
+            return Component.text(" - " + tag.getValue()).color(theme.getPrimary()).decorate(TextDecoration.BOLD);
         }
     }
-
 }

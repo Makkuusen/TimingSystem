@@ -2,26 +2,35 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TrackTagManager;
+import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.text.Gui;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackTag;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class TrackPageGui extends BaseGui {
 
-    public static final List<Integer> BOAT_PAGES = List.of(0, 1, 2, 3, 4, 5, 6);
-    public static final Integer PARKOUR_PAGE = 8;
-    public static final Integer ELYTRA_PAGE = 7;
+    public static final Integer SORT_SLOT = 45;
+    public static final Integer FILTER_SLOT = 46;
 
     public Integer page;
-    public TrackSort trackSort = TrackSort.WEIGHT;
-    public TrackTag filter;
+    public Integer maxPages = 1;
+    public Integer TRACKS_PER_PAGE = 45;
     public TPlayer tPlayer;
+    public Track.TrackType trackType = Track.TrackType.BOAT;
+    public TrackSort trackSort = TrackSort.WEIGHT;
+    //public TrackTag filter;
+    public TrackFilter filter = new TrackFilter();
+
     public Comparator<Track> compareTrackPosition = (k1, k2) -> {
         if (k1.getPlayerTopListPosition(tPlayer) == -1 && k2.getPlayerTopListPosition(tPlayer) > 0) {
             return 1;
@@ -31,123 +40,205 @@ public abstract class TrackPageGui extends BaseGui {
         return k1.getPlayerTopListPosition(tPlayer).compareTo(k2.getPlayerTopListPosition(tPlayer));
     };
 
-    public TrackPageGui(TPlayer tPlayer, String title, int rows, int page) {
+    public TrackPageGui(TPlayer tPlayer, Component title, int rows, int page) {
         super(title, rows);
         this.tPlayer = tPlayer;
         this.page = page;
         update();
     }
 
-    public TrackPageGui(TPlayer tPlayer, String title, int rows, int page, TrackSort trackSort, TrackTag filter) {
+    public TrackPageGui(TPlayer tPlayer, Component title, int rows, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {
         super(title, rows);
         this.trackSort = trackSort;
         this.filter = filter;
         this.tPlayer = tPlayer;
         this.page = page;
+        this.trackType = trackType;
         update();
     }
 
+    public Component getTitle(TrackTag filter) {
+        return TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE).append(ButtonUtilities.getFilterTitle(filter, tPlayer.getTheme()));
+    }
+
     public void update() {
-        setBorder();
-        setPageItem();
-        setNavigationItems();
         setTrackButtons();
-        setSortingItems();
+        setBorder();
+        setNavigationItems();
+        setSortingItem();
         setFilterItems();
     }
 
+    public void clearNavRow() {
+        List.of(45, 46, 47, 48, 49, 50, 51, 52, 53).forEach(this::removeItem);
+        setBorder();
+    }
+
+    public void clearTracks() {
+        Arrays.stream(getTrackSlots()).forEach(this::removeItem);
+    }
+
     private void setBorder() {
-        Integer[] borderSlots = {0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 49, 50, 51, 52, 53};
+        Integer[] borderSlots = {45, 46, 47, 48, 49, 50, 51, 52, 53};
         for (Integer slot : borderSlots) {
             setItem(ButtonUtilities.getBorderGlassButton(), slot);
         }
     }
 
-    private void setPageItem() {
-        if (page == PARKOUR_PAGE) {
-            setItem(ButtonUtilities.getParkourButton(), 4);
-        } else if (page == ELYTRA_PAGE) {
-            setItem(ButtonUtilities.getElytraButton(), 4);
+    private void setSortingItem() {
+        ItemStack item;
+        if (trackSort == TrackSort.CREATION) {
+            item = new ItemBuilder(Material.CLOCK).setName("§eSorted by: Date Created").build();
+        } else if (trackSort == TrackSort.POPULARITY) {
+            item = new ItemBuilder(Material.SUNFLOWER).setName("§eSorted by: Popularity").build();
+        } else if (trackSort == TrackSort.POSITION) {
+            item = new ItemBuilder(Material.DRAGON_BREATH).setName("§eSorted by: Position").build();
         } else {
-            setItem(ButtonUtilities.getBoatButton(), 4);
+            item = new ItemBuilder(Material.ANVIL).setName("§eSorted by: Custom").build();
         }
+
+        var button = new GuiButton(item);
+        button.setAction(() -> {
+            if (tPlayer.isSound()) {
+                ButtonUtilities.playConfirm(tPlayer.getPlayer());
+            }
+            clearNavRow();
+            setSortingItems();
+            show(tPlayer.getPlayer());
+        });
+        setItem(button, SORT_SLOT);
     }
 
     private void setSortingItems() {
-        if (trackSort == TrackSort.CREATION) {
-            setItem(getSortingButtons(TrackSort.POPULARITY), 0);
-        } else if (trackSort == TrackSort.POPULARITY) {
-            setItem(getSortingButtons(TrackSort.WEIGHT), 0);
-        } else if (trackSort == TrackSort.WEIGHT) {
-            setItem(getSortingButtons(TrackSort.POSITION), 0);
-        } else {
-            setItem(getSortingButtons(TrackSort.CREATION), 0);
-        }
+        setItem(getSortingButton(new ItemBuilder(Material.ANVIL).setName("§eSorted by: Custom").build(), TrackSort.WEIGHT), 45);
+        setItem(getSortingButton(new ItemBuilder(Material.DRAGON_BREATH).setName("§eSorted by: Position").build(), TrackSort.POSITION), 46);
+        setItem(getSortingButton(new ItemBuilder(Material.SUNFLOWER).setName("§eSorted by: Popularity").build(), TrackSort.POPULARITY), 47);
+        setItem(getSortingButton(new ItemBuilder(Material.CLOCK).setName("§eSorted by: Date Created").build(), TrackSort.CREATION), 48);
     }
 
     private void setFilterItems() {
-        setItem(getFilterButtons(TrackTagManager.getNext(filter)), 2);
+        setItem(getFilterButtons(filter), FILTER_SLOT);
     }
 
-    private GuiButton getFilterButtons(TrackTag next) {
-        if (filter == null) {
-            return getFilterButton(new ItemBuilder(Material.HOPPER).setName("§eFilter by: None").build(), tPlayer, page, trackSort, next);
+    private GuiButton getFilterButtons(TrackFilter filter) {
+        if (filter.getTags().size() == 0) {
+            return getFilterButton(new ItemBuilder(Material.HOPPER).setName("§eFilter by: None").build());
         }
-        return getFilterButton(new ItemBuilder(Material.HOPPER).setName("§eFilter by: " + filter.getValue()).build(), tPlayer, page, trackSort, next);
+        return getFilterButton(filter.getItem());
     }
 
-    public abstract GuiButton getFilterButton(ItemStack itemStack, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag);
-
-    private GuiButton getSortingButtons(TrackSort trackSort) {
-        if (trackSort == TrackSort.POPULARITY) {
-            return getSortingButton(new ItemBuilder(Material.CLOCK).setName("§eSorted by: Date Created").build(), tPlayer, page, trackSort, filter);
-        } else if (trackSort == TrackSort.WEIGHT) {
-            return getSortingButton(new ItemBuilder(Material.SUNFLOWER).setName("§eSorted by: Popularity").build(), tPlayer, page, trackSort, filter);
-        } else if (trackSort == TrackSort.CREATION) {
-            return getSortingButton(new ItemBuilder(Material.DRAGON_BREATH).setName("§eSorted by: Position").build(), tPlayer, page, trackSort, filter);
-        } else {
-            return getSortingButton(new ItemBuilder(Material.ANVIL).setName("§eSorted by: Custom").build(), tPlayer, page, trackSort, filter);
-        }
+    public GuiButton getFilterButton(ItemStack item) {
+        var button = new GuiButton(item);
+        button.setAction(() -> {
+            if (tPlayer.isSound()) {
+                ButtonUtilities.playConfirm(tPlayer.getPlayer());
+            }
+            new FilterGui(this).show(tPlayer.getPlayer());
+        });
+        return button;
     }
 
-    public abstract GuiButton getSortingButton(ItemStack itemStack, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag);
+    public GuiButton getSortingButton(ItemStack item, TrackSort trackSort) {
+        var button = new GuiButton(item);
+        button.setAction(() -> {
+            if (tPlayer.isSound()) {
+                ButtonUtilities.playConfirm(tPlayer.getPlayer());
+            }
+            var constructors = getClass().getDeclaredConstructors();
+            for (var construct : constructors) {
+                if (construct.getParameterCount() == 6) {
+                    try {
+                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, trackType);
+                        instance.show(tPlayer.getPlayer());
+                    } catch (Exception e) {
+                        //sadge
+                    }
+                }
+            }
+        });
+        return button;
+    }
 
     private void setNavigationItems() {
         int slot = 49;
 
         ItemStack previous = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§e§lPrevious page").build();
         ItemStack next = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName("§e§lNext page").build();
-        ItemStack boat = new ItemBuilder(Material.PAPER).setName("§e§lCurrent page").build();
+
+        Material trackMaterial = Material.OAK_BOAT;
+        if (trackType == Track.TrackType.ELYTRA){
+            trackMaterial = Material.ELYTRA;
+        } else if (trackType == Track.TrackType.PARKOUR){
+            trackMaterial = Material.BIG_DRIPLEAF;
+        }
+        ItemStack current = new ItemBuilder(trackMaterial).setName("§e§lTrackType").build();
+        current.lore(List.of(Component.text("-> Change track type <-")));
 
         if (page > 0) {
-            setItem(getPageButton(previous, tPlayer, page - 1), slot - 1);
+            setItem(getPageButton(previous, page - 1), slot - 1);
         }
 
-        boat.setAmount(page + 1);
-        setItem(getPageButton(boat, tPlayer, page), slot);
+        current.setAmount(page + 1);
+        setItem(getTrackTypeButton(current),slot);
+        setItem(getPageButton(current, page), slot);
 
-        if (page < 9) {
-            setItem(getPageButton(next, tPlayer, page + 1), slot + 1);
+        if (page < maxPages - 1) {
+            setItem(getPageButton(next, page + 1), slot + 1);
         }
     }
 
     private void setTrackButtons() {
-        List<Track> tracks = getTracks(page, trackSort);
-        setTracks(tracks, tPlayer, getTrackSlots());
+        List<Track> tempTracks = getTracks();
+
+        //Filter TrackType
+        var trackStream = tempTracks.stream().filter(Track::isWeightAboveZero).filter(track -> track.isTrackType(trackType));
+
+        //Filter Tags
+        if (filter.isAnyMatch()) {
+            tempTracks = trackStream.filter(track -> track.hasAnyTag(filter)).collect(Collectors.toList());
+        } else {
+            tempTracks = trackStream.filter(track -> track.hasAllTags(filter)).collect(Collectors.toList());
+        }
+
+        maxPages = tempTracks.size() % TRACKS_PER_PAGE != 0 ? tempTracks.size() / TRACKS_PER_PAGE + 1 : tempTracks.size() / TRACKS_PER_PAGE;
+        sortTracks(tempTracks);
+        int start = TRACKS_PER_PAGE * page;
+
+        List<Track> tracks = new ArrayList<>();
+        for (int i = start; i < Math.min(start + TRACKS_PER_PAGE, tempTracks.size()); i++) {
+            tracks.add(tempTracks.get(i));
+        }
+        setTracks(tracks, getTrackSlots());
     }
 
-    public abstract GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page);
+    public GuiButton getPageButton(ItemStack item, int newPage) {
+        var button = new GuiButton(item);
+        button.setAction(() -> {
+            var constructors = getClass().getDeclaredConstructors();
+            for (var construct : constructors) {
+                if (construct.getParameterCount() == 6) {
+                    try {
+                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, newPage, trackSort, filter, trackType);
+                        instance.show(tPlayer.getPlayer());
+                    } catch (Exception e) {
+                        //sadge
+                    }
+                }
+            }
+        });
+        return button;
+    }
 
     protected Integer[] getTrackSlots() {
-        Integer[] slots = new Integer[36];
-        int count = 9;
+        Integer[] slots = new Integer[45];
+        int count = 0;
         for (int i = 0; i < slots.length; i++) {
             slots[i] = count++;
         }
         return slots;
     }
 
-    public void setTracks(List<Track> tracks, TPlayer tPlayer, Integer[] slots) {
+    public void setTracks(List<Track> tracks, Integer[] slots) {
         int count = 0;
         for (Track track : tracks) {
             if (count < slots.length) {
@@ -159,9 +250,9 @@ public abstract class TrackPageGui extends BaseGui {
 
     public abstract GuiButton getTrackButton(Player player, Track track);
 
-    public abstract List<Track> getTracks(int page, TrackSort trackSort);
+    public abstract List<Track> getTracks();
 
-    public void sortTracks(List<Track> tracks, TrackSort trackSort) {
+    public void sortTracks(List<Track> tracks) {
         if (trackSort == TrackSort.POPULARITY) {
             tracks.sort(Comparator.comparingLong(Track::getTotalTimeSpent).reversed());
         } else if (trackSort == TrackSort.WEIGHT) {
@@ -171,6 +262,69 @@ public abstract class TrackPageGui extends BaseGui {
         }
     }
 
+
+    public void setTrackTypeButtons() {
+        var boatButton = new GuiButton(new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat Tracks").build());
+        boatButton.setAction(() -> {
+            var constructors = getClass().getDeclaredConstructors();
+            for (var construct : constructors) {
+                if (construct.getParameterCount() == 6) {
+                    try {
+                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, Track.TrackType.BOAT);
+                        instance.show(tPlayer.getPlayer());
+                    } catch (Exception e) {
+                        //sadge
+                    }
+                }
+            }
+        });
+        setItem(boatButton,48);
+
+        var elytraButton = new GuiButton(new ItemBuilder(Material.ELYTRA).setName("§e§lElytra Tracks").build());
+        elytraButton.setAction(() -> {
+            var constructors = getClass().getDeclaredConstructors();
+            for (var construct : constructors) {
+                if (construct.getParameterCount() == 6) {
+                    try {
+                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, Track.TrackType.ELYTRA);
+                        instance.show(tPlayer.getPlayer());
+                    } catch (Exception e) {
+                        //sadge
+                    }
+                }
+            }
+        });
+        setItem(elytraButton,49);
+
+        var parkourButton = new GuiButton(new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkour Tracks").build());
+        parkourButton.setAction(() -> {
+            var constructors = getClass().getDeclaredConstructors();
+            for (var construct : constructors) {
+                if (construct.getParameterCount() == 6) {
+                    try {
+                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, Track.TrackType.PARKOUR);
+                        instance.show(tPlayer.getPlayer());
+                    } catch (Exception e) {
+                        //sadge
+                    }
+                }
+            }
+        });
+        setItem(parkourButton,50);
+    }
+
+    public GuiButton getTrackTypeButton(ItemStack item) {
+        var button = new GuiButton(item);
+        button.setAction(() -> {
+            if (tPlayer.isSound()) {
+                ButtonUtilities.playConfirm(tPlayer.getPlayer());
+            }
+            clearNavRow();
+            setTrackTypeButtons();
+            show(tPlayer.getPlayer());
+        });
+        return button;
+    }
 }
 
 
