@@ -1,7 +1,7 @@
-package me.makkuusen.timing.system.text;
+package me.makkuusen.timing.system.text.messages;
 
 
-public enum Error implements MessageLevel {
+public enum Error implements Message {
     GENERIC,
     NOT_NOW,
     CAN_NOT,

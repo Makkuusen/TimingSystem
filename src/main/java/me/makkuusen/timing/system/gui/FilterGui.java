@@ -3,7 +3,7 @@ package me.makkuusen.timing.system.gui;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
-import me.makkuusen.timing.system.text.Gui;
+import me.makkuusen.timing.system.text.messages.Gui;
 import me.makkuusen.timing.system.track.TrackTag;
 import org.bukkit.Material;
 

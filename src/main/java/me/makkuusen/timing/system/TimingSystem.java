@@ -27,9 +27,9 @@ import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
-import me.makkuusen.timing.system.text.ActionBar;
-import me.makkuusen.timing.system.text.MessageLevel;
-import me.makkuusen.timing.system.text.Success;
+import me.makkuusen.timing.system.text.messages.ActionBar;
+import me.makkuusen.timing.system.text.messages.Message;
+import me.makkuusen.timing.system.text.messages.Success;
 import me.makkuusen.timing.system.text.TSColor;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
@@ -277,7 +277,7 @@ public class TimingSystem extends JavaPlugin {
         return plugin;
     }
 
-    public void sendMessage(@NotNull CommandSender sender, @NotNull MessageLevel key, String... replacements) {
+    public void sendMessage(@NotNull CommandSender sender, @NotNull Message key, String... replacements) {
         String text = this.languageManager.getNewValue(key.getKey(), getLocale(sender), replacements);
 
         if (!text.contains("&")) {
@@ -287,7 +287,7 @@ public class TimingSystem extends JavaPlugin {
         sender.sendMessage(getComponentWithColors(text, key,  getTheme(sender)));
     }
 
-    public void sendMessage(@NotNull CommandSender sender, @NotNull MessageLevel key) {
+    public void sendMessage(@NotNull CommandSender sender, @NotNull Message key) {
         var text = this.languageManager.getNewValue(key.getKey(), getLocale(sender));
 
         if (text == null) {
@@ -302,7 +302,7 @@ public class TimingSystem extends JavaPlugin {
     }
 
 
-    public Component getText(CommandSender sender, MessageLevel key) {
+    public Component getText(CommandSender sender, Message key) {
         var text = this.languageManager.getNewValue(key.getKey(), getLocale(sender));
 
         if (text == null) {
@@ -315,7 +315,7 @@ public class TimingSystem extends JavaPlugin {
         return getComponentWithColors(text, key, getTheme(sender));
     }
 
-    public Component getText(CommandSender sender, MessageLevel key, String... replacements) {
+    public Component getText(CommandSender sender, Message key, String... replacements) {
         var text = this.languageManager.getNewValue(key.getKey(), getLocale(sender), replacements);
 
         if (text == null) {
@@ -341,7 +341,7 @@ public class TimingSystem extends JavaPlugin {
     }
 
 
-    private Component getComponentWithColors(String text, MessageLevel level, Theme theme) {
+    private Component getComponentWithColors(String text, Message level, Theme theme) {
 
         TextColor color = NamedTextColor.WHITE;
         List<TextDecoration> decorations = new ArrayList<>();

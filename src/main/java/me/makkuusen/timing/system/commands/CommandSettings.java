@@ -10,8 +10,8 @@ import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.gui.SettingsGui;
-import me.makkuusen.timing.system.text.Error;
-import me.makkuusen.timing.system.text.Success;
+import me.makkuusen.timing.system.text.messages.Error;
+import me.makkuusen.timing.system.text.messages.Success;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 

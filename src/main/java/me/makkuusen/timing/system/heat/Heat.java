@@ -6,7 +6,6 @@ import co.aikar.taskchain.TaskChain;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.TaskChainCountdown;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
@@ -157,8 +156,20 @@ public class Heat {
             return false;
         }
         setHeatState(HeatState.STARTING);
-        TaskChainCountdown.countdown(this, 5);
+        countdown(5);
+
         return true;
+    }
+
+    public void countdown(int count) {
+        TaskChain<?> chain = TimingSystem.newChain();
+        for (int i = count; i > 0; i--) {
+            int finalI = i;
+            chain.sync(() -> EventAnnouncements.broadcastCountdown(this, finalI)).delay(20);
+        }
+        chain.execute((finished) -> {
+            startHeat();
+        });
     }
 
     public void startHeat() {

@@ -14,7 +14,6 @@ import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -235,10 +234,6 @@ public class ApiUtilities {
         yamlConfig.set("item", item);
 
         return yamlConfig.saveToString();
-    }
-
-    public static void sendActionBar(String msg, Player player) {
-        player.sendActionBar(Component.text(msg));
     }
 
     public static void msgConsole(String msg) {

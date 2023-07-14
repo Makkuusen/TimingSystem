@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.text.Info;
+import me.makkuusen.timing.system.text.messages.Info;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;

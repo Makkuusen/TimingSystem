@@ -1,6 +1,6 @@
-package me.makkuusen.timing.system.text;
+package me.makkuusen.timing.system.text.messages;
 
-public enum ActionBar implements MessageLevel {
+public enum ActionBar implements Message {
     RACE,
     RACE_SPECTATOR;
 

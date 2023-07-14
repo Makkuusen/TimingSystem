@@ -1,6 +1,6 @@
-package me.makkuusen.timing.system.text;
+package me.makkuusen.timing.system.text.messages;
 
-public enum Gui implements MessageLevel {
+public enum Gui implements Message {
 
     SETTINGS_TITLE,
     MEDALS_TITLE,

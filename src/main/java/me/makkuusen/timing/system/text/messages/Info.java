@@ -1,6 +1,6 @@
-package me.makkuusen.timing.system.text;
+package me.makkuusen.timing.system.text.messages;
 
-public enum Info implements MessageLevel{
+public enum Info implements Message {
 
     PAGE_CURRENT_OF_MAX,
     TRACK_TITLE,

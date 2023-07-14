@@ -4,7 +4,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.text.Gui;
+import me.makkuusen.timing.system.text.messages.Gui;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 

@@ -14,7 +14,6 @@ import me.makkuusen.timing.system.theme.BoatLabsTheme;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
-import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
@@ -263,38 +262,8 @@ public class TPlayer implements Comparable<TPlayer> {
         try {
             return Boat.Type.valueOf(boatType);
         } catch (IllegalArgumentException e) {
-            return boatMigration(boatType);
+            //REDWOOD is the only old option possible.
+            return Boat.Type.SPRUCE;
         }
-    }
-
-    private Boat.Type boatMigration(String oldtype) {
-        TreeSpecies oldTree = TreeSpecies.valueOf(oldtype);
-        switch (oldTree) {
-            case ACACIA -> {
-                setBoat(Boat.Type.ACACIA);
-                return Boat.Type.ACACIA;
-            }
-            case BIRCH -> {
-                setBoat(Boat.Type.BIRCH);
-                return Boat.Type.BIRCH;
-            }
-            case DARK_OAK -> {
-                setBoat(Boat.Type.DARK_OAK);
-                return (Boat.Type.DARK_OAK);
-            }
-            case REDWOOD -> {
-                setBoat(Boat.Type.SPRUCE);
-                return (Boat.Type.SPRUCE);
-            }
-            case JUNGLE -> {
-                setBoat(Boat.Type.JUNGLE);
-                return Boat.Type.JUNGLE;
-            }
-            default -> {
-                setBoat(Boat.Type.OAK);
-                return Boat.Type.OAK;
-            }
-        }
-
     }
 }

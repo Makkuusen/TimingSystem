@@ -1,6 +1,6 @@
-package me.makkuusen.timing.system.text;
+package me.makkuusen.timing.system.text.messages;
 
-public enum Warning implements MessageLevel{
+public enum Warning implements Message {
     DRIVERS_LEFT_OUT,
     NO_LONGER_SPECTATING,
     NO_LONGER_SIGNED,

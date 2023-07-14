@@ -1,6 +1,6 @@
-package me.makkuusen.timing.system.text;
+package me.makkuusen.timing.system.text.messages;
 
-public enum Broadcast implements MessageLevel{
+public enum Broadcast implements Message {
     CLICK_TO_SIGN,
     CLICK_TO_RESERVE,
     CLICK_TO_JOIN_RACE,

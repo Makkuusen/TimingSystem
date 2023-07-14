@@ -1,6 +1,6 @@
-package me.makkuusen.timing.system.text;
+package me.makkuusen.timing.system.text.messages;
 
-public enum Success implements MessageLevel{
+public enum Success implements Message {
 
     SAVED,
     CREATED,
