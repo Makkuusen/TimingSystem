@@ -22,9 +22,8 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
-import me.makkuusen.timing.system.text.messages.Error;
-import me.makkuusen.timing.system.text.messages.Success;
-import me.makkuusen.timing.system.text.TextButtons;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import net.kyori.adventure.text.Component;
@@ -66,7 +65,7 @@ public class CommandHeat extends BaseCommand {
     public static void onHeatInfo(Player player, Heat heat) {
         Theme theme = Database.getPlayer(player).getTheme();
         player.sendMessage(Component.empty());
-        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(heat.getName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(heat.getHeatState().name()).append(Component.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + heat.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent()))))));
+        player.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(heat.getName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(heat.getHeatState().name()).append(Component.space()).append(Component.text("[View Event]").color(theme.getButton()).clickEvent(ClickEvent.runCommand("/event info " + heat.getEvent().getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent()))))));
 
         if (player.hasPermission("event.admin") && heat.getHeatState() != HeatState.FINISHED) {
             player.sendMessage(Component.text("[Load]").color(NamedTextColor.YELLOW).clickEvent(ClickEvent.runCommand("/heat load " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to load heat"))).append(Component.space()).append(Component.text("[Reset]").color(NamedTextColor.RED).clickEvent(ClickEvent.runCommand("/heat reset " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to reset heat")))).append(Component.space()).append(Component.text("[Start]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/heat start " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to start heat")))).append(Component.space()).append(Component.text("[Finish]").color(NamedTextColor.GRAY).clickEvent(ClickEvent.runCommand("/heat finish " + heat.getName())).hoverEvent(HoverEvent.showText(Component.text("Click to finish heat")))));
@@ -76,7 +75,7 @@ public class CommandHeat extends BaseCommand {
             var message = Component.text("Time limit: ").color(theme.getPrimary());
 
             if (!heat.isFinished() && player.hasPermission("event.admin")) {
-                message = message.append(TextButtons.getEditButton((heat.getTimeLimit() / 1000) + "s", theme).clickEvent(ClickEvent.suggestCommand("/heat set timelimit " + heat.getName() + " ")));
+                message = message.append(theme.getEditButton((heat.getTimeLimit() / 1000) + "s", theme).clickEvent(ClickEvent.suggestCommand("/heat set timelimit " + heat.getName() + " ")));
             } else {
                 message = message.append(theme.highlight((heat.getTimeLimit() / 1000) + "s"));
             }
@@ -86,7 +85,7 @@ public class CommandHeat extends BaseCommand {
             var message = Component.text("Start delay: ").color(theme.getPrimary());
 
             if (!heat.isFinished() && player.hasPermission("event.admin")) {
-                message = message.append(TextButtons.getEditButton((heat.getStartDelay()) + "ms", theme).clickEvent(ClickEvent.suggestCommand("/heat set startdelay " + heat.getName() + " ")));
+                message = message.append(theme.getEditButton((heat.getStartDelay()) + "ms", theme).clickEvent(ClickEvent.suggestCommand("/heat set startdelay " + heat.getName() + " ")));
             } else {
                 message = message.append(theme.highlight((heat.getStartDelay()) + "ms"));
             }
@@ -97,7 +96,7 @@ public class CommandHeat extends BaseCommand {
             var message = Component.text("Laps: ").color(theme.getPrimary());
 
             if (!heat.isFinished() && player.hasPermission("event.admin")) {
-                message = message.append(TextButtons.getEditButton(String.valueOf(heat.getTotalLaps()), theme).clickEvent(ClickEvent.suggestCommand("/heat set laps " + heat.getName() + " ")));
+                message = message.append(theme.getEditButton(String.valueOf(heat.getTotalLaps()), theme).clickEvent(ClickEvent.suggestCommand("/heat set laps " + heat.getName() + " ")));
             } else {
                 message = message.append(theme.highlight(String.valueOf(heat.getTotalLaps())));
             }
@@ -107,7 +106,7 @@ public class CommandHeat extends BaseCommand {
             var message = Component.text("Pits: ").color(theme.getPrimary());
 
             if (!heat.isFinished() && player.hasPermission("event.admin")) {
-                message = message.append(TextButtons.getEditButton(String.valueOf(heat.getTotalPits()), theme).clickEvent(ClickEvent.suggestCommand("/heat set pits " + heat.getName() + " ")));
+                message = message.append(theme.getEditButton(String.valueOf(heat.getTotalPits()), theme).clickEvent(ClickEvent.suggestCommand("/heat set pits " + heat.getName() + " ")));
             } else {
                 message = message.append(theme.highlight(String.valueOf(heat.getTotalPits())));
             }
@@ -117,7 +116,7 @@ public class CommandHeat extends BaseCommand {
         var maxDriversMessage = Component.text("Max drivers: ").color(theme.getPrimary());
 
         if (!heat.isFinished() && player.hasPermission("event.admin")) {
-            maxDriversMessage = maxDriversMessage.append(TextButtons.getEditButton(String.valueOf(heat.getMaxDrivers()), theme).clickEvent(ClickEvent.suggestCommand("/heat set maxdrivers " + heat.getName() + " ")));
+            maxDriversMessage = maxDriversMessage.append(theme.getEditButton(String.valueOf(heat.getMaxDrivers()), theme).clickEvent(ClickEvent.suggestCommand("/heat set maxdrivers " + heat.getName() + " ")));
         } else {
             maxDriversMessage = maxDriversMessage.append(theme.highlight(String.valueOf(heat.getMaxDrivers())));
         }
@@ -131,7 +130,7 @@ public class CommandHeat extends BaseCommand {
         var driverMessage = Component.text("Drivers:").color(theme.getPrimary());
 
         if (!heat.isFinished() && player.hasPermission("event.admin")) {
-            driverMessage = driverMessage.append(Component.space()).append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/heat add " + heat.getName() + " ")));
+            driverMessage = driverMessage.append(Component.space()).append(theme.getAddButton().clickEvent(ClickEvent.suggestCommand("/heat add " + heat.getName() + " ")));
         }
 
         player.sendMessage(driverMessage);
@@ -140,7 +139,7 @@ public class CommandHeat extends BaseCommand {
             var message = theme.tab().append(Component.text(d.getStartPosition() + ": " + d.getTPlayer().getName()).color(NamedTextColor.WHITE));
 
             if (!heat.isFinished() && player.hasPermission("event.admin")) {
-                message = message.append(theme.tab()).append(TextButtons.getMoveButton().clickEvent(ClickEvent.suggestCommand("/heat set driverposition " + heat.getName() + " " + d.getTPlayer().getName() + " ")).hoverEvent(HoverEvent.showText(Component.text("Change position")))).append(Component.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete driver " + heat.getName() + " " + d.getTPlayer().getName())));
+                message = message.append(theme.tab()).append(theme.getMoveButton().clickEvent(ClickEvent.suggestCommand("/heat set driverposition " + heat.getName() + " " + d.getTPlayer().getName() + " ")).hoverEvent(HoverEvent.showText(Component.text("Change position")))).append(Component.space()).append(theme.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete driver " + heat.getName() + " " + d.getTPlayer().getName())));
             }
 
             player.sendMessage(message);

@@ -7,9 +7,9 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
-import me.makkuusen.timing.system.text.messages.Error;
-import me.makkuusen.timing.system.text.messages.Success;
-import me.makkuusen.timing.system.text.TSColor;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Success;
+import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -59,6 +59,9 @@ public class CommandTimingSystem extends BaseCommand {
                 case SUCCESS -> theme.setSuccess(color);
                 case WARNING -> theme.setWarning(color);
                 case TITLE -> theme.setTitle(color);
+                case BUTTON -> theme.setButton(color);
+                case BUTTON_ADD -> theme.setButtonAdd(color);
+                case BUTTON_REMOVE -> theme.setButtonRemove(color);
                 default -> {
                 }
             }
@@ -82,6 +85,9 @@ public class CommandTimingSystem extends BaseCommand {
             case SUCCESS -> theme.setSuccess(color);
             case WARNING -> theme.setWarning(color);
             case TITLE -> theme.setTitle(color);
+            case BUTTON -> theme.setButton(color);
+            case BUTTON_ADD -> theme.setButtonAdd(color);
+            case BUTTON_REMOVE -> theme.setButtonRemove(color);
             default -> {
             }
         }

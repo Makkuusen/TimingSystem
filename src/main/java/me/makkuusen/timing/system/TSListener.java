@@ -9,7 +9,7 @@ import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
-import me.makkuusen.timing.system.text.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;

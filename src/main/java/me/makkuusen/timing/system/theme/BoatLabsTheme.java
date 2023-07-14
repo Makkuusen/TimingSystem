@@ -1,12 +1,9 @@
 package me.makkuusen.timing.system.theme;
 
-import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 
-@Setter
-@Getter
+
 public class BoatLabsTheme extends Theme {
 
     private TextColor primary = TextColor.fromHexString("#7bf200");
@@ -18,6 +15,9 @@ public class BoatLabsTheme extends Theme {
     private TextColor success = TextColor.fromHexString("#7bf200");
     private TextColor broadcast = TextColor.fromHexString("#ff80ff");
     public TextColor title = TextColor.color(NamedTextColor.DARK_GRAY);
+    public TextColor button = TextColor.color(NamedTextColor.YELLOW);
+    public TextColor buttonRemove = TextColor.color(NamedTextColor.RED);
+    public TextColor buttonAdd = TextColor.color(NamedTextColor.GREEN);
 
     public BoatLabsTheme() { }
 }

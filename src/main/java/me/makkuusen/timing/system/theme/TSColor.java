@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system.text;
+package me.makkuusen.timing.system.theme;
 
 import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.InvalidCommandArgument;
@@ -14,7 +14,11 @@ public enum TSColor {
     BROADCAST,
     AWARD,
     TITLE,
+    BUTTON,
+    BUTTON_ADD,
+    BUTTON_REMOVE,
     AWARD_SECONDARY;
+
 
     public static ContextResolver<TSColor, BukkitCommandExecutionContext> getColorContextResolver() {
         return (c) -> {

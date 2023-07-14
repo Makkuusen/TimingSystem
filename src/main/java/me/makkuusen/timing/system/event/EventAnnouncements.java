@@ -7,7 +7,7 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
-import me.makkuusen.timing.system.text.messages.Broadcast;
+import me.makkuusen.timing.system.theme.messages.Broadcast;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;

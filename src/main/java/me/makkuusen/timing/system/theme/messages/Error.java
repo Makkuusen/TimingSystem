@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system.text.messages;
+package me.makkuusen.timing.system.theme.messages;
 
 
 public enum Error implements Message {

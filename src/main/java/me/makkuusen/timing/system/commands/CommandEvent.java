@@ -19,12 +19,11 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.Round;
-import me.makkuusen.timing.system.text.messages.Broadcast;
-import me.makkuusen.timing.system.text.messages.Info;
-import me.makkuusen.timing.system.text.messages.Success;
-import me.makkuusen.timing.system.text.TextButtons;
-import me.makkuusen.timing.system.text.messages.Error;
-import me.makkuusen.timing.system.text.messages.Warning;
+import me.makkuusen.timing.system.theme.messages.Broadcast;
+import me.makkuusen.timing.system.theme.messages.Info;
+import me.makkuusen.timing.system.theme.messages.Success;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Warning;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
@@ -120,7 +119,7 @@ public class CommandEvent extends BaseCommand {
         Theme theme = Theme.getTheme(sender);
 
         sender.sendMessage("");
-        sender.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).append(Component.space()).append(theme.getTitleLine(Component.text(event.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(event.getState().name())))));
+        sender.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).append(Component.space()).append(theme.getTitleLine(Component.text(event.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(event.getState().name())))));
 
         net.kyori.adventure.text.TextComponent trackMessage;
         if (event.getTrack() == null) {
@@ -128,11 +127,11 @@ public class CommandEvent extends BaseCommand {
             trackMessage = Component.text("Track:").color(theme.getPrimary()).append(Component.space()).append(Component.text("None").color(theme.getSecondary()));
 
         } else {
-            trackMessage = Component.text("Track:").color(theme.getPrimary()).append(Component.space()).append(Component.text(event.getTrack().getDisplayName()).color(theme.getSecondary())).append(Component.space()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+            trackMessage = Component.text("Track:").color(theme.getPrimary()).append(Component.space()).append(Component.text(event.getTrack().getDisplayName()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton().clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent()));
 
         }
         if (sender.hasPermission("event.admin")) {
-            trackMessage = trackMessage.append(Component.space()).append(TextButtons.getEditButton().clickEvent(ClickEvent.suggestCommand("/event set track ")));
+            trackMessage = trackMessage.append(Component.space()).append(theme.getEditButton().clickEvent(ClickEvent.suggestCommand("/event set track ")));
         }
         sender.sendMessage(trackMessage);
 
@@ -151,12 +150,12 @@ public class CommandEvent extends BaseCommand {
 
         sender.sendMessage(signsMessage);
 
-        sender.sendMessage(theme.primary("Signed Drivers:").append(Component.space()).append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(theme.getSecondary())).append(Component.space()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
+        sender.sendMessage(theme.primary("Signed Drivers:").append(Component.space()).append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton().clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent())));
 
         var roundsMessage = Component.text("Rounds:").color(theme.getPrimary()).append(Component.space()).append(Component.text(event.eventSchedule.getRounds().size()).color(theme.getSecondary()));
 
         if (sender.hasPermission("event.admin")) {
-            roundsMessage = roundsMessage.append(theme.tab()).append(TextButtons.getAddButton("Round").clickEvent(ClickEvent.suggestCommand("/round create ")).hoverEvent(TextButtons.getClickToAddHoverEvent()));
+            roundsMessage = roundsMessage.append(theme.tab()).append(theme.getAddButton("Round").clickEvent(ClickEvent.suggestCommand("/round create ")).hoverEvent(theme.getClickToAddHoverEvent()));
         }
 
         sender.sendMessage(roundsMessage);
@@ -167,14 +166,14 @@ public class CommandEvent extends BaseCommand {
             var roundMessage = (currentRound ? theme.arrow() : theme.tab()).append(Component.text(round.getDisplayName() + ":").color(theme.getPrimary()));
 
             if (sender.hasPermission("event.admin") && round.getState() != Round.RoundState.FINISHED) {
-                roundMessage = roundMessage.append(Component.space()).append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
+                roundMessage = roundMessage.append(Component.space()).append(theme.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent()));
 
                 if (currentRound) {
                     roundMessage = roundMessage.append(Component.space().append(Component.text("[Finish]").color(NamedTextColor.GRAY).clickEvent(ClickEvent.suggestCommand("/round finish")).hoverEvent(HoverEvent.showText(Component.text("Click to finish round")))));
                 }
 
                 if (round.getState() != Round.RoundState.RUNNING) {
-                    roundMessage = roundMessage.append(Component.space().append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/round delete " + round.getName()))));
+                    roundMessage = roundMessage.append(Component.space().append(theme.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/round delete " + round.getName()))));
                 }
             }
 
@@ -183,10 +182,10 @@ public class CommandEvent extends BaseCommand {
             for (Heat heat : round.getHeats()) {
                 var heatName = Component.text(heat.getName()).color(theme.getSecondary());
                 heatName = heat.getHeatState() == HeatState.FINISHED ? heatName.decorate(TextDecoration.ITALIC) : heatName;
-                var heatMessage = theme.tab().append(theme.tab()).append(heatName).append(theme.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+                var heatMessage = theme.tab().append(theme.tab()).append(heatName).append(theme.tab()).append(theme.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(theme.getClickToViewHoverEvent()));
 
                 if (!heat.isFinished() && sender.hasPermission("event.admin")) {
-                    heatMessage = heatMessage.append(Component.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
+                    heatMessage = heatMessage.append(Component.space()).append(theme.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
                 }
                 sender.sendMessage(heatMessage);
             }
@@ -360,7 +359,7 @@ public class CommandEvent extends BaseCommand {
         var message = plugin.getText(player, Info.SIGNS_TITLE, "%event%", event.getDisplayName());
 
         if (player.hasPermission("event.admin") || player.hasPermission("event.sign.others")) {
-            message = message.append(Component.space()).append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/event sign " + event.getDisplayName() + " ")));
+            message = message.append(Component.space()).append(theme.getAddButton().clickEvent(ClickEvent.suggestCommand("/event sign " + event.getDisplayName() + " ")));
         }
 
         player.sendMessage(message);
@@ -383,7 +382,7 @@ public class CommandEvent extends BaseCommand {
         message = plugin.getText(player, Info.RESERVES_TITLE, "%event%", event.getDisplayName());
 
         if (player.hasPermission("event.admin") || player.hasPermission("event.sign.others")) {
-            message = message.append(Component.space()).append(TextButtons.getAddButton().clickEvent(ClickEvent.suggestCommand("/event reserve " + event.getDisplayName() + " ")));
+            message = message.append(Component.space()).append(theme.getAddButton().clickEvent(ClickEvent.suggestCommand("/event reserve " + event.getDisplayName() + " ")));
         }
 
         player.sendMessage(message);

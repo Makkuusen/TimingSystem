@@ -21,11 +21,10 @@ import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
-import me.makkuusen.timing.system.text.messages.Error;
-import me.makkuusen.timing.system.text.messages.Info;
-import me.makkuusen.timing.system.text.messages.Success;
-import me.makkuusen.timing.system.text.TextButtons;
-import me.makkuusen.timing.system.text.messages.Warning;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Info;
+import me.makkuusen.timing.system.theme.messages.Success;
+import me.makkuusen.timing.system.theme.messages.Warning;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
@@ -104,21 +103,21 @@ public class CommandRound extends BaseCommand {
     public static void onRoundInfo(Player player, Round round) {
         Theme theme = Database.getPlayer(player).getTheme();
         player.sendMessage("");
-        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(round.getState().name())))).append(Component.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
+        player.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(round.getState().name())))).append(Component.space()).append(Component.text("[View Event]").color(theme.getButton()).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent())));
 
         var heatsMessage = Component.text("Heats:").color(theme.getPrimary());
 
         if (player.hasPermission("event.admin")) {
-            heatsMessage.append(theme.tab()).append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
+            heatsMessage.append(theme.tab()).append(theme.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent()));
         }
         player.sendMessage(heatsMessage);
 
         for (Heat heat : round.getHeats()) {
 
-            var message = theme.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(theme.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+            var message = theme.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(theme.tab()).append(theme.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(theme.getClickToViewHoverEvent()));
 
             if (player.hasPermission("event.admin")) {
-                message = message.append(Component.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
+                message = message.append(Component.space()).append(theme.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
             }
 
             player.sendMessage(message);
