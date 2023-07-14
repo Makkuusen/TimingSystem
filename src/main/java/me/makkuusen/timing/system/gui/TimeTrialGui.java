@@ -23,7 +23,7 @@ public class TimeTrialGui extends TrackPageGui {
     }
 
     public List<Track> getTracks() {
-        return TrackDatabase.getTracks();
+        return TrackDatabase.getOpenTracks();
     }
 
     @Override

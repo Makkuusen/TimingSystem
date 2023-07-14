@@ -2,7 +2,6 @@ package me.makkuusen.timing.system.text;
 
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -57,9 +56,5 @@ public class TextButtons {
 
     public static HoverEvent<Component> getClickToAddHoverEvent() {
         return HoverEvent.showText(Component.text("Click to add"));
-    }
-
-    public static Component getFooterButtons(String eventName, Theme theme) {
-        return theme.getSpacersStart().append(Component.text("[Event]").color(buttonColor).clickEvent(ClickEvent.runCommand("/event info " + eventName)).hoverEvent(getClickToViewHoverEvent())).append(theme.getSpacersEnd());
     }
 }

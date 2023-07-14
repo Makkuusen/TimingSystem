@@ -4,6 +4,7 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.text.Error;
@@ -21,7 +22,7 @@ import java.util.regex.Pattern;
 @CommandPermission("timingsystem.admin")
 public class CommandTimingSystem extends BaseCommand {
     public static TimingSystem plugin;
-    @CommandAlias("tag create")
+    @Subcommand("tag create")
     @CommandCompletion("<tag>")
     public void onCreateTag(CommandSender commandSender, String value) {
 
@@ -38,7 +39,7 @@ public class CommandTimingSystem extends BaseCommand {
         plugin.sendMessage(commandSender, Error.FAILED_TO_CREATE_TAG);
     }
 
-    @CommandAlias("hexcolor")
+    @Subcommand("hexcolor")
     @CommandCompletion("@tscolor <hexcolorcode>")
     public void onColorChange(CommandSender sender, TSColor tsColor, String hex) {
         if (!hex.startsWith("#")) {
@@ -67,7 +68,7 @@ public class CommandTimingSystem extends BaseCommand {
         plugin.sendMessage(sender,Error.COLOR_FORMAT);
     }
 
-    @CommandAlias("color")
+    @Subcommand("color")
     @CommandCompletion("@tscolor @namedColor")
     public void onNamedColorChange(CommandSender sender, TSColor tsColor, NamedTextColor color) {
         Theme theme = Theme.getTheme(sender);

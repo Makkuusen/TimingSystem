@@ -239,19 +239,19 @@ public abstract class TrackPageGui extends BaseGui {
     public void setTrackTypeButtons() {
         var boatButton = new GuiButton(new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat Tracks").build());
         boatButton.setAction(() -> {
-            openNewTrackPage(this, tPlayer, title, page, trackSort, filter, Track.TrackType.BOAT);
+            openNewTrackPage(this, tPlayer, title, 0, trackSort, filter, Track.TrackType.BOAT);
         });
         setItem(boatButton,48);
 
         var elytraButton = new GuiButton(new ItemBuilder(Material.ELYTRA).setName("§e§lElytra Tracks").build());
         elytraButton.setAction(() -> {
-            openNewTrackPage(this, tPlayer, title, page, trackSort, filter, Track.TrackType.ELYTRA);
+            openNewTrackPage(this, tPlayer, title, 0, trackSort, filter, Track.TrackType.ELYTRA);
         });
         setItem(elytraButton,49);
 
         var parkourButton = new GuiButton(new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkour Tracks").build());
         parkourButton.setAction(() -> {
-            openNewTrackPage(this, tPlayer, title, page, trackSort, filter, Track.TrackType.PARKOUR);
+            openNewTrackPage(this, tPlayer, title, 0, trackSort, filter, Track.TrackType.PARKOUR);
         });
         setItem(parkourButton,50);
     }

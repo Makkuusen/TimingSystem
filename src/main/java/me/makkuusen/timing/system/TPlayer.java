@@ -10,6 +10,7 @@ import co.aikar.idb.DbRow;
 import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
+import me.makkuusen.timing.system.theme.BoatLabsTheme;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
@@ -50,7 +51,7 @@ public class TPlayer implements Comparable<TPlayer> {
         timeTrial = data.get("timetrial");
         color = data.getString("color");
         compactScoreboard = data.get("compactScoreboard");
-        theme = new Theme();
+        theme = new BoatLabsTheme();
     }
 
     public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {
@@ -257,7 +258,7 @@ public class TPlayer implements Comparable<TPlayer> {
 
     private Boat.Type stringToType(String boatType) {
         if (boatType == null) {
-            return Boat.Type.OAK;
+            return Boat.Type.BIRCH;
         }
         try {
             return Boat.Type.valueOf(boatType);
