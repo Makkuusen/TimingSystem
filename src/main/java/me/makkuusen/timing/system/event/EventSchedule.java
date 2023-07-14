@@ -3,7 +3,6 @@ package me.makkuusen.timing.system.event;
 import lombok.Getter;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
-import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
 
@@ -92,7 +91,7 @@ public class EventSchedule {
 
     public List<Component> getHeatList(Event event, Theme theme) {
         List<Component> message = new ArrayList<>();
-        message.add(TextUtilities.getTitleLine("Heats for", event.getDisplayName(), theme));
+        message.add(theme.getTitleLine("Heats for", event.getDisplayName()));
         message.addAll(listHeats(theme));
         return message;
     }

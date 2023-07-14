@@ -24,7 +24,7 @@ public class TextButtons {
     }
 
     public static Component getEditButton(String value, Theme theme) {
-        return TextUtilities.getBrackets(value, theme).hoverEvent(getClickToEditHoverEvent());
+        return theme.getBrackets(value).hoverEvent(getClickToEditHoverEvent());
     }
 
     public static Component getAddButton() {
@@ -60,6 +60,6 @@ public class TextButtons {
     }
 
     public static Component getFooterButtons(String eventName, Theme theme) {
-        return TextUtilities.getSpacersStart(theme).append(Component.text("[Event]").color(buttonColor).clickEvent(ClickEvent.runCommand("/event info " + eventName)).hoverEvent(getClickToViewHoverEvent())).append(TextUtilities.getSpacersEnd(theme));
+        return theme.getSpacersStart().append(Component.text("[Event]").color(buttonColor).clickEvent(ClickEvent.runCommand("/event info " + eventName)).hoverEvent(getClickToViewHoverEvent())).append(theme.getSpacersEnd());
     }
 }

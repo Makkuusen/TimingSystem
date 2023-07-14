@@ -21,7 +21,7 @@ public class BoatSettingsGui extends BaseGui {
             setItem(getBoatTypeButton(tPlayer, boat), count);
             count++;
         }
-        setItem(ButtonUtilities.getReturnToSettingsButton(tPlayer), 26);
+        setItem(GuiCommon.getReturnToSettingsButton(tPlayer), 26);
     }
 
     private GuiButton getBoatTypeButton(TPlayer tPlayer, Material boatType) {
@@ -32,9 +32,7 @@ public class BoatSettingsGui extends BaseGui {
             if (tPlayer.getPlayer() instanceof Boat boat) {
                 boat.setBoatType(tPlayer.getBoat());
             }
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
+            GuiCommon.playConfirm(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;

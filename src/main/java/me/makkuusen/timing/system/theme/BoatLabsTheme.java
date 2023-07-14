@@ -7,7 +7,7 @@ import net.kyori.adventure.text.format.TextColor;
 
 @Setter
 @Getter
-public class BoatLabsTheme implements Theme {
+public class BoatLabsTheme extends Theme {
 
     private TextColor primary = TextColor.fromHexString("#7bf200");
     private TextColor secondary = TextColor.color(NamedTextColor.WHITE);

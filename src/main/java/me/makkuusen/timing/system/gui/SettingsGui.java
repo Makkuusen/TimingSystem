@@ -16,48 +16,40 @@ public class SettingsGui extends BaseGui {
     }
 
     public static GuiButton getSoundButton(TPlayer tPlayer) {
-        var button = new GuiButton(ButtonUtilities.sound);
+        var button = new GuiButton(GuiCommon.sound);
         button.setAction(() -> {
             tPlayer.toggleSound();
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
+            GuiCommon.playConfirm(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
     }
 
     public static GuiButton getVerboseButton(TPlayer tPlayer) {
-        var button = new GuiButton(ButtonUtilities.verbose);
+        var button = new GuiButton(GuiCommon.verbose);
         button.setAction(() -> {
             tPlayer.toggleVerbose();
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
+            GuiCommon.playConfirm(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
     }
 
     public static GuiButton getTimeTrialButton(TPlayer tPlayer) {
-        var button = new GuiButton(ButtonUtilities.timeTrial);
+        var button = new GuiButton(GuiCommon.timeTrial);
         button.setAction(() -> {
             tPlayer.toggleTimeTrial();
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
+            GuiCommon.playConfirm(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
     }
 
     public static GuiButton getOverrideButton(TPlayer tPlayer) {
-        var button = new GuiButton(ButtonUtilities.override);
+        var button = new GuiButton(GuiCommon.override);
         button.setAction(() -> {
             tPlayer.toggleOverride();
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
+            GuiCommon.playConfirm(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
@@ -87,15 +79,15 @@ public class SettingsGui extends BaseGui {
     private void setButtons(TPlayer tPlayer) {
         Player player = tPlayer.getPlayer();
         if (player != null && (player.isOp() || player.hasPermission("track.admin"))) {
-            setItem(tPlayer.isOverride() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 0);
+            setItem(tPlayer.isOverride() ? GuiCommon.getStatusOnButton() : GuiCommon.getStatusOffButton(), 0);
             setItem(getOverrideButton(tPlayer), 9);
         }
 
-        setItem(tPlayer.isSound() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 1);
+        setItem(tPlayer.isSound() ? GuiCommon.getStatusOnButton() : GuiCommon.getStatusOffButton(), 1);
         setItem(getSoundButton(tPlayer), 10);
-        setItem(tPlayer.isVerbose() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 2);
+        setItem(tPlayer.isVerbose() ? GuiCommon.getStatusOnButton() : GuiCommon.getStatusOffButton(), 2);
         setItem(getVerboseButton(tPlayer), 11);
-        setItem(tPlayer.isTimeTrial() ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), 3);
+        setItem(tPlayer.isTimeTrial() ? GuiCommon.getStatusOnButton() : GuiCommon.getStatusOffButton(), 3);
         setItem(getTimeTrialButton(tPlayer), 12);
 
         setItem(getBoatMenuButton(tPlayer), 14);

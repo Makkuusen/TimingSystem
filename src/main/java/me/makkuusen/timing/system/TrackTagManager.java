@@ -9,12 +9,12 @@ import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TrackTagManager {
 
-    private static final List<TrackTag> trackTags = new ArrayList<>();
+    private static final Set<TrackTag> trackTags = new HashSet<>();
 
     public static boolean createTrackTag(String value) {
 
@@ -53,8 +53,8 @@ public class TrackTagManager {
         return trackTags.contains(tag);
     }
 
-    public static List<TrackTag> getTrackTags() {
-        return trackTags.stream().toList();
+    public static Set<TrackTag> getTrackTags() {
+        return trackTags;
     }
 
     public static ContextResolver<TrackTag, BukkitCommandExecutionContext> getTrackTagContextResolver() {
@@ -66,26 +66,5 @@ public class TrackTagManager {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
         };
-    }
-
-    public static TrackTag getNext(TrackTag tag) {
-        var tags = getTrackTags();
-        if (tags.size() == 0) {
-            return null;
-        }
-        if (tag == null) {
-            return tags.get(0);
-        }
-
-        boolean match = false;
-        for (TrackTag trackTag : tags) {
-            if (match) {
-                return trackTag;
-            }
-            if (trackTag.equals(tag)) {
-                match = true;
-            }
-        }
-        return null;
     }
 }

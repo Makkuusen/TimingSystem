@@ -19,7 +19,6 @@ import me.makkuusen.timing.system.gui.TrackGui;
 import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.text.Info;
 import me.makkuusen.timing.system.text.Success;
-import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
@@ -296,11 +295,13 @@ public class CommandTrack extends BaseCommand {
     public static void onRegions(CommandSender sender, Track track) {
         plugin.sendMessage(sender, Info.REGIONS_TITLE, "%track%", track.getDisplayName());
 
+        Theme theme = Theme.getTheme(sender);
+
         for (var regionType : TrackRegion.RegionType.values()) {
             for (TrackRegion trackRegion : track.getRegions(regionType)) {
 
                 String regionText = trackRegion.getRegionType().name() + "-" + trackRegion.getRegionIndex();
-                sender.sendMessage(TextUtilities.arrow(TextUtilities.getTheme(sender)).append(Component.text(regionText).clickEvent(ClickEvent.runCommand("/t tp " + track.getCommandName() + " " + regionText))));
+                sender.sendMessage(theme.arrow().append(Component.text(regionText).clickEvent(ClickEvent.runCommand("/t tp " + track.getCommandName() + " " + regionText))));
             }
         }
     }
@@ -311,10 +312,12 @@ public class CommandTrack extends BaseCommand {
     public static void onLocations(CommandSender sender, Track track) {
         plugin.sendMessage(sender, Info.LOCATIONS_TITLE, "%track%", track.getDisplayName());
 
+        Theme theme = Theme.getTheme(sender);
+
         for (var locationType : TrackLocation.Type.values()) {
             for (TrackLocation trackLocation : track.getTrackLocations(locationType)) {
                 String locationText = trackLocation.getLocationType().name() + "-" + trackLocation.getIndex();
-                sender.sendMessage(TextUtilities.arrow(TextUtilities.getTheme(sender)).append(Component.text(locationText).clickEvent(ClickEvent.runCommand("/t tp " + track.getCommandName() + " " + locationText))));
+                sender.sendMessage(theme.arrow().append(Component.text(locationText).clickEvent(ClickEvent.runCommand("/t tp " + track.getCommandName() + " " + locationText))));
             }
         }
     }
@@ -326,7 +329,7 @@ public class CommandTrack extends BaseCommand {
             for (TrackRegion region : track.getRegions()) {
                 if (region.contains(player.getLocation())) {
                     inRegion = true;
-                    player.sendMessage(Component.text(track.getDisplayName() + " - " + region.getRegionType() + " : " + region.getRegionIndex()).color(TextUtilities.getTheme(player).getSecondary()));
+                    player.sendMessage(Component.text(track.getDisplayName() + " - " + region.getRegionType() + " : " + region.getRegionIndex()).color(Theme.getTheme(player).getSecondary()));
                 }
             }
         }
@@ -406,7 +409,7 @@ public class CommandTrack extends BaseCommand {
         if (pageStart == null) {
             pageStart = 1;
         }
-        Theme theme = TextUtilities.getTheme(commandSender);
+        Theme theme = Theme.getTheme(commandSender);
         int itemsPerPage = TimingSystem.configuration.getTimesPageSize();
         int start = (pageStart * itemsPerPage) - itemsPerPage;
         int stop = pageStart * itemsPerPage;
@@ -422,11 +425,11 @@ public class CommandTrack extends BaseCommand {
                 break;
             }
             TimeTrialFinish finish = track.getTopList().get(i);
-            commandSender.sendMessage(TextUtilities.getTimesRow(String.valueOf(i + 1), finish.getPlayer().getName(), ApiUtilities.formatAsTime(finish.getTime()), theme));
+            commandSender.sendMessage(theme.getTimesRow(String.valueOf(i + 1), finish.getPlayer().getName(), ApiUtilities.formatAsTime(finish.getTime())));
         }
 
         int pageEnd = (int) Math.ceil(((double) track.getTopList().size()) / ((double) itemsPerPage));
-        commandSender.sendMessage(TextUtilities.getPageSelector(commandSender, theme, pageStart, pageEnd, "/t times " + track.getCommandName()));
+        commandSender.sendMessage(theme.getPageSelector(commandSender, pageStart, pageEnd, "/t times " + track.getCommandName()));
     }
 
     @Subcommand("mytimes")
@@ -460,11 +463,11 @@ public class CommandTrack extends BaseCommand {
                 break;
             }
             TimeTrialFinish finish = allTimes.get(i);
-            player.sendMessage(TextUtilities.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), ApiUtilities.niceDate(finish.getDate()), theme));
+            player.sendMessage(theme.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), ApiUtilities.niceDate(finish.getDate())));
         }
 
         int pageEnd = (int) Math.ceil(((double) allTimes.size()) / ((double) itemsPerPage));
-        player.sendMessage(TextUtilities.getPageSelector(player,theme, pageStart, pageEnd, "/t mytimes " + track.getCommandName()));
+        player.sendMessage(theme.getPageSelector(player, pageStart, pageEnd, "/t mytimes " + track.getCommandName()));
     }
 
     @Subcommand("alltimes")
@@ -510,10 +513,10 @@ public class CommandTrack extends BaseCommand {
                 break;
             }
             TimeTrialFinish finish = allTimes.get(i);
-            player.sendMessage(TextUtilities.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), TrackDatabase.getTrackById(finish.getTrack()).get().getDisplayName(), ApiUtilities.niceDate(finish.getDate()), theme));
+            player.sendMessage(theme.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), TrackDatabase.getTrackById(finish.getTrack()).get().getDisplayName(), ApiUtilities.niceDate(finish.getDate())));
         }
         int pageEnd = (int) Math.ceil(((double) allTimes.size()) / ((double) itemsPerPage));
-        player.sendMessage(TextUtilities.getPageSelector(player,theme, pageStart, pageEnd, "/t alltimes " + tPlayer.getName()));
+        player.sendMessage(theme.getPageSelector(player, pageStart, pageEnd, "/t alltimes " + tPlayer.getName()));
     }
 
     @Subcommand("edit")
@@ -584,7 +587,7 @@ public class CommandTrack extends BaseCommand {
                 plugin.sendMessage(commandSender, Error.PLAYER_NOT_FOUND);
                 return;
             }
-            var message = plugin.getText(commandSender, Success.REMOVED_ALL_FINISHES).append(TextUtilities.success(" -> " + tPlayer.getNameDisplay(), TextUtilities.getTheme(commandSender)));
+            var message = plugin.getText(commandSender, Success.REMOVED_ALL_FINISHES).append(tPlayer.getTheme().success(" -> " + tPlayer.getNameDisplay()));
             commandSender.sendMessage(message);
             track.deleteAllFinishes(tPlayer);
             LeaderboardManager.updateFastestTimeLeaderboard(track);

@@ -39,15 +39,15 @@ public abstract class TrackPageGui extends BaseGui {
         return k1.getPlayerTopListPosition(tPlayer).compareTo(k2.getPlayerTopListPosition(tPlayer));
     };
 
-    public TrackPageGui(TPlayer tPlayer, Component title, int rows, int page) {
-        super(title, rows);
+    public TrackPageGui(TPlayer tPlayer, Component title, int page) {
+        super(title, 6);
         this.tPlayer = tPlayer;
         this.page = page;
         update();
     }
 
-    public TrackPageGui(TPlayer tPlayer, Component title, int rows, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {
-        super(title, rows);
+    public TrackPageGui(TPlayer tPlayer, Component title, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {
+        super(title, 6);
         this.trackSort = trackSort;
         this.filter = filter;
         this.tPlayer = tPlayer;
@@ -80,7 +80,7 @@ public abstract class TrackPageGui extends BaseGui {
     private void setBorder() {
         Integer[] borderSlots = {45, 46, 47, 48, 49, 50, 51, 52, 53};
         for (Integer slot : borderSlots) {
-            setItem(ButtonUtilities.getBorderGlassButton(), slot);
+            setItem(GuiCommon.getBorderGlassButton(), slot);
         }
     }
 
@@ -98,9 +98,7 @@ public abstract class TrackPageGui extends BaseGui {
 
         var button = new GuiButton(item);
         button.setAction(() -> {
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
+            GuiCommon.playConfirm(tPlayer);
             clearNavRow();
             setSortingItems();
             show(tPlayer.getPlayer());
@@ -129,9 +127,7 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getFilterButton(ItemStack item) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
+            GuiCommon.playConfirm(tPlayer);
             new FilterGui(this).show(tPlayer.getPlayer());
         });
         return button;
@@ -140,20 +136,8 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getSortingButton(ItemStack item, TrackSort trackSort) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
-            var constructors = getClass().getDeclaredConstructors();
-            for (var construct : constructors) {
-                if (construct.getParameterCount() == 6) {
-                    try {
-                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, trackType);
-                        instance.show(tPlayer.getPlayer());
-                    } catch (Exception e) {
-                        //sadge
-                    }
-                }
-            }
+            GuiCommon.playConfirm(tPlayer);
+            openNewTrackPage(this, tPlayer, title, page, trackSort, filter, trackType);
         });
         return button;
     }
@@ -213,17 +197,7 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getPageButton(ItemStack item, int newPage) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            var constructors = getClass().getDeclaredConstructors();
-            for (var construct : constructors) {
-                if (construct.getParameterCount() == 6) {
-                    try {
-                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, newPage, trackSort, filter, trackType);
-                        instance.show(tPlayer.getPlayer());
-                    } catch (Exception e) {
-                        //sadge
-                    }
-                }
-            }
+            openNewTrackPage(this, tPlayer, title, newPage, trackSort, filter, trackType);
         });
         return button;
     }
@@ -265,49 +239,19 @@ public abstract class TrackPageGui extends BaseGui {
     public void setTrackTypeButtons() {
         var boatButton = new GuiButton(new ItemBuilder(Material.OAK_BOAT).setName("§e§lBoat Tracks").build());
         boatButton.setAction(() -> {
-            var constructors = getClass().getDeclaredConstructors();
-            for (var construct : constructors) {
-                if (construct.getParameterCount() == 6) {
-                    try {
-                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, Track.TrackType.BOAT);
-                        instance.show(tPlayer.getPlayer());
-                    } catch (Exception e) {
-                        //sadge
-                    }
-                }
-            }
+            openNewTrackPage(this, tPlayer, title, page, trackSort, filter, Track.TrackType.BOAT);
         });
         setItem(boatButton,48);
 
         var elytraButton = new GuiButton(new ItemBuilder(Material.ELYTRA).setName("§e§lElytra Tracks").build());
         elytraButton.setAction(() -> {
-            var constructors = getClass().getDeclaredConstructors();
-            for (var construct : constructors) {
-                if (construct.getParameterCount() == 6) {
-                    try {
-                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, Track.TrackType.ELYTRA);
-                        instance.show(tPlayer.getPlayer());
-                    } catch (Exception e) {
-                        //sadge
-                    }
-                }
-            }
+            openNewTrackPage(this, tPlayer, title, page, trackSort, filter, Track.TrackType.ELYTRA);
         });
         setItem(elytraButton,49);
 
         var parkourButton = new GuiButton(new ItemBuilder(Material.BIG_DRIPLEAF).setName("§e§lParkour Tracks").build());
         parkourButton.setAction(() -> {
-            var constructors = getClass().getDeclaredConstructors();
-            for (var construct : constructors) {
-                if (construct.getParameterCount() == 6) {
-                    try {
-                        var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, Track.TrackType.PARKOUR);
-                        instance.show(tPlayer.getPlayer());
-                    } catch (Exception e) {
-                        //sadge
-                    }
-                }
-            }
+            openNewTrackPage(this, tPlayer, title, page, trackSort, filter, Track.TrackType.PARKOUR);
         });
         setItem(parkourButton,50);
     }
@@ -315,14 +259,26 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getTrackTypeButton(ItemStack item) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
+            GuiCommon.playConfirm(tPlayer);
             clearNavRow();
             setTrackTypeButtons();
             show(tPlayer.getPlayer());
         });
         return button;
+    }
+
+    public static void openNewTrackPage(TrackPageGui gui, TPlayer tPlayer, Component title, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {
+        var constructors = gui.getClass().getDeclaredConstructors();
+        for (var construct : constructors) {
+            if (construct.getParameterCount() == 6) {
+                try {
+                    var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, trackType);
+                    instance.show(tPlayer.getPlayer());
+                } catch (Exception e) {
+                    //sadge
+                }
+            }
+        }
     }
 }
 

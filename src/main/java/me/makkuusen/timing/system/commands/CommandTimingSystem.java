@@ -9,7 +9,6 @@ import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.text.Success;
 import me.makkuusen.timing.system.text.TSColor;
-import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -46,7 +45,7 @@ public class CommandTimingSystem extends BaseCommand {
             hex = "#" + hex;
         }
         TextColor color;
-        Theme theme = TextUtilities.getTheme(sender);
+        Theme theme = Theme.getTheme(sender);
         if (isValidHexCode(hex)) {
             color = TextColor.fromHexString(hex);
             switch (tsColor) {
@@ -71,7 +70,7 @@ public class CommandTimingSystem extends BaseCommand {
     @CommandAlias("color")
     @CommandCompletion("@tscolor @namedColor")
     public void onNamedColorChange(CommandSender sender, TSColor tsColor, NamedTextColor color) {
-        Theme theme = TextUtilities.getTheme(sender);
+        Theme theme = Theme.getTheme(sender);
         switch (tsColor) {
             case SECONDARY -> theme.setSecondary(color);
             case PRIMARY -> theme.setPrimary(color);

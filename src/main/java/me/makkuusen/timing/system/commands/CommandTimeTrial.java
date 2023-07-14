@@ -8,12 +8,12 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TimeTrialGui;
 import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.text.Success;
-import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
@@ -169,24 +169,25 @@ public class CommandTimeTrial extends BaseCommand {
     }
 
     private static void teleportPlayerToRandomTrack(List<Track> tracks, Player player) {
-        Track t = tracks.get(new Random().nextInt(tracks.size()));
+        Track track = tracks.get(new Random().nextInt(tracks.size()));
 
-        if (!t.getSpawnLocation().isWorldLoaded()) {
+        if (!track.getSpawnLocation().isWorldLoaded()) {
             plugin.sendMessage(player, Error.WORLD_NOT_LOADED);
             return;
         }
+        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
 
-        if (t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1) {
-            Component message = plugin.getText(player, Success.TELEPORT_TO_TRACK, "%track%", t.getDisplayName());
-            var leaderboardPosition = t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId()));
-            Component positionComponent = TextUtilities.getParenthesized(String.valueOf(leaderboardPosition), Database.getPlayer(player).getTheme());
+        if (track.getPlayerTopListPosition(tPlayer) != -1) {
+            Component message = plugin.getText(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
+            var leaderboardPosition = track.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId()));
+            Component positionComponent = tPlayer.getTheme().getParenthesized(String.valueOf(leaderboardPosition));
             if (message != null) {
                 player.sendMessage(message.append(Component.space()).append(positionComponent));
             }
         } else {
-            plugin.sendMessage(player, Success.TELEPORT_TO_TRACK, "%track%", t.getDisplayName());
+            plugin.sendMessage(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
         }
 
-        ApiUtilities.teleportPlayerAndSpawnBoat(player, t, t.getSpawnLocation());
+        ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
     }
 }

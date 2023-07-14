@@ -20,19 +20,9 @@ public class FilterGui extends BaseGui{
 
     public void setButtons() {
         setFilterOptions();
-        GuiButton save = new GuiButton(ButtonUtilities.goBack);
+        GuiButton save = new GuiButton(GuiCommon.goBack);
         save.setAction(() -> {
-            var constructors = oldTrackPage.getClass().getDeclaredConstructors();
-            for (var construct : constructors) {
-                if (construct.getParameterCount() == 6) {
-                    try {
-                        var instance = (TrackPageGui) construct.newInstance(oldTrackPage.tPlayer, oldTrackPage.title, oldTrackPage.page, oldTrackPage.trackSort, filter, oldTrackPage.trackType);
-                        instance.show(oldTrackPage.tPlayer.getPlayer());
-                    } catch (Exception e) {
-                        //sadge
-                    }
-                }
-            }
+            TrackPageGui.openNewTrackPage(oldTrackPage, oldTrackPage.tPlayer, oldTrackPage.title, oldTrackPage.page, oldTrackPage.trackSort, filter, oldTrackPage.trackType);
         });
         setItem(save, 26);
     }
@@ -45,7 +35,7 @@ public class FilterGui extends BaseGui{
                 break;
             }
 
-            setItem(filter.getTags().contains(tag) ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), count);
+            setItem(filter.getTags().contains(tag) ? GuiCommon.getStatusOnButton() : GuiCommon.getStatusOffButton(), count);
             var button = new GuiButton(new ItemBuilder(Material.ANVIL).setName(tag.getValue()).build());
             int finalCount = count;
             button.setAction(() -> {
@@ -54,7 +44,7 @@ public class FilterGui extends BaseGui{
                 } else {
                     filter.addTag(tag);
                 }
-                setItem(filter.getTags().contains(tag) ? ButtonUtilities.getStatusOnButton() : ButtonUtilities.getStatusOffButton(), finalCount);
+                setItem(filter.getTags().contains(tag) ? GuiCommon.getStatusOnButton() : GuiCommon.getStatusOffButton(), finalCount);
             });
             setItem(button, count + 9);
             count++;

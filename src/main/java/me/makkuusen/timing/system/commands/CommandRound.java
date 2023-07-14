@@ -25,7 +25,6 @@ import me.makkuusen.timing.system.text.Error;
 import me.makkuusen.timing.system.text.Info;
 import me.makkuusen.timing.system.text.Success;
 import me.makkuusen.timing.system.text.TextButtons;
-import me.makkuusen.timing.system.text.TextUtilities;
 import me.makkuusen.timing.system.text.Warning;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -105,21 +104,21 @@ public class CommandRound extends BaseCommand {
     public static void onRoundInfo(Player player, Round round) {
         Theme theme = Database.getPlayer(player).getTheme();
         player.sendMessage("");
-        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(TextUtilities.space()).append(TextUtilities.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(TextUtilities.space()).append(TextUtilities.getParenthesized(round.getState().name(), theme)), theme)).append(TextUtilities.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
+        player.sendMessage(TextButtons.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(round.getState().name())))).append(Component.space()).append(Component.text("[View Event]").color(TextButtons.buttonColor).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(TextButtons.getClickToViewHoverEvent())));
 
         var heatsMessage = Component.text("Heats:").color(theme.getPrimary());
 
         if (player.hasPermission("event.admin")) {
-            heatsMessage.append(TextUtilities.tab()).append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
+            heatsMessage.append(theme.tab()).append(TextButtons.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(TextButtons.getClickToAddHoverEvent()));
         }
         player.sendMessage(heatsMessage);
 
         for (Heat heat : round.getHeats()) {
 
-            var message = TextUtilities.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(TextUtilities.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
+            var message = theme.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(theme.tab()).append(TextButtons.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(TextButtons.getClickToViewHoverEvent()));
 
             if (player.hasPermission("event.admin")) {
-                message = message.append(TextUtilities.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
+                message = message.append(Component.space()).append(TextButtons.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
             }
 
             player.sendMessage(message);
@@ -166,11 +165,11 @@ public class CommandRound extends BaseCommand {
             int pos = 1;
             if (round instanceof FinalRound) {
                 for (Driver d : results) {
-                    player.sendMessage(TextUtilities.primary(pos++ + ".", theme).append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(String.valueOf(d.getLaps().size()), theme)).append(TextUtilities.primary("laps in", theme)).append(Component.space()).append(TextUtilities.highlight(ApiUtilities.formatAsTime(d.getFinishTime()), theme)));
+                    player.sendMessage(theme.primary(pos++ + ".").append(Component.space()).append(theme.highlight(d.getTPlayer().getName())).append(theme.hyphen()).append(theme.highlight(String.valueOf(d.getLaps().size()))).append(theme.primary("laps in")).append(Component.space()).append(theme.highlight(ApiUtilities.formatAsTime(d.getFinishTime()))));
                 }
             } else {
                 for (Driver d : results) {
-                    player.sendMessage(TextUtilities.primary(pos++ + ".", theme).append(TextUtilities.space()).append(TextUtilities.highlight(d.getTPlayer().getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0", theme)));
+                    player.sendMessage(theme.primary(pos++ + ".").append(Component.space()).append(theme.highlight(d.getTPlayer().getName())).append(theme.hyphen()).append(theme.highlight(d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0")));
                 }
             }
         } else {
@@ -305,7 +304,7 @@ public class CommandRound extends BaseCommand {
                     message.append(", ").append(tPlayerList.pop().getName());
                 }
                 Theme theme = Database.getPlayer(player).getTheme();
-                player.sendMessage(TextUtilities.warning(message.toString(), theme));
+                player.sendMessage(theme.warning(message.toString()));
             }
         } else {
             plugin.sendMessage(player, Error.ROUND_NOT_FOUND);
@@ -354,7 +353,7 @@ public class CommandRound extends BaseCommand {
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             var bestTime = heat.getEvent().getTrack().getBestFinish(tPlayer);
             Theme theme = Database.getPlayer(sender).getTheme();
-            sender.sendMessage(TextUtilities.primary(heat.getDrivers().size() + ":", theme).append(TextUtilities.space()).append(TextUtilities.highlight(tPlayer.getName(), theme)).append(TextUtilities.hyphen(theme)).append(TextUtilities.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()), theme)));
+            sender.sendMessage(theme.primary(heat.getDrivers().size() + ":").append(Component.space()).append(theme.highlight(tPlayer.getName())).append(theme.hyphen()).append(theme.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()))));
         }
 
     }

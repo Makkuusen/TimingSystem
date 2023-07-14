@@ -22,7 +22,7 @@ public class ColorSettingsGui extends BaseGui {
             setItem(getDyeColorButton(tPlayer, dye), count);
             count++;
         }
-        setItem(ButtonUtilities.getReturnToSettingsButton(tPlayer), 26);
+        setItem(GuiCommon.getReturnToSettingsButton(tPlayer), 26);
     }
 
     private GuiButton getDyeColorButton(TPlayer tPlayer, Material dye) {
@@ -30,9 +30,7 @@ public class ColorSettingsGui extends BaseGui {
         button.setAction(() -> {
             var hexColor = ApiUtilities.getHexFromDyeColor(button.getStack().getType());
             tPlayer.setHexColor(hexColor);
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
+            GuiCommon.playConfirm(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;

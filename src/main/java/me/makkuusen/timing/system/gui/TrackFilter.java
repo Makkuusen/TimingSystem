@@ -24,8 +24,8 @@ public class TrackFilter {
         return anyMatch;
     }
 
-    public void setAnyMatch(boolean anymatch) {
-        this.anyMatch = anymatch;
+    public void setAnyMatch(boolean anyMatch) {
+        this.anyMatch = anyMatch;
     }
 
     public void addTag(TrackTag tag) {

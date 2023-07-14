@@ -22,7 +22,7 @@ import me.makkuusen.timing.system.commands.CommandTrack;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
-import me.makkuusen.timing.system.gui.ButtonUtilities;
+import me.makkuusen.timing.system.gui.GuiCommon;
 import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
@@ -31,7 +31,6 @@ import me.makkuusen.timing.system.text.ActionBar;
 import me.makkuusen.timing.system.text.MessageLevel;
 import me.makkuusen.timing.system.text.Success;
 import me.makkuusen.timing.system.text.TSColor;
-import me.makkuusen.timing.system.theme.DefaultTheme;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
@@ -99,7 +98,7 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new TSListener(), plugin);
         pm.registerEvents(new TimeTrialListener(), plugin);
 
-        ButtonUtilities.init();
+        GuiCommon.init();
 
         PaperCommandManager manager = new PaperCommandManager(this);
         // enable brigadier integration for paper servers
@@ -338,7 +337,7 @@ public class TimingSystem extends JavaPlugin {
     }
 
     private Theme getTheme(CommandSender sender) {
-        return sender instanceof Player ? Database.getPlayer(((Player) sender).getUniqueId()).getTheme() : new DefaultTheme();
+        return sender instanceof Player ? Database.getPlayer(((Player) sender).getUniqueId()).getTheme() : new Theme();
     }
 
 
