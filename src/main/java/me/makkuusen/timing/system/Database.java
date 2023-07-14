@@ -50,7 +50,8 @@ public class Database {
                 v1_3Update();
             } else {
                 if (isNewerVersion(row.getString("version"), plugin.getPluginMeta().getVersion())) {
-                    updateDatabase(row.getString("version"), plugin.getPluginMeta().getVersion());
+                    updateDatabase(row.getString("version"));
+                    plugin.getLogger().warning("UPDATING DATABASE FROM " + row.getString("version") + " to " + plugin.getPluginMeta().getVersion());
                     DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + plugin.getPluginMeta().getVersion() + "', " + ApiUtilities.getTimestamp() + ");");
                 }
             }
@@ -345,15 +346,14 @@ public class Database {
         }
     }
 
-    private static void updateDatabase(String oldVersion, String newVersion) {
-        plugin.getLogger().warning("UPDATING DATABASE FROM " + oldVersion + " to " + newVersion);
+    private static void updateDatabase(String oldVersion) {
 
-        if (newVersion.equalsIgnoreCase("1.2")) {
+
+        if (isNewerVersion(oldVersion, "1.2")) {
             v1_2Update();
-        } else if (newVersion.equalsIgnoreCase("1.3")) {
-            if (!oldVersion.equalsIgnoreCase("1.2")) {
-                v1_2Update();
-            }
+        }
+
+        if (isNewerVersion(oldVersion, "1.3")) {
             v1_3Update();
         }
     }
