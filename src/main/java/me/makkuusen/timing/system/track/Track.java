@@ -13,14 +13,16 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.gui.TrackFilter;
+import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -116,31 +118,28 @@ public class Track {
 
         List<Component> loreToSet = new ArrayList<>();
 
-        String bestTime;
-
-        if (getBestFinish(tPlayer) == null) {
-            bestTime = "§7Your best time: §e(none)";
-        } else {
-            bestTime = "§7Your best time: §e" + ApiUtilities.formatAsTime(getBestFinish(tPlayer).getTime());
-        }
-
-        loreToSet.add(Component.text("§7Position: §e" + (getPlayerTopListPosition(tPlayer) == -1 ? "(none)" : getPlayerTopListPosition(tPlayer))));
-        loreToSet.add(Component.text(bestTime));
-        loreToSet.add(Component.text("§7Total Finishes: §e" + getPlayerTotalFinishes(tPlayer)));
-        loreToSet.add(Component.text("§7Total Attempts: §e" + (getPlayerTotalFinishes(tPlayer) + getPlayerTotalAttempts(tPlayer))));
-        loreToSet.add(Component.text("§7Time spent: §e" + ApiUtilities.formatAsTimeSpent(getPlayerTotalTimeSpent(tPlayer))));
-        loreToSet.add(Component.text("§7Created by: §e" + getOwner().getName()));
+        var plugin = TimingSystem.getPlugin();
+        loreToSet.add(plugin.getText(tPlayer, Gui.POSITION, "%pos%", getPlayerTopListPosition(tPlayer) == -1 ? "(none)" : String.valueOf(getPlayerTopListPosition(tPlayer))));
+        loreToSet.add(plugin.getText(tPlayer, Gui.BEST_TIME, "%time%", getBestFinish(tPlayer) == null ? "(-)" : ApiUtilities.formatAsTime(getBestFinish(tPlayer).getTime())));
+        loreToSet.add(plugin.getText(tPlayer, Gui.TOTAL_FINISHES, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer))));
+        loreToSet.add(plugin.getText(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer) + getPlayerTotalAttempts(tPlayer))));
+        loreToSet.add(plugin.getText(tPlayer, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(getPlayerTotalTimeSpent(tPlayer))));
+        loreToSet.add(plugin.getText(tPlayer, Gui.CREATED_BY, "%player%", getOwner().getName()));
 
         List<String> tagList = new ArrayList<>();
         for (TrackTag tag : getTags()) {
             tagList.add(tag.getValue());
         }
         String tags = String.join(", ", tagList);
-        loreToSet.add(Component.text("§7Tags: §e" + tags));
+        loreToSet.add(plugin.getText(tPlayer.getPlayer(), Gui.TAGS, "%tags%", tags));
 
 
         ItemMeta im = toReturn.getItemMeta();
-        im.displayName(Component.text(getDisplayName()).color(TextColor.color(255, 255, 85)));
+        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        im.addItemFlags(ItemFlag.HIDE_ITEM_SPECIFICS);
+        im.addItemFlags(ItemFlag.HIDE_DYE);
+        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        im.displayName(Component.text(getDisplayName()).color(tPlayer.getTheme().getSecondary()));
         im.lore(loreToSet);
         toReturn.setItemMeta(im);
 
@@ -194,9 +193,8 @@ public class Track {
     }
 
 
-    public void addTag(DbRow dbRow) {
-        var tag = new TrackTag(dbRow.get("tag"));
-        tags.add(tag);
+    public void addTag(TrackTag trackTag) {
+        tags.add(trackTag);
     }
 
     public boolean createTag(TrackTag tag) {

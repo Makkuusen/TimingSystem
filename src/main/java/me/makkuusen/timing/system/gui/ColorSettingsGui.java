@@ -5,6 +5,7 @@ import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.theme.messages.Gui;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 
@@ -26,9 +27,9 @@ public class ColorSettingsGui extends BaseGui {
     }
 
     private GuiButton getDyeColorButton(TPlayer tPlayer, Material dye) {
-        var button = new GuiButton(new ItemBuilder(dye).setName("§eColor").build());
+        var hexColor = ApiUtilities.getHexFromDyeColor(dye);
+        var button = new GuiButton(new ItemBuilder(dye).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.COLOR).color(TextColor.fromHexString(hexColor))).build());
         button.setAction(() -> {
-            var hexColor = ApiUtilities.getHexFromDyeColor(button.getStack().getType());
             tPlayer.setHexColor(hexColor);
             GuiCommon.playConfirm(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());

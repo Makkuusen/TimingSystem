@@ -34,6 +34,16 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder setName(Component name) {
+        if (item.getType().toString().toLowerCase().contains("leather")) {
+            leatherMeta.displayName(name);
+        } else {
+            itemMeta.displayName(name);
+        }
+        return this;
+    }
+
+
     public ItemStack build() {
 
         if (item.getType().toString().toLowerCase().contains("leather")) {

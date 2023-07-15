@@ -1,9 +1,14 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
+import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -44,20 +49,30 @@ public class TrackFilter {
         return tags;
     }
 
-    public ItemStack getItem(){
-        var item = new ItemBuilder(Material.HOPPER).setName("§eFilter by: ").build();
+    public ItemStack getItem(TPlayer tPlayer){
+        var item = new ItemBuilder(Material.HOPPER).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.FILTER_BY)).build();
         List<Component> loreToSet = new ArrayList<>();
 
-        List<String> tagList = new ArrayList<>();
+
+        boolean notFirst = false;
+        Component tags = Component.empty();
         for (TrackTag tag : getTags()) {
-            tagList.add(tag.getValue());
+            if (notFirst) {
+                tags = tags.append(Component.text(", ").color(tPlayer.getTheme().getSecondary()));
+            }
+            tags = tags.append(Component.text(tag.getValue()).color(tag.getColor()));
+            notFirst = true;
         }
-        String tags = String.join(", ", tagList);
-        loreToSet.add(Component.text("§e" + tags));
+        loreToSet.add(tags);
 
         ItemMeta im = item.getItemMeta();
         im.lore(loreToSet);
+        im.addEnchant(Enchantment.LUCK, 1, true);
+        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        im.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
+        im.addItemFlags(ItemFlag.HIDE_DYE);
         item.setItemMeta(im);
+
         return item;
     }
 }

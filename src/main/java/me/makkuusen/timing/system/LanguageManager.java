@@ -53,7 +53,12 @@ public class LanguageManager {
         File file = new File(plugin.getDataFolder(), LANG_FOLDER + locale + ".yml");
         YamlConfiguration localeConfig;
         localeConfig = localeConfigDefaults;
-
+        try {
+            localeConfigDefaults.save(file);
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + LANG_FOLDER + locale + ".yml", e);
+        }
+        /*
         if (!file.exists()) {
             try {
                 localeConfigDefaults.save(file);
@@ -87,6 +92,7 @@ public class LanguageManager {
                 }
             }
         }
+        */
 
         if (!locale.equals(defaultLocale)) {
             localeConfigDefaults = locales.get(defaultLocale);

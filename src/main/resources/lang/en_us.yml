@@ -137,7 +137,7 @@ success:
   track_moved: "&sTrack moved to %to% from %from%"
   track_options_cleared: '&sAll options are now cleared.'
   track_options_new: '&sOptions are now: %options%'
-  teleport_to_track: "&2Teleported you to &1%track%"
+  teleport_to_track: "&1Teleported you to &2%track%"
   session_ended: "&sYour session has ended."
   session_started: "&sSession started on %track%"
   checkpoints_announcements_on: '&sCheckpoint announcements are now active.'
@@ -176,67 +176,67 @@ success:
   driver_removed: "&sDriver has been removed."
 
 info:
-  page_current_of_max: "&2page &l&1%current% &r&2of &l&1%max%"
-  track_title: '&2--- &1Track: %name% (%id%) &2---'
-  track_times_title: "&2--- Times for &1%track% &2---"
-  player_best_times_title: "&2--- &1%player% &2best times on &1%track% &2---"
-  player_recent_times_title: "&2--- &1%player% &2most recent times &2---"
-  player_stats_title: "&2--- &1%player%&2 statistics on &1%track% &2---"
-  regions_title: "&2--- Regions for &1%track% &2---"
-  locations_title: "&2--- Locations for &1%track% &2---"
-  rounds_title: "&2--- Rounds for &1%event% &2---"
-  heats_title: "&2--- Heats for &1%event% &2---"
-  round_result_title: "&2--- Round result for round &1%round% &2---"
-  heat_result_title: "&2--- Heat result for heat &1%heat% &2---"
-  signs_title: "&2--- Signs for &1%event% &2---"
-  reserves_title: "&2--- Reserves for &1%event% &2---"
-  active_events_title: "&2--- Active events right now &2---"
-  track_type: '&2Type:&1 %type%'
-  track_open: '&2Open: &1Yes'
-  track_closed: '&2Open: &1No'
-  track_date_created: '&2Created:&1 %date%&2 owned by &1%owner%'
-  track_options: '&2Options: &1+%options%'
-  track_mode: '&2Mode: &1%mode%'
-  track_checkpoints: '&2Checkpoints:&1 %size%'
-  track_grids: '&2Grids:&1 %size%'
-  track_qualification_grids: '&2QualyGrids:&1c %size%'
-  track_reset_regions: '&2Reset regions:&1 %size%'
-  track_spawn_location: '&2Spawn:&1 %location%'
-  track_weight: "&2Weight:&1 %size%"
-  track_tags: "&2Tags:&1 %tags%"
-  player_stats_best_lap: "&2Best time: &1%time%"
-  player_stats_position: "&2Position: &1%pos%"
-  player_stats_finishes: "&2Finishes: &1%size%"
-  player_stats_attempts: "&2Attempts: &1%size%"
-  player_stats_time_spent: "&2Time spent: &1%size%"
-  updating_leaderboards: '&1Updating leaderboards.'
+  page_current_of_max: "&1page &l&2%current% &r&1of &l&2%max%"
+  track_title: '&1--- &2Track: %name% (%id%) &1---'
+  track_times_title: "&1--- Times for &2%track% &1---"
+  player_best_times_title: "&1--- &2%player% &1best times on &2%track% &1---"
+  player_recent_times_title: "&1--- &2%player% &1most recent times &1---"
+  player_stats_title: "&1--- &2%player%&1 statistics on &2%track% &1---"
+  regions_title: "&1--- Regions for &2%track% &1---"
+  locations_title: "&1--- Locations for &2%track% &1---"
+  rounds_title: "&1--- Rounds for &2%event% &1---"
+  heats_title: "&1--- Heats for &2%event% &1---"
+  round_result_title: "&1--- Round result for round &2%round% &1---"
+  heat_result_title: "&1--- Heat result for heat &2%heat% &1---"
+  signs_title: "&1--- Signs for &2%event% &1---"
+  reserves_title: "&1--- Reserves for &2%event% &1---"
+  active_events_title: "&1--- Active events right now &1---"
+  track_type: '&1Type:&2 %type%'
+  track_open: '&1Open: &2Yes'
+  track_closed: '&1Open: &2No'
+  track_date_created: '&1Created:&2 %date%&1 owned by &2%owner%'
+  track_options: '&1Options: &2+%options%'
+  track_mode: '&1Mode: &2%mode%'
+  track_checkpoints: '&1Checkpoints:&2 %size%'
+  track_grids: '&1Grids:&2 %size%'
+  track_qualification_grids: '&1QualyGrids:&2c %size%'
+  track_reset_regions: '&1Reset regions:&2 %size%'
+  track_spawn_location: '&1Spawn:&2 %location%'
+  track_weight: "&1Weight:&2 %size%"
+  track_tags: "&1Tags:&2 %tags%"
+  player_stats_best_lap: "&1Best time: &2%time%"
+  player_stats_position: "&1Position: &2%pos%"
+  player_stats_finishes: "&1Finishes: &2%size%"
+  player_stats_attempts: "&1Attempts: &2%size%"
+  player_stats_time_spent: "&1Time spent: &2%size%"
+  updating_leaderboards: '&2Updating leaderboards.'
   time_trial_first_finish: '&aNew best time!&c You finished &a%track%&c in &a%time% &c(&a%pos%&c).'
   time_trial_new_record: '&aNew best time!&c You finished &a%track%&c in &a%time%&c. Your previous best was &a%oldTime% &c(&a%oldPos% &c->&a%pos%&c).'
-  time_trial_finish: '&2You finished &1%track%&2 in &1%time%&2. Your best is &1%oldTime%&2.'
-  time_trial_checkpoint: '&2You passed &1checkpoint %checkpoint%&2 in &1%time%&2.'
-  time_trial_lag_start: '&2You passed &1lagstart &2in &1%time%&2.'
-  time_trial_lag_end: '&2You passed &1lagend &2in &1%time%&2.'
+  time_trial_finish: '&1You finished &2%track%&1 in &2%time%&1. Your best is &2%oldTime%&1.'
+  time_trial_checkpoint: '&1You passed &2checkpoint %checkpoint%&1 in &2%time%&1.'
+  time_trial_lag_start: '&1You passed &2lagstart &1in &2%time%&1.'
+  time_trial_lag_end: '&1You passed &2lagend &1in &2%time%&1.'
 
 broadcast:
   click_to_sign: "&b--> Click to sign up for &l%event%&r&b <--"
   click_to_reserve: "&b--> Click to sign up as reserve for &l%event%&r&b <--"
   click_to_join_race: "&b--> Click to join a race on &l%track%&r&b (%laps% laps) <--"
   click_to_spectate_event: "&a--> Click to spectate &l%event%&r&a <--"
-  event_player_pit: '&1%player% &2completed pit: &1&l%pit%'
-  event_player_finish: '&1%player% &2finished &1&lP%position%&r&2 in &1%time%'
-  event_player_finish_basic: '&1%player% &2finished.'
-  event_player_finished_lap: '&2You finished lap in: &1%time%'
-  event_player_fastest_lap: '&1%player% &2set new fastest lap of &1%time%'
-  event_results: "&2Final results for &1%event%"
-  event_results_qualification: "&2Qualification results for &1%event%"
-  heat_results: "&2Results for &1%heat%"
+  event_player_pit: '&2%player% &1completed pit: &2&l%pit%'
+  event_player_finish: '&2%player% &1finished &2&lP%position%&r&1 in &2%time%'
+  event_player_finish_basic: '&2%player% &1finished.'
+  event_player_finished_lap: '&1You finished lap in: &2%time%'
+  event_player_fastest_lap: '&2%player% &1set new fastest lap of &2%time%'
+  event_results: "&1Final results for &2%event%"
+  event_results_qualification: "&1Qualification results for &2%event%"
+  heat_results: "&1Results for &2%heat%"
   heat_reset: "&eHeat Reset"
   heat_finish_title_pos: "&aYou finished P%pos%"
   heat_finish_title: "&aYou finished"
 
 actionbar:
-  race: '&2Lap: &1&l%laps%&2/&1%totalLaps%&r&2 |&1&l P%pos%&r&2 |&1&l %pits%&2/&1%totalPits%&r&2 Pits'
-  raceSpectator: '&1%name% > &2Lap: &1&l%laps%&2/&1%totalLaps%&r&2 |&1&l P%pos%&r&2 |&1&l %pits%&2/&1%totalPits%&r&2 Pits'
+  race: '&1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits'
+  raceSpectator: '&2%name% > &1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits'
 
 
 gui:
@@ -245,3 +245,39 @@ gui:
   medals_title: "&tMedals"
   filter_title: "&tFilters"
   ranked_title: "&tRanked"
+  best_time: "&1Your best time: &2%time%"
+  position: "&1Position: &2%pos%"
+  total_finishes: "&1Total finishes: &2%total%"
+  total_attempts: "&1Total attempts: &2%total%"
+  time_spent: "&1Time spent: &2%time%"
+  created_by: "&1Created by: &2%player%"
+  created_at: "&1Created at: &2%time%"
+  weight: "&1Weight: &2%weight%"
+  tags: "&1Tags: &2%tags%"
+  sorted_by_default: "&1Sorted by: &2Default"
+  sorted_by_position: "&1Sorted by: &2Position"
+  sorted_by_popularity: "&1Sorted by: &2Popularity"
+  sorted_by_time_spent: "&1Sorted by: &2Your time spent"
+  sorted_by_most_recent: "&1Sorted by: &2Most recent"
+  filter_by_none: "&1Filter by: &2None"
+  filter_by: "&1Filter by:"
+  previous_page: "&1Previous page"
+  next_page: "&1Next page"
+  change_track_type: "&1Change track type"
+  change_boat_type: "&1Change boat type"
+  change_team_color: "&1Change team color"
+  boat_tracks: "&1Boat tracks"
+  elytra_tracks: "&1Elytra tracks"
+  parkour_tracks: "&1Parkour tracks"
+  toggle_sound: "&1Toggle: &2Sound"
+  toggle_verbose: "&1Toggle: &2Verbose"
+  toggle_time_trial: "&1Toggle: &2Time trial"
+  toggle_override: "&1Toggle: &2Override"
+  toggle_medals: "&1Toggle medals"
+  color: "Color"
+  on: "&1On"
+  off: "&1Off"
+  return: "&1Return"
+
+
+

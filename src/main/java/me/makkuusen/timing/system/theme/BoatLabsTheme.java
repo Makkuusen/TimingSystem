@@ -15,9 +15,22 @@ public class BoatLabsTheme extends Theme {
     private TextColor success = TextColor.fromHexString("#7bf200");
     private TextColor broadcast = TextColor.fromHexString("#ff80ff");
     public TextColor title = TextColor.color(NamedTextColor.DARK_GRAY);
-    public TextColor button = TextColor.color(NamedTextColor.YELLOW);
+    public TextColor button = TextColor.fromHexString("#d91eff");
     public TextColor buttonRemove = TextColor.color(NamedTextColor.RED);
-    public TextColor buttonAdd = TextColor.color(NamedTextColor.GREEN);
+    public TextColor buttonAdd = TextColor.color(NamedTextColor.YELLOW);
 
-    public BoatLabsTheme() { }
+    public BoatLabsTheme() {
+        setPrimary(primary);
+        setSecondary(secondary);
+        setAward(award);
+        setAwardSecondary(awardSecondary);
+        setError(error);
+        setWarning(warning);
+        setSuccess(success);
+        setBroadcast(broadcast);
+        setTitle(title);
+        setButton(button);
+        setButtonRemove(buttonRemove);
+        setButtonAdd(buttonAdd);
+    }
 }

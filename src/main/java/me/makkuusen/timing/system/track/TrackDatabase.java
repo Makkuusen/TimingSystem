@@ -83,7 +83,10 @@ public class TrackDatabase {
     private static void loadTrackTags(Track rTrack) throws SQLException {
         var tags = DB.getResults("SELECT * FROM `ts_tracks_tags` WHERE `trackId` = " + rTrack.getId() + ";");
         for (DbRow tag : tags) {
-            rTrack.addTag(tag);
+            var trackTag = TrackTagManager.getTrackTag(tag.getString("tag"));
+            if (trackTag != null) {
+                rTrack.addTag(trackTag);
+            }
         }
 
     }
@@ -165,7 +168,7 @@ public class TrackDatabase {
     public static void loadTags() throws SQLException {
         var trackTags = DB.getResults("SELECT * FROM `ts_tags`");
         for (DbRow dbRow : trackTags) {
-            TrackTagManager.addTag(new TrackTag(dbRow.getString("tag")));
+            TrackTagManager.addTag(new TrackTag(dbRow));
         }
     }
 

@@ -16,18 +16,18 @@ import org.bukkit.entity.Player;
 @Getter
 @Setter
 public class Theme {
-    public TextColor primary = TextColor.color(NamedTextColor.GRAY); //7bf200 //gray
-    public TextColor secondary = TextColor.color(NamedTextColor.WHITE);
-    public TextColor award = TextColor.color(NamedTextColor.GOLD); //#ce00ce //gold
-    public TextColor awardSecondary = TextColor.color(NamedTextColor.YELLOW); //#ff80ff //yellow
-    public TextColor error = TextColor.color(NamedTextColor.RED); //#ff7a75 //red
-    public TextColor warning = TextColor.color(NamedTextColor.YELLOW);
-    public TextColor success = TextColor.color(NamedTextColor.GREEN); //7bf200 //green
-    public TextColor broadcast = TextColor.color(NamedTextColor.AQUA); //#ff80ff //Aqua
-    public TextColor title = TextColor.color(NamedTextColor.DARK_GRAY);
-    public TextColor button = TextColor.color(NamedTextColor.YELLOW);
-    public TextColor buttonRemove = TextColor.color(NamedTextColor.RED);
-    public TextColor buttonAdd = TextColor.color(NamedTextColor.GREEN);
+    private TextColor primary = TextColor.color(NamedTextColor.GRAY); //7bf200 //gray
+    private TextColor secondary = TextColor.color(NamedTextColor.WHITE);
+    private TextColor award = TextColor.color(NamedTextColor.GOLD); //#ce00ce //gold
+    private TextColor awardSecondary = TextColor.color(NamedTextColor.YELLOW); //#ff80ff //yellow
+    private TextColor error = TextColor.color(NamedTextColor.RED); //#ff7a75 //red
+    private TextColor warning = TextColor.color(NamedTextColor.YELLOW);
+    private TextColor success = TextColor.color(NamedTextColor.GREEN); //7bf200 //green
+    private TextColor broadcast = TextColor.color(NamedTextColor.AQUA); //#ff80ff //Aqua
+    private TextColor title = TextColor.color(NamedTextColor.DARK_GRAY);
+    private TextColor button = TextColor.color(NamedTextColor.YELLOW);
+    private TextColor buttonRemove = TextColor.color(NamedTextColor.RED);
+    private TextColor buttonAdd = TextColor.color(NamedTextColor.GREEN);
 
     // Potential buttons to use
     // [»] [≈] [+] [-] [√] [?] [≡] [±]
@@ -136,17 +136,17 @@ public class Theme {
     }
 
     public Component getParenthesized(String text) {
-        return Component.text("(").color(getPrimary()).append(Component.text(text).color(getSecondary()).append(Component.text(")")).color(getPrimary()));
+        return Component.text("(").color(getPrimary()).append(Component.text(text).color(getSecondary()).append(Component.text(")").color(getPrimary())));
     }
 
     public Component getBrackets(String text) {
-        return Component.text("[").color(getPrimary()).append(Component.text(text).color(getSecondary()).append(Component.text("]")).color(getPrimary()));
+        return Component.text("[").color(getPrimary()).append(Component.text(text).color(getSecondary()).append(Component.text("]").color(getPrimary())));
     }
 
     public Component getPageSelector(CommandSender sender, Integer pageStart, int pageEnd, String command) {
         var pageText = getSpacersStart();
         if (pageStart > 1) {
-            pageText = pageText.append(Component.text("<<< ").color(getPrimary()).clickEvent(ClickEvent.runCommand(command + " " + (pageStart - 1))));
+            pageText = pageText.append(Component.text("<<< ").color(getSecondary()).clickEvent(ClickEvent.runCommand(command + " " + (pageStart - 1))));
         }
 
         pageText = pageText.append(TimingSystem.getPlugin().getText(sender, Info.PAGE_CURRENT_OF_MAX, "%current%", String.valueOf(pageStart), "%max%", String.valueOf(pageEnd)));

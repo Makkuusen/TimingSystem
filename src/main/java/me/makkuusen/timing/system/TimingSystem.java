@@ -144,8 +144,8 @@ public class TimingSystem extends JavaPlugin {
                 TrackTag.class, TrackTagManager.getTrackTagContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("trackTag", context -> {
             List<String> res = new ArrayList<>();
-            for (TrackTag tag : TrackTagManager.getTrackTags()) {
-                res.add(tag.getValue().toLowerCase());
+            for (String tag : TrackTagManager.getTrackTags().keySet()) {
+                res.add(tag.toLowerCase());
             }
             return res;
         });
@@ -328,6 +328,19 @@ public class TimingSystem extends JavaPlugin {
         return getComponentWithColors(text, key, getTheme(sender));
     }
 
+    public Component getText(TPlayer tPlayer, Message key, String... replacements) {
+        var text = this.languageManager.getNewValue(key.getKey(), getLocale(tPlayer.getPlayer()), replacements);
+
+        if (text == null) {
+            return Component.empty();
+        }
+
+        if (!text.contains("&")) {
+            return Component.text(text);
+        }
+        return getComponentWithColors(text, key, tPlayer.getTheme());
+    }
+
     public Component getActionBarText(CommandSender sender, String message) {
         return getComponentWithColors(message, ActionBar.RACE,  getTheme(sender));
     }
@@ -356,8 +369,8 @@ public class TimingSystem extends JavaPlugin {
                 String option = string.substring(0, 1);
                 message = string.substring(1);
                 switch (option) {
-                    case "1" -> color = theme.getSecondary();
-                    case "2" -> color = theme.getPrimary();
+                    case "1" -> color = theme.getPrimary();
+                    case "2" -> color = theme.getSecondary();
                     case "s" -> color = theme.getSuccess();
                     case "w" -> color = theme.getWarning();
                     case "e" -> color = theme.getError();

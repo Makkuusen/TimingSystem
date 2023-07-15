@@ -7,6 +7,7 @@ import co.aikar.idb.PooledDatabaseOptions;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
@@ -356,6 +357,10 @@ public class Database {
         if (isNewerVersion(oldVersion, "1.3")) {
             v1_3Update();
         }
+
+        if (isNewerVersion(oldVersion, "1.6")) {
+            v1_6Update();
+        }
     }
 
     private static void rc9Update() {
@@ -400,6 +405,15 @@ public class Database {
         try {
             DB.executeUpdate("ALTER TABLE `ts_events` ADD `open` tinyint(1) NOT NULL DEFAULT '1' AFTER `state`;");
             DB.executeUpdate("UPDATE `ts_regions` SET `regionIndex` = 1 WHERE `regionType` = 'START' OR `regionType` = 'END' OR `regionType` = 'PIT';");
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private static void v1_6Update() {
+        try {
+            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff' AFTER `tag`;");
+            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"' AFTER `color`;");
         } catch (Exception exception) {
             exception.printStackTrace();
         }

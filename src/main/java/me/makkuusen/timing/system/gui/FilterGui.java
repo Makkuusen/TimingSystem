@@ -20,7 +20,7 @@ public class FilterGui extends BaseGui{
 
     public void setButtons() {
         setFilterOptions();
-        GuiButton save = new GuiButton(GuiCommon.goBack);
+        GuiButton save = new GuiButton(new ItemBuilder(Material.ARROW).setName(TimingSystem.getPlugin().getText(oldTrackPage.tPlayer, Gui.RETURN)).build());
         save.setAction(() -> {
             TrackPageGui.openNewTrackPage(oldTrackPage, oldTrackPage.tPlayer, oldTrackPage.title, oldTrackPage.page, oldTrackPage.trackSort, filter, oldTrackPage.trackType);
         });
@@ -30,13 +30,13 @@ public class FilterGui extends BaseGui{
     public void setFilterOptions() {
 
         int count = 0;
-        for (TrackTag tag : TrackTagManager.getTrackTags()) {
+        for (TrackTag tag : TrackTagManager.getTrackTags().values()) {
             if (count > 8) {
                 break;
             }
 
-            setItem(filter.getTags().contains(tag) ? GuiCommon.getStatusOnButton() : GuiCommon.getStatusOffButton(), count);
-            var button = new GuiButton(new ItemBuilder(Material.ANVIL).setName(tag.getValue()).build());
+            setItem(filter.getTags().contains(tag) ? GuiCommon.getStatusOnButton(oldTrackPage.tPlayer) : GuiCommon.getStatusOffButton(oldTrackPage.tPlayer), count);
+            var button = new GuiButton(tag.getItem());
             int finalCount = count;
             button.setAction(() -> {
                 if (filter.getTags().contains(tag)) {
@@ -44,7 +44,7 @@ public class FilterGui extends BaseGui{
                 } else {
                     filter.addTag(tag);
                 }
-                setItem(filter.getTags().contains(tag) ? GuiCommon.getStatusOnButton() : GuiCommon.getStatusOffButton(), finalCount);
+                setItem(filter.getTags().contains(tag) ? GuiCommon.getStatusOnButton(oldTrackPage.tPlayer) : GuiCommon.getStatusOffButton(oldTrackPage.tPlayer), finalCount);
             });
             setItem(button, count + 9);
             count++;

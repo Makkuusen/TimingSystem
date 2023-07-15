@@ -10,6 +10,7 @@ import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -32,7 +33,7 @@ public class TrackGui extends TrackPageGui {
 
     @Override
     public GuiButton getTrackButton(Player player, Track track) {
-        var item = setTrackLore(track, track.getGuiItem(player.getUniqueId()));
+        var item = setTrackLore(player, track, track.getGuiItem(player.getUniqueId()));
         var button = new GuiButton(item);
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {
@@ -45,24 +46,28 @@ public class TrackGui extends TrackPageGui {
         return button;
     }
 
-    private ItemStack setTrackLore(Track track, ItemStack toReturn) {
+    private ItemStack setTrackLore(Player player, Track track, ItemStack toReturn) {
         List<Component> loreToSet = new ArrayList<>();
-        loreToSet.add(Component.text("§7Total Finishes: §e" + track.getTotalFinishes()));
-        loreToSet.add(Component.text("§7Total Attempts: §e" + (track.getTotalFinishes() + track.getTotalAttempts())));
-        loreToSet.add(Component.text("§7Time Spent: §e" + ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
-        loreToSet.add(Component.text("§7Created by: §e" + track.getOwner().getName()));
-        loreToSet.add(Component.text("§7Created at: §e" + ApiUtilities.niceDate(track.getDateCreated())));
-        loreToSet.add(Component.text("§7Weight: §e" + track.getWeight()));
+        loreToSet.add(plugin.getText(player, Gui.TOTAL_FINISHES, "%total%", String.valueOf(track.getTotalFinishes())));
+        loreToSet.add(plugin.getText(player, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(track.getTotalFinishes() + track.getTotalAttempts())));
+        loreToSet.add(plugin.getText(player, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
+        loreToSet.add(plugin.getText(player, Gui.CREATED_BY, "%player%", track.getOwner().getName()));
+        loreToSet.add(plugin.getText(player, Gui.CREATED_AT, "%time%", ApiUtilities.niceDate(track.getDateCreated())));
+        loreToSet.add(plugin.getText(player, Gui.WEIGHT, "%weight%", String.valueOf(track.getWeight())));
 
         List<String> tagList = new ArrayList<>();
         for (TrackTag tag : track.getTags()) {
             tagList.add(tag.getValue());
         }
         String tags = String.join(", ", tagList);
-        loreToSet.add(Component.text("§7Tags: §e" + tags));
+        loreToSet.add(plugin.getText(player, Gui.TAGS, "%tags%", tags));
 
         ItemMeta im = toReturn.getItemMeta();
         im.lore(loreToSet);
+        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        im.addItemFlags(ItemFlag.HIDE_ITEM_SPECIFICS);
+        im.addItemFlags(ItemFlag.HIDE_DYE);
+        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         toReturn.setItemMeta(im);
         return toReturn;
     }

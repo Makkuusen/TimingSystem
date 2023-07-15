@@ -7,14 +7,17 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
-import me.makkuusen.timing.system.theme.messages.Error;
-import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Success;
+import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +40,34 @@ public class CommandTimingSystem extends BaseCommand {
         }
 
         plugin.sendMessage(commandSender, Error.FAILED_TO_CREATE_TAG);
+    }
+
+    @Subcommand("tag color")
+    @CommandCompletion("@trackTag <hexcolorcode>")
+    public void onSetTagColor(CommandSender commandSender, TrackTag tag, String color) {
+        if (!color.startsWith("#")) {
+            color = "#" + color;
+        }
+        if (TextColor.fromHexString(color) == null) {
+            plugin.sendMessage(commandSender, Error.COLOR_FORMAT);
+            return;
+        }
+
+        tag.setColor(Objects.requireNonNull(TextColor.fromHexString(color)));
+        plugin.sendMessage(commandSender, Success.SAVED);
+
+    }
+
+    @Subcommand("tag item")
+    @CommandCompletion("@trackTag")
+    public void onSetTagItem(Player player, TrackTag tag) {
+        var item = player.getInventory().getItemInMainHand();
+        if (item.getItemMeta() == null) {
+            plugin.sendMessage(player, Error.ITEM_NOT_FOUND);
+            return;
+        }
+        tag.setItem(item);
+        plugin.sendMessage(player, Success.SAVED);
     }
 
     @Subcommand("hexcolor")

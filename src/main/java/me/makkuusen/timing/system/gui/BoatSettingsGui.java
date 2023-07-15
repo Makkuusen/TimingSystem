@@ -25,7 +25,7 @@ public class BoatSettingsGui extends BaseGui {
     }
 
     private GuiButton getBoatTypeButton(TPlayer tPlayer, Material boatType) {
-        var button = new GuiButton(new ItemBuilder(boatType).setName("§eBoat").build());
+        var button = new GuiButton(new ItemBuilder(boatType).build());
         button.setAction(() -> {
             tPlayer.setBoat(ApiUtilities.getBoatType(boatType));
             tPlayer.setChestBoat(ApiUtilities.isChestBoat(boatType));

@@ -136,7 +136,7 @@ public class CommandTrack extends BaseCommand {
             String name = rg[0];
             String index = rg[1];
 
-            var trackRegion = getRegion(track, name, index);
+            var trackRegion = getRegion(track, name.toUpperCase(), index);
 
             if (trackRegion != null) {
                 player.teleport(trackRegion.getSpawnLocation());
