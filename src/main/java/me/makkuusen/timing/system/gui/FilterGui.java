@@ -22,7 +22,9 @@ public class FilterGui extends BaseGui{
         setFilterOptions();
         GuiButton save = new GuiButton(new ItemBuilder(Material.ARROW).setName(TimingSystem.getPlugin().getText(oldTrackPage.tPlayer, Gui.RETURN)).build());
         save.setAction(() -> {
-            TrackPageGui.openNewTrackPage(oldTrackPage, oldTrackPage.tPlayer, oldTrackPage.title, oldTrackPage.page, oldTrackPage.trackSort, filter, oldTrackPage.trackType);
+            GuiCommon.playConfirm(oldTrackPage.tPlayer);
+            oldTrackPage.tPlayer.setFilter(filter);
+            TrackPageGui.openNewTrackPage(oldTrackPage, oldTrackPage.tPlayer, oldTrackPage.title);
         });
         setItem(save, 26);
     }
@@ -39,6 +41,7 @@ public class FilterGui extends BaseGui{
             var button = new GuiButton(tag.getItem());
             int finalCount = count;
             button.setAction(() -> {
+                GuiCommon.playConfirm(oldTrackPage.tPlayer);
                 if (filter.getTags().contains(tag)) {
                     filter.removeTag(tag);
                 } else {

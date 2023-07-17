@@ -12,6 +12,7 @@ import java.util.UUID;
 public class TimeTrialController {
 
     public static HashMap<UUID, TimeTrial> timeTrials = new HashMap<>();
+    public static HashMap<UUID, Long> elytraProtection = new HashMap<>();
     public static HashMap<UUID, TimeTrialSession> timeTrialSessions = new HashMap<>();
 
     public static void playerLeavingMap(UUID uuid) {

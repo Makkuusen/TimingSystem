@@ -43,6 +43,15 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder setCustomModelData(int value) {
+        if (item.getType().toString().toLowerCase().contains("leather")) {
+            leatherMeta.setCustomModelData(value);
+        } else {
+            itemMeta.setCustomModelData(value);
+        }
+        return this;
+    }
+
 
     public ItemStack build() {
 

@@ -294,6 +294,28 @@ public class TSListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerMoveEventRemoveElytra(PlayerMoveEvent e) {
+
+        if (!TimeTrialController.timeTrials.containsKey(e.getPlayer().getUniqueId())) {
+            Player player = e.getPlayer();
+            if (player.getInventory().getChestplate() == null || !player.getInventory().getChestplate().getItemMeta().hasCustomModelData()) {
+                return;
+            }
+            var elytra = player.getInventory().getChestplate();
+            if (!player.isGliding() && elytra.getItemMeta().getCustomModelData() == 747) {
+                if (TimeTrialController.elytraProtection.get(player.getUniqueId()) != null) {
+                    if (TimingSystem.currentTime.getEpochSecond() > TimeTrialController.elytraProtection.get(player.getUniqueId())) {
+                        player.getInventory().setChestplate(null);
+                        TimeTrialController.elytraProtection.remove(player.getUniqueId());
+                    }
+                } else {
+                    player.getInventory().setChestplate(null);
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         Player player = e.getPlayer();
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
@@ -390,6 +412,7 @@ public class TSListener implements Listener {
                     if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
                         TimeTrial timeTrial = new TimeTrial(track_, tPlayer);
                         timeTrial.playerStartingMap();
+                        TimeTrialController.elytraProtection.remove(player.getUniqueId());
                         if (track_.hasOption('i') && !ApiUtilities.hasBoatUtilsIEffect(player)) {
                             ApiUtilities.giveBoatUtilsIEffect(player);
                         }

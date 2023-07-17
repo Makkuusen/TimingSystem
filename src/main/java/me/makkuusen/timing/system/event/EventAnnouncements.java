@@ -80,7 +80,7 @@ public class EventAnnouncements {
                 int pos = 1;
                 for (Driver d : drivers) {
                     if (d.isFinished()) {
-                        player.sendMessage(plugin.getText(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName() + "&1 - &2" + d.getLaps().size() + " &1laps in &2" + ApiUtilities.formatAsTime(d.getFinishTime())));
+                        plugin.sendMessage(player, Broadcast.HEAT_RESULT_ROW, "%pos%", String.valueOf(pos++), "%player%", d.getTPlayer().getName(), "%laps%", String.valueOf(d.getLaps().size()), "%time%", ApiUtilities.formatAsTime(d.getFinishTime()));
                     } else {
                         player.sendMessage(plugin.getText(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName()));
                     }
@@ -99,7 +99,7 @@ public class EventAnnouncements {
                     if (heat.getRound() instanceof QualificationRound) {
                         player.sendMessage(plugin.getText(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName() + "&1 - &2" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
                     } else {
-                        player.sendMessage(plugin.getText(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName() + "&1 - &2" + d.getLaps().size() + " &1laps in &2" + ApiUtilities.formatAsTime(d.getFinishTime())));
+                        plugin.sendMessage(player, Broadcast.HEAT_RESULT_ROW, "%pos%", String.valueOf(pos++), "%player%", d.getTPlayer().getName(), "%laps%", String.valueOf(d.getLaps().size()), "%time%", ApiUtilities.formatAsTime(d.getFinishTime()));
                     }
                 }
             }
@@ -130,6 +130,28 @@ public class EventAnnouncements {
                 player.showTitle(title);
             }
 
+        }
+    }
+
+    public static void broadcastPlayerSigned(String name, Event event) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            // Only send to admins that have the event selected.
+            EventDatabase.getPlayerSelectedEvent(p.getUniqueId()).ifPresent(e -> {
+                if (e.getId() == event.getId() && p.hasPermission("event.admin")) {
+                    plugin.sendMessage(p, Broadcast.PLAYER_SIGNED_EVENT, "%player%", name);
+                }
+            });
+        }
+    }
+
+    public static void broadcastPlayerSignedReserve(String name, Event event) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            // Only send to admins that have the event selected.
+            EventDatabase.getPlayerSelectedEvent(p.getUniqueId()).ifPresent(e -> {
+                if (e.getId() == event.getId() && p.hasPermission("event.admin")) {
+                    plugin.sendMessage(p, Broadcast.PLAYER_RESERVE_EVENT, "%player%", name);
+                }
+            });
         }
     }
 

@@ -10,10 +10,13 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -31,6 +34,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -342,6 +346,24 @@ public class ApiUtilities {
         return toReturn;
     }
 
+    public static String formatAsPersonalGap(long time) {
+        String toReturn;
+        long timeInMillis = getRoundedToTick(time);
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
+        String millis = String.format("%02d", (timeInMillis % 1000) / 10);
+
+        if (hours == 0 && minutes == 0) {
+            toReturn = String.format("%d", seconds) + "." + millis;
+        } else if (hours == 0) {
+            toReturn = String.format("%d:%02d", minutes, seconds) + "." + millis;
+        } else {
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
+        }
+        return toReturn;
+    }
+
     public static Boat spawnBoat(Location location, Boat.Type type, boolean isChestBoat) {
         if (!location.isWorldLoaded()) {
             return null;
@@ -481,7 +503,6 @@ public class ApiUtilities {
 
         BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
         Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
-
         if (track.hasOption('r')) {
             ApiUtilities.giveBoatUtilsREffect(player);
         }
@@ -505,7 +526,20 @@ public class ApiUtilities {
         player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         if (track.isBoatTrack()) {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track), 3);
+        } else if (track.isElytraTrack()) {
+
+            ItemStack chest = player.getInventory().getChestplate();
+            if (chest == null) {
+                giveElytra(player);
+            } else if (chest.getItemMeta().hasCustomModelData() && chest.getType() == Material.ELYTRA && chest.getItemMeta().getCustomModelData() == 747) {
+                giveElytra(player);
+            }
         }
+    }
+
+    private static void giveElytra(Player player) {
+        player.getInventory().setChestplate(new ItemBuilder(Material.ELYTRA).setCustomModelData(747).setName(Component.text("Disposable wings").color(NamedTextColor.RED)).build());
+        TimeTrialController.elytraProtection.put(player.getUniqueId(), Instant.now().getEpochSecond() + 10);
     }
 
     public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location, PlayerTeleportEvent.TeleportCause teleportCause) {
@@ -513,6 +547,11 @@ public class ApiUtilities {
         player.teleport(location, teleportCause);
         if (track.isBoatTrack()) {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track), 3);
+        } else if (track.isElytraTrack()) {
+            if (player.getInventory().getChestplate() == null) {
+                player.getInventory().setChestplate(new ItemBuilder(Material.ELYTRA).setCustomModelData(747).setName(Component.text("Disposable wings").color(NamedTextColor.RED)).build());
+                TimeTrialController.elytraProtection.put(player.getUniqueId(), Instant.now().getEpochSecond() + 10);
+            }
         }
     }
 

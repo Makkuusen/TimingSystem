@@ -14,12 +14,12 @@ import java.util.List;
 
 public class TimeTrialGui extends TrackPageGui {
 
-    public TimeTrialGui(TPlayer tPlayer, int page) {
-        super(tPlayer, TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE), page);
+    public TimeTrialGui(TPlayer tPlayer) {
+        super(tPlayer, TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE));
     }
 
-    public TimeTrialGui(TPlayer tPlayer, Component title, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {
-        super(tPlayer, title, page, trackSort, filter, trackType);
+    public TimeTrialGui(TPlayer tPlayer, Component title) {
+        super(tPlayer, title);
     }
 
     public List<Track> getTracks() {

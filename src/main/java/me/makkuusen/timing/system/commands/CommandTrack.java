@@ -20,6 +20,7 @@ import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.theme.messages.Warning;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -114,7 +115,7 @@ public class CommandTrack extends BaseCommand {
     @Default
     @CommandPermission("track.admin")
     public static void onTrack(Player player) {
-        new TrackGui(Database.getPlayer(player.getUniqueId()), 0).show(player);
+        new TrackGui(Database.getPlayer(player.getUniqueId())).show(player);
     }
 
     @Subcommand("tp")
@@ -281,12 +282,16 @@ public class CommandTrack extends BaseCommand {
         plugin.sendMessage(commandSender, Info.TRACK_SPAWN_LOCATION, "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
 
         plugin.sendMessage(commandSender, Info.TRACK_WEIGHT, "%size%", String.valueOf(track.getWeight()));
-        List<String> tagList = new ArrayList<>();
+        Component tags = Component.empty();
+        boolean notFirst = false;
         for (TrackTag tag : track.getTags()) {
-            tagList.add(tag.getValue());
+            if (notFirst) {
+                tags = tags.append(Component.text(", ").color(Theme.getTheme(commandSender).getSecondary()));
+            }
+            tags = tags.append(Component.text(tag.getValue()).color(tag.getColor()));
+            notFirst = true;
         }
-        String tags = String.join(", ", tagList);
-        plugin.sendMessage(commandSender, Info.TRACK_TAGS, "%tags%", tags);
+        commandSender.sendMessage(plugin.getText(commandSender, Info.TRACK_TAGS).append(tags));
     }
 
     @Subcommand("regions")
@@ -553,7 +558,7 @@ public class CommandTrack extends BaseCommand {
     @Subcommand("reload")
     @CommandPermission("track.admin")
     public static void onReload(CommandSender commandSender) {
-        commandSender.sendMessage("§cYou are doing this on your own risk, everything might break!");
+        plugin.sendMessage(commandSender, Warning.DANGEROUS_COMMAND);
         Database.reload();
     }
 

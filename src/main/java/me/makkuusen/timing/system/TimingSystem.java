@@ -341,6 +341,10 @@ public class TimingSystem extends JavaPlugin {
         return getComponentWithColors(text, key, tPlayer.getTheme());
     }
 
+    public Component getTextNoColor(CommandSender player, Message key) {
+        return Component.text(this.languageManager.getNewValue(key.getKey(), getLocale(player)));
+    }
+
     public Component getActionBarText(CommandSender sender, String message) {
         return getComponentWithColors(message, ActionBar.RACE,  getTheme(sender));
     }
@@ -375,8 +379,8 @@ public class TimingSystem extends JavaPlugin {
                     case "w" -> color = theme.getWarning();
                     case "e" -> color = theme.getError();
                     case "b" -> color = theme.getBroadcast();
-                    case "a" -> color = theme.getAwardSecondary();
-                    case "c" -> color = theme.getAward();
+                    case "a" -> color = theme.getAward();
+                    case "c" -> color = theme.getAwardSecondary();
                     case "t" -> color = theme.getTitle();
                     case "o" -> decorations.add(TextDecoration.ITALIC);
                     case "l" -> decorations.add(TextDecoration.BOLD);

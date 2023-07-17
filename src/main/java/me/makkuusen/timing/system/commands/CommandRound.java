@@ -21,6 +21,7 @@ import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
+import me.makkuusen.timing.system.theme.messages.Broadcast;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -54,7 +55,7 @@ public class CommandRound extends BaseCommand {
             }
         }
         Theme theme = Database.getPlayer(player).getTheme();
-        plugin.sendMessage(player, Info.ROUNDS_TITLE);
+        plugin.sendMessage(player, Info.ROUNDS_TITLE, "%event%", event.getDisplayName());
         event.eventSchedule.listRounds(theme).forEach(player::sendMessage);
     }
 
@@ -102,19 +103,19 @@ public class CommandRound extends BaseCommand {
     @CommandCompletion("@round")
     public static void onRoundInfo(Player player, Round round) {
         Theme theme = Database.getPlayer(player).getTheme();
-        player.sendMessage("");
-        player.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(round.getState().name())))).append(Component.space()).append(Component.text("[View Event]").color(theme.getButton()).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent())));
+        player.sendMessage(Component.space());
+        player.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(round.getState().name())))).append(Component.space()).append(theme.getBrackets(plugin.getTextNoColor(player, Info.VIEW_EVENT), theme.getButton()).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent(player))));
 
-        var heatsMessage = Component.text("Heats:").color(theme.getPrimary());
+        var heatsMessage = plugin.getText(player, Info.ROUND_INFO_HEATS);
 
         if (player.hasPermission("event.admin")) {
-            heatsMessage.append(theme.tab()).append(theme.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent()));
+            heatsMessage.append(theme.tab()).append(theme.getAddButton(plugin.getText(player, Info.ADD_HEAT)).clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent(player)));
         }
         player.sendMessage(heatsMessage);
 
         for (Heat heat : round.getHeats()) {
 
-            var message = theme.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(theme.tab()).append(theme.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(theme.getClickToViewHoverEvent()));
+            var message = theme.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(theme.tab()).append(theme.getViewButton(player).clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(theme.getClickToViewHoverEvent(player)));
 
             if (player.hasPermission("event.admin")) {
                 message = message.append(Component.space()).append(theme.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
@@ -160,11 +161,11 @@ public class CommandRound extends BaseCommand {
 
         if (results.size() != 0) {
             Theme theme = Database.getPlayer(player).getTheme();
-            plugin.sendMessage(player, Info.ROUND_RESULT_TITLE, "%round%", round.getDisplayName());
+            plugin.sendMessage(player, Info.ROUND_RESULT_TITLE, "%round%", String.valueOf(round.getRoundIndex()));
             int pos = 1;
             if (round instanceof FinalRound) {
                 for (Driver d : results) {
-                    player.sendMessage(theme.primary(pos++ + ".").append(Component.space()).append(theme.highlight(d.getTPlayer().getName())).append(theme.hyphen()).append(theme.highlight(String.valueOf(d.getLaps().size()))).append(theme.primary("laps in")).append(Component.space()).append(theme.highlight(ApiUtilities.formatAsTime(d.getFinishTime()))));
+                    plugin.sendMessage(player, Broadcast.HEAT_RESULT_ROW, "%pos%", String.valueOf(d.getPosition() ), "%player%", d.getTPlayer().getName(), "%laps%", String.valueOf(d.getLaps().size()), "%time%", ApiUtilities.formatAsTime(d.getFinishTime()));
                 }
             } else {
                 for (Driver d : results) {

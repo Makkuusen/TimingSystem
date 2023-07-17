@@ -43,6 +43,12 @@ public class Tasks {
     public void startPlayerTimer(TimingSystem plugin) {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
+
+                if (TimeTrialController.elytraProtection.get(p.getUniqueId()) != null && TimeTrialController.elytraProtection.get(p.getUniqueId()) >= TimingSystem.currentTime.getEpochSecond()) {
+                    String elytraCountdown = String.valueOf(TimeTrialController.elytraProtection.get(p.getUniqueId()) - TimingSystem.currentTime.getEpochSecond());
+                    p.sendActionBar(Component.text(elytraCountdown).color(Database.getPlayer(p).getTheme().getWarning()));
+                }
+
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
                     TimeTrial timeTrial = TimeTrialController.timeTrials.get(p.getUniqueId());
                     long mapTime = timeTrial.getCurrentTime();

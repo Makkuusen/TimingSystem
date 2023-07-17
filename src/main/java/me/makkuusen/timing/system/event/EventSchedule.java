@@ -89,9 +89,8 @@ public class EventSchedule {
     }
 
 
-    public List<Component> getHeatList(Event event, Theme theme) {
+    public List<Component> getHeatList(Theme theme) {
         List<Component> message = new ArrayList<>();
-        message.add(theme.getTitleLine("Heats for", event.getDisplayName()));
         message.addAll(listHeats(theme));
         return message;
     }

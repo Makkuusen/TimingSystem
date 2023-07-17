@@ -26,7 +26,7 @@ public class SettingsGui extends BaseGui {
     }
 
     public static GuiButton getVerboseButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.JUKEBOX).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_VERBOSE)).build());
+        var button = new GuiButton(new ItemBuilder(Material.GOAT_HORN).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_VERBOSE)).build());
         button.setAction(() -> {
             tPlayer.toggleVerbose();
             GuiCommon.playConfirm(tPlayer);
@@ -36,7 +36,7 @@ public class SettingsGui extends BaseGui {
     }
 
     public static GuiButton getTimeTrialButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.JUKEBOX).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_TIME_TRIAL)).build());
+        var button = new GuiButton(new ItemBuilder(Material.BARRIER).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_TIME_TRIAL)).build());
         button.setAction(() -> {
             tPlayer.toggleTimeTrial();
             GuiCommon.playConfirm(tPlayer);
@@ -46,7 +46,7 @@ public class SettingsGui extends BaseGui {
     }
 
     public static GuiButton getOverrideButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.JUKEBOX).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_OVERRIDE)).build());
+        var button = new GuiButton(new ItemBuilder(Material.IRON_DOOR).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_OVERRIDE)).build());
         button.setAction(() -> {
             tPlayer.toggleOverride();
             GuiCommon.playConfirm(tPlayer);

@@ -26,9 +26,9 @@ public abstract class TrackPageGui extends BaseGui {
     public Integer maxPages = 1;
     public Integer TRACKS_PER_PAGE = 45;
     public TPlayer tPlayer;
-    public Track.TrackType trackType = Track.TrackType.BOAT;
-    public TrackSort trackSort = TrackSort.WEIGHT;
-    public TrackFilter filter = new TrackFilter();
+    public Track.TrackType trackType;
+    public TrackSort trackSort;
+    public TrackFilter filter;
 
     public Comparator<Track> compareTrackPosition = (k1, k2) -> {
         if (k1.getPlayerTopListPosition(tPlayer) == -1 && k2.getPlayerTopListPosition(tPlayer) > 0) {
@@ -39,20 +39,13 @@ public abstract class TrackPageGui extends BaseGui {
         return k1.getPlayerTopListPosition(tPlayer).compareTo(k2.getPlayerTopListPosition(tPlayer));
     };
 
-    public TrackPageGui(TPlayer tPlayer, Component title, int page) {
+    public TrackPageGui(TPlayer tPlayer, Component title) {
         super(title, 6);
         this.tPlayer = tPlayer;
-        this.page = page;
-        update();
-    }
-
-    public TrackPageGui(TPlayer tPlayer, Component title, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {
-        super(title, 6);
-        this.trackSort = trackSort;
-        this.filter = filter;
-        this.tPlayer = tPlayer;
-        this.page = page;
-        this.trackType = trackType;
+        this.page = tPlayer.getTrackPage() == null ? 0 : tPlayer.getTrackPage();
+        this.filter = tPlayer.getFilter() == null ? new TrackFilter() : tPlayer.getFilter();
+        this.trackSort = tPlayer.getTrackSort() == null ? TrackSort.WEIGHT : tPlayer.getTrackSort();
+        this.trackType = tPlayer.getTrackType() == null ? Track.TrackType.BOAT : tPlayer.getTrackType();
         update();
     }
 
@@ -66,6 +59,7 @@ public abstract class TrackPageGui extends BaseGui {
         setNavigationItems();
         setSortingItem();
         setFilterItems();
+        setResetItem();
     }
 
     public void clearNavRow() {
@@ -103,7 +97,8 @@ public abstract class TrackPageGui extends BaseGui {
             GuiCommon.playConfirm(tPlayer);
             clearNavRow();
             setSortingItems();
-            show(tPlayer.getPlayer());
+            tPlayer.setOpenGui(this);
+            tPlayer.getPlayer().openInventory(getInventory());
         });
         setItem(button, SORT_SLOT);
     }
@@ -140,7 +135,8 @@ public abstract class TrackPageGui extends BaseGui {
         var button = new GuiButton(item);
         button.setAction(() -> {
             GuiCommon.playConfirm(tPlayer);
-            openNewTrackPage(this, tPlayer, title, page, trackSort, filter, trackType);
+            tPlayer.setTrackSort(trackSort);
+            openNewTrackPage(this, tPlayer, title);
         });
         return button;
     }
@@ -172,6 +168,19 @@ public abstract class TrackPageGui extends BaseGui {
         }
     }
 
+    private void setResetItem() {
+        var resetButton = new GuiButton(new ItemBuilder(Material.BARRIER).setName(plugin.getText(tPlayer, Gui.RESET)).build());
+        resetButton.setAction(() -> {
+            GuiCommon.playConfirm(tPlayer);
+            tPlayer.setTrackPage(null);
+            tPlayer.setFilter(null);
+            tPlayer.setTrackSort(null);
+            tPlayer.setTrackType(null);
+            openNewTrackPage(this, tPlayer, title);
+        });
+        setItem(resetButton,53);
+    }
+
     private void setTrackButtons() {
         List<Track> tempTracks = getTracks();
 
@@ -186,6 +195,10 @@ public abstract class TrackPageGui extends BaseGui {
         }
 
         maxPages = tempTracks.size() % TRACKS_PER_PAGE != 0 ? tempTracks.size() / TRACKS_PER_PAGE + 1 : tempTracks.size() / TRACKS_PER_PAGE;
+        if (maxPages < page) {
+            page = maxPages;
+            tPlayer.setTrackPage(maxPages);
+        }
         sortTracks(tempTracks);
         int start = TRACKS_PER_PAGE * page;
 
@@ -199,7 +212,9 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getPageButton(ItemStack item, int newPage) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            openNewTrackPage(this, tPlayer, title, newPage, trackSort, filter, trackType);
+            GuiCommon.playConfirm(tPlayer);
+            tPlayer.setTrackPage(newPage);
+            openNewTrackPage(this, tPlayer, title);
         });
         return button;
     }
@@ -246,19 +261,25 @@ public abstract class TrackPageGui extends BaseGui {
     public void setTrackTypeButtons() {
         var boatButton = new GuiButton(new ItemBuilder(Material.OAK_BOAT).setName(plugin.getText(tPlayer, Gui.BOAT_TRACKS)).build());
         boatButton.setAction(() -> {
-            openNewTrackPage(this, tPlayer, title, 0, trackSort, filter, Track.TrackType.BOAT);
+            GuiCommon.playConfirm(tPlayer);
+            tPlayer.setTrackType(Track.TrackType.BOAT);
+            openNewTrackPage(this, tPlayer, title);
         });
         setItem(boatButton,48);
 
         var elytraButton = new GuiButton(new ItemBuilder(Material.ELYTRA).setName(plugin.getText(tPlayer, Gui.ELYTRA_TRACKS)).build());
         elytraButton.setAction(() -> {
-            openNewTrackPage(this, tPlayer, title, 0, trackSort, filter, Track.TrackType.ELYTRA);
+            GuiCommon.playConfirm(tPlayer);
+            tPlayer.setTrackType(Track.TrackType.ELYTRA);
+            openNewTrackPage(this, tPlayer, title);
         });
         setItem(elytraButton,49);
 
         var parkourButton = new GuiButton(new ItemBuilder(Material.BIG_DRIPLEAF).setName(plugin.getText(tPlayer, Gui.PARKOUR_TRACKS)).build());
         parkourButton.setAction(() -> {
-            openNewTrackPage(this, tPlayer, title, 0, trackSort, filter, Track.TrackType.PARKOUR);
+            GuiCommon.playConfirm(tPlayer);
+            tPlayer.setTrackType(Track.TrackType.PARKOUR);
+            openNewTrackPage(this, tPlayer, title);
         });
         setItem(parkourButton,50);
     }
@@ -269,17 +290,17 @@ public abstract class TrackPageGui extends BaseGui {
             GuiCommon.playConfirm(tPlayer);
             clearNavRow();
             setTrackTypeButtons();
-            show(tPlayer.getPlayer());
+            tPlayer.getPlayer().openInventory(getInventory());
         });
         return button;
     }
 
-    public static void openNewTrackPage(TrackPageGui gui, TPlayer tPlayer, Component title, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {
+    public static void openNewTrackPage(TrackPageGui gui, TPlayer tPlayer, Component title) {
         var constructors = gui.getClass().getDeclaredConstructors();
         for (var construct : constructors) {
-            if (construct.getParameterCount() == 6) {
+            if (construct.getParameterCount() == 2) {
                 try {
-                    var instance = (TrackPageGui) construct.newInstance(tPlayer, title, page, trackSort, filter, trackType);
+                    var instance = (TrackPageGui) construct.newInstance(tPlayer, title);
                     instance.show(tPlayer.getPlayer());
                 } catch (Exception e) {
                     //sadge

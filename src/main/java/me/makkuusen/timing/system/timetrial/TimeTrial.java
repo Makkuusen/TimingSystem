@@ -174,7 +174,7 @@ public class TimeTrial {
             plugin.sendMessage(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%oldTime%", ApiUtilities.formatAsTime(oldTime), "%oldPos%", oldPos.toString(), "%pos%", track.getPlayerTopListPosition(tPlayer).toString());
         } else {
             callTimeTrialFinishEvent(player, timeTrialTime, track.getBestFinish(tPlayer).getTime(), false);
-            plugin.sendMessage(player, Info.TIME_TRIAL_FINISH, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
+            plugin.sendMessage(player, Info.TIME_TRIAL_FINISH, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%oldTime%", ApiUtilities.formatAsPersonalGap(timeTrialTime - track.getBestFinish(tPlayer).getTime()));
         }
 
         ApiUtilities.msgConsole(player.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrialTime));
@@ -258,7 +258,7 @@ public class TimeTrial {
             plugin.sendMessage(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%oldTime%", ApiUtilities.formatAsTime(oldTime), "%oldPos%", oldPos.toString(), "%pos%", track.getPlayerTopListPosition(tPlayer).toString());
         } else {
             callTimeTrialFinishEvent(player, timeTrialTime, track.getBestFinish(tPlayer).getTime(), false);
-            plugin.sendMessage(player, Info.TIME_TRIAL_FINISH, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%oldTime%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
+            plugin.sendMessage(player, Info.TIME_TRIAL_FINISH, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%oldTime%", ApiUtilities.formatAsPersonalGap(timeTrialTime - track.getBestFinish(tPlayer).getTime()));
         }
 
         TimeTrialController.timeTrials.remove(player.getUniqueId());

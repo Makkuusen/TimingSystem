@@ -19,12 +19,12 @@ import java.util.List;
 
 public class TrackGui extends TrackPageGui {
 
-    public TrackGui(TPlayer tPlayer, int page) {
-        super(tPlayer, TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE), page);
+    public TrackGui(TPlayer tPlayer) {
+        super(tPlayer, TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE));
     }
 
-    public TrackGui(TPlayer tPlayer, Component title, int page, TrackSort trackSort, TrackFilter filter, Track.TrackType trackType) {
-        super(tPlayer, title, page, trackSort, filter, trackType);
+    public TrackGui(TPlayer tPlayer, Component title) {
+        super(tPlayer, title);
     }
 
     public List<Track> getTracks() {
@@ -55,13 +55,16 @@ public class TrackGui extends TrackPageGui {
         loreToSet.add(plugin.getText(player, Gui.CREATED_AT, "%time%", ApiUtilities.niceDate(track.getDateCreated())));
         loreToSet.add(plugin.getText(player, Gui.WEIGHT, "%weight%", String.valueOf(track.getWeight())));
 
-        List<String> tagList = new ArrayList<>();
+        Component tags = Component.empty();
+        boolean notFirst = false;
         for (TrackTag tag : track.getTags()) {
-            tagList.add(tag.getValue());
+            if (notFirst) {
+                tags = tags.append(Component.text(", ").color(tPlayer.getTheme().getSecondary()));
+            }
+            tags = tags.append(Component.text(tag.getValue()).color(tag.getColor()));
+            notFirst = true;
         }
-        String tags = String.join(", ", tagList);
-        loreToSet.add(plugin.getText(player, Gui.TAGS, "%tags%", tags));
-
+        loreToSet.add(plugin.getText(player, Gui.TAGS).append(tags));
         ItemMeta im = toReturn.getItemMeta();
         im.lore(loreToSet);
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);

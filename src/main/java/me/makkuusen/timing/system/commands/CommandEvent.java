@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
+import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -65,7 +66,7 @@ public class CommandEvent extends BaseCommand {
         plugin.sendMessage(commandSender, Info.ACTIVE_EVENTS_TITLE);
         Theme theme = Theme.getTheme(commandSender);
         for (Event event : list) {
-            commandSender.sendMessage(theme.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Component.text("Click to select event"))).append(Component.space()).append(theme.getParenthesized(event.getState().name())).append(theme.primary(" - ")).append(theme.primary(ApiUtilities.niceDate(event.getDate()))).append(Component.space()).append(theme.primary("by")).append(Component.space()).append(theme.highlight(Database.getPlayer(event.getUuid()).getNameDisplay())));
+            commandSender.sendMessage(theme.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(plugin.getTextNoColor(commandSender, Info.CLICK_TO_SELECT))).append(Component.space()).append(theme.getParenthesized(event.getState().name())).append(theme.primary(" - ")).append(theme.primary(ApiUtilities.niceDate(event.getDate()))).append(Component.space()).append(theme.primary(">")).append(Component.space()).append(theme.highlight(Database.getPlayer(event.getUuid()).getNameDisplay())));
         }
     }
 
@@ -121,41 +122,43 @@ public class CommandEvent extends BaseCommand {
         sender.sendMessage("");
         sender.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).append(Component.space()).append(theme.getTitleLine(Component.text(event.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(event.getState().name())))));
 
-        net.kyori.adventure.text.TextComponent trackMessage;
+        Component trackMessage;
         if (event.getTrack() == null) {
 
-            trackMessage = Component.text("Track:").color(theme.getPrimary()).append(Component.space()).append(Component.text("None").color(theme.getSecondary()));
+            trackMessage = plugin.getText(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(Component.text("-").color(theme.getSecondary()));
 
         } else {
-            trackMessage = Component.text("Track:").color(theme.getPrimary()).append(Component.space()).append(Component.text(event.getTrack().getDisplayName()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton().clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent()));
+            trackMessage = plugin.getText(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(Component.text(event.getTrack().getDisplayName()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
 
         }
         if (sender.hasPermission("event.admin")) {
-            trackMessage = trackMessage.append(Component.space()).append(theme.getEditButton().clickEvent(ClickEvent.suggestCommand("/event set track ")));
+            trackMessage = plugin.getText(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(theme.getBrackets(event.getTrack().getDisplayName()).clickEvent(ClickEvent.suggestCommand("/event set track ")).hoverEvent(HoverEvent.showText(plugin.getTextNoColor(sender, Info.CLICK_TO_EDIT)))).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
         }
         sender.sendMessage(trackMessage);
 
-        var signsMessage = theme.primary("Signs:").append(Component.space());
-
+        var signsMessage = plugin.getText(sender, Info.EVENT_INFO_SIGNS);
+        Component open = plugin.getTextNoColor(sender, Info.OPEN);
+        Component closed = plugin.getTextNoColor(sender, Info.CLOSED);
 
         if (sender.hasPermission("event.admin")) {
             if (event.isOpenSign()) {
-                signsMessage = signsMessage.append(theme.getBrackets("Open").clickEvent(ClickEvent.runCommand("/event set signs closed")).hoverEvent(HoverEvent.showText(Component.text("Click to close"))));
+                signsMessage = signsMessage.append(theme.getBrackets(open)
+                        .clickEvent(ClickEvent.runCommand("/event set signs closed"))
+                        .hoverEvent(HoverEvent.showText(plugin.getTextNoColor(sender, Info.CLICK_TO_CLOSE))));
             } else {
-                signsMessage = signsMessage.append(theme.getBrackets("Closed").clickEvent(ClickEvent.runCommand("/event set signs open")).hoverEvent(HoverEvent.showText(Component.text("Click to open"))));
+                signsMessage = signsMessage.append(theme.getBrackets(closed).clickEvent(ClickEvent.runCommand("/event set signs open")).hoverEvent(HoverEvent.showText(plugin.getTextNoColor(sender, Info.CLICK_TO_OPEN))));
             }
         } else {
-            signsMessage = event.isOpenSign() ? signsMessage.append(theme.highlight("Open")) : signsMessage.append(theme.highlight("Closed"));
+            signsMessage = event.isOpenSign() ? signsMessage.append(open.color(theme.getSecondary())) : signsMessage.append(closed.color(theme.getSecondary()));
         }
 
         sender.sendMessage(signsMessage);
 
-        sender.sendMessage(theme.primary("Signed Drivers:").append(Component.space()).append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton().clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent())));
+        sender.sendMessage(plugin.getText(sender, Info.EVENT_INFO_SIGNED_DRIVERS).append(Component.space()).append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent(sender))));
 
-        var roundsMessage = Component.text("Rounds:").color(theme.getPrimary()).append(Component.space()).append(Component.text(event.eventSchedule.getRounds().size()).color(theme.getSecondary()));
-
+        var roundsMessage = plugin.getText(sender, Info.EVENT_INFO_ROUNDS, "%total%", String.valueOf(event.eventSchedule.getRounds().size()));
         if (sender.hasPermission("event.admin")) {
-            roundsMessage = roundsMessage.append(theme.tab()).append(theme.getAddButton("Round").clickEvent(ClickEvent.suggestCommand("/round create ")).hoverEvent(theme.getClickToAddHoverEvent()));
+            roundsMessage = roundsMessage.append(theme.tab()).append(theme.getAddButton(plugin.getText(sender, Info.ADD_ROUND)).clickEvent(ClickEvent.suggestCommand("/round create ")).hoverEvent(theme.getClickToAddHoverEvent(sender)));
         }
 
         sender.sendMessage(roundsMessage);
@@ -166,10 +169,10 @@ public class CommandEvent extends BaseCommand {
             var roundMessage = (currentRound ? theme.arrow() : theme.tab()).append(Component.text(round.getDisplayName() + ":").color(theme.getPrimary()));
 
             if (sender.hasPermission("event.admin") && round.getState() != Round.RoundState.FINISHED) {
-                roundMessage = roundMessage.append(Component.space()).append(theme.getAddButton("Heat").clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent()));
+                roundMessage = roundMessage.append(Component.space()).append(theme.getAddButton(plugin.getText(sender, Info.ADD_HEAT)).clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent(sender)));
 
                 if (currentRound) {
-                    roundMessage = roundMessage.append(Component.space().append(Component.text("[Finish]").color(NamedTextColor.GRAY).clickEvent(ClickEvent.suggestCommand("/round finish")).hoverEvent(HoverEvent.showText(Component.text("Click to finish round")))));
+                    roundMessage = roundMessage.append(theme.getBrackets(plugin.getTextNoColor(sender, Info.FINISH), NamedTextColor.GRAY).clickEvent(ClickEvent.suggestCommand("/round finish")).hoverEvent(HoverEvent.showText(plugin.getTextNoColor(sender, Info.CLICK_TO_FINISH))));
                 }
 
                 if (round.getState() != Round.RoundState.RUNNING) {
@@ -182,15 +185,14 @@ public class CommandEvent extends BaseCommand {
             for (Heat heat : round.getHeats()) {
                 var heatName = Component.text(heat.getName()).color(theme.getSecondary());
                 heatName = heat.getHeatState() == HeatState.FINISHED ? heatName.decorate(TextDecoration.ITALIC) : heatName;
-                var heatMessage = theme.tab().append(theme.tab()).append(heatName).append(theme.tab()).append(theme.getViewButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(theme.getClickToViewHoverEvent()));
+                var heatMessage = theme.tab().append(theme.tab()).append(heatName).append(theme.tab()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
 
                 if (!heat.isFinished() && sender.hasPermission("event.admin")) {
                     heatMessage = heatMessage.append(Component.space()).append(theme.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
                 }
                 sender.sendMessage(heatMessage);
             }
-        }
-    }
+        }    }
 
     @CommandPermission("event.admin")
     @Subcommand("create")
@@ -257,9 +259,11 @@ public class CommandEvent extends BaseCommand {
             plugin.sendMessage(player, Error.NO_EVENT_SELECTED);;
             return;
         }
+
         if (open.equalsIgnoreCase("open")) {
             event.setOpenSign(true);
             plugin.sendMessage(player, Success.SIGNS_NOW_OPEN);
+
         } else {
             event.setOpenSign(false);
             plugin.sendMessage(player, Success.SIGNS_NOW_CLOSED);
@@ -310,6 +314,7 @@ public class CommandEvent extends BaseCommand {
                 event.addSubscriber(tPlayer);
                 EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
                 plugin.sendMessage(player, Success.PLAYER_SIGNED, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
+                EventAnnouncements.broadcastPlayerSigned(tPlayer.getName(), event);
             }
             return;
         }
@@ -325,7 +330,7 @@ public class CommandEvent extends BaseCommand {
         } else {
             if (!event.isOpenSign()) {
                 if (!player.hasPermission("event.sign") || !player.hasPermission("event.admin") || !player.isOp()) {
-                    plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
+                    plugin.sendMessage(player, Error.NOT_NOW);
                     return;
                 }
             }
@@ -336,6 +341,7 @@ public class CommandEvent extends BaseCommand {
             event.addSubscriber(tPlayer);
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
             plugin.sendMessage(player, Success.SIGNED, "%event%", event.getDisplayName());
+            EventAnnouncements.broadcastPlayerSigned(player.getName(), event);
         }
     }
 
@@ -377,6 +383,9 @@ public class CommandEvent extends BaseCommand {
             }
         }
 
+        if (event.getReserves().values().size() == 0) {
+            return;
+        }
 
         count = 1;
         message = plugin.getText(player, Info.RESERVES_TITLE, "%event%", event.getDisplayName());
@@ -433,6 +442,7 @@ public class CommandEvent extends BaseCommand {
                 event.addReserve(tPlayer);
                 EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
                 plugin.sendMessage(player, Success.PLAYER_RESERVE, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
+                EventAnnouncements.broadcastPlayerSignedReserve(tPlayer.getName(), event);
             }
             return;
         }
@@ -452,6 +462,7 @@ public class CommandEvent extends BaseCommand {
             event.addReserve(tPlayer);
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
             plugin.sendMessage(player, Success.RESERVE, "%event%", event.getDisplayName());
+            EventAnnouncements.broadcastPlayerSignedReserve(player.getName(), event);
         }
     }
 

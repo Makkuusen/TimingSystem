@@ -119,19 +119,23 @@ public class Track {
         List<Component> loreToSet = new ArrayList<>();
 
         var plugin = TimingSystem.getPlugin();
-        loreToSet.add(plugin.getText(tPlayer, Gui.POSITION, "%pos%", getPlayerTopListPosition(tPlayer) == -1 ? "(none)" : String.valueOf(getPlayerTopListPosition(tPlayer))));
+        loreToSet.add(plugin.getText(tPlayer, Gui.POSITION, "%pos%", getPlayerTopListPosition(tPlayer) == -1 ? "(-)" : String.valueOf(getPlayerTopListPosition(tPlayer))));
         loreToSet.add(plugin.getText(tPlayer, Gui.BEST_TIME, "%time%", getBestFinish(tPlayer) == null ? "(-)" : ApiUtilities.formatAsTime(getBestFinish(tPlayer).getTime())));
         loreToSet.add(plugin.getText(tPlayer, Gui.TOTAL_FINISHES, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer))));
         loreToSet.add(plugin.getText(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer) + getPlayerTotalAttempts(tPlayer))));
         loreToSet.add(plugin.getText(tPlayer, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(getPlayerTotalTimeSpent(tPlayer))));
         loreToSet.add(plugin.getText(tPlayer, Gui.CREATED_BY, "%player%", getOwner().getName()));
 
-        List<String> tagList = new ArrayList<>();
+        Component tags = Component.empty();
+        boolean notFirst = false;
         for (TrackTag tag : getTags()) {
-            tagList.add(tag.getValue());
+            if (notFirst) {
+                tags = tags.append(Component.text(", ").color(tPlayer.getTheme().getSecondary()));
+            }
+            tags = tags.append(Component.text(tag.getValue()).color(tag.getColor()));
+            notFirst = true;
         }
-        String tags = String.join(", ", tagList);
-        loreToSet.add(plugin.getText(tPlayer.getPlayer(), Gui.TAGS, "%tags%", tags));
+        loreToSet.add(plugin.getText(tPlayer.getPlayer(), Gui.TAGS).append(tags));
 
 
         ItemMeta im = toReturn.getItemMeta();

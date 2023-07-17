@@ -184,10 +184,29 @@ info:
   player_stats_title: "&1--- &2%player%&1 statistics on &2%track% &1---"
   regions_title: "&1--- Regions for &2%track% &1---"
   locations_title: "&1--- Locations for &2%track% &1---"
+  ranked_title: "&1--- Ranked leaderboard ---"
   rounds_title: "&1--- Rounds for &2%event% &1---"
   heats_title: "&1--- Heats for &2%event% &1---"
   round_result_title: "&1--- Round result for round &2%round% &1---"
   heat_result_title: "&1--- Heat result for heat &2%heat% &1---"
+  player_heat_result_title: "&1--- Result for &2%player% &1in &2%heat% &1---"
+  player_heat_result_position: "&1Position: &2%pos%"
+  player_heat_result_start_position: "&1Start position: &2%pos%"
+  player_heat_result_fastest_lap: "&1Fastest lap: &2%time%"
+  event_info_track: "&1Track: "
+  event_info_signs: "&1Signs: "
+  event_info_signed_drivers: "&1Signed drivers: "
+  event_info_rounds: "&1Rounds: &2%total%"
+  event_info_round_final: "&1  Round %index% - Final: "
+  event_info_round_qualification: "&1  Round %index% - Qualification: "
+  heat_info_start_delay: "&1Start delay: "
+  heat_info_time_limit: "&1Time limit: "
+  heat_info_laps: "&1Laps: "
+  heat_info_pits: "&1Pits: "
+  heat_info_max_drivers: "&1Max drivers: "
+  heat_info_drivers: "&1Drivers: "
+  heat_info_fastest_lap: "&1Fastest lap: &2%time% &1by &2%player%"
+  round_info_heats: "&1Heats:"
   signs_title: "&1--- Signs for &2%event% &1---"
   reserves_title: "&1--- Reserves for &2%event% &1---"
   active_events_title: "&1--- Active events right now &1---"
@@ -203,25 +222,48 @@ info:
   track_reset_regions: '&1Reset regions:&2 %size%'
   track_spawn_location: '&1Spawn:&2 %location%'
   track_weight: "&1Weight:&2 %size%"
-  track_tags: "&1Tags:&2 %tags%"
+  track_tags: "&1Tags: "
   player_stats_best_lap: "&1Best time: &2%time%"
   player_stats_position: "&1Position: &2%pos%"
   player_stats_finishes: "&1Finishes: &2%size%"
   player_stats_attempts: "&1Attempts: &2%size%"
   player_stats_time_spent: "&1Time spent: &2%size%"
-  updating_leaderboards: '&2Updating leaderboards.'
-  time_trial_first_finish: '&aNew best time!&c You finished &a%track%&c in &a%time% &c(&a%pos%&c).'
-  time_trial_new_record: '&aNew best time!&c You finished &a%track%&c in &a%time%&c. Your previous best was &a%oldTime% &c(&a%oldPos% &c->&a%pos%&c).'
-  time_trial_finish: '&1You finished &2%track%&1 in &2%time%&1. Your best is &2%oldTime%&1.'
-  time_trial_checkpoint: '&1You passed &2checkpoint %checkpoint%&1 in &2%time%&1.'
-  time_trial_lag_start: '&1You passed &2lagstart &1in &2%time%&1.'
-  time_trial_lag_end: '&1You passed &2lagend &1in &2%time%&1.'
+  updating_leaderboards: '&1Updating leaderboards.'
+  time_trial_first_finish: '&cPersonal best!&a You finished &c%track%&a in &c%time% &a(&c%pos%&a).'
+  time_trial_new_record: '&cPersonal best!&a You finished &c%track%&a in &c%time%&a. Your previous best was &c%oldTime% &a(&c%oldPos% &a-> &c%pos%&a).'
+  time_trial_finish: '&1You finished &2%track%&1 in &2%time% &e+%oldTime%'
+  time_trial_checkpoint: '&1Checkpoint %checkpoint% -> &2%time%'
+  time_trial_lag_start: '&1Lagstart -> &2%time%'
+  time_trial_lag_end: '&1Lagend -> &2%time%'
+  click_to_add: "Click to add"
+  click_to_delete: "Click to delete"
+  click_to_view: "Click to view"
+  click_to_edit: "Click to edit"
+  click_to_edit_position: "Click to edit position"
+  click_to_open: "Click to open"
+  click_to_close: "Click to close"
+  click_to_finish: "Click to finish"
+  click_to_load: "Click to load"
+  click_to_reset: "Click to reset"
+  click_to_start: "Click to start"
+  click_to_select: "Click to select"
+  add_heat: "Add heat"
+  add_round: "Add round"
+  view_event: "View event"
+  open: "Open"
+  closed: "Closed"
+  finish: "Finish"
+  load: "Load"
+  reset: "Reset"
+  start: "Start"
 
 broadcast:
   click_to_sign: "&b--> Click to sign up for &l%event%&r&b <--"
   click_to_reserve: "&b--> Click to sign up as reserve for &l%event%&r&b <--"
   click_to_join_race: "&b--> Click to join a race on &l%track%&r&b (%laps% laps) <--"
   click_to_spectate_event: "&a--> Click to spectate &l%event%&r&a <--"
+  player_signed_event: "&b%player% signed up."
+  player_reserve_event: "&b%player% signed as reserve."
   event_player_pit: '&2%player% &1completed pit: &2&l%pit%'
   event_player_finish: '&2%player% &1finished &2&lP%position%&r&1 in &2%time%'
   event_player_finish_basic: '&2%player% &1finished.'
@@ -230,14 +272,14 @@ broadcast:
   event_results: "&1Final results for &2%event%"
   event_results_qualification: "&1Qualification results for &2%event%"
   heat_results: "&1Results for &2%heat%"
+  heat_result_row: "&1%pos%. &2%player%&1 - &2%laps% &1laps in &2%time%"
   heat_reset: "&eHeat Reset"
   heat_finish_title_pos: "&aYou finished P%pos%"
   heat_finish_title: "&aYou finished"
 
 actionbar:
   race: '&1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits'
-  raceSpectator: '&2%name% > &1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits'
-
+  race_spectator: '&2%name% > &1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits'
 
 gui:
   settings_title: "&tSettings"
@@ -253,7 +295,7 @@ gui:
   created_by: "&1Created by: &2%player%"
   created_at: "&1Created at: &2%time%"
   weight: "&1Weight: &2%weight%"
-  tags: "&1Tags: &2%tags%"
+  tags: "&1Tags: "
   sorted_by_default: "&1Sorted by: &2Default"
   sorted_by_position: "&1Sorted by: &2Position"
   sorted_by_popularity: "&1Sorted by: &2Popularity"
@@ -278,6 +320,9 @@ gui:
   on: "&1On"
   off: "&1Off"
   return: "&1Return"
+  reset: "&eReset gui"
 
-
-
+scoreboard:
+  finishes: "Finishes: "
+  average_time: "Avg time: "
+  best_time: "Best time: "

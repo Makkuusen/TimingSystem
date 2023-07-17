@@ -39,7 +39,8 @@ public enum Gui implements Message {
     COLOR,
     ON,
     OFF,
-    RETURN;
+    RETURN,
+    RESET;
 
     Gui() {}
 

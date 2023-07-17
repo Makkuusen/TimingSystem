@@ -73,7 +73,7 @@ public class CommandTimeTrial extends BaseCommand {
 
         if (track == null) {
             var tPlayer = Database.getPlayer(player.getUniqueId());
-            new TimeTrialGui(tPlayer, 0).show(player);
+            new TimeTrialGui(tPlayer).show(player);
         } else {
             if (!track.getSpawnLocation().isWorldLoaded()) {
                 plugin.sendMessage(player, Error.WORLD_NOT_LOADED);

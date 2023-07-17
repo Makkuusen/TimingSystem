@@ -39,16 +39,12 @@ public class Theme {
         return sender instanceof Player ? Database.getPlayer(sender).getTheme() : new Theme();
     }
 
-    public Component getViewButton() {
-        return Component.text("[»]").color(button).hoverEvent(getClickToViewHoverEvent());
+    public Component getViewButton(CommandSender sender) {
+        return Component.text("[»]").color(button).hoverEvent(getClickToViewHoverEvent(sender));
     }
 
-    public Component getEditButton() {
-        return Component.text("[Edit]").color(button).hoverEvent(getClickToEditHoverEvent());
-    }
-
-    public Component getEditButton(String value, Theme theme) {
-        return theme.getBrackets(value).hoverEvent(getClickToEditHoverEvent());
+    public Component getEditButton(CommandSender sender, String value, Theme theme) {
+        return theme.getBrackets(value).hoverEvent(getClickToEditHoverEvent(sender));
     }
 
     public Component getAddButton() {
@@ -63,24 +59,29 @@ public class Theme {
         return Component.text("↻").color(button).hoverEvent(HoverEvent.showText(Component.text("Refresh")));
     }
 
+    public Component getTextButton(Component text, TextColor color, String command, Component hoverText) {
+        return getBrackets(text, color).clickEvent(ClickEvent.runCommand(command)).hoverEvent(HoverEvent.showText(hoverText));
+    }
+
     public Component getMoveButton() {
         return Component.text("[±]").color(button);
     }
 
-    public Component getAddButton(String extra) {
-        return Component.text("[Add " + extra + "]").color(buttonAdd);
+
+    public Component getAddButton(Component text) {
+        return Component.text("[").append(text).append(Component.text("]")).color(buttonAdd);
     }
 
-    public static HoverEvent<Component> getClickToViewHoverEvent() {
-        return HoverEvent.showText(Component.text("Click to view"));
+    public HoverEvent<Component> getClickToViewHoverEvent(CommandSender sender) {
+        return HoverEvent.showText(TimingSystem.getPlugin().getTextNoColor(sender, Info.CLICK_TO_VIEW));
     }
 
-    public static HoverEvent<Component> getClickToEditHoverEvent() {
-        return HoverEvent.showText(Component.text("Click to edit"));
+    public HoverEvent<Component> getClickToEditHoverEvent(CommandSender sender) {
+        return HoverEvent.showText(TimingSystem.getPlugin().getTextNoColor(sender, Info.CLICK_TO_EDIT));
     }
 
-    public static HoverEvent<Component> getClickToAddHoverEvent() {
-        return HoverEvent.showText(Component.text("Click to add"));
+    public HoverEvent<Component> getClickToAddHoverEvent(CommandSender sender) {
+        return HoverEvent.showText(TimingSystem.getPlugin().getTextNoColor(sender, Info.CLICK_TO_ADD));
     }
 
     public Component highlight(String message) {
@@ -93,10 +94,6 @@ public class Theme {
 
     public Component getSpacersEnd() {
         return Component.text(" ---").color(getPrimary());
-    }
-
-    public Component getTitleLine(String title) {
-        return getSpacersStart().append(Component.text(title)).color(getSecondary()).append(getSpacersEnd());
     }
 
     public Component error(String message) {
@@ -136,11 +133,18 @@ public class Theme {
     }
 
     public Component getParenthesized(String text) {
-        return Component.text("(").color(getPrimary()).append(Component.text(text).color(getSecondary()).append(Component.text(")").color(getPrimary())));
+        return Component.text("(").color(getPrimary()).append(Component.text(text).color(getSecondary())).append(Component.text(")").color(getPrimary()));
     }
 
     public Component getBrackets(String text) {
-        return Component.text("[").color(getPrimary()).append(Component.text(text).color(getSecondary()).append(Component.text("]").color(getPrimary())));
+        return Component.text("[").color(getPrimary()).append(Component.text(text).color(getSecondary())).append(Component.text("]").color(getPrimary()));
+    }
+    public Component getBrackets(Component text) {
+        return Component.text("[").color(getPrimary()).append(text.color(getSecondary())).append(Component.text("]").color(getPrimary()));
+    }
+
+    public Component getBrackets(Component text, TextColor color) {
+        return Component.text(" [").append(text).append(Component.text("]")).color(color);
     }
 
     public Component getPageSelector(CommandSender sender, Integer pageStart, int pageEnd, String command) {

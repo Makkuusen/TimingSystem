@@ -10,8 +10,11 @@ import co.aikar.idb.DbRow;
 import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
+import me.makkuusen.timing.system.gui.TrackFilter;
+import me.makkuusen.timing.system.gui.TrackSort;
 import me.makkuusen.timing.system.theme.BoatLabsTheme;
 import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
@@ -37,6 +40,11 @@ public class TPlayer implements Comparable<TPlayer> {
     private String color;
     private BaseGui openGui;
     private Theme theme;
+
+    private TrackFilter filter;
+    private TrackSort trackSort;
+    private Track.TrackType trackType;
+    private Integer page;
 
 
     public TPlayer(TimingSystem plugin, DbRow data) {
@@ -138,7 +146,7 @@ public class TPlayer implements Comparable<TPlayer> {
     }
 
     public String getNameDisplay() {
-        return getName() + "§r";
+        return getName();
     }
 
     public String getHexColor() {
@@ -232,6 +240,38 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public Theme getTheme() {
         return theme;
+    }
+
+    public TrackSort getTrackSort() {
+        return trackSort;
+    }
+
+    public void setTrackSort(TrackSort trackSort) {
+        this.trackSort = trackSort;
+    }
+
+    public TrackFilter getFilter() {
+        return filter;
+    }
+
+    public void setFilter(TrackFilter filter) {
+        this.filter = filter;
+    }
+
+    public Track.TrackType getTrackType() {
+        return trackType;
+    }
+
+    public void setTrackType(Track.TrackType trackType) {
+        this.trackType = trackType;
+    }
+
+    public Integer getTrackPage() {
+        return page;
+    }
+
+    public void setTrackPage(Integer page) {
+        this.page = page;
     }
 
     public Player getPlayer() {

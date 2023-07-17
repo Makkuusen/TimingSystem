@@ -47,7 +47,7 @@ public class GuiCommon {
 
     public static void playConfirm(TPlayer tPlayer) {
         if (tPlayer.isSound()) {
-            tPlayer.getPlayer().playSound(tPlayer.getPlayer().getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1);
+            tPlayer.getPlayer().playSound(tPlayer.getPlayer().getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.2F, 1);
         }
     }
 }
