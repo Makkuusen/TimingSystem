@@ -1,12 +1,12 @@
 package me.makkuusen.timing.system.event;
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Broadcast;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -21,13 +21,12 @@ import java.time.Duration;
 import java.util.List;
 
 public class EventAnnouncements {
-    public static TimingSystem plugin;
 
     private static void broadcastAnnouncement(Heat heat, Broadcast key, String... replacements) {
 
         for (Participant p : heat.getParticipants()) {
             if (p.getTPlayer().getPlayer() != null) {
-                plugin.sendMessage(p.getTPlayer().getPlayer(), key, replacements);
+                Text.send(p.getTPlayer().getPlayer(), key, replacements);
             }
         }
     }
@@ -35,7 +34,7 @@ public class EventAnnouncements {
     public static void broadcastSpectate(Event event) {
         Bukkit.getOnlinePlayers().stream().filter(player -> !event.getSpectators().containsKey(player.getUniqueId())).forEach(player -> {
             player.sendMessage(Component.empty());
-            player.sendMessage(plugin.getText(player, Broadcast.CLICK_TO_SPECTATE_EVENT, "%event%", event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event spectate " + event.getDisplayName())));
+            player.sendMessage(Text.get(player, Broadcast.CLICK_TO_SPECTATE_EVENT, "%event%", event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event spectate " + event.getDisplayName())));
             player.sendMessage(Component.empty());
         });
 
@@ -62,11 +61,11 @@ public class EventAnnouncements {
         for (Spectator s : event.getSpectators().values()) {
             Player player = s.getTPlayer().getPlayer();
             if (player != null) {
-                plugin.sendMessage(player, Broadcast.EVENT_RESULTS_QUALIFICATION, "%event%", event.getDisplayName());
+                Text.send(player, Broadcast.EVENT_RESULTS_QUALIFICATION, "%event%", event.getDisplayName());
 
                 int pos = 1;
                 for (Driver d : drivers) {
-                    player.sendMessage(plugin.getText(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName() + "&1 - &2" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
+                    player.sendMessage(Text.get(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName() + "&1 - &2" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
                 }
             }
         }
@@ -76,13 +75,13 @@ public class EventAnnouncements {
         for (Spectator s : event.getSpectators().values()) {
             if (s.getTPlayer().getPlayer() != null) {
                 Player player = s.getTPlayer().getPlayer();
-                plugin.sendMessage(player, Broadcast.EVENT_RESULTS, "%event%", event.getDisplayName());
+                Text.send(player, Broadcast.EVENT_RESULTS, "%event%", event.getDisplayName());
                 int pos = 1;
                 for (Driver d : drivers) {
                     if (d.isFinished()) {
-                        plugin.sendMessage(player, Broadcast.HEAT_RESULT_ROW, "%pos%", String.valueOf(pos++), "%player%", d.getTPlayer().getName(), "%laps%", String.valueOf(d.getLaps().size()), "%time%", ApiUtilities.formatAsTime(d.getFinishTime()));
+                        Text.send(player, Broadcast.HEAT_RESULT_ROW, "%pos%", String.valueOf(pos++), "%player%", d.getTPlayer().getName(), "%laps%", String.valueOf(d.getLaps().size()), "%time%", ApiUtilities.formatAsTime(d.getFinishTime()));
                     } else {
-                        player.sendMessage(plugin.getText(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName()));
+                        player.sendMessage(Text.get(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName()));
                     }
                 }
             }
@@ -93,13 +92,13 @@ public class EventAnnouncements {
         for (Spectator s : heat.getEvent().getSpectators().values()) {
             if (s.getTPlayer().getPlayer() != null) {
                 Player player = s.getTPlayer().getPlayer();
-                plugin.sendMessage(player, Broadcast.HEAT_RESULTS, "%heat%", heat.getName());
+                Text.send(player, Broadcast.HEAT_RESULTS, "%heat%", heat.getName());
                 int pos = 1;
                 for (Driver d : drivers) {
                     if (heat.getRound() instanceof QualificationRound) {
-                        player.sendMessage(plugin.getText(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName() + "&1 - &2" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
+                        player.sendMessage(Text.get(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName() + "&1 - &2" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
                     } else {
-                        plugin.sendMessage(player, Broadcast.HEAT_RESULT_ROW, "%pos%", String.valueOf(pos++), "%player%", d.getTPlayer().getName(), "%laps%", String.valueOf(d.getLaps().size()), "%time%", ApiUtilities.formatAsTime(d.getFinishTime()));
+                        Text.send(player, Broadcast.HEAT_RESULT_ROW, "%pos%", String.valueOf(pos++), "%player%", d.getTPlayer().getName(), "%laps%", String.valueOf(d.getLaps().size()), "%time%", ApiUtilities.formatAsTime(d.getFinishTime()));
                     }
                 }
             }
@@ -124,7 +123,7 @@ public class EventAnnouncements {
             Player player = participant.getTPlayer().getPlayer();
             if (player != null) {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.MASTER, 1, 1);
-                Component mainTitle = plugin.getText(player, Broadcast.HEAT_RESET);
+                Component mainTitle = Text.get(player, Broadcast.HEAT_RESET);
                 Title.Times times = Title.Times.times(Duration.ofMillis(100), Duration.ofMillis(2000), Duration.ofMillis(100));
                 Title title = Title.title(mainTitle, Component.empty(), times);
                 player.showTitle(title);
@@ -138,7 +137,7 @@ public class EventAnnouncements {
             // Only send to admins that have the event selected.
             EventDatabase.getPlayerSelectedEvent(p.getUniqueId()).ifPresent(e -> {
                 if (e.getId() == event.getId() && p.hasPermission("event.admin")) {
-                    plugin.sendMessage(p, Broadcast.PLAYER_SIGNED_EVENT, "%player%", name);
+                    Text.send(p, Broadcast.PLAYER_SIGNED_EVENT, "%player%", name);
                 }
             });
         }
@@ -149,7 +148,7 @@ public class EventAnnouncements {
             // Only send to admins that have the event selected.
             EventDatabase.getPlayerSelectedEvent(p.getUniqueId()).ifPresent(e -> {
                 if (e.getId() == event.getId() && p.hasPermission("event.admin")) {
-                    plugin.sendMessage(p, Broadcast.PLAYER_RESERVE_EVENT, "%player%", name);
+                    Text.send(p, Broadcast.PLAYER_RESERVE_EVENT, "%player%", name);
                 }
             });
         }
@@ -159,7 +158,7 @@ public class EventAnnouncements {
         if (driver.getTPlayer().getPlayer() == null) {
             return;
         }
-        plugin.sendMessage(driver.getTPlayer().getPlayer(), Broadcast.EVENT_PLAYER_FINISHED_LAP, "%time%", ApiUtilities.formatAsTime(time));
+        Text.send(driver.getTPlayer().getPlayer(), Broadcast.EVENT_PLAYER_FINISHED_LAP, "%time%", ApiUtilities.formatAsTime(time));
     }
 
     public static void sendFinishSound(Driver raceDriver) {
@@ -177,7 +176,7 @@ public class EventAnnouncements {
             return;
         }
         Player player = driver.getTPlayer().getPlayer();
-        Component mainTitle = plugin.getText(player, Broadcast.HEAT_FINISH_TITLE_POS, "%pos%", String.valueOf( driver.getPosition()));
+        Component mainTitle = Text.get(player, Broadcast.HEAT_FINISH_TITLE_POS, "%pos%", String.valueOf( driver.getPosition()));
         Title.Times times = Title.Times.times(Duration.ofMillis(100), Duration.ofMillis(2000), Duration.ofMillis(100));
         Title title = Title.title(mainTitle, Component.empty(), times);
         player.showTitle(title);
@@ -188,7 +187,7 @@ public class EventAnnouncements {
             return;
         }
         Player player = driver.getTPlayer().getPlayer();
-        Component mainTitle = plugin.getText(player, Broadcast.HEAT_FINISH_TITLE_POS);
+        Component mainTitle = Text.get(player, Broadcast.HEAT_FINISH_TITLE_POS);
                 Title.Times times = Title.Times.times(Duration.ofMillis(100), Duration.ofMillis(2000), Duration.ofMillis(100));
         Title title = Title.title(mainTitle, Component.empty(), times);
         player.showTitle(title);

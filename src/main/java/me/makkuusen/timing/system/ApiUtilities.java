@@ -44,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 
 public class ApiUtilities {
 
-    static TimingSystem plugin;
     private static final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
     public static long getTimestamp() {
@@ -374,7 +373,7 @@ public class ApiUtilities {
         } else {
             boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
         }
-        boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin)), PersistentDataType.INTEGER, 1);
+        boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", TimingSystem.getPlugin())), PersistentDataType.INTEGER, 1);
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> boat.setBoatType(type), 2);
 
         return boat;
@@ -467,7 +466,7 @@ public class ApiUtilities {
     }
 
     public static boolean isChestBoat(Material material) {
-        return material.name().contains("CHEST_BOAT");
+        return material.name().contains("CHEST_BOAT") || material.name().contains("CHEST_RAFT") ;
     }
 
     public static String getHexFromDyeColor(Material dye) {
@@ -598,5 +597,25 @@ public class ApiUtilities {
     public static void giveBoatUtilsIEffect(Player player) {
         var luckEffect = new PotionEffect(PotionEffectType.LUCK, 999999, 55, false, false);
         player.addPotionEffect(luckEffect);
+    }
+
+    public static String darkenHexColor(String hexColor, double darkenAmount) {
+        // Remove the '#' symbol and convert to RGB values
+        int r = Integer.parseInt(hexColor.substring(1, 3), 16);
+        int g = Integer.parseInt(hexColor.substring(3, 5), 16);
+        int b = Integer.parseInt(hexColor.substring(5, 7), 16);
+
+        // Darken each color component
+        r = (int) (r * (1 - darkenAmount));
+        g = (int) (g * (1 - darkenAmount));
+        b = (int) (b * (1 - darkenAmount));
+
+        // Ensure the color components are within the valid range (0-255)
+        r = Math.max(0, Math.min(255, r));
+        g = Math.max(0, Math.min(255, g));
+        b = Math.max(0, Math.min(255, b));
+
+        // Convert the darkened RGB values back to hex
+        return String.format("#%02X%02X%02X", r, g, b);
     }
 }

@@ -287,7 +287,7 @@ public class TPlayer implements Comparable<TPlayer> {
         if (chestBoat) {
             boat += "_CHEST";
         }
-        if (boat.equalsIgnoreCase("BAMBOO")) {
+        if (boat.contains("BAMBOO")) {
             boat += "_RAFT";
         } else {
             boat += "_BOAT";

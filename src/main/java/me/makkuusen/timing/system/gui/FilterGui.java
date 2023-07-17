@@ -1,8 +1,8 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
-import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.TrackTag;
 import org.bukkit.Material;
@@ -12,7 +12,7 @@ public class FilterGui extends BaseGui{
     TrackPageGui oldTrackPage;
     TrackFilter filter;
     public FilterGui(TrackPageGui trackPage) {
-        super(TimingSystem.getPlugin().getText(trackPage.tPlayer.getPlayer(), Gui.FILTER_TITLE), 3);
+        super(Text.get(trackPage.tPlayer.getPlayer(), Gui.FILTER_TITLE), 3);
         oldTrackPage = trackPage;
         this.filter = trackPage.filter;
         setButtons();
@@ -20,7 +20,7 @@ public class FilterGui extends BaseGui{
 
     public void setButtons() {
         setFilterOptions();
-        GuiButton save = new GuiButton(new ItemBuilder(Material.ARROW).setName(TimingSystem.getPlugin().getText(oldTrackPage.tPlayer, Gui.RETURN)).build());
+        GuiButton save = new GuiButton(new ItemBuilder(Material.ARROW).setName(Text.get(oldTrackPage.tPlayer, Gui.RETURN)).build());
         save.setAction(() -> {
             GuiCommon.playConfirm(oldTrackPage.tPlayer);
             oldTrackPage.tPlayer.setFilter(filter);

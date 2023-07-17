@@ -235,6 +235,8 @@ info:
   time_trial_checkpoint: '&1Checkpoint %checkpoint% -> &2%time%'
   time_trial_lag_start: '&1Lagstart -> &2%time%'
   time_trial_lag_end: '&1Lagend -> &2%time%'
+
+hover:
   click_to_add: "Click to add"
   click_to_delete: "Click to delete"
   click_to_view: "Click to view"
@@ -247,15 +249,19 @@ info:
   click_to_reset: "Click to reset"
   click_to_start: "Click to start"
   click_to_select: "Click to select"
-  add_heat: "Add heat"
-  add_round: "Add round"
-  view_event: "View event"
+
+word:
   open: "Open"
   closed: "Closed"
   finish: "Finish"
   load: "Load"
   reset: "Reset"
   start: "Start"
+
+text_button:
+  add_heat: "Add heat"
+  add_round: "Add round"
+  view_event: "View event"
 
 broadcast:
   click_to_sign: "&b--> Click to sign up for &l%event%&r&b <--"

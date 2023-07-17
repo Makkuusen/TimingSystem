@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
@@ -50,7 +50,7 @@ public class TrackFilter {
     }
 
     public ItemStack getItem(TPlayer tPlayer){
-        var item = new ItemBuilder(Material.HOPPER).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.FILTER_BY)).build();
+        var item = new ItemBuilder(Material.HOPPER).setName(Text.get(tPlayer, Gui.FILTER_BY)).build();
         List<Component> loreToSet = new ArrayList<>();
 
 

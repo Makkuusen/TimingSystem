@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -11,12 +11,12 @@ import org.bukkit.entity.Player;
 public class SettingsGui extends BaseGui {
 
     public SettingsGui(TPlayer tPlayer) {
-        super(TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
+        super(Text.get(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
         setButtons(tPlayer);
     }
 
     public static GuiButton getSoundButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.JUKEBOX).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_SOUND)).build());
+        var button = new GuiButton(new ItemBuilder(Material.JUKEBOX).setName(Text.get(tPlayer, Gui.TOGGLE_SOUND)).build());
         button.setAction(() -> {
             tPlayer.toggleSound();
             GuiCommon.playConfirm(tPlayer);
@@ -26,7 +26,7 @@ public class SettingsGui extends BaseGui {
     }
 
     public static GuiButton getVerboseButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.GOAT_HORN).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_VERBOSE)).build());
+        var button = new GuiButton(new ItemBuilder(Material.GOAT_HORN).setName(Text.get(tPlayer, Gui.TOGGLE_VERBOSE)).build());
         button.setAction(() -> {
             tPlayer.toggleVerbose();
             GuiCommon.playConfirm(tPlayer);
@@ -36,7 +36,7 @@ public class SettingsGui extends BaseGui {
     }
 
     public static GuiButton getTimeTrialButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.BARRIER).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_TIME_TRIAL)).build());
+        var button = new GuiButton(new ItemBuilder(Material.BARRIER).setName(Text.get(tPlayer, Gui.TOGGLE_TIME_TRIAL)).build());
         button.setAction(() -> {
             tPlayer.toggleTimeTrial();
             GuiCommon.playConfirm(tPlayer);
@@ -46,7 +46,7 @@ public class SettingsGui extends BaseGui {
     }
 
     public static GuiButton getOverrideButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.IRON_DOOR).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.TOGGLE_OVERRIDE)).build());
+        var button = new GuiButton(new ItemBuilder(Material.IRON_DOOR).setName(Text.get(tPlayer, Gui.TOGGLE_OVERRIDE)).build());
         button.setAction(() -> {
             tPlayer.toggleOverride();
             GuiCommon.playConfirm(tPlayer);
@@ -57,7 +57,7 @@ public class SettingsGui extends BaseGui {
 
 
     public static GuiButton getBoatMenuButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(tPlayer.getBoatMaterial()).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.CHANGE_BOAT_TYPE)).build());
+        var button = new GuiButton(new ItemBuilder(tPlayer.getBoatMaterial()).setName(Text.get(tPlayer, Gui.CHANGE_BOAT_TYPE)).build());
         button.setAction(() -> {
             new BoatSettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
@@ -70,7 +70,7 @@ public class SettingsGui extends BaseGui {
         if (dyeColor != null) {
             materialName = dyeColor.name() + "_DYE";
         }
-        var button = new GuiButton(new ItemBuilder(Material.valueOf(materialName)).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.CHANGE_TEAM_COLOR)).build());
+        var button = new GuiButton(new ItemBuilder(Material.valueOf(materialName)).setName(Text.get(tPlayer, Gui.CHANGE_TEAM_COLOR)).build());
         button.setAction(() -> {
             new ColorSettingsGui(tPlayer).show(tPlayer.getPlayer());
         });

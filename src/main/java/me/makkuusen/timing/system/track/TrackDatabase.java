@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 public class TrackDatabase {
 
-    public static TimingSystem plugin;
     private static List<Track> tracks = new ArrayList<>();
     private static List<TrackRegion> startRegions = new ArrayList<>();
 
@@ -51,7 +50,7 @@ public class TrackDatabase {
         for (DbRow dbRow : dbRows) {
             Track rTrack = new Track(dbRow);
             tracks.add(rTrack);
-            plugin.getLogger().info("LOADING IN " + rTrack.getDisplayName());
+            TimingSystem.getPlugin().getLogger().info("LOADING IN " + rTrack.getDisplayName());
 
             loadFinishes(rTrack);
             loadAttempts(rTrack);

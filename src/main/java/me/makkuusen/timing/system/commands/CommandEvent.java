@@ -12,7 +12,6 @@ import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
@@ -20,12 +19,16 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.Round;
+import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Broadcast;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Hover;
 import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.theme.messages.Success;
-import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.TextButton;
 import me.makkuusen.timing.system.theme.messages.Warning;
-import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.theme.messages.Word;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -41,7 +44,6 @@ import java.util.stream.Collectors;
 
 @CommandAlias("event")
 public class CommandEvent extends BaseCommand {
-    public static TimingSystem plugin;
 
     @Default
     @Description("Active events")
@@ -63,10 +65,10 @@ public class CommandEvent extends BaseCommand {
     public static void onListEvents(CommandSender commandSender) {
         var list = EventDatabase.getEvents().stream().filter(Event::isActive).sorted(Comparator.comparingLong(Event::getDate)).toList();
         commandSender.sendMessage(Component.empty());
-        plugin.sendMessage(commandSender, Info.ACTIVE_EVENTS_TITLE);
+        Text.send(commandSender, Info.ACTIVE_EVENTS_TITLE);
         Theme theme = Theme.getTheme(commandSender);
         for (Event event : list) {
-            commandSender.sendMessage(theme.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(plugin.getTextNoColor(commandSender, Info.CLICK_TO_SELECT))).append(Component.space()).append(theme.getParenthesized(event.getState().name())).append(theme.primary(" - ")).append(theme.primary(ApiUtilities.niceDate(event.getDate()))).append(Component.space()).append(theme.primary(">")).append(Component.space()).append(theme.highlight(Database.getPlayer(event.getUuid()).getNameDisplay())));
+            commandSender.sendMessage(theme.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Text.get(commandSender, Hover.CLICK_TO_SELECT))).append(Component.space()).append(theme.getParenthesized(event.getState().name())).append(theme.primary(" - ")).append(theme.primary(ApiUtilities.niceDate(event.getDate()))).append(Component.space()).append(theme.primary(">")).append(Component.space()).append(theme.highlight(Database.getPlayer(event.getUuid()).getNameDisplay())));
         }
     }
 
@@ -78,17 +80,17 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
         if (event.start()) {
-            plugin.sendMessage(player, Success.EVENT_STARTED);
+            Text.send(player, Success.EVENT_STARTED);
             Event finalEvent = event;
             event.getSpectators().values().forEach(spectator -> EventDatabase.setPlayerSelectedEvent(spectator.getTPlayer().getUniqueId(), finalEvent));
             return;
         }
-        plugin.sendMessage(player, Error.FAILED_TO_START_EVENT);
+        Text.send(player, Error.FAILED_TO_START_EVENT);
     }
 
     @CommandPermission("event.admin")
@@ -99,15 +101,15 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
         if (event.finish()) {
-            plugin.sendMessage(player, Success.EVENT_FINISHED);
+            Text.send(player, Success.EVENT_FINISHED);
             return;
         }
-        plugin.sendMessage(player, Error.FAILED_TO_FINISH_EVENT);
+        Text.send(player, Error.FAILED_TO_FINISH_EVENT);
     }
 
     @Subcommand("info")
@@ -125,28 +127,28 @@ public class CommandEvent extends BaseCommand {
         Component trackMessage;
         if (event.getTrack() == null) {
 
-            trackMessage = plugin.getText(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(Component.text("-").color(theme.getSecondary()));
+            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(Component.text("-").color(theme.getSecondary()));
 
         } else {
-            trackMessage = plugin.getText(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(Component.text(event.getTrack().getDisplayName()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
+            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(Component.text(event.getTrack().getDisplayName()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
 
         }
         if (sender.hasPermission("event.admin")) {
-            trackMessage = plugin.getText(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(theme.getBrackets(event.getTrack().getDisplayName()).clickEvent(ClickEvent.suggestCommand("/event set track ")).hoverEvent(HoverEvent.showText(plugin.getTextNoColor(sender, Info.CLICK_TO_EDIT)))).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
+            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(theme.getBrackets(event.getTrack().getDisplayName()).clickEvent(ClickEvent.suggestCommand("/event set track ")).hoverEvent(HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_EDIT)))).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
         }
         sender.sendMessage(trackMessage);
 
-        var signsMessage = plugin.getText(sender, Info.EVENT_INFO_SIGNS);
-        Component open = plugin.getTextNoColor(sender, Info.OPEN);
-        Component closed = plugin.getTextNoColor(sender, Info.CLOSED);
+        var signsMessage = Text.get(sender, Info.EVENT_INFO_SIGNS);
+        Component open = Text.get(sender, Word.OPEN);
+        Component closed = Text.get(sender, Word.CLOSED);
 
         if (sender.hasPermission("event.admin")) {
             if (event.isOpenSign()) {
                 signsMessage = signsMessage.append(theme.getBrackets(open)
                         .clickEvent(ClickEvent.runCommand("/event set signs closed"))
-                        .hoverEvent(HoverEvent.showText(plugin.getTextNoColor(sender, Info.CLICK_TO_CLOSE))));
+                        .hoverEvent(HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_CLOSE))));
             } else {
-                signsMessage = signsMessage.append(theme.getBrackets(closed).clickEvent(ClickEvent.runCommand("/event set signs open")).hoverEvent(HoverEvent.showText(plugin.getTextNoColor(sender, Info.CLICK_TO_OPEN))));
+                signsMessage = signsMessage.append(theme.getBrackets(closed).clickEvent(ClickEvent.runCommand("/event set signs open")).hoverEvent(HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_OPEN))));
             }
         } else {
             signsMessage = event.isOpenSign() ? signsMessage.append(open.color(theme.getSecondary())) : signsMessage.append(closed.color(theme.getSecondary()));
@@ -154,11 +156,11 @@ public class CommandEvent extends BaseCommand {
 
         sender.sendMessage(signsMessage);
 
-        sender.sendMessage(plugin.getText(sender, Info.EVENT_INFO_SIGNED_DRIVERS).append(Component.space()).append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent(sender))));
+        sender.sendMessage(Text.get(sender, Info.EVENT_INFO_SIGNED_DRIVERS).append(Component.space()).append(Component.text(event.getSubscribers().size() + "+" + event.getReserves().size()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/event signs " + event.getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent(sender))));
 
-        var roundsMessage = plugin.getText(sender, Info.EVENT_INFO_ROUNDS, "%total%", String.valueOf(event.eventSchedule.getRounds().size()));
+        var roundsMessage = Text.get(sender, Info.EVENT_INFO_ROUNDS, "%total%", String.valueOf(event.eventSchedule.getRounds().size()));
         if (sender.hasPermission("event.admin")) {
-            roundsMessage = roundsMessage.append(theme.tab()).append(theme.getAddButton(plugin.getText(sender, Info.ADD_ROUND)).clickEvent(ClickEvent.suggestCommand("/round create ")).hoverEvent(theme.getClickToAddHoverEvent(sender)));
+            roundsMessage = roundsMessage.append(theme.tab()).append(theme.getAddButton(Text.get(sender, TextButton.ADD_ROUND)).clickEvent(ClickEvent.suggestCommand("/round create ")).hoverEvent(theme.getClickToAddHoverEvent(sender)));
         }
 
         sender.sendMessage(roundsMessage);
@@ -169,10 +171,10 @@ public class CommandEvent extends BaseCommand {
             var roundMessage = (currentRound ? theme.arrow() : theme.tab()).append(Component.text(round.getDisplayName() + ":").color(theme.getPrimary()));
 
             if (sender.hasPermission("event.admin") && round.getState() != Round.RoundState.FINISHED) {
-                roundMessage = roundMessage.append(Component.space()).append(theme.getAddButton(plugin.getText(sender, Info.ADD_HEAT)).clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent(sender)));
+                roundMessage = roundMessage.append(Component.space()).append(theme.getAddButton(Text.get(sender, TextButton.ADD_HEAT)).clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent(sender)));
 
                 if (currentRound) {
-                    roundMessage = roundMessage.append(theme.getBrackets(plugin.getTextNoColor(sender, Info.FINISH), NamedTextColor.GRAY).clickEvent(ClickEvent.suggestCommand("/round finish")).hoverEvent(HoverEvent.showText(plugin.getTextNoColor(sender, Info.CLICK_TO_FINISH))));
+                    roundMessage = roundMessage.append(theme.getBrackets(Text.get(sender, Word.FINISH), NamedTextColor.GRAY).clickEvent(ClickEvent.suggestCommand("/round finish")).hoverEvent(HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_FINISH))));
                 }
 
                 if (round.getState() != Round.RoundState.RUNNING) {
@@ -199,18 +201,18 @@ public class CommandEvent extends BaseCommand {
     @CommandCompletion("<name> @track")
     public static void onCreate(Player player, @Single String name, @Optional Track track) {
         if (name.equalsIgnoreCase("QuickRace")) {
-            plugin.sendMessage(player, Error.INVALID_NAME);
+            Text.send(player, Error.INVALID_NAME);
             return;
         }
         var maybeEvent = EventDatabase.eventNew(player.getUniqueId(), name);
         if (maybeEvent.isPresent()) {
-            plugin.sendMessage(player, Success.CREATED_EVENT, "%event%", name);
+            Text.send(player, Success.CREATED_EVENT, "%event%", name);
             if (track != null) {
                 maybeEvent.get().setTrack(track);
             }
             return;
         }
-        plugin.sendMessage(player,Error.FAILED_TO_CREATE_EVENT);
+        Text.send(player,Error.FAILED_TO_CREATE_EVENT);
     }
 
     @CommandPermission("event.admin")
@@ -218,17 +220,17 @@ public class CommandEvent extends BaseCommand {
     @CommandCompletion("@event")
     public static void onRemove(Player player, Event event) {
         if (EventDatabase.removeEvent(event)) {
-            plugin.sendMessage(player, Success.REMOVED_EVENT, "%event%", event.getDisplayName());
+            Text.send(player, Success.REMOVED_EVENT, "%event%", event.getDisplayName());
             return;
         }
-        plugin.sendMessage(player, Error.FAILED_TO_REMOVE_EVENT);
+        Text.send(player, Error.FAILED_TO_REMOVE_EVENT);
     }
 
     @Subcommand("select")
     @CommandCompletion("@event")
     public static void onSelectEvent(Player player, Event event) {
         EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
-        plugin.sendMessage(player, Success.EVENT_SELECTED);
+        Text.send(player, Success.EVENT_SELECTED);
     }
 
     @CommandPermission("event.admin")
@@ -240,11 +242,11 @@ public class CommandEvent extends BaseCommand {
         if (maybeEvent.isPresent()) {
             event = maybeEvent.get();
         } else {
-            plugin.sendMessage(player, Error.NO_EVENT_SELECTED);;
+            Text.send(player, Error.NO_EVENT_SELECTED);;
             return;
         }
         event.setTrack(track);
-        plugin.sendMessage(player, Success.TRACK_SELECTED);
+        Text.send(player, Success.TRACK_SELECTED);
     }
 
     @CommandPermission("event.admin")
@@ -256,17 +258,17 @@ public class CommandEvent extends BaseCommand {
         if (maybeEvent.isPresent()) {
             event = maybeEvent.get();
         } else {
-            plugin.sendMessage(player, Error.NO_EVENT_SELECTED);;
+            Text.send(player, Error.NO_EVENT_SELECTED);;
             return;
         }
 
         if (open.equalsIgnoreCase("open")) {
             event.setOpenSign(true);
-            plugin.sendMessage(player, Success.SIGNS_NOW_OPEN);
+            Text.send(player, Success.SIGNS_NOW_OPEN);
 
         } else {
             event.setOpenSign(false);
-            plugin.sendMessage(player, Success.SIGNS_NOW_CLOSED);
+            Text.send(player, Success.SIGNS_NOW_CLOSED);
         }
     }
 
@@ -275,11 +277,11 @@ public class CommandEvent extends BaseCommand {
     public static void onSpectate(Player player, Event event) {
         if (event.isSpectating(player.getUniqueId())) {
             event.removeSpectator(player.getUniqueId());
-            plugin.sendMessage(player, Warning.NO_LONGER_SPECTATING, "%event%", event.getDisplayName());
+            Text.send(player, Warning.NO_LONGER_SPECTATING, "%event%", event.getDisplayName());
         } else {
             event.addSpectator(player.getUniqueId());
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
-            plugin.sendMessage(player, Success.SPECTATING, "%event%", event.getDisplayName());
+            Text.send(player, Success.SPECTATING, "%event%", event.getDisplayName());
         }
     }
 
@@ -289,23 +291,23 @@ public class CommandEvent extends BaseCommand {
         if (name != null) {
 
             if (!player.hasPermission("event.sign.others") || !player.hasPermission("event.admin") || !player.isOp()) {
-                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
 
             TPlayer tPlayer = Database.getPlayer(name);
             if (tPlayer == null) {
-                plugin.sendMessage(player, Error.PLAYER_NOT_FOUND);
+                Text.send(player, Error.PLAYER_NOT_FOUND);
                 return;
             }
 
             if (event.isSubscribing(tPlayer.getUniqueId())) {
                 if (event.getState() != Event.EventState.SETUP) {
-                    plugin.sendMessage(player, Error.EVENT_ALREADY_STARTED);
+                    Text.send(player, Error.EVENT_ALREADY_STARTED);
                     return;
                 }
                 event.removeSubscriber(tPlayer.getUniqueId());
-                plugin.sendMessage(player, Warning.PLAYER_NO_LONGER_SIGNED, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
+                Text.send(player, Warning.PLAYER_NO_LONGER_SIGNED, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
             } else {
 
                 if (event.isReserving(tPlayer.getUniqueId())) {
@@ -313,7 +315,7 @@ public class CommandEvent extends BaseCommand {
                 }
                 event.addSubscriber(tPlayer);
                 EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
-                plugin.sendMessage(player, Success.PLAYER_SIGNED, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
+                Text.send(player, Success.PLAYER_SIGNED, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
                 EventAnnouncements.broadcastPlayerSigned(tPlayer.getName(), event);
             }
             return;
@@ -322,15 +324,15 @@ public class CommandEvent extends BaseCommand {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         if (event.isSubscribing(player.getUniqueId())) {
             if (event.getState() != Event.EventState.SETUP) {
-                plugin.sendMessage(player, Error.EVENT_ALREADY_STARTED);
+                Text.send(player, Error.EVENT_ALREADY_STARTED);
                 return;
             }
             event.removeSubscriber(player.getUniqueId());
-            plugin.sendMessage(player, Warning.NO_LONGER_SIGNED, "%event%", event.getDisplayName());
+            Text.send(player, Warning.NO_LONGER_SIGNED, "%event%", event.getDisplayName());
         } else {
             if (!event.isOpenSign()) {
                 if (!player.hasPermission("event.sign") || !player.hasPermission("event.admin") || !player.isOp()) {
-                    plugin.sendMessage(player, Error.NOT_NOW);
+                    Text.send(player, Error.NOT_NOW);
                     return;
                 }
             }
@@ -340,7 +342,7 @@ public class CommandEvent extends BaseCommand {
             }
             event.addSubscriber(tPlayer);
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
-            plugin.sendMessage(player, Success.SIGNED, "%event%", event.getDisplayName());
+            Text.send(player, Success.SIGNED, "%event%", event.getDisplayName());
             EventAnnouncements.broadcastPlayerSigned(player.getName(), event);
         }
     }
@@ -353,7 +355,7 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);;
+                Text.send(player, Error.NO_EVENT_SELECTED);;
                 return;
             }
         }
@@ -362,7 +364,7 @@ public class CommandEvent extends BaseCommand {
 
         int count = 1;
         player.sendMessage(Component.empty());
-        var message = plugin.getText(player, Info.SIGNS_TITLE, "%event%", event.getDisplayName());
+        var message = Text.get(player, Info.SIGNS_TITLE, "%event%", event.getDisplayName());
 
         if (player.hasPermission("event.admin") || player.hasPermission("event.sign.others")) {
             message = message.append(Component.space()).append(theme.getAddButton().clickEvent(ClickEvent.suggestCommand("/event sign " + event.getDisplayName() + " ")));
@@ -388,7 +390,7 @@ public class CommandEvent extends BaseCommand {
         }
 
         count = 1;
-        message = plugin.getText(player, Info.RESERVES_TITLE, "%event%", event.getDisplayName());
+        message = Text.get(player, Info.RESERVES_TITLE, "%event%", event.getDisplayName());
 
         if (player.hasPermission("event.admin") || player.hasPermission("event.sign.others")) {
             message = message.append(Component.space()).append(theme.getAddButton().clickEvent(ClickEvent.suggestCommand("/event reserve " + event.getDisplayName() + " ")));
@@ -417,31 +419,31 @@ public class CommandEvent extends BaseCommand {
         if (name != null) {
 
             if (!player.hasPermission("event.admin") || !player.isOp()) {
-                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
 
             TPlayer tPlayer = Database.getPlayer(name);
             if (tPlayer == null) {
-                plugin.sendMessage(player, Error.PLAYER_NOT_FOUND);
+                Text.send(player, Error.PLAYER_NOT_FOUND);
                 return;
             }
 
             if (event.isReserving(tPlayer.getUniqueId())) {
                 if (event.getState() != Event.EventState.SETUP) {
-                    plugin.sendMessage(player, Error.EVENT_ALREADY_STARTED);
+                    Text.send(player, Error.EVENT_ALREADY_STARTED);
                     return;
                 }
                 event.removeReserve(tPlayer.getUniqueId());
 
-                plugin.sendMessage(player, Warning.PLAYER_NO_LONGER_RESERVE, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
+                Text.send(player, Warning.PLAYER_NO_LONGER_RESERVE, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
             } else {
                 if (event.isSubscribing(tPlayer.getUniqueId())) {
                     event.removeSubscriber(tPlayer.getUniqueId());
                 }
                 event.addReserve(tPlayer);
                 EventDatabase.setPlayerSelectedEvent(tPlayer.getUniqueId(), event);
-                plugin.sendMessage(player, Success.PLAYER_RESERVE, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
+                Text.send(player, Success.PLAYER_RESERVE, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
                 EventAnnouncements.broadcastPlayerSignedReserve(tPlayer.getName(), event);
             }
             return;
@@ -449,19 +451,19 @@ public class CommandEvent extends BaseCommand {
         var tPlayer = Database.getPlayer(player.getUniqueId());
         if (event.isReserving(player.getUniqueId())) {
             if (event.getState() != Event.EventState.SETUP) {
-                plugin.sendMessage(player, Error.EVENT_ALREADY_STARTED);
+                Text.send(player, Error.EVENT_ALREADY_STARTED);
                 return;
             }
             event.removeReserve(player.getUniqueId());
-            plugin.sendMessage(player, Warning.NO_LONGER_RESERVE, "%event%", event.getDisplayName());
+            Text.send(player, Warning.NO_LONGER_RESERVE, "%event%", event.getDisplayName());
         } else {
             if (event.isSubscribing(player.getUniqueId())) {
-                plugin.sendMessage(player, Error.ALREADY_SIGNED, "%event%", event.getDisplayName());
+                Text.send(player, Error.ALREADY_SIGNED, "%event%", event.getDisplayName());
                 return;
             }
             event.addReserve(tPlayer);
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
-            plugin.sendMessage(player, Success.RESERVE, "%event%", event.getDisplayName());
+            Text.send(player, Success.RESERVE, "%event%", event.getDisplayName());
             EventAnnouncements.broadcastPlayerSignedReserve(player.getName(), event);
         }
     }
@@ -474,7 +476,7 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);;
+                Text.send(player, Error.NO_EVENT_SELECTED);;
                 return;
             }
         }
@@ -491,7 +493,7 @@ public class CommandEvent extends BaseCommand {
                 }
             }
             p.sendMessage(Component.empty());
-            p.sendMessage(plugin.getText(p, Broadcast.CLICK_TO_SIGN, "%event%", event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event sign " + event.getDisplayName())));
+            p.sendMessage(Text.get(p, Broadcast.CLICK_TO_SIGN, "%event%", event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event sign " + event.getDisplayName())));
             p.sendMessage(Component.empty());
         }
     }
@@ -504,7 +506,7 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                plugin.sendMessage(player, Error.NO_EVENT_SELECTED);;
+                Text.send(player, Error.NO_EVENT_SELECTED);;
                 return;
             }
         }
@@ -515,7 +517,7 @@ public class CommandEvent extends BaseCommand {
                 continue;
             }
             p.sendMessage(Component.empty());
-            p.sendMessage(plugin.getText(p, Broadcast.CLICK_TO_RESERVE, "%event%", event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event reserve " + event.getDisplayName())));
+            p.sendMessage(Text.get(p, Broadcast.CLICK_TO_RESERVE, "%event%", event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event reserve " + event.getDisplayName())));
             p.sendMessage(Component.empty());
         }
     }

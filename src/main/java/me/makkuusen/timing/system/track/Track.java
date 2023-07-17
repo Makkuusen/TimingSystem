@@ -15,6 +15,7 @@ import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.gui.TrackFilter;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -119,12 +120,12 @@ public class Track {
         List<Component> loreToSet = new ArrayList<>();
 
         var plugin = TimingSystem.getPlugin();
-        loreToSet.add(plugin.getText(tPlayer, Gui.POSITION, "%pos%", getPlayerTopListPosition(tPlayer) == -1 ? "(-)" : String.valueOf(getPlayerTopListPosition(tPlayer))));
-        loreToSet.add(plugin.getText(tPlayer, Gui.BEST_TIME, "%time%", getBestFinish(tPlayer) == null ? "(-)" : ApiUtilities.formatAsTime(getBestFinish(tPlayer).getTime())));
-        loreToSet.add(plugin.getText(tPlayer, Gui.TOTAL_FINISHES, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer))));
-        loreToSet.add(plugin.getText(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer) + getPlayerTotalAttempts(tPlayer))));
-        loreToSet.add(plugin.getText(tPlayer, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(getPlayerTotalTimeSpent(tPlayer))));
-        loreToSet.add(plugin.getText(tPlayer, Gui.CREATED_BY, "%player%", getOwner().getName()));
+        loreToSet.add(Text.get(tPlayer, Gui.POSITION, "%pos%", getPlayerTopListPosition(tPlayer) == -1 ? "(-)" : String.valueOf(getPlayerTopListPosition(tPlayer))));
+        loreToSet.add(Text.get(tPlayer, Gui.BEST_TIME, "%time%", getBestFinish(tPlayer) == null ? "(-)" : ApiUtilities.formatAsTime(getBestFinish(tPlayer).getTime())));
+        loreToSet.add(Text.get(tPlayer, Gui.TOTAL_FINISHES, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer))));
+        loreToSet.add(Text.get(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer) + getPlayerTotalAttempts(tPlayer))));
+        loreToSet.add(Text.get(tPlayer, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(getPlayerTotalTimeSpent(tPlayer))));
+        loreToSet.add(Text.get(tPlayer, Gui.CREATED_BY, "%player%", getOwner().getName()));
 
         Component tags = Component.empty();
         boolean notFirst = false;
@@ -135,7 +136,7 @@ public class Track {
             tags = tags.append(Component.text(tag.getValue()).color(tag.getColor()));
             notFirst = true;
         }
-        loreToSet.add(plugin.getText(tPlayer.getPlayer(), Gui.TAGS).append(tags));
+        loreToSet.add(Text.get(tPlayer.getPlayer(), Gui.TAGS).append(tags));
 
 
         ItemMeta im = toReturn.getItemMeta();

@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -17,7 +17,7 @@ public class GuiCommon {
     }
 
     public static GuiButton getStatusOnButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.ON)).build());
+        var button = new GuiButton(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName(Text.get(tPlayer, Gui.ON)).build());
         button.setAction(() -> {
 
         });
@@ -25,7 +25,7 @@ public class GuiCommon {
     }
 
     public static GuiButton getStatusOffButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.OFF)).build());
+        var button = new GuiButton(new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName(Text.get(tPlayer, Gui.OFF)).build());
         button.setAction(() -> {
 
         });
@@ -40,7 +40,7 @@ public class GuiCommon {
     }
 
     public static GuiButton getReturnToSettingsButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.ARROW).setName(TimingSystem.getPlugin().getText(tPlayer, Gui.RETURN)).build());
+        var button = new GuiButton(new ItemBuilder(Material.ARROW).setName(Text.get(tPlayer, Gui.RETURN)).build());
         button.setAction(() -> new SettingsGui(tPlayer).show(tPlayer.getPlayer()));
         return button;
     }

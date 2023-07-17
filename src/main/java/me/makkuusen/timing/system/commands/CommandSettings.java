@@ -8,8 +8,8 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.gui.SettingsGui;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
 import org.bukkit.entity.Boat;
@@ -21,8 +21,6 @@ import java.util.regex.Pattern;
 @CommandAlias("settings|s")
 public class CommandSettings extends BaseCommand {
 
-    public static TimingSystem plugin;
-
     @Default
     public static void onSettings(Player player) {
         new SettingsGui(Database.getPlayer(player.getUniqueId())).show(player);
@@ -32,7 +30,7 @@ public class CommandSettings extends BaseCommand {
     public static void onVerbose(Player player) {
         var tPlayer = Database.getPlayer(player);
         tPlayer.toggleVerbose();
-        plugin.sendMessage(player, tPlayer.isVerbose() ? Success.CHECKPOINTS_ANNOUNCEMENTS_ON : Success.CHECKPOINTS_ANNOUNCEMENTS_OFF);
+        Text.send(player, tPlayer.isVerbose() ? Success.CHECKPOINTS_ANNOUNCEMENTS_ON : Success.CHECKPOINTS_ANNOUNCEMENTS_OFF);
     }
 
     @Subcommand("boat")
@@ -43,21 +41,21 @@ public class CommandSettings extends BaseCommand {
         if (player.getVehicle() instanceof Boat boat) {
             boat.setBoatType(type);
         }
-        plugin.sendMessage(player, Success.SAVED);
+        Text.send(player, Success.SAVED);
     }
 
     @Subcommand("sound")
     public static void onTTSound(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.toggleSound();
-        plugin.sendMessage(player, tPlayer.isSound() ? Success.SOUND_ON : Success.SOUND_OFF);
+        Text.send(player, tPlayer.isSound() ? Success.SOUND_ON : Success.SOUND_OFF);
     }
 
     @Subcommand("compactScoreboard")
     public static void onCompactScoreboard(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.toggleCompactScoreboard();
-        plugin.sendMessage(player, tPlayer.isCompactScoreboard() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
+        Text.send(player, tPlayer.isCompactScoreboard() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
     }
 
     @Subcommand("override")
@@ -65,7 +63,7 @@ public class CommandSettings extends BaseCommand {
     public static void onOverride(Player player) {
         var tPlayer = Database.getPlayer(player);
         tPlayer.toggleOverride();
-        plugin.sendMessage(player, tPlayer.isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
+        Text.send(player, tPlayer.isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
     }
 
 
@@ -78,10 +76,10 @@ public class CommandSettings extends BaseCommand {
         if (isValidHexCode(hex)) {
             var tPlayer = Database.getPlayer(player);
             tPlayer.setHexColor(hex);
-            player.sendMessage(plugin.getText(player, Success.COLOR_UPDATED).color(tPlayer.getTextColor()));
+            player.sendMessage(Text.get(player, Success.COLOR_UPDATED).color(tPlayer.getTextColor()));
             return;
         }
-        plugin.sendMessage(player, Error.COLOR_FORMAT);
+        Text.send(player, Error.COLOR_FORMAT);
     }
 
     public static boolean isValidHexCode(String str) {

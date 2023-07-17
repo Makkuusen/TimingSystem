@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
@@ -20,7 +20,7 @@ import java.util.List;
 public class TrackGui extends TrackPageGui {
 
     public TrackGui(TPlayer tPlayer) {
-        super(tPlayer, TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE));
+        super(tPlayer, Text.get(tPlayer.getPlayer(), Gui.TRACKS_TITLE));
     }
 
     public TrackGui(TPlayer tPlayer, Component title) {
@@ -37,7 +37,7 @@ public class TrackGui extends TrackPageGui {
         var button = new GuiButton(item);
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {
-                TimingSystem.getPlugin().sendMessage(player, Error.WORLD_NOT_LOADED);
+                Text.send(player, Error.WORLD_NOT_LOADED);
                 return;
             }
             player.teleport(track.getSpawnLocation());
@@ -48,12 +48,12 @@ public class TrackGui extends TrackPageGui {
 
     private ItemStack setTrackLore(Player player, Track track, ItemStack toReturn) {
         List<Component> loreToSet = new ArrayList<>();
-        loreToSet.add(plugin.getText(player, Gui.TOTAL_FINISHES, "%total%", String.valueOf(track.getTotalFinishes())));
-        loreToSet.add(plugin.getText(player, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(track.getTotalFinishes() + track.getTotalAttempts())));
-        loreToSet.add(plugin.getText(player, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
-        loreToSet.add(plugin.getText(player, Gui.CREATED_BY, "%player%", track.getOwner().getName()));
-        loreToSet.add(plugin.getText(player, Gui.CREATED_AT, "%time%", ApiUtilities.niceDate(track.getDateCreated())));
-        loreToSet.add(plugin.getText(player, Gui.WEIGHT, "%weight%", String.valueOf(track.getWeight())));
+        loreToSet.add(Text.get(player, Gui.TOTAL_FINISHES, "%total%", String.valueOf(track.getTotalFinishes())));
+        loreToSet.add(Text.get(player, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(track.getTotalFinishes() + track.getTotalAttempts())));
+        loreToSet.add(Text.get(player, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
+        loreToSet.add(Text.get(player, Gui.CREATED_BY, "%player%", track.getOwner().getName()));
+        loreToSet.add(Text.get(player, Gui.CREATED_AT, "%time%", ApiUtilities.niceDate(track.getDateCreated())));
+        loreToSet.add(Text.get(player, Gui.WEIGHT, "%weight%", String.valueOf(track.getWeight())));
 
         Component tags = Component.empty();
         boolean notFirst = false;
@@ -64,7 +64,7 @@ public class TrackGui extends TrackPageGui {
             tags = tags.append(Component.text(tag.getValue()).color(tag.getColor()));
             notFirst = true;
         }
-        loreToSet.add(plugin.getText(player, Gui.TAGS).append(tags));
+        loreToSet.add(Text.get(player, Gui.TAGS).append(tags));
         ItemMeta im = toReturn.getItemMeta();
         im.lore(loreToSet);
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);

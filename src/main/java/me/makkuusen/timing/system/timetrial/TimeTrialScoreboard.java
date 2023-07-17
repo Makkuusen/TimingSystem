@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.timetrial;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.ScoreBoard;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -74,9 +74,9 @@ public class TimeTrialScoreboard {
             color = getColor(tPlayer.getTheme().getWarning());
         }
 
-        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(TimingSystem.getPlugin().getText(tPlayer, ScoreBoard.FINISHES)) + color + (totalAttempts != 0 ? totalFinishes + "/" + totalAttempts + " (" + percentage + "%)" : "(-)"));
-        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(TimingSystem.getPlugin().getText(tPlayer, ScoreBoard.AVERAGE_TIME)) + getColor(tPlayer.getTheme().getWarning()) + (averageTime != -1 ? ApiUtilities.formatAsTimeNoRounding(averageTime) : "(-)"));
-        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(TimingSystem.getPlugin().getText(tPlayer, ScoreBoard.BEST_TIME)) + getColor(tPlayer.getTheme().getSuccess()) + (bestTime != -1 ? ApiUtilities.formatAsTime(bestTime) : "(-)"));
+        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.FINISHES)) + color + (totalAttempts != 0 ? totalFinishes + "/" + totalAttempts + " (" + percentage + "%)" : "(-)"));
+        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.AVERAGE_TIME)) + getColor(tPlayer.getTheme().getWarning()) + (averageTime != -1 ? ApiUtilities.formatAsTimeNoRounding(averageTime) : "(-)"));
+        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.BEST_TIME)) + getColor(tPlayer.getTheme().getSuccess()) + (bestTime != -1 ? ApiUtilities.formatAsTime(bestTime) : "(-)"));
         lines.add("");
         int count = timeTrialSession.getTimeTrialFinishes().size();
 

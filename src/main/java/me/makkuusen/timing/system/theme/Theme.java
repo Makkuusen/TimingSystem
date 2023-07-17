@@ -3,7 +3,7 @@ package me.makkuusen.timing.system.theme;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.theme.messages.Hover;
 import me.makkuusen.timing.system.theme.messages.Info;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -73,15 +73,15 @@ public class Theme {
     }
 
     public HoverEvent<Component> getClickToViewHoverEvent(CommandSender sender) {
-        return HoverEvent.showText(TimingSystem.getPlugin().getTextNoColor(sender, Info.CLICK_TO_VIEW));
+        return HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_VIEW));
     }
 
     public HoverEvent<Component> getClickToEditHoverEvent(CommandSender sender) {
-        return HoverEvent.showText(TimingSystem.getPlugin().getTextNoColor(sender, Info.CLICK_TO_EDIT));
+        return HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_EDIT));
     }
 
     public HoverEvent<Component> getClickToAddHoverEvent(CommandSender sender) {
-        return HoverEvent.showText(TimingSystem.getPlugin().getTextNoColor(sender, Info.CLICK_TO_ADD));
+        return HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_ADD));
     }
 
     public Component highlight(String message) {
@@ -153,7 +153,7 @@ public class Theme {
             pageText = pageText.append(Component.text("<<< ").color(getSecondary()).clickEvent(ClickEvent.runCommand(command + " " + (pageStart - 1))));
         }
 
-        pageText = pageText.append(TimingSystem.getPlugin().getText(sender, Info.PAGE_CURRENT_OF_MAX, "%current%", String.valueOf(pageStart), "%max%", String.valueOf(pageEnd)));
+        pageText = pageText.append(Text.get(sender, Info.PAGE_CURRENT_OF_MAX, "%current%", String.valueOf(pageStart), "%max%", String.valueOf(pageEnd)));
 
         if (pageEnd > pageStart) {
             pageText = pageText.append(Component.text(" >>>").color(getSecondary()).clickEvent(ClickEvent.runCommand(command + " " + (pageStart + 1))));

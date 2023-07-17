@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
@@ -50,7 +50,7 @@ public abstract class TrackPageGui extends BaseGui {
     }
 
     public Component getTitle() {
-        return TimingSystem.getPlugin().getText(tPlayer.getPlayer(), Gui.TRACKS_TITLE);
+        return Text.get(tPlayer.getPlayer(), Gui.TRACKS_TITLE);
     }
 
     public void update() {
@@ -81,15 +81,15 @@ public abstract class TrackPageGui extends BaseGui {
     private void setSortingItem() {
         ItemStack item;
         if (trackSort == TrackSort.MOST_RECENT) {
-            item = new ItemBuilder(Material.CLOCK).setName(plugin.getText(tPlayer, Gui.SORTED_BY_MOST_RECENT)).build();
+            item = new ItemBuilder(Material.CLOCK).setName(Text.get(tPlayer, Gui.SORTED_BY_MOST_RECENT)).build();
         } else if (trackSort == TrackSort.POPULARITY) {
-            item = new ItemBuilder(Material.SUNFLOWER).setName(plugin.getText(tPlayer, Gui.SORTED_BY_POPULARITY)).build();
+            item = new ItemBuilder(Material.SUNFLOWER).setName(Text.get(tPlayer, Gui.SORTED_BY_POPULARITY)).build();
         } else if (trackSort == TrackSort.POSITION) {
-            item = new ItemBuilder(Material.DRAGON_BREATH).setName(plugin.getText(tPlayer, Gui.SORTED_BY_POSITION)).build();
+            item = new ItemBuilder(Material.DRAGON_BREATH).setName(Text.get(tPlayer, Gui.SORTED_BY_POSITION)).build();
         } else if (trackSort == TrackSort.TIME_SPENT) {
-            item = new ItemBuilder(Material.NETHER_STAR).setName(plugin.getText(tPlayer, Gui.SORTED_BY_TIME_SPENT)).build();
+            item = new ItemBuilder(Material.NETHER_STAR).setName(Text.get(tPlayer, Gui.SORTED_BY_TIME_SPENT)).build();
         } else {
-            item = new ItemBuilder(Material.ANVIL).setName(plugin.getText(tPlayer, Gui.SORTED_BY_DEFAULT)).build();
+            item = new ItemBuilder(Material.ANVIL).setName(Text.get(tPlayer, Gui.SORTED_BY_DEFAULT)).build();
         }
 
         var button = new GuiButton(item);
@@ -104,11 +104,11 @@ public abstract class TrackPageGui extends BaseGui {
     }
 
     private void setSortingItems() {
-        setItem(getSortingButton(new ItemBuilder(Material.ANVIL).setName(plugin.getText(tPlayer, Gui.SORTED_BY_DEFAULT)).build(), TrackSort.WEIGHT), 45);
-        setItem(getSortingButton(new ItemBuilder(Material.DRAGON_BREATH).setName(plugin.getText(tPlayer, Gui.SORTED_BY_POSITION)).build(), TrackSort.POSITION), 46);
-        setItem(getSortingButton(new ItemBuilder(Material.SUNFLOWER).setName(plugin.getText(tPlayer, Gui.SORTED_BY_POPULARITY)).build(), TrackSort.POPULARITY), 47);
-        setItem(getSortingButton(new ItemBuilder(Material.NETHER_STAR).setName(plugin.getText(tPlayer, Gui.SORTED_BY_TIME_SPENT)).build(), TrackSort.TIME_SPENT), 48);
-        setItem(getSortingButton(new ItemBuilder(Material.CLOCK).setName(plugin.getText(tPlayer, Gui.SORTED_BY_MOST_RECENT)).build(), TrackSort.MOST_RECENT), 49);
+        setItem(getSortingButton(new ItemBuilder(Material.ANVIL).setName(Text.get(tPlayer, Gui.SORTED_BY_DEFAULT)).build(), TrackSort.WEIGHT), 45);
+        setItem(getSortingButton(new ItemBuilder(Material.DRAGON_BREATH).setName(Text.get(tPlayer, Gui.SORTED_BY_POSITION)).build(), TrackSort.POSITION), 46);
+        setItem(getSortingButton(new ItemBuilder(Material.SUNFLOWER).setName(Text.get(tPlayer, Gui.SORTED_BY_POPULARITY)).build(), TrackSort.POPULARITY), 47);
+        setItem(getSortingButton(new ItemBuilder(Material.NETHER_STAR).setName(Text.get(tPlayer, Gui.SORTED_BY_TIME_SPENT)).build(), TrackSort.TIME_SPENT), 48);
+        setItem(getSortingButton(new ItemBuilder(Material.CLOCK).setName(Text.get(tPlayer, Gui.SORTED_BY_MOST_RECENT)).build(), TrackSort.MOST_RECENT), 49);
     }
 
     private void setFilterItems() {
@@ -117,7 +117,7 @@ public abstract class TrackPageGui extends BaseGui {
 
     private GuiButton getFilterButtons(TrackFilter filter) {
         if (filter.getTags().size() == 0) {
-            return getFilterButton(new ItemBuilder(Material.HOPPER).setName(plugin.getText(tPlayer, Gui.FILTER_BY_NONE)).build());
+            return getFilterButton(new ItemBuilder(Material.HOPPER).setName(Text.get(tPlayer, Gui.FILTER_BY_NONE)).build());
         }
         return getFilterButton(filter.getItem(tPlayer));
     }
@@ -144,8 +144,8 @@ public abstract class TrackPageGui extends BaseGui {
     private void setNavigationItems() {
         int slot = 49;
 
-        ItemStack previous = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName(plugin.getText(tPlayer, Gui.PREVIOUS_PAGE)).build();
-        ItemStack next = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName(plugin.getText(tPlayer, Gui.NEXT_PAGE)).build();
+        ItemStack previous = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName(Text.get(tPlayer, Gui.PREVIOUS_PAGE)).build();
+        ItemStack next = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName(Text.get(tPlayer, Gui.NEXT_PAGE)).build();
 
         Material trackMaterial = Material.OAK_BOAT;
         if (trackType == Track.TrackType.ELYTRA){
@@ -153,7 +153,7 @@ public abstract class TrackPageGui extends BaseGui {
         } else if (trackType == Track.TrackType.PARKOUR){
             trackMaterial = Material.BIG_DRIPLEAF;
         }
-        ItemStack current = new ItemBuilder(trackMaterial).setName(plugin.getText(tPlayer, Gui.CHANGE_TRACK_TYPE)).build();
+        ItemStack current = new ItemBuilder(trackMaterial).setName(Text.get(tPlayer, Gui.CHANGE_TRACK_TYPE)).build();
 
         if (page > 0) {
             setItem(getPageButton(previous, page - 1), slot - 1);
@@ -169,7 +169,7 @@ public abstract class TrackPageGui extends BaseGui {
     }
 
     private void setResetItem() {
-        var resetButton = new GuiButton(new ItemBuilder(Material.BARRIER).setName(plugin.getText(tPlayer, Gui.RESET)).build());
+        var resetButton = new GuiButton(new ItemBuilder(Material.BARRIER).setName(Text.get(tPlayer, Gui.RESET)).build());
         resetButton.setAction(() -> {
             GuiCommon.playConfirm(tPlayer);
             tPlayer.setTrackPage(null);
@@ -259,7 +259,7 @@ public abstract class TrackPageGui extends BaseGui {
 
 
     public void setTrackTypeButtons() {
-        var boatButton = new GuiButton(new ItemBuilder(Material.OAK_BOAT).setName(plugin.getText(tPlayer, Gui.BOAT_TRACKS)).build());
+        var boatButton = new GuiButton(new ItemBuilder(Material.OAK_BOAT).setName(Text.get(tPlayer, Gui.BOAT_TRACKS)).build());
         boatButton.setAction(() -> {
             GuiCommon.playConfirm(tPlayer);
             tPlayer.setTrackType(Track.TrackType.BOAT);
@@ -267,7 +267,7 @@ public abstract class TrackPageGui extends BaseGui {
         });
         setItem(boatButton,48);
 
-        var elytraButton = new GuiButton(new ItemBuilder(Material.ELYTRA).setName(plugin.getText(tPlayer, Gui.ELYTRA_TRACKS)).build());
+        var elytraButton = new GuiButton(new ItemBuilder(Material.ELYTRA).setName(Text.get(tPlayer, Gui.ELYTRA_TRACKS)).build());
         elytraButton.setAction(() -> {
             GuiCommon.playConfirm(tPlayer);
             tPlayer.setTrackType(Track.TrackType.ELYTRA);
@@ -275,7 +275,7 @@ public abstract class TrackPageGui extends BaseGui {
         });
         setItem(elytraButton,49);
 
-        var parkourButton = new GuiButton(new ItemBuilder(Material.BIG_DRIPLEAF).setName(plugin.getText(tPlayer, Gui.PARKOUR_TRACKS)).build());
+        var parkourButton = new GuiButton(new ItemBuilder(Material.BIG_DRIPLEAF).setName(Text.get(tPlayer, Gui.PARKOUR_TRACKS)).build());
         parkourButton.setAction(() -> {
             GuiCommon.playConfirm(tPlayer);
             tPlayer.setTrackType(Track.TrackType.PARKOUR);

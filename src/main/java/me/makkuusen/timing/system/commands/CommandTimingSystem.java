@@ -5,9 +5,9 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
-import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.theme.TSColor;
+import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -24,55 +24,54 @@ import java.util.regex.Pattern;
 @CommandAlias("timingsystem|ts")
 @CommandPermission("timingsystem.admin")
 public class CommandTimingSystem extends BaseCommand {
-    public static TimingSystem plugin;
     @Subcommand("tag create")
     @CommandCompletion("<tag>")
-    public void onCreateTag(CommandSender commandSender, String value) {
+    public static void onCreateTag(CommandSender commandSender, String value) {
 
         if (!value.matches("[A-Za-zÅÄÖåäöØÆøæ0-9]+")) {
-            plugin.sendMessage(commandSender, Error.INVALID_NAME);
+            Text.send(commandSender, Error.INVALID_NAME);
             return;
         }
 
         if (TrackTagManager.createTrackTag(value)) {
-            plugin.sendMessage(commandSender, Success.CREATED_TAG, "%tag%", value);
+            Text.send(commandSender, Success.CREATED_TAG, "%tag%", value);
             return;
         }
 
-        plugin.sendMessage(commandSender, Error.FAILED_TO_CREATE_TAG);
+        Text.send(commandSender, Error.FAILED_TO_CREATE_TAG);
     }
 
     @Subcommand("tag color")
     @CommandCompletion("@trackTag <hexcolorcode>")
-    public void onSetTagColor(CommandSender commandSender, TrackTag tag, String color) {
+    public static void onSetTagColor(CommandSender commandSender, TrackTag tag, String color) {
         if (!color.startsWith("#")) {
             color = "#" + color;
         }
         if (TextColor.fromHexString(color) == null) {
-            plugin.sendMessage(commandSender, Error.COLOR_FORMAT);
+            Text.send(commandSender, Error.COLOR_FORMAT);
             return;
         }
 
         tag.setColor(Objects.requireNonNull(TextColor.fromHexString(color)));
-        plugin.sendMessage(commandSender, Success.SAVED);
+        Text.send(commandSender, Success.SAVED);
 
     }
 
     @Subcommand("tag item")
     @CommandCompletion("@trackTag")
-    public void onSetTagItem(Player player, TrackTag tag) {
+    public static void onSetTagItem(Player player, TrackTag tag) {
         var item = player.getInventory().getItemInMainHand();
         if (item.getItemMeta() == null) {
-            plugin.sendMessage(player, Error.ITEM_NOT_FOUND);
+            Text.send(player, Error.ITEM_NOT_FOUND);
             return;
         }
         tag.setItem(item);
-        plugin.sendMessage(player, Success.SAVED);
+        Text.send(player, Success.SAVED);
     }
 
     @Subcommand("hexcolor")
     @CommandCompletion("@tscolor <hexcolorcode>")
-    public void onColorChange(CommandSender sender, TSColor tsColor, String hex) {
+    public static void onColorChange(CommandSender sender, TSColor tsColor, String hex) {
         if (!hex.startsWith("#")) {
             hex = "#" + hex;
         }
@@ -96,15 +95,15 @@ public class CommandTimingSystem extends BaseCommand {
                 default -> {
                 }
             }
-            sender.sendMessage(plugin.getText(sender, Success.COLOR_UPDATED).color(color));
+            sender.sendMessage(Text.get(sender, Success.COLOR_UPDATED).color(color));
             return;
         }
-        plugin.sendMessage(sender,Error.COLOR_FORMAT);
+        Text.send(sender,Error.COLOR_FORMAT);
     }
 
     @Subcommand("color")
     @CommandCompletion("@tscolor @namedColor")
-    public void onNamedColorChange(CommandSender sender, TSColor tsColor, NamedTextColor color) {
+    public static void onNamedColorChange(CommandSender sender, TSColor tsColor, NamedTextColor color) {
         Theme theme = Theme.getTheme(sender);
         switch (tsColor) {
             case SECONDARY -> theme.setSecondary(color);
@@ -122,7 +121,7 @@ public class CommandTimingSystem extends BaseCommand {
             default -> {
             }
         }
-        sender.sendMessage(plugin.getText(sender, Success.COLOR_UPDATED).color(color));
+        sender.sendMessage(Text.get(sender, Success.COLOR_UPDATED).color(color));
     }
 
     public static boolean isValidHexCode(String str) {
