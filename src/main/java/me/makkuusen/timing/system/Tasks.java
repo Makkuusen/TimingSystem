@@ -2,10 +2,12 @@ package me.makkuusen.timing.system;
 
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.ActionBar;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
@@ -44,79 +46,113 @@ public class Tasks {
     public void startPlayerTimer(TimingSystem plugin) {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
-
-                if (TimeTrialController.elytraProtection.get(p.getUniqueId()) != null && TimeTrialController.elytraProtection.get(p.getUniqueId()) >= TimingSystem.currentTime.getEpochSecond()) {
-                    String elytraCountdown = String.valueOf(TimeTrialController.elytraProtection.get(p.getUniqueId()) - TimingSystem.currentTime.getEpochSecond());
-                    p.sendActionBar(Component.text(elytraCountdown).color(Database.getPlayer(p).getTheme().getWarning()));
-                }
-
+                elytraProtectionCountdown(p);
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
-                    TimeTrial timeTrial = TimeTrialController.timeTrials.get(p.getUniqueId());
-                    long mapTime = timeTrial.getCurrentTime();
-                    Component timer = Component.text(ApiUtilities.formatAsTime(mapTime));
-                    if (timeTrial.getBestFinish() == -1 || mapTime < timeTrial.getBestFinish()) {
-                        p.sendActionBar(timer.color(Database.getPlayer(p).getTheme().getSuccess()));
-                    } else {
-                        p.sendActionBar(timer.color(Database.getPlayer(p).getTheme().getError()));
-                    }
+                    timeTrialTimer(p);
                 } else {
                     var maybeDriver = EventDatabase.getDriverFromRunningHeat(p.getUniqueId());
                     if (maybeDriver.isPresent()) {
-                        var driver = maybeDriver.get();
-                        if (driver.getHeat().getRound() instanceof FinalRound) {
-                            if (!driver.isFinished()) {
-                                p.sendActionBar(Text.get(p, ActionBar.RACE,"%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
-                            }
-                        } else if (driver.getHeat().getRound() instanceof QualificationRound) {
-                            if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
-                                long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
-                                long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
-                                if (timeLeft < 0) {
-                                    p.sendActionBar(Text.getActionBar(p, "&s" + ApiUtilities.formatAsTime(lapTime) + "&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
-                                } else {
-                                    p.sendActionBar(Text.getActionBar(p, "&s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
-                                }
-                            } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
-                                long timeLeft = driver.getHeat().getTimeLimit();
-                                if (driver.getStartTime() != null) {
-                                    timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
-                                }
-                                p.sendActionBar(Text.getActionBar(p, "&s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
-                            }
-                        }
+                        displayDriverTimer(p, maybeDriver.get());
                     } else {
-                        var mightBeDriver = EventDatabase.getClosestDriverForSpectator(p);
-                        if (mightBeDriver.isPresent()) {
-
-                            var driver = mightBeDriver.get();
-                            if (driver.getHeat().getRound() instanceof FinalRound) {
-                                if (!driver.isFinished()) {
-                                    p.sendActionBar(Text.get(p, ActionBar.RACE_SPECTATOR, "%name%", driver.getTPlayer().getName(), "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
-
-                                }
-                            } else if (driver.getHeat().getRound() instanceof QualificationRound) {
-                                if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
-                                    long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
-                                    long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
-                                    if (timeLeft < 0) {
-                                        p.sendActionBar(Text.getActionBar(p, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
-                                    } else {
-                                        p.sendActionBar(Text.getActionBar(p, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
-                                    }
-                                } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
-                                    long timeLeft = driver.getHeat().getTimeLimit();
-                                    if (driver.getStartTime() != null) {
-                                        timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
-                                    }
-                                    p.sendActionBar(Text.getActionBar(p, "&1" + driver.getTPlayer().getName() + " &2> &s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
-                                }
-                            }
-                        }
+                        displaySpectatorTimer(p);
                     }
                 }
             }
 
         }, 5, 5);
+    }
+
+    private static void displaySpectatorTimer(Player player) {
+        var mightBeDriver = EventDatabase.getClosestDriverForSpectator(player);
+        if (mightBeDriver.isPresent()) {
+            var driver = mightBeDriver.get();
+            if (driver.getHeat().getRound() instanceof FinalRound) {
+                if (!driver.isFinished()) {
+                    player.sendActionBar(Text.get(player, ActionBar.RACE_SPECTATOR, "%name%", driver.getTPlayer().getName(), "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
+
+                }
+            } else if (driver.getHeat().getRound() instanceof QualificationRound) {
+                if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
+                    long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
+                    long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
+                    if (timeLeft < 0) {
+                        player.sendActionBar(Text.getActionBar(player, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
+                    } else {
+                        player.sendActionBar(Text.getActionBar(player, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+                    }
+                } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
+                    long timeLeft = driver.getHeat().getTimeLimit();
+                    if (driver.getStartTime() != null) {
+                        timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
+                    }
+                    player.sendActionBar(Text.getActionBar(player, "&1" + driver.getTPlayer().getName() + " &2> &s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+                }
+            }
+        }
+    }
+
+    private static void displayDriverTimer(Player player, Driver driver) {
+
+        if (driver.getHeat().getRound() instanceof FinalRound) {
+            if (!driver.isFinished()) {
+                player.sendActionBar(Text.get(player, ActionBar.RACE,"%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
+            }
+        } else if (driver.getHeat().getRound() instanceof QualificationRound) {
+            if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
+                long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
+                long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
+                if (timeLeft < 0) {
+                    player.sendActionBar(Text.getActionBar(player, "&s" + ApiUtilities.formatAsTime(lapTime) + "&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
+                } else {
+                    player.sendActionBar(Text.getActionBar(player, "&s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+                }
+            } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
+                long timeLeft = driver.getHeat().getTimeLimit();
+                if (driver.getStartTime() != null) {
+                    timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
+                }
+                player.sendActionBar(Text.getActionBar(player, "&s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+            }
+        }
+    }
+
+    private static void timeTrialTimer(Player player) {
+        TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
+        long mapTime = timeTrial.getCurrentTime();
+        Component timer = Component.text(ApiUtilities.formatAsTime(mapTime));
+        Theme theme = Database.getPlayer(player).getTheme();
+
+        int latestCheckpoint = timeTrial.getLatestCheckpoint();
+        Component delta = Component.empty();
+        if (latestCheckpoint > 0) {
+            if (timeTrial.getBestFinish() != null && timeTrial.getBestFinish().hasCheckpointTimes() && timeTrial.getBestFinish().getCheckpointTime(latestCheckpoint) != null) {
+                if (timeTrial.getBestFinish().getDate() > timeTrial.getTrack().getDateChanged()) {
+                    var bestCheckpoint = timeTrial.getBestFinish().getCheckpointTime(latestCheckpoint);
+                    var currentCheckpoint = timeTrial.getCheckpointTime(latestCheckpoint);
+                    if (bestCheckpoint < currentCheckpoint) {
+                        delta = Component.text(" +" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint)).color(theme.getError());
+                    } else {
+                        delta = Component.text(" -" + ApiUtilities.formatAsPersonalGap(bestCheckpoint - currentCheckpoint)).color(theme.getSuccess());
+                    }
+                }
+            }
+        }
+
+
+        if (timeTrial.getBestTime() == -1) {
+            player.sendActionBar(timer.color(theme.getSuccess()));
+        } else if (mapTime < timeTrial.getBestTime()) {
+            player.sendActionBar(timer.color(theme.getWarning()).append(delta));
+        } else {
+            player.sendActionBar(timer.color(theme.getError()).append(delta));
+        }
+    }
+
+    private static void elytraProtectionCountdown(Player player) {
+        if (TimeTrialController.elytraProtection.get(player.getUniqueId()) != null && TimeTrialController.elytraProtection.get(player.getUniqueId()) >= TimingSystem.currentTime.getEpochSecond()) {
+            String elytraCountdown = String.valueOf(TimeTrialController.elytraProtection.get(player.getUniqueId()) - TimingSystem.currentTime.getEpochSecond());
+            player.sendActionBar(Component.text(elytraCountdown).color(Database.getPlayer(player).getTheme().getWarning()));
+        }
     }
 
 
