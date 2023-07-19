@@ -95,12 +95,17 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     private void finishLap() {
+        var oldBest = getBestLap();
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
         if (heat.getFastestLapUUID() == null || getCurrentLap().getLapTime() < heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get().getLapTime() || getCurrentLap().equals(heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get())) {
-            EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap().getLapTime());
+            EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap(), oldBest);
             heat.setFastestLapUUID(getTPlayer().getUniqueId());
         } else {
-            EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
+            if (heat.getRound() instanceof QualificationRound) {
+                EventAnnouncements.broadcastQualifyingLap(heat, this, getCurrentLap(), oldBest);
+            } else {
+                EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
+            }
         }
         ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLapTime()));
     }

@@ -134,7 +134,7 @@ public class CommandHeat extends BaseCommand {
 
         if (heat.getFastestLapUUID() != null) {
             Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
-            player.sendMessage(Text.get(player, Info.HEAT_INFO_FASTEST_LAP).append(theme.highlight(ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()))).append(theme.primary(" > ").append(theme.highlight(d.getTPlayer().getName()))));
+            player.sendMessage(Text.get(player, Info.HEAT_INFO_FASTEST_LAP, "%time%", ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()), "%player%", d.getTPlayer().getName()));
         }
 
         var driverMessage = Text.get(player, Info.HEAT_INFO_DRIVERS);

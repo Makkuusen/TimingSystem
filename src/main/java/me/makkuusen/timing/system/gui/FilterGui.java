@@ -12,7 +12,7 @@ public class FilterGui extends BaseGui{
     TrackPageGui oldTrackPage;
     TrackFilter filter;
     public FilterGui(TrackPageGui trackPage) {
-        super(Text.get(trackPage.tPlayer.getPlayer(), Gui.FILTER_TITLE), 3);
+        super(Text.get(trackPage.tPlayer.getPlayer(), Gui.FILTER_TITLE), 4);
         oldTrackPage = trackPage;
         this.filter = trackPage.filter;
         setButtons();
@@ -26,19 +26,23 @@ public class FilterGui extends BaseGui{
             oldTrackPage.tPlayer.setFilter(filter);
             TrackPageGui.openNewTrackPage(oldTrackPage, oldTrackPage.tPlayer, oldTrackPage.title);
         });
-        setItem(save, 26);
+        setItem(save, 35);
     }
 
     public void setFilterOptions() {
 
         int count = 0;
-        for (TrackTag tag : TrackTagManager.getTrackTags().values()) {
-            if (count > 8) {
+        for (TrackTag tag : TrackTagManager.getSortedTrackTags()) {
+            if (count > 25) {
                 break;
             }
 
+            if (count == 9) {
+                count = count + 9;
+            }
+
             setItem(filter.getTags().contains(tag) ? GuiCommon.getStatusOnButton(oldTrackPage.tPlayer) : GuiCommon.getStatusOffButton(oldTrackPage.tPlayer), count);
-            var button = new GuiButton(tag.getItem());
+            var button = new GuiButton(tag.getItem(oldTrackPage.tPlayer.getPlayer()));
             int finalCount = count;
             button.setAction(() -> {
                 GuiCommon.playConfirm(oldTrackPage.tPlayer);

@@ -2,9 +2,12 @@ package me.makkuusen.timing.system.theme;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.theme.messages.Hover;
 import me.makkuusen.timing.system.theme.messages.Info;
+import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -12,6 +15,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
@@ -36,7 +40,7 @@ public class Theme {
     }
 
     public static Theme getTheme(CommandSender sender) {
-        return sender instanceof Player ? Database.getPlayer(sender).getTheme() : new Theme();
+        return sender instanceof Player ? Database.getPlayer(sender).getTheme() : TimingSystem.defaultTheme;
     }
 
     public Component getViewButton(CommandSender sender) {
@@ -44,7 +48,7 @@ public class Theme {
     }
 
     public Component getEditButton(CommandSender sender, String value, Theme theme) {
-        return theme.getBrackets(value).hoverEvent(getClickToEditHoverEvent(sender));
+        return getBrackets(value).hoverEvent(getClickToEditHoverEvent(sender));
     }
 
     public Component getAddButton() {
@@ -170,6 +174,23 @@ public class Theme {
 
     public Component getTimesRow(String row, String first, String second, String third) {
         return Component.text(row + ".").color(getPrimary()).append(Component.space()).append(Component.text(first).color(getSecondary())).append(Component.space()).append(Component.text("|").color(getPrimary())).append(Component.space()).append(Component.text(second).color(getSecondary())).append(Component.space()).append(Component.text("|").color(getPrimary())).append(Component.space()).append(Component.text(third).color(getSecondary()));
+    }
+    @NotNull
+    public Component getCheckpointHovers(TimeTrialFinish finish, TimeTrialFinish best, Component appendTo) {
+        Component checkpoints = Component.empty();
+        for (Integer key : finish.getCheckpointKeys()) {
+            if (key != 1) {
+                checkpoints = checkpoints.appendNewline();
+            }
+            checkpoints = checkpoints.append(Component.text(key + ": ").color(getPrimary()).append(Component.text(ApiUtilities.formatAsTime(finish.getCheckpointTime(key))).color(getSecondary())));
+
+            if (best != null && best.getId() != finish.getId()) {
+                checkpoints = checkpoints.append(finish.getDeltaToOther(best, finish.getPlayer().getTheme(), key));
+            }
+        }
+        appendTo = appendTo.append(Component.text(" *").color(getWarning()));
+        appendTo = appendTo.hoverEvent(HoverEvent.showText(checkpoints));
+        return appendTo;
     }
 
 }

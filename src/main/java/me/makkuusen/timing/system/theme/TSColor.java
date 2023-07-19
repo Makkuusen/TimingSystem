@@ -44,4 +44,8 @@ public enum TSColor {
             }
         };
     }
+
+    public String getKey() {
+        return "color." + this.name().toLowerCase();
+    }
 }

@@ -468,7 +468,11 @@ public class CommandTrack extends BaseCommand {
                 break;
             }
             TimeTrialFinish finish = allTimes.get(i);
-            player.sendMessage(theme.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), ApiUtilities.niceDate(finish.getDate())));
+            Component row = theme.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), ApiUtilities.niceDate(finish.getDate()));
+            if (finish.hasCheckpointTimes()) {
+                row = theme.getCheckpointHovers(finish, track.getBestFinish(tPlayer), row);
+            }
+            player.sendMessage(row);
         }
 
         int pageEnd = (int) Math.ceil(((double) allTimes.size()) / ((double) itemsPerPage));
@@ -476,6 +480,7 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("alltimes")
+    @CommandPermission("track.admin")
     @CommandCompletion("@players <page>")
     public static void onAllTimes(Player player, @Optional String name, @Optional Integer pageStart) {
         if (pageStart == null) {
@@ -518,7 +523,12 @@ public class CommandTrack extends BaseCommand {
                 break;
             }
             TimeTrialFinish finish = allTimes.get(i);
-            player.sendMessage(theme.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), TrackDatabase.getTrackById(finish.getTrack()).get().getDisplayName(), ApiUtilities.niceDate(finish.getDate())));
+            Track track = TrackDatabase.getTrackById(finish.getTrack()).get();
+            Component row = theme.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), track.getDisplayName(), ApiUtilities.niceDate(finish.getDate()));
+            if (finish.hasCheckpointTimes()) {
+                row = theme.getCheckpointHovers(finish, track.getBestFinish(tPlayer), row);
+            }
+            player.sendMessage(row);
         }
         int pageEnd = (int) Math.ceil(((double) allTimes.size()) / ((double) itemsPerPage));
         player.sendMessage(theme.getPageSelector(player, pageStart, pageEnd, "/t alltimes " + tPlayer.getName()));

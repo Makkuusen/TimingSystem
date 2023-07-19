@@ -14,6 +14,7 @@ import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.LeaderboardManager;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.event.Event;
@@ -26,7 +27,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -55,6 +58,7 @@ public class TrackDatabase {
             loadFinishes(rTrack);
             loadAttempts(rTrack);
             loadTrackTags(rTrack);
+            loadCheckpointTimes(rTrack);
         }
     }
 
@@ -64,8 +68,10 @@ public class TrackDatabase {
         for (DbRow finish : resultFinishes) {
             var uuid = finish.getString("uuid") == null ? null : UUID.fromString(finish.getString("uuid"));
             if (Database.getPlayer(uuid) != null) {
-                rTrack.addTimeTrialFinish(new TimeTrialFinish(finish));
+                var f = new TimeTrialFinish(finish);
+                rTrack.addTimeTrialFinish(f);
             }
+
         }
     }
 
@@ -89,6 +95,27 @@ public class TrackDatabase {
         }
 
     }
+
+    private static void loadCheckpointTimes(Track rTrack) throws SQLException {
+
+        var players = rTrack.getTimeTrialFinishes().keySet();
+        for (TPlayer tPlayer : players) {
+            var finish = rTrack.getBestFinish(tPlayer);
+            if (rTrack.getDateChanged() > finish.getDate()) {
+                continue;
+            }
+            var checkpointResults = DB.getResults("SELECT * FROM `ts_finishes_checkpoints` WHERE `finishId` = " + finish.getId() + " AND `isRemoved` = 0;");
+            Map<Integer, Long> checkpointTimes = new HashMap<>();
+            if (!checkpointResults.isEmpty()) {
+                for (DbRow checkpoint : checkpointResults) {
+                    checkpointTimes.put(checkpoint.getInt("checkpointIndex"), Long.valueOf(checkpoint.getInt("time")));
+                }
+                finish.updateCheckpointTimes(checkpointTimes);
+            }
+        }
+
+    }
+
 
     private static void loadTrackRegions() throws SQLException {
         var trackRegions = DB.getResults("SELECT * FROM `ts_regions` WHERE `isRemoved` = 0;");

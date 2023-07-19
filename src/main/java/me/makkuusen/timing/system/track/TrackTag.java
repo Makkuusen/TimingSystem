@@ -7,28 +7,37 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ItemBuilder;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
+
 @Getter
 public class TrackTag {
+    int id;
     String value;
     TextColor color;
     ItemStack item;
+    int weight;
 
-    public TrackTag(String value, TextColor color, ItemStack item) {
+    public TrackTag(String value, TextColor color, ItemStack item, int weight) {
         this.value = value.toUpperCase();
         this.color = color;
         this.item = item;
+        this.weight = weight;
     }
 
     public TrackTag(DbRow dbRow) {
+        this.id = dbRow.getInt("id");
         this.value = dbRow.getString("tag");
         this.color = TextColor.fromHexString(dbRow.getString("color"));
         this.item = ApiUtilities.stringToItem(dbRow.getString("item"));
+        this.weight = dbRow.getInt("weight");
     }
 
     @Override
@@ -44,7 +53,7 @@ public class TrackTag {
         return false;
     }
 
-    public ItemStack getItem() {
+    public ItemStack getItem(Player player) {
         ItemStack toReturn;
         if (item == null) {
             toReturn = new ItemBuilder(Material.ANVIL).build();
@@ -53,6 +62,9 @@ public class TrackTag {
         }
         ItemMeta im = toReturn.getItemMeta();
         im.displayName(Component.text(value).color(color));
+        if (player.hasPermission("track.admin")) {
+            im.lore(List.of(Component.text(getWeight()).color(NamedTextColor.DARK_GRAY)));
+        }
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         im.addItemFlags(ItemFlag.HIDE_ITEM_SPECIFICS);
         im.addItemFlags(ItemFlag.HIDE_DYE);
@@ -72,8 +84,15 @@ public class TrackTag {
         DB.executeUpdateAsync("UPDATE `ts_tags` SET `color` = '" + color.asHexString() + "' WHERE `tag` = '" + value + "';");
     }
 
+    public void setWeight(Integer weight) {
+        this.weight = weight;
+        DB.executeUpdateAsync("UPDATE `ts_tags` SET `weight` = " + weight + " WHERE `tag` = '" + value + "';");
+    }
+
     @Override
     public int hashCode() {
         return value.hashCode();
     }
+
+
 }

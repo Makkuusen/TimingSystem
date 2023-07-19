@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 public class Track {
     private final int id;
     private final long dateCreated;
+
     private final Set<TrackRegion> regions = new HashSet<>();
     private final Set<TrackLocation> trackLocations = new HashSet<>();
     private final Set<TrackTag> tags = new HashSet<>();
@@ -58,6 +59,8 @@ public class Track {
     private int weight;
     private char[] options;
     private boolean open;
+    private long dateChanged;
+
 
     public Track(DbRow data) {
         id = data.getInt("id");
@@ -73,6 +76,7 @@ public class Track {
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
         mode = data.get("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));
         weight = data.getInt("weight");
+        dateChanged = data.get("dateChanged") == null ? 0 : data.getInt("dateChanged");
 
     }
 
@@ -91,7 +95,7 @@ public class Track {
         return (c) -> {
             String name = c.popFirstArg();
             try {
-                return TrackMode.valueOf(name);
+                return TrackMode.valueOf(name.toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
@@ -221,7 +225,7 @@ public class Track {
     }
 
     public List<TrackTag> getTags() {
-        return tags.stream().toList();
+        return tags.stream().sorted(Comparator.comparingInt(TrackTag::getWeight).reversed()).collect(Collectors.toList());
     }
 
 
@@ -295,6 +299,9 @@ public class Track {
             if (region instanceof TrackPolyRegion trackPolyRegion) {
                 trackPolyRegion.updateRegion(((Polygonal2DRegion) selection).getPoints());
             }
+            if (isTrackBoundaryChange(region.getRegionType())) {
+                setDateChanged();
+            }
         } else {
             removeRegion(region);
             return createRegion(region.getRegionType(), region.getRegionIndex(), selection, location);
@@ -313,11 +320,27 @@ public class Track {
             if (regionType.equals(TrackRegion.RegionType.START)) {
                 TrackDatabase.addTrackRegion(region);
             }
+            if (isTrackBoundaryChange(regionType)) {
+                setDateChanged();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
         return true;
+    }
+
+    private void setDateChanged() {
+        dateChanged = ApiUtilities.getTimestamp();
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `dateChanged` = " + dateChanged + " WHERE `id` = " + getId() + ";");
+    }
+
+    private boolean isTrackBoundaryChange(TrackRegion.RegionType regionType) {
+        if (regionType.equals(TrackRegion.RegionType.START)) {
+            return true;
+        } else if (regionType.equals(TrackRegion.RegionType.END)) {
+            return true;
+        } else return regionType.equals(TrackRegion.RegionType.CHECKPOINT);
     }
 
     public boolean removeRegion(TrackRegion region) {
@@ -328,6 +351,9 @@ public class Track {
             DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `id` = " + regionId + ";");
             if (region instanceof TrackPolyRegion) {
                 DB.executeUpdateAsync("DELETE FROM `ts_points` WHERE `regionId` = " + regionId + ";");
+            }
+            if (isTrackBoundaryChange(region.getRegionType())) {
+                setDateChanged();
             }
             return true;
         }
@@ -412,11 +438,11 @@ public class Track {
 
     public TimeTrialFinish newTimeTrialFinish(long time, UUID uuid) {
         try {
-
             long date = ApiUtilities.getTimestamp();
             var finishId = DB.executeInsert("INSERT INTO `ts_finishes` (`trackId`, `uuid`, `date`, `time`, `isRemoved`) VALUES(" + id + ", '" + uuid + "', " + date + ", " + time + ", 0);");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_finishes` WHERE `id` = " + finishId + ";");
             TimeTrialFinish timeTrialFinish = new TimeTrialFinish(dbRow);
+
             addTimeTrialFinish(timeTrialFinish);
             return timeTrialFinish;
         } catch (SQLException exception) {

@@ -12,7 +12,6 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
 import me.makkuusen.timing.system.gui.TrackFilter;
 import me.makkuusen.timing.system.gui.TrackSort;
-import me.makkuusen.timing.system.theme.BoatLabsTheme;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.format.TextColor;
@@ -58,7 +57,7 @@ public class TPlayer implements Comparable<TPlayer> {
         timeTrial = data.get("timetrial");
         color = data.getString("color");
         compactScoreboard = data.get("compactScoreboard");
-        theme = new BoatLabsTheme();
+        theme = TimingSystem.defaultTheme;
     }
 
     public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {

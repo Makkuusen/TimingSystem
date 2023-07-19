@@ -2,11 +2,14 @@ package me.makkuusen.timing.system.event;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.heat.Lap;
+import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Broadcast;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -19,6 +22,7 @@ import org.bukkit.entity.Player;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 public class EventAnnouncements {
 
@@ -52,9 +56,34 @@ public class EventAnnouncements {
         broadcastAnnouncement(heat, Broadcast.EVENT_PLAYER_PIT, "%player%", driver.getTPlayer().getName(), "%pit%", String.valueOf(pit));
     }
 
-    public static void broadcastFastestLap(Heat heat, Driver driver, long time) {
-        broadcastAnnouncement(heat, Broadcast.EVENT_PLAYER_FASTEST_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time));
+    public static void broadcastFastestLap(Heat heat, Driver driver, Lap time, Optional<Lap> oldBest) {
+        if (heat.getRound() instanceof QualificationRound) {
+            for (Participant p : heat.getParticipants()) {
+                if (p.getTPlayer().getPlayer() != null) {
+                    Player player = p.getTPlayer().getPlayer();
+                    Component delta = Component.empty();
+                    if (oldBest.isPresent()) {
+                        delta = QualifyHeat.getBestLapDelta(Theme.getTheme(player), time, oldBest.get());
+                    }
+                    player.sendMessage(Text.get(player, Broadcast.EVENT_PLAYER_FASTEST_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time.getLapTime())).append(delta));
+                }
+            }
+        } else {
+            broadcastAnnouncement(heat, Broadcast.EVENT_PLAYER_FASTEST_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time.getLapTime()));
+        }
+    }
 
+    public static void broadcastQualifyingLap(Heat heat, Driver driver, Lap time, Optional<Lap> oldBest) {
+        for (Participant p : heat.getParticipants()) {
+            if (p.getTPlayer().getPlayer() != null) {
+                Player player = p.getTPlayer().getPlayer();
+                Component delta = Component.empty();
+                if (oldBest.isPresent()) {
+                    delta = QualifyHeat.getBestLapDelta(Theme.getTheme(player), time, oldBest.get());
+                }
+                player.sendMessage(Text.get(player, Broadcast.EVENT_PLAYER_FINISHED_QUALIFICATION_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time.getLapTime())).append(delta));
+            }
+        }
     }
 
     public static void broadcastQualificationResults(Event event, List<Driver> drivers) {
@@ -187,8 +216,8 @@ public class EventAnnouncements {
             return;
         }
         Player player = driver.getTPlayer().getPlayer();
-        Component mainTitle = Text.get(player, Broadcast.HEAT_FINISH_TITLE_POS);
-                Title.Times times = Title.Times.times(Duration.ofMillis(100), Duration.ofMillis(2000), Duration.ofMillis(100));
+        Component mainTitle = Text.get(player, Broadcast.HEAT_FINISH_TITLE);
+            Title.Times times = Title.Times.times(Duration.ofMillis(100), Duration.ofMillis(2000), Duration.ofMillis(100));
         Title title = Title.title(mainTitle, Component.empty(), times);
         player.showTitle(title);
     }
