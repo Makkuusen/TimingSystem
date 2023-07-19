@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import co.aikar.taskchain.TaskChain;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackLeaderboard;
@@ -30,9 +31,14 @@ public class LeaderboardManager {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
+
+        TaskChain<?> chain = TimingSystem.newChain();
         for (Track t : TrackDatabase.getTracks()) {
-            updateFastestTimeLeaderboard(t);
+            chain.sync(() -> {
+                updateFastestTimeLeaderboard(t);
+            }).delay(1);
         }
+        chain.execute();
     }
 
     public static void removeAllLeaderboards() {
