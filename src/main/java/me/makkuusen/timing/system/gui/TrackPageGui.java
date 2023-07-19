@@ -43,7 +43,12 @@ public abstract class TrackPageGui extends BaseGui {
         super(title, 6);
         this.tPlayer = tPlayer;
         this.page = tPlayer.getTrackPage() == null ? 0 : tPlayer.getTrackPage();
-        this.filter = tPlayer.getFilter() == null ? new TrackFilter() : tPlayer.getFilter();
+
+        if (tPlayer.getFilter() != null && tPlayer.getFilter().hasValidTags()) {
+            this.filter = tPlayer.getFilter();
+        } else {
+            this.filter = new TrackFilter();
+        }
         this.trackSort = tPlayer.getTrackSort() == null ? TrackSort.WEIGHT : tPlayer.getTrackSort();
         this.trackType = tPlayer.getTrackType() == null ? Track.TrackType.BOAT : tPlayer.getTrackType();
         update();

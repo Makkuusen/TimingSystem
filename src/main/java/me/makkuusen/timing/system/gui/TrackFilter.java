@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.TrackTag;
@@ -43,6 +44,15 @@ public class TrackFilter {
 
     public void setTags(Set<TrackTag> tags) {
         this.tags = tags;
+    }
+
+    public boolean hasValidTags() {
+        for (TrackTag tag : tags) {
+            if (TrackTagManager.getTrackTag(tag.getValue()) == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public Set<TrackTag> getTags() {

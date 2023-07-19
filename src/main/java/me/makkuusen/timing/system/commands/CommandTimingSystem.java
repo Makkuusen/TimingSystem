@@ -69,6 +69,25 @@ public class CommandTimingSystem extends BaseCommand {
         Text.send(player, Success.SAVED);
     }
 
+    @Subcommand("tag weight")
+    @CommandCompletion("@trackTag <value>")
+    public static void onSetTagItem(Player player, TrackTag tag, int weight) {
+        tag.setWeight(weight);
+        Text.send(player, Success.SAVED);
+    }
+
+    @Subcommand("tag delete")
+    @CommandCompletion("@trackTag <value>")
+    public static void onDeleteTag(Player player, TrackTag tag) {
+        TrackTagManager.deleteTag(tag);
+        Text.send(player, Success.SAVED);
+    }
+
+
+
+
+
+
     @Subcommand("hexcolor")
     @CommandCompletion("@tscolor <hexcolorcode>")
     public static void onColorChange(CommandSender sender, TSColor tsColor, String hex) {

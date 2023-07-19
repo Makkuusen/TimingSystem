@@ -13,7 +13,9 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TrackTagManager {
@@ -23,12 +25,13 @@ public class TrackTagManager {
     public static boolean createTrackTag(String value) {
         TextColor color = NamedTextColor.WHITE;
         ItemStack item = new ItemBuilder(Material.ANVIL).build();
-        var tag = new TrackTag(value, color, item);
+        int weight = 100;
+        var tag = new TrackTag(value, color, item, weight);
         if (trackTags.containsKey(tag.getValue())) {
             return false;
         }
 
-        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag, color, item`) VALUES('" + tag.getValue() + "', '" + color.asHexString() + "', " +Database.sqlString(ApiUtilities.itemToString(item)) + ");");
+        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`, `color`, `item`) VALUES('" + tag.getValue() + "', '" + color.asHexString() + "', " + Database.sqlString(ApiUtilities.itemToString(item)) + ");");
         trackTags.put(tag.getValue(), tag);
         return true;
     }
@@ -48,7 +51,8 @@ public class TrackTagManager {
                 }
             }
             trackTags.remove(tag);
-            DB.executeUpdateAsync("DELETE FROM `ts_tags` WHERE `tag` = " + tag.getValue() + ";");
+            DB.executeUpdateAsync("DELETE FROM `ts_tags` WHERE `tag` = '" + tag.getValue() + "';");
+            DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = '" + tag.getValue() + "';");
             return true;
         }
         return false;
@@ -75,5 +79,9 @@ public class TrackTagManager {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
         };
+    }
+
+    public static List<TrackTag> getSortedTrackTags() {
+        return trackTags.values().stream().sorted(Comparator.comparingInt(TrackTag::getWeight).reversed()).toList();
     }
 }

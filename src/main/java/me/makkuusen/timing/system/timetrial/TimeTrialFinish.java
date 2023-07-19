@@ -3,13 +3,18 @@ package me.makkuusen.timing.system.timetrial;
 
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.track.TrackDatabase;
+import net.kyori.adventure.text.Component;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
@@ -52,6 +57,10 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
         return checkpointTimes.get(checkpoint);
     }
 
+    public Set<Integer> getCheckpointKeys() {
+        return checkpointTimes.keySet();
+    }
+
     public boolean hasCheckpointTimes() {
         return !checkpointTimes.isEmpty();
     }
@@ -75,6 +84,24 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
     public int getTrack() {
         return trackId;
     }
+
+    public Component getDeltaToOther(TimeTrialFinish other, Theme theme, int latestCheckpoint) {
+        if (latestCheckpoint > 0) {
+            if (other.hasCheckpointTimes() && other.getCheckpointTime(latestCheckpoint) != null) {
+                if (other.getDate() > TrackDatabase.getTrackById(getTrack()).get().getDateChanged()) {
+                    var otherCheckpoint = other.getCheckpointTime(latestCheckpoint);
+                    var currentCheckpoint = getCheckpointTime(latestCheckpoint);
+                    if (ApiUtilities.getRoundedToTick(otherCheckpoint) <= ApiUtilities.getRoundedToTick(currentCheckpoint)) {
+                        return Component.text(" +" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - otherCheckpoint)).color(theme.getError());
+                    } else {
+                        return Component.text(" -" + ApiUtilities.formatAsPersonalGap(otherCheckpoint - currentCheckpoint)).color(theme.getSuccess());
+                    }
+                }
+            }
+        }
+        return Component.empty();
+    }
+
 
     @Override
     public int compare(TimeTrialFinish f1, TimeTrialFinish f2) {

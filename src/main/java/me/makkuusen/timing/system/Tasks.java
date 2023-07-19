@@ -2,6 +2,7 @@ package me.makkuusen.timing.system;
 
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
@@ -75,17 +76,14 @@ public class Tasks {
                 if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
                     long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                     long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
-                    if (timeLeft < 0) {
-                        player.sendActionBar(Text.getActionBar(player, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
-                    } else {
-                        player.sendActionBar(Text.getActionBar(player, "&1" + driver.getTPlayer().getName() + " > &s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
-                    }
+                    String delta = QualifyHeat.getBestLapCheckpointDelta(driver, driver.getCurrentLap().getLatestCheckpoint());
+                    player.sendActionBar(Text.getActionBar(player, "&2" + driver.getTPlayer().getName() + " > " + (timeLeft < 0 ? ("&e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)): "&w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)) + "&r&1 |&2&l P" + driver.getPosition() + "&r&1 | &2" + ApiUtilities.formatAsTime(lapTime) + delta));
                 } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
                     long timeLeft = driver.getHeat().getTimeLimit();
                     if (driver.getStartTime() != null) {
                         timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                     }
-                    player.sendActionBar(Text.getActionBar(player, "&1" + driver.getTPlayer().getName() + " &2> &s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+                    player.sendActionBar(Text.getActionBar(player, "&2" + driver.getTPlayer().getName() + " &1> " + "&w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft) + "&r&1 |&2&l P" + driver.getPosition() + "&r&1 | &200.000"));
                 }
             }
         }
@@ -98,21 +96,22 @@ public class Tasks {
                 player.sendActionBar(Text.get(player, ActionBar.RACE,"%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
             }
         } else if (driver.getHeat().getRound() instanceof QualificationRound) {
-            if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
-                long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
-                long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
-                if (timeLeft < 0) {
-                    player.sendActionBar(Text.getActionBar(player, "&s" + ApiUtilities.formatAsTime(lapTime) + "&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)));
-                } else {
-                    player.sendActionBar(Text.getActionBar(player, "&s" + ApiUtilities.formatAsTime(lapTime) + "&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
-                }
-            } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
-                long timeLeft = driver.getHeat().getTimeLimit();
-                if (driver.getStartTime() != null) {
-                    timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
-                }
-                player.sendActionBar(Text.getActionBar(player, "&s00.000&r&2 |&1&l P" + driver.getPosition() + "&r&2 |&1&l &w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)));
+            sendQualificationDriverActionBar(player, driver);
+        }
+    }
+
+    private static void sendQualificationDriverActionBar(Player player, Driver driver) {
+        if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
+            long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
+            long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
+            String delta = QualifyHeat.getBestLapCheckpointDelta(driver, driver.getCurrentLap().getLatestCheckpoint());
+            player.sendActionBar(Text.getActionBar(player, (timeLeft < 0 ? ("&e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)) : "&w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)) + "&r&1 |&2&l P" + driver.getPosition() + "&r&1 | &2" + ApiUtilities.formatAsTime(lapTime) + delta));
+        } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
+            long timeLeft = driver.getHeat().getTimeLimit();
+            if (driver.getStartTime() != null) {
+                timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
             }
+            player.sendActionBar(Text.getActionBar(player, "&w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft) + "&r&1 |&2&l P" + driver.getPosition() + "&r&1 | &200.000"));
         }
     }
 
@@ -123,21 +122,7 @@ public class Tasks {
         Theme theme = Database.getPlayer(player).getTheme();
 
         int latestCheckpoint = timeTrial.getLatestCheckpoint();
-        Component delta = Component.empty();
-        if (latestCheckpoint > 0) {
-            if (timeTrial.getBestFinish() != null && timeTrial.getBestFinish().hasCheckpointTimes() && timeTrial.getBestFinish().getCheckpointTime(latestCheckpoint) != null) {
-                if (timeTrial.getBestFinish().getDate() > timeTrial.getTrack().getDateChanged()) {
-                    var bestCheckpoint = timeTrial.getBestFinish().getCheckpointTime(latestCheckpoint);
-                    var currentCheckpoint = timeTrial.getCheckpointTime(latestCheckpoint);
-                    if (bestCheckpoint < currentCheckpoint) {
-                        delta = Component.text(" +" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint)).color(theme.getError());
-                    } else {
-                        delta = Component.text(" -" + ApiUtilities.formatAsPersonalGap(bestCheckpoint - currentCheckpoint)).color(theme.getSuccess());
-                    }
-                }
-            }
-        }
-
+        Component delta = timeTrial.getBestLapDelta(theme, latestCheckpoint);
 
         if (timeTrial.getBestTime() == -1) {
             player.sendActionBar(timer.color(theme.getSuccess()));

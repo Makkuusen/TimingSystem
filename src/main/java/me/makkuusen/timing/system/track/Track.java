@@ -225,7 +225,7 @@ public class Track {
     }
 
     public List<TrackTag> getTags() {
-        return tags.stream().toList();
+        return tags.stream().sorted(Comparator.comparingInt(TrackTag::getWeight).reversed()).collect(Collectors.toList());
     }
 
 

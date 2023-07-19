@@ -106,4 +106,5 @@ public class Text {
             return plugin.getConfig().getString("settings.locale", "en_us");
         }
     }
+
 }

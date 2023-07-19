@@ -23,12 +23,14 @@ import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackRegion;
 import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Boat;
@@ -54,6 +56,8 @@ public class TimingSystem extends JavaPlugin {
     public static Map<UUID, TPlayer> players = new HashMap<>();
     private static LanguageManager languageManager;
     public static Instant currentTime = Instant.now();
+
+    public static Theme defaultTheme = new Theme();
     private static TaskChainFactory taskChainFactory;
 
     public void onEnable() {
@@ -195,12 +199,47 @@ public class TimingSystem extends JavaPlugin {
         } else {
             LeaderboardManager.startUpdateTask();
         }
-
+        setConfigDefaultColors();
         logger.info("Version " + getPluginMeta().getVersion() + " enabled.");
 
         int pluginId = 16012;
         new Metrics(this, pluginId);
 
+    }
+
+    private void setConfigDefaultColors() {
+        for (TSColor tsColor : TSColor.values()) {
+            String configColor = plugin.getConfig().getString(tsColor.getKey());
+            if (configColor != null && parseColor(configColor) != null) {
+                var color = parseColor(configColor);
+                switch (tsColor) {
+                    case SECONDARY -> defaultTheme.setSecondary(color);
+                    case PRIMARY -> defaultTheme.setPrimary(color);
+                    case AWARD -> defaultTheme.setAward(color);
+                    case AWARD_SECONDARY -> defaultTheme.setAwardSecondary(color);
+                    case ERROR -> defaultTheme.setError(color);
+                    case BROADCAST -> defaultTheme.setBroadcast(color);
+                    case SUCCESS -> defaultTheme.setSuccess(color);
+                    case WARNING -> defaultTheme.setWarning(color);
+                    case TITLE -> defaultTheme.setTitle(color);
+                    case BUTTON -> defaultTheme.setButton(color);
+                    case BUTTON_ADD -> defaultTheme.setButtonAdd(color);
+                    case BUTTON_REMOVE -> defaultTheme.setButtonRemove(color);
+                    default -> {
+                    }
+                }
+            }
+        }
+    }
+
+    private TextColor parseColor(String color) {
+        if (TextColor.fromHexString(color) != null) {
+            return TextColor.fromHexString(color);
+        }
+        if (NamedTextColor.NAMES.value(color.toLowerCase()) != null) {
+            return NamedTextColor.NAMES.value(color.toLowerCase());
+        }
+        return null;
     }
 
     @Override
