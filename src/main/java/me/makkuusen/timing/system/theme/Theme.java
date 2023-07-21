@@ -63,10 +63,6 @@ public class Theme {
         return Component.text("↻").color(button).hoverEvent(HoverEvent.showText(Component.text("Refresh")));
     }
 
-    public Component getTextButton(Component text, TextColor color, String command, Component hoverText) {
-        return getBrackets(text, color).clickEvent(ClickEvent.runCommand(command)).hoverEvent(HoverEvent.showText(hoverText));
-    }
-
     public Component getMoveButton() {
         return Component.text("[±]").color(button);
     }

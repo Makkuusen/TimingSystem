@@ -484,6 +484,10 @@ public class Track {
         return ttTimes.get(0);
     }
 
+    public boolean hasPlayedTrack(TPlayer tPlayer) {
+        return timeTrialFinishes.containsKey(tPlayer) || timeTrialAttempts.containsKey(tPlayer);
+    }
+
     public void deleteBestFinish(TPlayer player, TimeTrialFinish bestFinish) {
         timeTrialFinishes.get(player).remove(bestFinish);
         DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `id` = " + bestFinish.getId() + ";");
@@ -686,6 +690,10 @@ public class Track {
 
     public boolean isStage() {
         return hasRegion(TrackRegion.RegionType.END);
+    }
+
+    public boolean isBoatUtils() {
+        return hasOption('i') || hasOption('r');
     }
 
     public enum TrackType {

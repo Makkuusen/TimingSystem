@@ -105,6 +105,7 @@ warning:
   no_longer_reserve: "&wYou are no longer signed up as reserve for %event%."
   player_no_longer_signed: "&w%player% is no longer signed up for %event%."
   player_no_longer_reserve: "&w%player% is no longer signed up as reserve for %event%."
+  track_requires_boat_utils: "&wThis track requires the use of the BoatUtils fabric mod"
 
 success:
   saved: "&sValue has been saved."

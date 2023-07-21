@@ -20,6 +20,8 @@ public class TimingSystemConfiguration {
     private final String sqlUsername;
     private final String sqlPassword;
 
+    private final String boatUtilsUrl;
+
     TimingSystemConfiguration(TimingSystem plugin) {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
@@ -39,5 +41,6 @@ public class TimingSystemConfiguration {
         sqlDatabase = plugin.getConfig().getString("sql.database");
         sqlUsername = plugin.getConfig().getString("sql.username");
         sqlPassword = plugin.getConfig().getString("sql.password");
+        boatUtilsUrl = plugin.getConfig().getString("boat_utils_url");
     }
 }

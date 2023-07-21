@@ -28,3 +28,5 @@ sql:
    database: ''
    username: ''
    password: ''
+
+#boat_utils_url: ""

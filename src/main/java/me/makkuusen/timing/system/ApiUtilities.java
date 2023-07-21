@@ -10,12 +10,17 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
+import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.Hover;
+import me.makkuusen.timing.system.theme.messages.Warning;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -509,10 +514,12 @@ public class ApiUtilities {
             ApiUtilities.giveBoatUtilsIEffect(player);
         }
 
+        var tPlayer = Database.getPlayer(player.getUniqueId());
+
         if (boatSpawnEvent.getBoat() != null) {
             return boatSpawnEvent.getBoat();
         }
-        var tPlayer = Database.getPlayer(player.getUniqueId());
+
         Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
         if (boat != null) {
             boat.addPassenger(player);
@@ -524,7 +531,20 @@ public class ApiUtilities {
         location.setPitch(player.getLocation().getPitch());
         player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         if (track.isBoatTrack()) {
-            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track), 3);
+            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () ->  {
+                ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
+                var tPlayer = Database.getPlayer(player.getUniqueId());
+                if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer)) {
+                    var boatUtilsWarning = Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS);
+
+                    if (TimingSystem.configuration.getBoatUtilsUrl() != null) {
+                        boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(boatUtilsWarning).append(tPlayer.getTheme().warning(" <<"))
+                                .hoverEvent(HoverEvent.showText( Text.get(player, Hover.CLICK_TO_OPEN)))
+                                .clickEvent(ClickEvent.openUrl(TimingSystem.configuration.getBoatUtilsUrl()));
+                    }
+                    player.sendMessage(boatUtilsWarning);
+                }
+            }, 3);
         } else if (track.isElytraTrack()) {
 
             ItemStack chest = player.getInventory().getChestplate();

@@ -7,6 +7,7 @@ public enum Warning implements Message {
     NO_LONGER_RESERVE,
     PLAYER_NO_LONGER_SIGNED,
     PLAYER_NO_LONGER_RESERVE,
+    TRACK_REQUIRES_BOAT_UTILS,
     DANGEROUS_COMMAND;
 
     @Override
