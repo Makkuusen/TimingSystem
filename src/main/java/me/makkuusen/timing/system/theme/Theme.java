@@ -193,4 +193,18 @@ public class Theme {
         return appendTo;
     }
 
+    @NotNull
+    public Component getCheckpointHovers(TimeTrialFinish finish, Component appendTo) {
+        Component checkpoints = Component.empty();
+        for (Integer key : finish.getCheckpointKeys()) {
+            if (key != 1) {
+                checkpoints = checkpoints.appendNewline();
+            }
+            checkpoints = checkpoints.append(Component.text(key + ": ").color(getPrimary()).append(Component.text(ApiUtilities.formatAsTime(finish.getCheckpointTime(key))).color(getSecondary())));
+        }
+        appendTo = appendTo.append(Component.text(" *").color(getWarning()));
+        appendTo = appendTo.hoverEvent(HoverEvent.showText(checkpoints));
+        return appendTo;
+    }
+
 }
