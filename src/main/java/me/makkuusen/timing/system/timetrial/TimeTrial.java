@@ -260,12 +260,12 @@ public class TimeTrial {
             var oldPos = track.getPlayerTopListPosition(tPlayer);
             var oldFinish = track.getBestFinish(tPlayer);
             finish =  newBestFinish(player, timeTrialTime, oldFinish.getTime());
-            finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%oldTime%", ApiUtilities.formatAsTime(oldFinish.getTime()), "%oldPos%", oldPos.toString(), "%pos%", track.getPlayerTopListPosition(tPlayer).toString());
+            finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(oldFinish.getTime() - timeTrialTime), "%oldPos%", oldPos.toString(), "%pos%", track.getPlayerTopListPosition(tPlayer).toString());
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, oldFinish, finishMessage);
         } else {
             //Finish no improvement
             finish = callTimeTrialFinishEvent(player, timeTrialTime, track.getBestFinish(tPlayer).getTime(), false);
-            finishMessage = Text.get(player, Info.TIME_TRIAL_FINISH, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%oldTime%", ApiUtilities.formatAsPersonalGap(timeTrialTime - track.getBestFinish(tPlayer).getTime()));
+            finishMessage = Text.get(player, Info.TIME_TRIAL_FINISH, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(timeTrialTime - track.getBestFinish(tPlayer).getTime()));
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, track.getBestFinish(tPlayer), finishMessage);
 
         }

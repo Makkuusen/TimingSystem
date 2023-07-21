@@ -85,8 +85,6 @@ public enum Error implements Message {
     MISSED_CHECKPOINTS,
     PERMISSION_DENIED;
 
-
-
     Error() {}
 
     @Override

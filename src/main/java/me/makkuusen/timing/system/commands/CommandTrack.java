@@ -480,7 +480,6 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("alltimes")
-    @CommandPermission("track.admin")
     @CommandCompletion("@players <page>")
     public static void onAllTimes(Player player, @Optional String name, @Optional Integer pageStart) {
         if (pageStart == null) {
@@ -488,6 +487,11 @@ public class CommandTrack extends BaseCommand {
         }
         TPlayer tPlayer;
         if (name != null) {
+
+            if (!player.hasPermission("track.admin")) {
+                Text.send(player, Error.PERMISSION_DENIED);
+                return;
+            }
             tPlayer = Database.getPlayer(name);
             if (tPlayer == null) {
                 Text.send(player, Error.PLAYER_NOT_FOUND);

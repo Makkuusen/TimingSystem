@@ -96,6 +96,7 @@ error:
   no_slippery_effect: "&eYou are not allowed to use BoatUtils slippery effect on this track."
   lag_detected: "&eTimingSystem detected some lag and unfortunately your time trial has been invalidated."
   missed_checkpoints: "&eTime is invalid, not all checkpoints were passed!"
+  permission_denied: "&ePermission denied!"
 
 warning:
   dangerous_command: "&wThis command is dangerous, use it on own risk"
@@ -231,8 +232,8 @@ info:
   player_stats_time_spent: "&1Time spent: &2%size%"
   updating_leaderboards: '&1Updating leaderboards.'
   time_trial_first_finish: '&cPersonal best!&a You finished &c%track%&a in &c%time% &a(&c%pos%&a).'
-  time_trial_new_record: '&cPersonal best!&a You finished &c%track%&a in &c%time%&a. Your previous best was &c%oldTime% &a(&c%oldPos% &a-> &c%pos%&a).'
-  time_trial_finish: '&1You finished &2%track%&1 in &2%time% &e+%oldTime%'
+  time_trial_new_record: '&cPersonal best!&a You finished &c%track%&a in &c%time% &s-%delta% &a(&c%oldPos%&a->&c%pos%&a).'
+  time_trial_finish: '&1You finished &2%track%&1 in &2%time% &e+%delta%'
   time_trial_checkpoint: '&1Checkpoint %checkpoint% > &2%time%'
   time_trial_lag_start: '&1Lagstart > &2%time%'
   time_trial_lag_end: '&1Lagend > &2%time%'
