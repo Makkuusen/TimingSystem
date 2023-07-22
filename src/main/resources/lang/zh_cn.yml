@@ -155,7 +155,7 @@ success:
   event_finished: "&s结束了赛事。"
   race_finished: "&s结束了比赛。"
   heat_finished: "&s结束了场次。"
-  event_selected: "&s结束了赛事。"
+  event_selected: "&s选择了赛事。"
   track_selected: "&s选择了赛道。"
   event_started: "&s开始了赛事。"
   heat_countdown_started: "&s开始了倒计时。"
