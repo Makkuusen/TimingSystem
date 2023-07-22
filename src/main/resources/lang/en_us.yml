@@ -46,7 +46,7 @@ error:
   round_not_finished: "&eRound has not finished yet."
   qualification_not_supported: "&eQualification is not supported by this track."
   event_already_started: "&eEvent has already started."
-  heat_already_started: "&eHeat haas already started."
+  heat_already_started: "&eHeat has already started."
   no_event_selected: "&eYou have no event selected, /event select <name>"
   already_signed: "&eYou are already signed up for %event%."
   already_signed_race: "&eYou are already signed up for the race."
