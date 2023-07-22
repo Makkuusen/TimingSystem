@@ -91,7 +91,7 @@ error:
   stopped_flying: "&eYou stopped flying and your time trial ended."
   no_potion_effects: "&eYou are not allowed to have effects on this track."
   no_riptide: "&eYou are not allowed to riptide on this track."
-  no_soul_speed: "&eYou are not allowed to have soul speed on your shoes."
+  no_soul_speed: "&eYou are not allowed to have soul speed on your boots."
   no_step_assist_effect: "&eYou are not allowed to use BoatUtils step assist on this track."
   no_slippery_effect: "&eYou are not allowed to use BoatUtils slippery effect on this track."
   lag_detected: "&eTimingSystem detected some lag and unfortunately your time trial has been invalidated."
