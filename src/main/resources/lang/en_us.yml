@@ -15,26 +15,26 @@ Description: >
     %example% = Placeholder, do not touch.
 
 error:
-  generic: '&eSomething went wrong.'
+  generic: "&eSomething went wrong."
   not_now: "&eYou can not do this right now."
   can_not: "&eYou can not do that."
   only_players: "&eOnly players can execute this command!"
   world_not_loaded: "&eWorld is not loaded."
   syntax: "&eIncorrect syntax."
-  number_format: '&eValue could not parse. Is it a number?'
+  number_format: "&eValue could not parse. Is it a number?"
   time_format: "&eYou need to format time correctly, e.g. 2s [s=seconds, m=minutes]"
   color_format: "&eColor could not parse. Is it a valid hex code?"
-  length_exceeded: '&eName can not exceed %length% characters.'
-  name_format: '&eName can only contain letters, spaces, or numbers.'
-  selection: '&eYour World Edit selection could not be used.'
+  length_exceeded: "&eName can not exceed %length% characters."
+  name_format: "&eName can only contain letters, spaces, or numbers."
+  selection: "&eYour World Edit selection could not be used."
   no_zero_index: "&eIndex can't be 0."
-  nothing_to_remove: '&eNothing to remove.'
+  nothing_to_remove: "&eNothing to remove."
   nothing_to_restore: "&eNothing to restore."
   player_not_found: "&ePlayer not found."
   tracks_not_found: "&eNo tracks found."
   regions_not_found: "&eNo regions found."
   page_not_found: "&ePage not found."
-  item_not_found: '&eYou need to hold an item in your hand.'
+  item_not_found: "&eYou need to hold an item in your hand."
   tag_not_found: "&eTag not found."
   round_not_found: "&eRound not found."
   heat_not_found: "&eHeat not found."
@@ -42,7 +42,7 @@ error:
   track_not_found_for_event: "&eTrack not found for this event. /event set track <name>"
   race_not_found: "&eRace not found. Create one with /race create"
   track_is_closed: "&eTrack is closed."
-  track_exists: '&eTrack already exists.'
+  track_exists: "&eTrack already exists."
   round_not_finished: "&eRound has not finished yet."
   qualification_not_supported: "&eQualification is not supported by this track."
   event_already_started: "&eEvent has already started."
@@ -74,14 +74,14 @@ error:
   failed_to_load_heat: "&eHeat could not be loaded."
   failed_to_reset_heat: "&eHeat could not be reset."
   failed_to_abort_heat: "&eYou could not abort the heat."
-  race_exists: '&eRace already exists.'
+  race_exists: "&eRace already exists."
   race_full: "&eRace is already full."
   heat_full: "&eHeat is already full."
   add_driver_future_round: "&eYou can not add drivers to a future round. You first need to finish the current round."
   sort_drivers_future_round: "&eYou can't sort drivers in a future round. You first need to finish the current round."
-  invalid_track_type: '&eInvalid track type.'
-  invalid_track_name: '&eInvalid track name.'
-  invalid_track_mode: '&eInvalid track mode.'
+  invalid_track_type: "&eInvalid track type."
+  invalid_track_name: "&eInvalid track name."
+  invalid_track_mode: "&eInvalid track mode."
   invalid_name: "&eInvalid name."
   left_boat: "&eYou left your boat and your time trial was cancelled."
   race_in_progress: "&eThere is currently a race in progress at %track%."
@@ -110,7 +110,7 @@ warning:
 
 success:
   saved: "&sValue has been saved."
-  created: '&sYour thing has been created.'
+  created: "&sYour thing has been created."
   created_tag: "&sTag %tag% has been created."
   created_track: "&sTrack %track% has been created."
   created_round: "&sRound %round% has been created."
@@ -120,8 +120,8 @@ success:
   adding_drivers: "&sAdding drivers to %heat%."
   added_driver: "&sAdded driver."
   added_all_drivers: "&sAll online players has been added."
-  removed: '&sYour thing has been removed.'
-  removed_best_finish: '&sRemoved best finish for %player% on %track%.'
+  removed: "&sYour thing has been removed."
+  removed_best_finish: "&sRemoved best finish for %player% on %track%."
   removed_all_finishes: "&sAll finishes has been removed"
   removed_tag: "&sTag was removed."
   removed_locations: "&sAll %type% locations has been removed."
@@ -137,13 +137,13 @@ success:
   track_now_open: "&sTrack is now open."
   track_now_closed: "&sTrack is now &eclosed&s."
   track_moved: "&sTrack moved to %to% from %from%"
-  track_options_cleared: '&sAll options are now cleared.'
-  track_options_new: '&sOptions are now: %options%'
+  track_options_cleared: "&sAll options are now cleared."
+  track_options_new: "&sOptions are now: %options%"
   teleport_to_track: "&1Teleported you to &2%track%"
   session_ended: "&sYour session has ended."
   session_started: "&sSession started on %track%"
-  checkpoints_announcements_on: '&sCheckpoint announcements are now active.'
-  checkpoints_announcements_off: '&sCheckpoint announcements are now disabled.'
+  checkpoints_announcements_on: "&sCheckpoint announcements are now active."
+  checkpoints_announcements_off: "&sCheckpoint announcements are now disabled."
   sound_on: "&sSwitched sound to on."
   sound_off: "&sSwitched sound to &eoff&s."
   compact_scoreboard_on: "&sSwitched compact scoreboard to on."
@@ -179,7 +179,7 @@ success:
 
 info:
   page_current_of_max: "&1page &l&2%current% &r&1of &l&2%max%"
-  track_title: '&1--- &2Track: %name% (%id%) &1---'
+  track_title: "&1--- &2Track: %name% (%id%) &1---"
   track_times_title: "&1--- Times for &2%track% &1---"
   player_best_times_title: "&1--- &2%player% &1best times on &2%track% &1---"
   player_recent_times_title: "&1--- &2%player% &1most recent times &1---"
@@ -212,17 +212,17 @@ info:
   signs_title: "&1--- Signs for &2%event% &1---"
   reserves_title: "&1--- Reserves for &2%event% &1---"
   active_events_title: "&1--- Active events right now &1---"
-  track_type: '&1Type:&2 %type%'
-  track_open: '&1Open: &2Yes'
-  track_closed: '&1Open: &2No'
-  track_date_created: '&1Created:&2 %date%&1 owned by &2%owner%'
-  track_options: '&1Options: &2+%options%'
-  track_mode: '&1Mode: &2%mode%'
-  track_checkpoints: '&1Checkpoints:&2 %size%'
-  track_grids: '&1Grids:&2 %size%'
-  track_qualification_grids: '&1QualyGrids:&2c %size%'
-  track_reset_regions: '&1Reset regions:&2 %size%'
-  track_spawn_location: '&1Spawn:&2 %location%'
+  track_type: "&1Type:&2 %type%"
+  track_open: "&1Open: &2Yes"
+  track_closed: "&1Open: &2No"
+  track_date_created: "&1Created:&2 %date%&1 owned by &2%owner%"
+  track_options: "&1Options: &2+%options%"
+  track_mode: "&1Mode: &2%mode%"
+  track_checkpoints: "&1Checkpoints:&2 %size%"
+  track_grids: "&1Grids:&2 %size%"
+  track_qualification_grids: "&1QualyGrids:&2c %size%"
+  track_reset_regions: "&1Reset regions:&2 %size%"
+  track_spawn_location: "&1Spawn:&2 %location%"
   track_weight: "&1Weight:&2 %size%"
   track_tags: "&1Tags: "
   player_stats_best_lap: "&1Best time: &2%time%"
@@ -230,13 +230,13 @@ info:
   player_stats_finishes: "&1Finishes: &2%size%"
   player_stats_attempts: "&1Attempts: &2%size%"
   player_stats_time_spent: "&1Time spent: &2%size%"
-  updating_leaderboards: '&1Updating leaderboards.'
-  time_trial_first_finish: '&cPersonal best!&a You finished &c%track%&a in &c%time% &a(&c%pos%&a).'
-  time_trial_new_record: '&cPersonal best!&a You finished &c%track%&a in &c%time% &s-%delta% &a(&c%oldPos%&a->&c%pos%&a).'
-  time_trial_finish: '&1You finished &2%track%&1 in &2%time% &e+%delta%'
-  time_trial_checkpoint: '&1Checkpoint %checkpoint% > &2%time%'
-  time_trial_lag_start: '&1Lagstart > &2%time%'
-  time_trial_lag_end: '&1Lagend > &2%time%'
+  updating_leaderboards: "&1Updating leaderboards."
+  time_trial_first_finish: "&cPersonal best!&a You finished &c%track%&a in &c%time% &a(&c%pos%&a)."
+  time_trial_new_record: "&cPersonal best!&a You finished &c%track%&a in &c%time% &s-%delta% &a(&c%oldPos%&a->&c%pos%&a)."
+  time_trial_finish: "&1You finished &2%track%&1 in &2%time% &e+%delta%"
+  time_trial_checkpoint: "&1Checkpoint %checkpoint% > &2%time%"
+  time_trial_lag_start: "&1Lagstart > &2%time%"
+  time_trial_lag_end: "&1Lagend > &2%time%"
 
 hover:
   click_to_add: "Click to add"
@@ -272,11 +272,11 @@ broadcast:
   click_to_spectate_event: "&a--> Click to spectate &l%event%&r&a <--"
   player_signed_event: "&b%player% signed up."
   player_reserve_event: "&b%player% signed as reserve."
-  event_player_pit: '&2%player% &1completed pit: &2&l%pit%'
-  event_player_finish: '&2%player% &1finished &2&lP%position%&r&1 in &2%time%'
-  event_player_finish_basic: '&2%player% &1finished.'
-  event_player_finished_lap: '&1You finished lap in: &2%time%'
-  event_player_fastest_lap: '&2%player% &1new fastest lap of &2%time%'
+  event_player_pit: "&2%player% &1completed pit: &2&l%pit%"
+  event_player_finish: "&2%player% &1finished &2&lP%position%&r&1 in &2%time%"
+  event_player_finish_basic: "&2%player% &1finished."
+  event_player_finished_lap: "&1You finished lap in: &2%time%"
+  event_player_fastest_lap: "&2%player% &1new fastest lap of &2%time%"
   event_player_finished_qualification_lap: "&1%player% > &2%time%"
   event_results: "&1Final results for &2%event%"
   event_results_qualification: "&1Qualification results for &2%event%"
@@ -287,8 +287,8 @@ broadcast:
   heat_finish_title: "&aYou finished"
 
 actionbar:
-  race: '&1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits'
-  race_spectator: '&2%name% > &1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits'
+  race: "&1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits"
+  race_spectator: "&2%name% > &1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits"
 
 gui:
   settings_title: "&tSettings"
