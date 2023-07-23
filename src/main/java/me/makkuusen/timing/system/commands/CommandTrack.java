@@ -369,11 +369,6 @@ public class CommandTrack extends BaseCommand {
                 return;
             }
 
-            if (!track.isOpen() && !(player.isOp() || player.hasPermission("track.admin"))) {
-                Text.send(player, Error.TRACK_IS_CLOSED);
-                return;
-            }
-
             if (track.getId() != ttSession.getTrack().getId()) {
                 var newSession = new TimeTrialSession(Database.getPlayer(player.getUniqueId()), track);
                 newSession.updateScoreboard();
@@ -388,6 +383,11 @@ public class CommandTrack extends BaseCommand {
 
         if (track == null) {
             Text.send(player, Error.NOT_NOW);
+            return;
+        }
+
+        if (!track.isOpen() && !(player.isOp() || player.hasPermission("track.admin"))) {
+            Text.send(player, Error.TRACK_IS_CLOSED);
             return;
         }
 
