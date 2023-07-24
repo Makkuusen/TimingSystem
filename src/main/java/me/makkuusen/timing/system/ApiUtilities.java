@@ -535,13 +535,9 @@ public class ApiUtilities {
                 ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
                 var tPlayer = Database.getPlayer(player.getUniqueId());
                 if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer)) {
-                    var boatUtilsWarning = Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS);
-
-                    if (TimingSystem.configuration.getBoatUtilsUrl() != null) {
-                        boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(boatUtilsWarning).append(tPlayer.getTheme().warning(" <<"))
+                    var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
                                 .hoverEvent(HoverEvent.showText( Text.get(player, Hover.CLICK_TO_OPEN)))
-                                .clickEvent(ClickEvent.openUrl(TimingSystem.configuration.getBoatUtilsUrl()));
-                    }
+                                .clickEvent(ClickEvent.openUrl("https://discord.gg/bY558YuthD"));
                     player.sendMessage(boatUtilsWarning);
                 }
             }, 3);
