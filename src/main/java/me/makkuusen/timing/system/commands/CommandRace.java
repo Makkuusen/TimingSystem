@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.theme.messages.Broadcast;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -83,6 +84,16 @@ public class CommandRace extends BaseCommand {
             return;
         }
 
+        if (!track.hasRegion(TrackRegion.RegionType.START)) {
+            Text.send(player, Error.GENERIC);
+            return;
+        }
+
+        if (!track.hasTrackLocation(TrackLocation.Type.GRID)) {
+            Text.send(player, Error.GENERIC);
+            return;
+        }
+
 
         String name = "QuickRace";
         var maybeEvent = EventDatabase.eventNew(player.getUniqueId(), name);
@@ -127,12 +138,10 @@ public class CommandRace extends BaseCommand {
             if (laps != null && laps > 0) {
                 heat.setTotalLaps(laps);
             } else {
-                heat.setTotalLaps(5);
+                heat.setTotalLaps(3);
             }
 
-            if (track.hasRegion(TrackRegion.RegionType.PIT) && pits == null) {
-                heat.setTotalPits(1);
-            } else if (pits != null) {
+            if (pits != null) {
                 heat.setTotalPits(Math.min(laps, pits));
             } else {
                 heat.setTotalPits(0);
