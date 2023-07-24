@@ -19,6 +19,7 @@ import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -369,9 +370,12 @@ public class TSListener implements Listener {
     public void onRegionEnterV2(PlayerMoveEvent e) {
         if ((int) (e.getFrom().getX() - 0.5) != (int) e.getTo().getX() || (int) e.getFrom().getY() != (int) e.getTo().getY() || (int) (e.getFrom().getZ() - 0.5) != (int) e.getTo().getZ()) {
             Player player = e.getPlayer();
-            TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
 
-            var maybeDriver = EventDatabase.getDriverFromRunningHeat(tPlayer.getUniqueId());
+            if (player.getGameMode() == GameMode.SPECTATOR) {
+                return;
+            }
+
+            var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
             if (maybeDriver.isPresent()) {
                 handleHeat(maybeDriver.get(), player, e.getFrom());
                 return;
@@ -411,7 +415,7 @@ public class TSListener implements Listener {
                     Track track_ = maybeTrack.get();
 
                     if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
-                        TimeTrial timeTrial = new TimeTrial(track_, tPlayer);
+                        TimeTrial timeTrial = new TimeTrial(track_, Database.getPlayer(player.getUniqueId()));
                         timeTrial.playerStartingMap();
                         TimeTrialController.elytraProtection.remove(player.getUniqueId());
                         if (track_.hasOption('i') && !ApiUtilities.hasBoatUtilsIEffect(player)) {
