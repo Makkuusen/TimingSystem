@@ -79,7 +79,7 @@ public class TimingSystemAPI {
         Driver first = null;
         Driver previous = null;
         for (Driver d : heat.getLivePositions()) {
-            driverDetails.add(getDriverDetailsFromHeatWithTimes(heat, d.getTPlayer().getUniqueId(), first, previous));
+            driverDetails.add(getDriverDetailsFromHeatWithTimes(heat, d.getTPlayer().getUniqueId(), previous, first));
             if (first == null) {
                 first = d;
             }
