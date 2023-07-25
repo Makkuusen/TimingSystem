@@ -6,13 +6,13 @@ import me.makkuusen.timing.system.api.events.TimeTrialAttemptEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.UUID;
 
 public class TimeTrialController {
 
     public static HashMap<UUID, TimeTrial> timeTrials = new HashMap<>();
+    public static HashMap<UUID, Long> elytraProtection = new HashMap<>();
     public static HashMap<UUID, TimeTrialSession> timeTrialSessions = new HashMap<>();
 
     public static void playerLeavingMap(UUID uuid) {

@@ -20,14 +20,6 @@ public abstract class TrackRegion {
     private Location minP;
     private Location maxP;
 
-    public enum RegionType {
-        START, END, PIT, CHECKPOINT, RESET, INPIT, LAGSTART, LAGEND
-    }
-
-    public enum RegionShape {
-        POLY, CUBOID
-    }
-
     public TrackRegion(DbRow data) {
         id = data.getInt("id");
         trackId = data.getInt("trackId");
@@ -63,7 +55,7 @@ public abstract class TrackRegion {
     public abstract boolean isDefined();
 
     public String getWorldName() {
-        if(!spawnLocation.isWorldLoaded()){
+        if (!spawnLocation.isWorldLoaded()) {
             return "Unknown";
         }
         return spawnLocation.getWorld().getName();
@@ -85,5 +77,13 @@ public abstract class TrackRegion {
     }
 
     abstract boolean hasEqualBounds(TrackRegion other);
+
+    public enum RegionType {
+        START, END, PIT, CHECKPOINT, RESET, INPIT, LAGSTART, LAGEND
+    }
+
+    public enum RegionShape {
+        POLY, CUBOID
+    }
 
 }

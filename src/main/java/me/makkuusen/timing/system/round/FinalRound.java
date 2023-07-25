@@ -17,19 +17,19 @@ public class FinalRound extends Round {
     }
 
 
-    public String getName(){
+    public String getName() {
         return "R" + getRoundIndex() + "-Final";
     }
 
-    public String getDisplayName(){
+    public String getDisplayName() {
         return "Round " + getRoundIndex() + " - Final";
     }
 
-    public void broadcastResults(Event event, List<Driver> drivers){
+    public void broadcastResults(Event event, List<Driver> drivers) {
         EventAnnouncements.broadcastFinalResults(event, drivers);
     }
 
-    public void createHeat(int heatNumber){
+    public void createHeat(int heatNumber) {
         int pits = 0;
         var maybePit = getEvent().getTrack().getRegion(TrackRegion.RegionType.PIT);
         if (maybePit.isPresent() && maybePit.get().isDefined()) {

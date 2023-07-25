@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -26,12 +27,31 @@ public class ItemBuilder {
 
     public ItemBuilder setName(String name) {
         if (item.getType().toString().toLowerCase().contains("leather")) {
-            leatherMeta.setDisplayName(name);
+            leatherMeta.displayName(Component.text(name));
         } else {
-            itemMeta.setDisplayName(name);
+            itemMeta.displayName(Component.text(name));
         }
         return this;
     }
+
+    public ItemBuilder setName(Component name) {
+        if (item.getType().toString().toLowerCase().contains("leather")) {
+            leatherMeta.displayName(name);
+        } else {
+            itemMeta.displayName(name);
+        }
+        return this;
+    }
+
+    public ItemBuilder setCustomModelData(int value) {
+        if (item.getType().toString().toLowerCase().contains("leather")) {
+            leatherMeta.setCustomModelData(value);
+        } else {
+            itemMeta.setCustomModelData(value);
+        }
+        return this;
+    }
+
 
     public ItemStack build() {
 

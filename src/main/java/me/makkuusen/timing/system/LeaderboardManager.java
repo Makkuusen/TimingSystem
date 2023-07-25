@@ -1,11 +1,11 @@
 package me.makkuusen.timing.system;
 
+import co.aikar.taskchain.TaskChain;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackLeaderboard;
 import me.makkuusen.timing.system.track.TrackLocation;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -31,19 +31,23 @@ public class LeaderboardManager {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
+
+        TaskChain<?> chain = TimingSystem.newChain();
         for (Track t : TrackDatabase.getTracks()) {
-            updateFastestTimeLeaderboard(t);
+            chain.sync(() -> {
+                updateFastestTimeLeaderboard(t);
+            }).delay(1);
         }
+        chain.execute();
     }
 
-    public static void updateAllFastestTimeLeaderboard(CommandSender toNotify) {
+    public static void removeAllLeaderboards() {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
-        for (Track rTrack : TrackDatabase.getTracks()) {
-            updateFastestTimeLeaderboard(rTrack);
+        for (Track t : TrackDatabase.getTracks()) {
+            removeLeaderboards(t);
         }
-        toNotify.sendMessage("§aFinished updating all of the fastest time leaderboards.");
     }
 
     public static void removeLeaderboards(Track track) {

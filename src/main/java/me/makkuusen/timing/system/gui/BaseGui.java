@@ -1,7 +1,9 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.GuiOpenEvent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -12,11 +14,15 @@ import java.util.List;
 
 public class BaseGui {
 
-    private Inventory inventory;
-    private List<GuiButton> buttons = new ArrayList<>();
+    public final TimingSystem plugin;
+    private final Inventory inventory;
+    public final Component title;
+    private final List<GuiButton> buttons = new ArrayList<>();
 
-    public BaseGui(String title, int rows) {
+    public BaseGui(Component title, int rows) {
         this.inventory = Bukkit.createInventory(null, rows * 9, title);
+        this.title = title;
+        plugin = TimingSystem.getPlugin();
     }
 
     public void setItem(GuiButton button, int slot) {
@@ -54,8 +60,8 @@ public class BaseGui {
         var tPlayer = Database.getPlayer(player.getUniqueId());
         GuiOpenEvent guiOpenEvent = new GuiOpenEvent(player, this);
         Bukkit.getServer().getPluginManager().callEvent(guiOpenEvent);
-        if (guiOpenEvent.isCancelled()){
-           return;
+        if (guiOpenEvent.isCancelled()) {
+            return;
         }
         tPlayer.setOpenGui(this);
         player.openInventory(inventory);

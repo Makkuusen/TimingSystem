@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system;
+package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
@@ -6,13 +6,14 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
-import me.makkuusen.timing.system.api.TimingSystemAPI;
-import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.gui.SettingsGui;
+import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Success;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,64 +21,50 @@ import java.util.regex.Pattern;
 @CommandAlias("settings|s")
 public class CommandSettings extends BaseCommand {
 
-    static TimingSystem plugin;
-
     @Default
-    public static void onSettings(Player player){
+    public static void onSettings(Player player) {
         new SettingsGui(Database.getPlayer(player.getUniqueId())).show(player);
     }
 
     @Subcommand("verbose")
     public static void onVerbose(Player player) {
         var tPlayer = Database.getPlayer(player);
-        if (tPlayer.isVerbose()) {
-            tPlayer.toggleVerbose();
-            plugin.sendMessage(player, "messages.toggle.race.checkpointsOff");
-        } else {
-            tPlayer.toggleVerbose();
-            plugin.sendMessage(player, "messages.toggle.race.checkpointsOn");
-        }
+        tPlayer.toggleVerbose();
+        Text.send(player, tPlayer.isVerbose() ? Success.CHECKPOINTS_ANNOUNCEMENTS_ON : Success.CHECKPOINTS_ANNOUNCEMENTS_OFF);
     }
 
     @Subcommand("boat")
     @CommandCompletion("@boat")
-    public static void onBoat(Player player, Boat.Type type){
+    public static void onBoat(Player player, Boat.Type type) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.setBoat(type);
         if (player.getVehicle() instanceof Boat boat) {
             boat.setBoatType(type);
         }
-        plugin.sendMessage(player, "messages.save.generic");
+        Text.send(player, Success.SAVED);
     }
 
     @Subcommand("sound")
-    public static void onTTSound(Player player){
+    public static void onTTSound(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.switchToggleSound();
-        player.sendMessage("§2Switched sounds to §a" + (tPlayer.isSound() ? "on" : "off") + "§2.");
+        tPlayer.toggleSound();
+        Text.send(player, tPlayer.isSound() ? Success.SOUND_ON : Success.SOUND_OFF);
     }
 
     @Subcommand("compactScoreboard")
-    public static void onCompactScoreboard(Player player){
+    public static void onCompactScoreboard(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.setCompactScoreboard(!tPlayer.getCompactScoreboard());
-        player.sendMessage("§2Switched compact scoreboards to §a" + (tPlayer.getCompactScoreboard() ? "on" : "off") + "§2.");
+        tPlayer.toggleCompactScoreboard();
+        Text.send(player, tPlayer.isCompactScoreboard() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
     }
 
     @Subcommand("override")
     @CommandPermission("track.admin")
     public static void onOverride(Player player) {
         var tPlayer = Database.getPlayer(player);
-
-        if (tPlayer.isOverride()) {
-            tPlayer.toggleOverride();
-            plugin.sendMessage(player, "messages.remove.override");
-        } else {
-            tPlayer.toggleOverride();
-            plugin.sendMessage(player, "messages.create.override");
-        }
+        tPlayer.toggleOverride();
+        Text.send(player, tPlayer.isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
     }
-
 
 
     @Subcommand("color")
@@ -86,17 +73,16 @@ public class CommandSettings extends BaseCommand {
         if (!hex.startsWith("#")) {
             hex = "#" + hex;
         }
-        if (isValidHexaCode(hex)) {
+        if (isValidHexCode(hex)) {
             var tPlayer = Database.getPlayer(player);
             tPlayer.setHexColor(hex);
-            player.sendMessage("§aYour " + tPlayer.getColorCode() + "color §awas updated");
+            player.sendMessage(Text.get(player, Success.COLOR_UPDATED).color(tPlayer.getTextColor()));
             return;
         }
-        player.sendMessage("§cYou didn't enter a valid hexadecimal color code");
+        Text.send(player, Error.COLOR_FORMAT);
     }
 
-    public static boolean isValidHexaCode(String str)
-    {
+    public static boolean isValidHexCode(String str) {
         // Regex to check valid hexadecimal color code.
         String regex = "^#([A-Fa-f0-9]{6})$";
 

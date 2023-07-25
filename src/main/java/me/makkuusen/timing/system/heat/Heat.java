@@ -6,7 +6,6 @@ import co.aikar.taskchain.TaskChain;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.TaskChainCountdown;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
@@ -78,7 +77,7 @@ public class Heat {
         gridManager = new GridManager();
     }
 
-    public String getName(){
+    public String getName() {
         if (round instanceof QualificationRound) {
             return "R" + round.getRoundIndex() + "Q" + getHeatNumber();
         } else {
@@ -98,61 +97,82 @@ public class Heat {
         if (getHeatState() != HeatState.SETUP) {
             return false;
         }
-        List<Driver> pos = new ArrayList<>();
-        pos.addAll(getStartPositions());
 
-        var track = getEvent().getTrack();
 
-        boolean qualyGrid = round instanceof QualificationRound && track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0;
-
-        if (!qualyGrid && track.getTrackLocations(TrackLocation.Type.GRID).size() == 0) {
+        if (getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size() == 0) {
             return false;
         }
 
         for (Driver d : getStartPositions()) {
-            Player player = d.getTPlayer().getPlayer();
-            if (player != null) {
-                Location grid;
-                if (qualyGrid) {
-                    grid = track.getTrackLocation(TrackLocation.Type.QUALYGRID, d.getStartPosition()).get().getLocation();
-                } else {
-                    grid = track.getTrackLocation(TrackLocation.Type.GRID, d.getStartPosition()).get().getLocation();
-                }
-                if (grid != null) {
-                    gridManager.teleportPlayerToGrid(player, grid, track);
-                }
-            }
-            EventDatabase.addPlayerToRunningHeat(d);
-            d.setState(DriverState.LOADED);
+            putDriverOnGrid(d);
         }
 
-        setLivePositions(pos);
+        updateStartingLivePositions();
         setHeatState(HeatState.LOADED);
         scoreboard = new SpectatorScoreboard(this);
         updateScoreboard();
         return true;
     }
 
-    public boolean reloadHeat(){
+    public void putDriverOnGrid(Driver driver) {
+        var track = getEvent().getTrack();
+        boolean qualyGrid = round instanceof QualificationRound && track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0;
+        Player player = driver.getTPlayer().getPlayer();
+        if (player != null) {
+            Location grid;
+            if (qualyGrid) {
+                grid = track.getTrackLocation(TrackLocation.Type.QUALYGRID, driver.getStartPosition()).get().getLocation();
+            } else {
+                grid = track.getTrackLocation(TrackLocation.Type.GRID, driver.getStartPosition()).get().getLocation();
+            }
+            if (grid != null) {
+                gridManager.teleportPlayerToGrid(player, grid, track);
+            }
+        }
+        EventDatabase.addPlayerToRunningHeat(driver);
+        driver.setState(DriverState.LOADED);
+    }
+
+    public void addDriverToGrid(Driver driver) {
+        putDriverOnGrid(driver);
+        updateStartingLivePositions();
+        getStartPositions().forEach(Driver::updateScoreboard);
+    }
+
+    private void updateStartingLivePositions() {
+        List<Driver> pos = new ArrayList<>(getStartPositions());
+        setLivePositions(pos);
+    }
+
+    public void reloadHeat() {
         if (!resetHeat()) {
-            return false;
+            return;
         }
-        if (!loadHeat()) {
-            return false;
-        }
-        return true;
+        loadHeat();
     }
 
     public boolean startCountdown() {
         if (getHeatState() != HeatState.LOADED) {
             return false;
         }
-        TaskChainCountdown.countdown(this, 5);
+        setHeatState(HeatState.STARTING);
+        countdown(5);
+
         return true;
     }
 
-    public void startHeat() {
+    public void countdown(int count) {
+        TaskChain<?> chain = TimingSystem.newChain();
+        for (int i = count; i > 0; i--) {
+            int finalI = i;
+            chain.sync(() -> EventAnnouncements.broadcastCountdown(this, finalI)).delay(20);
+        }
+        chain.execute((finished) -> {
+            startHeat();
+        });
+    }
 
+    public void startHeat() {
         setHeatState(HeatState.RACING);
         updateScoreboard();
         setStartTime(TimingSystem.currentTime);
@@ -160,11 +180,11 @@ public class Heat {
             startWithDelay(getStartDelay(), true);
             return;
         }
-        getDrivers().values().stream().forEach(driver -> driver.setStartTime(TimingSystem.currentTime));
+        getDrivers().values().forEach(driver -> driver.setStartTime(TimingSystem.currentTime));
         startWithDelay(getStartDelay(), false);
     }
 
-    private void startWithDelay(long startDelayMS, boolean setStartTime){
+    private void startWithDelay(long startDelayMS, boolean setStartTime) {
         TaskChain<?> chain = TimingSystem.newChain();
         for (Driver driver : getStartPositions()) {
             chain.sync(() -> {
@@ -179,17 +199,17 @@ public class Heat {
             });
             if (startDelayMS > 0) {
                 //Start delay in ms divided by 50ms to get ticks
-                chain.delay((int)(startDelayMS / 50));
+                chain.delay((int) (startDelayMS / 50));
             }
         }
         chain.execute();
     }
 
-    public boolean passLap(Driver driver) {
+    public void passLap(Driver driver) {
         if (round instanceof QualificationRound) {
-            return QualifyHeat.passQualyLap(driver);
+            QualifyHeat.passQualyLap(driver);
         } else {
-            return FinalHeat.passLap(driver);
+            FinalHeat.passLap(driver);
         }
     }
 
@@ -200,15 +220,13 @@ public class Heat {
         updatePositions();
         setHeatState(HeatState.FINISHED);
         setEndTime(TimingSystem.currentTime);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(TimingSystem.getPlugin(), new Runnable() {
-            public void run() {
-                getDrivers().values().forEach(driver -> driver.removeScoreboard());
-                scoreboard.removeScoreboards();
-                ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
-            }
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(TimingSystem.getPlugin(), () -> {
+            getDrivers().values().forEach(Driver::removeScoreboard);
+            scoreboard.removeScoreboards();
+            ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
         }, 200);
 
-        getDrivers().values().stream().forEach(driver -> {
+        getDrivers().values().forEach(driver -> {
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
             if (driver.getEndTime() == null) {
                 driver.removeUnfinishedLap();
@@ -222,10 +240,10 @@ public class Heat {
         });
 
         //Dump all laps to database
-        getDrivers().values().stream().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
+        getDrivers().values().forEach(driver -> driver.getLaps().forEach(EventDatabase::lapNew));
 
         var heatResults = EventResults.generateHeatResults(this);
-        EventAnnouncements.broadcastHeatResult(heatResults,this);
+        EventAnnouncements.broadcastHeatResult(heatResults, this);
 
         return true;
     }
@@ -253,7 +271,7 @@ public class Heat {
         setFastestLapUUID(null);
         setLivePositions(new ArrayList<>());
         gridManager.clearArmorstands();
-        getDrivers().values().stream().forEach(driver -> {
+        getDrivers().values().forEach(driver -> {
             driver.reset();
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
         });
@@ -264,7 +282,7 @@ public class Heat {
         return true;
     }
 
-    public int getMaxDrivers(){
+    public int getMaxDrivers() {
         if (maxDrivers != null) {
             return maxDrivers;
         }
@@ -274,11 +292,16 @@ public class Heat {
         return getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size();
     }
 
+    public void setMaxDrivers(int maxDrivers) {
+        this.maxDrivers = maxDrivers;
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `maxDrivers` = " + maxDrivers + " WHERE `id` = " + getId() + ";");
+    }
+
     public void addDriver(Driver driver) {
         drivers.put(driver.getTPlayer().getUniqueId(), driver);
         if (driver.getStartPosition() > 0) {
             startPositions.add(driver);
-            Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
+            startPositions.sort(Comparator.comparingInt(Driver::getStartPosition));
         }
         if (!event.getSpectators().containsKey(driver.getTPlayer().getUniqueId())) {
             event.addSpectator(driver.getTPlayer().getUniqueId());
@@ -298,7 +321,7 @@ public class Heat {
             startPositions.remove(driver);
             int startPos = driver.getStartPosition();
             for (Driver d : startPositions) {
-                if (d.getStartPosition() > startPos){
+                if (d.getStartPosition() > startPos) {
                     d.setStartPosition(d.getStartPosition() - 1);
                     d.setPosition(d.getPosition() - 1);
                 }
@@ -309,7 +332,7 @@ public class Heat {
         }
     }
 
-    public boolean setDriverPosition(Driver driver, int newStartPosition){
+    public boolean setDriverPosition(Driver driver, int newStartPosition) {
         if (driver.getHeat().getHeatState() != HeatState.SETUP && driver.getHeat().getHeatState() != HeatState.LOADED) {
             return false;
         }
@@ -321,7 +344,7 @@ public class Heat {
                     d.setStartPosition(d.getStartPosition() + 1);
                     d.setPosition(d.getPosition() + 1);
                 }
-            } else if (newStartPosition > prevPos){
+            } else if (newStartPosition > prevPos) {
                 if (d.getStartPosition() > prevPos && d.getStartPosition() <= newStartPosition) {
                     d.setStartPosition(d.getStartPosition() - 1);
                     d.setPosition(d.getPosition() - 1);
@@ -332,11 +355,11 @@ public class Heat {
         }
         driver.setStartPosition(newStartPosition);
         driver.setPosition(newStartPosition);
-        Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
+        startPositions.sort(Comparator.comparingInt(Driver::getStartPosition));
         return true;
     }
 
-    public boolean disqualifyDriver(Driver driver){
+    public boolean disqualifyDriver(Driver driver) {
         if (!driver.getHeat().isActive()) {
             return false;
         }
@@ -347,15 +370,13 @@ public class Heat {
         return true;
     }
 
-    public List<Participant> getParticipants(){
-        List<Participant> participants = new ArrayList<>();
-        participants.addAll(getEvent().getSpectators().values());
-        return participants;
+    public List<Participant> getParticipants() {
+        return new ArrayList<>(getEvent().getSpectators().values());
     }
 
     public void updateScoreboard() {
         if (Duration.between(lastScoreboardUpdate, TimingSystem.currentTime).toMillis() > updateScoreboardDelay) {
-            livePositions.stream().forEach(driver -> driver.updateScoreboard());
+            livePositions.forEach(Driver::updateScoreboard);
             scoreboard.updateScoreboard();
             lastScoreboardUpdate = TimingSystem.currentTime;
         }
@@ -369,7 +390,6 @@ public class Heat {
         }
         return true;
     }
-
 
     public void setHeatState(HeatState state) {
         this.heatState = state;
@@ -413,14 +433,9 @@ public class Heat {
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `startDelay` = " + startDelay + " WHERE `id` = " + getId() + ";");
     }
 
-    public void setTotalLaps(int totalLaps){
+    public void setTotalLaps(int totalLaps) {
         this.totalLaps = totalLaps;
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalLaps` = " + totalLaps + " WHERE `id` = " + getId() + ";");
-    }
-
-    public void setMaxDrivers(int maxDrivers){
-        this.maxDrivers = maxDrivers;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `maxDrivers` = " + maxDrivers + " WHERE `id` = " + getId() + ";");
     }
 
     public void setTotalPits(int totalPits) {
@@ -438,7 +453,7 @@ public class Heat {
     }
 
     public boolean isRacing() {
-        return getHeatState() == HeatState.RACING ||getHeatState() == HeatState.STARTING;
+        return getHeatState() == HeatState.RACING || getHeatState() == HeatState.STARTING;
     }
 
     public void onShutdown() {
@@ -446,14 +461,14 @@ public class Heat {
         if (scoreboard != null) {
             scoreboard.removeScoreboards();
         }
-        drivers.values().forEach(driver -> driver.onShutdown());
+        drivers.values().forEach(Driver::onShutdown);
     }
 
     public void reverseGrid(Integer percentage) {
         if (getHeatState() != HeatState.SETUP && getHeatState() != HeatState.LOADED) {
             return;
         }
-        int reverseSize = Math.min((getStartPositions().size() * percentage)/100, getStartPositions().size());
+        int reverseSize = Math.min((getStartPositions().size() * percentage) / 100, getStartPositions().size());
 
         if (reverseSize == 0) {
             return;
@@ -469,7 +484,7 @@ public class Heat {
             driver.setStartPosition(newPos);
             driver.setPosition(newPos);
         }
-        Collections.sort(startPositions, Comparator.comparingInt(Driver::getStartPosition));
-        Collections.sort(livePositions, Comparator.comparingInt(Driver::getPosition));
+        startPositions.sort(Comparator.comparingInt(Driver::getStartPosition));
+        livePositions.sort(Comparator.comparingInt(Driver::getPosition));
     }
 }

@@ -1,7 +1,6 @@
 package me.makkuusen.timing.system.track;
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -16,12 +15,12 @@ import java.util.UUID;
 
 public class GridManager {
 
-    private HashMap<UUID, ArmorStand> armorStands = new HashMap<>();
+    private final HashMap<UUID, ArmorStand> armorStands = new HashMap<>();
 
     public GridManager() {
     }
 
-    public void teleportPlayerToGrid(Player player, Location location, Track track){
+    public void teleportPlayerToGrid(Player player, Location location, Track track) {
         location.setPitch(player.getLocation().getPitch());
         if (!location.isWorldLoaded()) {
             return;
@@ -51,7 +50,7 @@ public class GridManager {
         }
     }
 
-    public void clearArmorstands(){
+    public void clearArmorstands() {
         armorStands.values().stream().forEach(armorStand -> armorStand.remove());
     }
 }

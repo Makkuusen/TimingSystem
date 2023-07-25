@@ -1,11 +1,20 @@
 package me.makkuusen.timing.system.timetrial;
 
 
+import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.track.TrackDatabase;
+import net.kyori.adventure.text.Component;
 
+import javax.annotation.Nullable;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
@@ -15,7 +24,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
     private final UUID uuid;
     private final long date;
     private final long time;
-    private final boolean isRemoved;
+    private Map<Integer, Long> checkpointTimes = new HashMap<>();
 
     public TimeTrialFinish(DbRow data) {
         this.id = data.getInt("id");
@@ -23,7 +32,37 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
         this.uuid = data.getString("uuid") == null ? null : UUID.fromString(data.getString("uuid"));
         this.date = data.getInt("date");
         this.time = data.getInt("time");
-        this.isRemoved = data.get("isRemoved");
+    }
+
+    public void updateCheckpointTimes(Map<Integer, Long> checkpointTimes) {
+        this.checkpointTimes = checkpointTimes;
+    }
+
+    public void insertCheckpoints(Map<Integer, Long> checkpointTimes) {
+        this.checkpointTimes = checkpointTimes;
+        for (Integer key: checkpointTimes.keySet()) {
+            DB.executeUpdateAsync("INSERT INTO `ts_finishes_checkpoints`(" +
+                    "`finishId`, " +
+                    "`checkpointIndex`, " +
+                    "`time`) " +
+                    "VALUES (" +
+                    getId() + "," +
+                    key + "," +
+                    checkpointTimes.get(key) + ")"
+            );
+        }
+    }
+
+    public @Nullable Long getCheckpointTime(int checkpoint) {
+        return checkpointTimes.get(checkpoint);
+    }
+
+    public Set<Integer> getCheckpointKeys() {
+        return checkpointTimes.keySet();
+    }
+
+    public boolean hasCheckpointTimes() {
+        return !checkpointTimes.isEmpty();
     }
 
     public int getId() {
@@ -42,7 +81,27 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
         return date;
     }
 
-    public int getTrack() {return trackId; }
+    public int getTrack() {
+        return trackId;
+    }
+
+    public Component getDeltaToOther(TimeTrialFinish other, Theme theme, int latestCheckpoint) {
+        if (latestCheckpoint > 0) {
+            if (other.hasCheckpointTimes() && other.getCheckpointTime(latestCheckpoint) != null) {
+                if (other.getDate() > TrackDatabase.getTrackById(getTrack()).get().getDateChanged()) {
+                    var otherCheckpoint = other.getCheckpointTime(latestCheckpoint);
+                    var currentCheckpoint = getCheckpointTime(latestCheckpoint);
+                    if (ApiUtilities.getRoundedToTick(otherCheckpoint) <= ApiUtilities.getRoundedToTick(currentCheckpoint)) {
+                        return Component.text(" +" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - otherCheckpoint)).color(theme.getError());
+                    } else {
+                        return Component.text(" -" + ApiUtilities.formatAsPersonalGap(otherCheckpoint - currentCheckpoint)).color(theme.getSuccess());
+                    }
+                }
+            }
+        }
+        return Component.empty();
+    }
+
 
     @Override
     public int compare(TimeTrialFinish f1, TimeTrialFinish f2) {

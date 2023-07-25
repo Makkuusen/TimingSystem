@@ -10,21 +10,24 @@ import co.aikar.idb.DbRow;
 import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
+import me.makkuusen.timing.system.gui.TrackFilter;
+import me.makkuusen.timing.system.gui.TrackSort;
+import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.track.Track;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
-import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 public class TPlayer implements Comparable<TPlayer> {
     private final TimingSystem plugin;
-
-    private Player player;
     private final UUID uuid;
+    JPerPlayerMethodBasedScoreboard jScoreboard;
+    private Player player;
     private String name;
     private Boat.Type boat;
     private boolean chestBoat;
@@ -33,17 +36,17 @@ public class TPlayer implements Comparable<TPlayer> {
     private boolean timeTrial;
     private boolean override;
     private boolean compactScoreboard;
-    JPerPlayerMethodBasedScoreboard jScoreboard;
     private String color;
     private BaseGui openGui;
+    private Theme theme;
+
+    private TrackFilter filter;
+    private TrackSort trackSort;
+    private Track.TrackType trackType;
+    private Integer page;
 
 
-    @Override
-    public int compareTo(TPlayer other) {
-        return name.compareTo(other.name);
-    }
-
-    public TPlayer (TimingSystem plugin, DbRow data) {
+    public TPlayer(TimingSystem plugin, DbRow data) {
         this.plugin = plugin;
         uuid = UUID.fromString(data.getString("uuid"));
         name = data.getString("name");
@@ -54,6 +57,24 @@ public class TPlayer implements Comparable<TPlayer> {
         timeTrial = data.get("timetrial");
         color = data.getString("color");
         compactScoreboard = data.get("compactScoreboard");
+        theme = TimingSystem.defaultTheme;
+    }
+
+    public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {
+        return (c) -> {
+            String name = c.popFirstArg();
+            try {
+                return Boat.Type.valueOf(name.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                //no matching boat types
+                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
+            }
+        };
+    }
+
+    @Override
+    public int compareTo(TPlayer other) {
+        return name.compareTo(other.name);
     }
 
     public void initScoreboard() {
@@ -84,7 +105,7 @@ public class TPlayer implements Comparable<TPlayer> {
         jScoreboard.setTitle(player, title);
     }
 
-    public void setScoreBoardLines(List<String> lines){
+    public void setScoreBoardLines(List<String> lines) {
         if (player == null) {
             return;
         }
@@ -94,10 +115,6 @@ public class TPlayer implements Comparable<TPlayer> {
         }
 
         jScoreboard.setLines(player, lines);
-    }
-
-    public boolean hasOpenGui(){
-        return openGui != null;
     }
 
     public BaseGui getOpenGui() {
@@ -116,43 +133,51 @@ public class TPlayer implements Comparable<TPlayer> {
         return compactScoreboard;
     }
 
-    public void setCompactScoreboard(boolean compactScoreboard) {
-        this.compactScoreboard = compactScoreboard;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
-    }
-
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        plugin.getLogger().info("Updating name of " + uuid + " from " + this.name + " to " + name + ".");
+
+        this.name = name;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
+    }
+
     public String getNameDisplay() {
-        return getName() + "§r";
+        return getName();
     }
 
     public String getHexColor() {
         return color;
     }
 
-    public String getColorCode(){
-        return net.md_5.bungee.api.ChatColor.of(color) + "";
+    public void setHexColor(String hexColor) {
+        color = hexColor;
+        EventDatabase.getDriverFromRunningHeat(uuid).ifPresent(driver -> driver.getHeat().updateScoreboard());
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `color` = '" + hexColor + "' WHERE `uuid` = '" + uuid + "';");
     }
 
-    public org.bukkit.Color getBukkitColor(){
+    public String getColorCode() {
+        return String.valueOf(net.md_5.bungee.api.ChatColor.of(color));
+    }
+
+    public org.bukkit.Color getBukkitColor() {
         var c = Color.decode(color);
         return org.bukkit.Color.fromRGB(c.getRed(), c.getGreen(), c.getBlue());
     }
 
-    public void setHexColor(String hexColor) {
-        color = hexColor;
-        var maybeDriver = EventDatabase.getDriverFromRunningHeat(uuid);
-        if (maybeDriver.isPresent()) {
-            maybeDriver.get().getHeat().updateScoreboard();
-        }
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `color` = '" + hexColor + "' WHERE `uuid` = '" + uuid + "';");
+    public TextColor getTextColor() {
+        return TextColor.fromHexString(color);
     }
 
     public Boat.Type getBoat() {
         return boat;
+    }
+
+    public void setBoat(Boat.Type boat) {
+        this.boat = boat;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
     }
 
     public boolean isChestBoat() {
@@ -174,6 +199,15 @@ public class TPlayer implements Comparable<TPlayer> {
         return override;
     }
 
+    public boolean isTimeTrial() {
+        return timeTrial;
+    }
+
+    public boolean isCompactScoreboard() {
+        return compactScoreboard;
+    }
+
+
     public void toggleOverride() {
         override = !override;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `override` = " + override + " WHERE `uuid` = '" + uuid + "';");
@@ -184,39 +218,59 @@ public class TPlayer implements Comparable<TPlayer> {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `verbose` = " + verbose + " WHERE `uuid` = '" + uuid + "';");
     }
 
-    public boolean isTimeTrial() {
-        return timeTrial;
-    }
-
     public void toggleTimeTrial() {
         timeTrial = !timeTrial;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `timetrial` = " + timeTrial + " WHERE `uuid` = '" + uuid + "';");
     }
 
-    public void setName(String name) {
-        plugin.getLogger().info("Updating name of " + uuid + " from " + this.name + " to " + name + ".");
-
-        this.name = name;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
-
-        if (player != null) {
-            player.setDisplayName(getNameDisplay());
-        }
-    }
-
-    public void setBoat(Boat.Type boat) {
-        this.boat = boat;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
-
-    }
-
-    public void switchToggleSound() {
+    public void toggleSound() {
         toggleSound = !toggleSound;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `toggleSound` = " + toggleSound + " WHERE `uuid` = '" + uuid + "';");
     }
 
+    public void toggleCompactScoreboard() {
+        this.compactScoreboard = !compactScoreboard;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
+    }
+
     public boolean isSound() {
         return toggleSound;
+    }
+
+    public Theme getTheme() {
+        return theme;
+    }
+
+    public TrackSort getTrackSort() {
+        return trackSort;
+    }
+
+    public void setTrackSort(TrackSort trackSort) {
+        this.trackSort = trackSort;
+    }
+
+    public TrackFilter getFilter() {
+        return filter;
+    }
+
+    public void setFilter(TrackFilter filter) {
+        this.filter = filter;
+    }
+
+    public Track.TrackType getTrackType() {
+        return trackType;
+    }
+
+    public void setTrackType(Track.TrackType trackType) {
+        this.trackType = trackType;
+    }
+
+    public Integer getTrackPage() {
+        return page;
+    }
+
+    public void setTrackPage(Integer page) {
+        this.page = page;
     }
 
     public Player getPlayer() {
@@ -227,66 +281,28 @@ public class TPlayer implements Comparable<TPlayer> {
         this.player = player;
     }
 
-    public Material getBoatMaterial(){
+    public Material getBoatMaterial() {
         String boat = getBoat().name();
         if (chestBoat) {
-            boat += "_CHEST_BOAT";
+            boat += "_CHEST";
+        }
+        if (boat.contains("BAMBOO")) {
+            boat += "_RAFT";
         } else {
             boat += "_BOAT";
         }
         return Material.valueOf(boat);
     }
 
-    public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return Boat.Type.valueOf(name);
-            } catch (IllegalArgumentException e) {
-                //no matching boat types
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
-
     private Boat.Type stringToType(String boatType) {
         if (boatType == null) {
-            return Boat.Type.OAK;
+            return Boat.Type.BIRCH;
         }
         try {
             return Boat.Type.valueOf(boatType);
         } catch (IllegalArgumentException e) {
-            return boatMigration(boatType);
+            //REDWOOD is the only old option possible.
+            return Boat.Type.SPRUCE;
         }
-    }
-    private Boat.Type boatMigration(String oldtype) {
-        TreeSpecies oldTree = TreeSpecies.valueOf(oldtype);
-        switch (oldTree) {
-            case ACACIA -> {
-                setBoat(Boat.Type.ACACIA);
-                return Boat.Type.ACACIA;
-            }
-            case BIRCH -> {
-                setBoat(Boat.Type.BIRCH);
-                return Boat.Type.BIRCH;
-            }
-            case DARK_OAK -> {
-                setBoat(Boat.Type.DARK_OAK);
-                return (Boat.Type.DARK_OAK);
-            }
-            case REDWOOD -> {
-                setBoat(Boat.Type.SPRUCE);
-                return (Boat.Type.SPRUCE);
-            }
-            case JUNGLE -> {
-                setBoat(Boat.Type.JUNGLE);
-                return Boat.Type.JUNGLE;
-            }
-            default -> {
-                setBoat(Boat.Type.OAK);
-                return Boat.Type.OAK;
-            }
-        }
-
     }
 }

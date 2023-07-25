@@ -8,87 +8,80 @@ import co.aikar.idb.DB;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 public class TrackTagManager {
 
-    private static List<TrackTag> trackTags = new ArrayList<>();
+    private static final Map<String, TrackTag> trackTags = new HashMap<>();
 
     public static boolean createTrackTag(String value) {
-
-        var tag = new TrackTag(value);
-        if (trackTags.contains(tag)) {
+        TextColor color = NamedTextColor.WHITE;
+        ItemStack item = new ItemBuilder(Material.ANVIL).build();
+        int weight = 100;
+        var tag = new TrackTag(value, color, item, weight);
+        if (trackTags.containsKey(tag.getValue())) {
             return false;
         }
 
-        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`) VALUES('" + tag.getValue() + "');");
-        trackTags.add(tag);
+        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`, `color`, `item`) VALUES('" + tag.getValue() + "', '" + color.asHexString() + "', " + Database.sqlString(ApiUtilities.itemToString(item)) + ");");
+        trackTags.put(tag.getValue(), tag);
         return true;
     }
 
-    public static boolean addTag(TrackTag tag) {
-        if (trackTags.contains(tag)) {
-            return false;
+    public static void addTag(TrackTag tag) {
+        if (trackTags.containsKey(tag.getValue())) {
+            return;
         }
-        trackTags.add(tag);
-        return true;
+        trackTags.put(tag.getValue(), tag);
     }
 
     public static boolean deleteTag(TrackTag tag) {
-        if (trackTags.contains(tag)) {
+        if (trackTags.containsKey(tag)) {
             for (Track t : TrackDatabase.getTracks()) {
                 if (t.hasTag(tag)) {
                     t.removeTag(tag);
                 }
             }
             trackTags.remove(tag);
-            DB.executeUpdateAsync("DELETE FROM `ts_tags` WHERE `tag` = " + tag.getValue() + ";");
+            DB.executeUpdateAsync("DELETE FROM `ts_tags` WHERE `tag` = '" + tag.getValue() + "';");
+            DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = '" + tag.getValue() + "';");
             return true;
         }
         return false;
     }
 
-    public static boolean hasTag(TrackTag tag){
-        return trackTags.contains(tag);
+    public static boolean hasTag(TrackTag tag) {
+        return trackTags.containsKey(tag);
     }
 
-    public static List<TrackTag> getTrackTags(){
-        return trackTags.stream().toList();
+    public static Map<String, TrackTag> getTrackTags() {
+        return trackTags;
+    }
+
+    public static TrackTag getTrackTag(String value) {
+        return trackTags.get(value);
     }
 
     public static ContextResolver<TrackTag, BukkitCommandExecutionContext> getTrackTagContextResolver() {
         return (c) -> {
             String name = c.popFirstArg();
             try {
-                return new TrackTag(name);
+                return TrackTagManager.getTrackTag(name.toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
         };
     }
 
-    public static TrackTag getNext(TrackTag tag) {
-        var tags = getTrackTags();
-        if (tags.size() == 0) {
-            return null;
-        }
-        if (tag == null) {
-            return tags.get(0);
-        }
-
-        boolean match = false;
-        for(int i = 0; i < tags.size(); i++) {
-            if (match) {
-                return tags.get(i);
-            }
-            if (tags.get(i).equals(tag)) {
-                match = true;
-            }
-        }
-        return null;
+    public static List<TrackTag> getSortedTrackTags() {
+        return trackTags.values().stream().sorted(Comparator.comparingInt(TrackTag::getWeight).reversed()).toList();
     }
 }

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.makkuusen.timing.system</groupId>
     <artifactId>TimingSystem</artifactId>
-    <version>1.3-rc.1</version>
+    <version>1.6-rc.2</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,12 +14,11 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
                 <includes>
                     <include>config.yml</include>
                     <include>plugin.yml</include>
-                    <include>en_us.yml</include>
-                    <include>sv_se.yml</include>
+                    <include>lang/*.yml</include>
                 </includes>
             </resource>
         </resources>
@@ -84,7 +83,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.19.2-R0.1-SNAPSHOT</version>
+            <version>1.20-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

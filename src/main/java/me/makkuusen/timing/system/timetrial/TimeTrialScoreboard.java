@@ -2,6 +2,10 @@ package me.makkuusen.timing.system.timetrial;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.ScoreBoard;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,18 +14,18 @@ public class TimeTrialScoreboard {
     TPlayer tPlayer;
     TimeTrialSession timeTrialSession;
 
-    public TimeTrialScoreboard(TPlayer tPlayer, TimeTrialSession timeTrialsession){
+    public TimeTrialScoreboard(TPlayer tPlayer, TimeTrialSession timeTrialsession) {
         this.tPlayer = tPlayer;
         tPlayer.initScoreboard();
         this.timeTrialSession = timeTrialsession;
-        tPlayer.setScoreBoardTitle("&7&l" + timeTrialsession.track.getDisplayName());
+        tPlayer.setScoreBoardTitle(getColor(tPlayer.getTheme().getPrimary()) + "&l" + timeTrialsession.track.getDisplayName());
     }
 
-    public void removeScoreboard(){
+    public void removeScoreboard() {
         tPlayer.clearScoreboard();
     }
 
-    public void setDriverLines(){
+    public void setDriverLines() {
         setLines();
     }
 
@@ -56,23 +60,23 @@ public class TimeTrialScoreboard {
         long averageTime = -1;
         long percentage = 0;
         if (totalAttempts != 0) {
-             percentage = totalFinishes * 100 / totalAttempts;
+            percentage = totalFinishes * 100 / totalAttempts;
         }
 
         if (totalFinishes != 0) {
             averageTime = totalTime / totalFinishes;
         }
 
-        String color = "§c";
+        String color = getColor(tPlayer.getTheme().getError());
         if (percentage > 67) {
-            color = "§a";
+            color = getColor(tPlayer.getTheme().getSuccess());
         } else if (percentage > 33) {
-            color = "§e";
+            color = getColor(tPlayer.getTheme().getWarning());
         }
 
-        lines.add("§7Finishes: " + color + (totalAttempts != 0 ? totalFinishes + "/" + totalAttempts + " (" + percentage + "%)" : "(none)"));
-        lines.add("§7Avg time: §f" + (averageTime != -1 ? ApiUtilities.formatAsTimeNoRounding(averageTime) : "(none)"));
-        lines.add("§7Best time: §a" + (bestTime != -1 ? ApiUtilities.formatAsTime(bestTime): "(none)"));
+        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.FINISHES)) + color + (totalAttempts != 0 ? totalFinishes + "/" + totalAttempts + " (" + percentage + "%)" : "(-)"));
+        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.AVERAGE_TIME)) + getColor(tPlayer.getTheme().getWarning()) + (averageTime != -1 ? ApiUtilities.formatAsTimeNoRounding(averageTime) : "(-)"));
+        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.BEST_TIME)) + getColor(tPlayer.getTheme().getSuccess()) + (bestTime != -1 ? ApiUtilities.formatAsTime(bestTime) : "(-)"));
         lines.add("");
         int count = timeTrialSession.getTimeTrialFinishes().size();
 
@@ -81,14 +85,18 @@ public class TimeTrialScoreboard {
             for (int i = count; i > limit; i--) {
                 long time = timeTrialSession.getTimeTrialFinishes().get(i - 1).getTime();
                 if (time == bestTime) {
-                    lines.add("§7" + i + ". §a" + ApiUtilities.formatAsTime(time));
+                    lines.add(getColor(tPlayer.getTheme().getPrimary()) + i + ". " + getColor(tPlayer.getTheme().getSuccess()) + ApiUtilities.formatAsTime(time));
                 } else if (time == slowestTime) {
-                    lines.add("§7" + i + ". §c" + ApiUtilities.formatAsTime(time));
+                    lines.add(getColor(tPlayer.getTheme().getPrimary()) + i + ". " + getColor(tPlayer.getTheme().getError()) + ApiUtilities.formatAsTime(time));
                 } else {
-                    lines.add("§7" + i + ". §f" + ApiUtilities.formatAsTime(time));
+                    lines.add(getColor(tPlayer.getTheme().getPrimary()) + i + ". " + getColor(tPlayer.getTheme().getSecondary()) + ApiUtilities.formatAsTime(time));
                 }
             }
         }
         tPlayer.setScoreBoardLines(lines);
+    }
+
+    private static String getColor(TextColor color) {
+        return String.valueOf(net.md_5.bungee.api.ChatColor.of(color.asHexString()));
     }
 }

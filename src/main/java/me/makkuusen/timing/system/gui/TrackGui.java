@@ -2,68 +2,42 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class TrackGui extends TrackPageGui{
+public class TrackGui extends TrackPageGui {
 
-    public TrackGui(TPlayer tPlayer, int page) {
-        super(tPlayer, "§2§lTracks - ALL", 6, page);
+    public TrackGui(TPlayer tPlayer) {
+        super(tPlayer, Text.get(tPlayer.getPlayer(), Gui.TRACKS_TITLE));
     }
 
-    public TrackGui(TPlayer tPlayer, String title, int page, TrackSort trackSort, TrackTag filter) {
-        super(tPlayer, title, 6, page, trackSort, filter);
-
+    public TrackGui(TPlayer tPlayer, Component title) {
+        super(tPlayer, title);
     }
 
-    @Override
-    public GuiButton getPageButton(ItemStack item, TPlayer tPlayer, int page){
-        var button = new GuiButton(item);
-        button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(filter);
-            new TrackGui(tPlayer, title, page, trackSort, filter).show(tPlayer.getPlayer());
-        });
-        return button;
-    }
-
-    public List<Track> getTracks(int page, TrackSort trackSort) {
-        var filteredTracks = TrackDatabase.getTracks().stream().filter(track -> track.hasTag(filter)).filter(Track::isWeightAboveZero);
-
-        List<Track> tracks;
-        if (page == ELYTRAPAGE) {
-            tracks = filteredTracks.filter(Track::isElytraTrack).collect(Collectors.toList());
-            sortTracks(tracks, trackSort);
-        } else if (page == PARKOURPAGE) {
-            tracks = filteredTracks.filter(Track::isParkourTrack).collect(Collectors.toList());
-            sortTracks(tracks, trackSort);
-        } else {
-            List<Track> tempTracks = filteredTracks.filter(Track::isBoatTrack).collect(Collectors.toList());
-            sortTracks(tempTracks, trackSort);
-            int start = 36 * page;
-            tracks = new ArrayList<>();
-            for (int i = start; i < Math.min(start + 36, tempTracks.size()); i++) {
-                tracks.add(tempTracks.get(i));
-            }
-        }
-        return tracks;
+    public List<Track> getTracks() {
+        return TrackDatabase.getTracks();
     }
 
     @Override
-    public GuiButton getTrackButton(Player player, Track track){
-        var item = setTrackLore(track, track.getGuiItem(player.getUniqueId()));
+    public GuiButton getTrackButton(Player player, Track track) {
+        var item = setTrackLore(player, track, track.getGuiItem(player.getUniqueId()));
         var button = new GuiButton(item);
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {
-                player.sendMessage("§cWorld is not loaded!");
+                Text.send(player, Error.WORLD_NOT_LOADED);
                 return;
             }
             player.teleport(track.getSpawnLocation());
@@ -72,51 +46,34 @@ public class TrackGui extends TrackPageGui{
         return button;
     }
 
-    @Override
-    public GuiButton getSortingButton(ItemStack item, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag) {
-        var button = new GuiButton(item);
-        button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(filter);
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
-            new TrackGui(tPlayer, title, page, trackSort, tag).show(tPlayer.getPlayer());
-        });
-        return button;
-    }
-
-    @Override
-    public GuiButton getFilterButton(ItemStack item, TPlayer tPlayer, int page, TrackSort trackSort, TrackTag tag) {
-        var button = new GuiButton(item);
-        button.setAction(() -> {
-            String title = "§2§lTracks " + ButtonUtilities.getFilterTitel(tag);
-            if (tPlayer.isSound()) {
-                ButtonUtilities.playConfirm(tPlayer.getPlayer());
-            }
-            new TrackGui(tPlayer, title, page, trackSort, tag).show(tPlayer.getPlayer());
-        });
-        return button;
-    }
-
-    private ItemStack setTrackLore(Track track, ItemStack toReturn){
+    private ItemStack setTrackLore(Player player, Track track, ItemStack toReturn) {
         List<Component> loreToSet = new ArrayList<>();
-        loreToSet.add(Component.text("§7Total Finishes: §e" + track.getTotalFinishes()));
-        loreToSet.add(Component.text("§7Total Attempts: §e" + (track.getTotalFinishes() + track.getTotalAttempts())));
-        loreToSet.add(Component.text("§7Time Spent: §e" + ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
-        loreToSet.add(Component.text("§7Created by: §e" + track.getOwner().getName()));
-        loreToSet.add(Component.text("§7Created at: §e" + ApiUtilities.niceDate(track.getDateCreated())));
-        loreToSet.add(Component.text("§7Weight: §e" + track.getWeight()));
+        loreToSet.add(Text.get(player, Gui.TOTAL_FINISHES, "%total%", String.valueOf(track.getTotalFinishes())));
+        loreToSet.add(Text.get(player, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(track.getTotalFinishes() + track.getTotalAttempts())));
+        loreToSet.add(Text.get(player, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
+        loreToSet.add(Text.get(player, Gui.CREATED_BY, "%player%", track.getOwner().getName()));
+        loreToSet.add(Text.get(player, Gui.CREATED_AT, "%time%", ApiUtilities.niceDate(track.getDateCreated())));
+        loreToSet.add(Text.get(player, Gui.WEIGHT, "%weight%", String.valueOf(track.getWeight())));
 
-        List<String> tagList = new ArrayList<>();
+        Component tags = Component.empty();
+        boolean notFirst = false;
         for (TrackTag tag : track.getTags()) {
-            tagList.add(tag.getValue());
+            if (notFirst) {
+                tags = tags.append(Component.text(", ").color(tPlayer.getTheme().getSecondary()));
+            }
+            tags = tags.append(Component.text(tag.getValue()).color(tag.getColor()));
+            notFirst = true;
         }
-        String tags = String.join(", ", tagList);
-        loreToSet.add(Component.text("§7Tags: §e" + tags));
-
+        loreToSet.add(Text.get(player, Gui.TAGS).append(tags));
         ItemMeta im = toReturn.getItemMeta();
         im.lore(loreToSet);
+        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        im.addItemFlags(ItemFlag.HIDE_ITEM_SPECIFICS);
+        im.addItemFlags(ItemFlag.HIDE_DYE);
+        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         toReturn.setItemMeta(im);
         return toReturn;
     }
+
+
 }

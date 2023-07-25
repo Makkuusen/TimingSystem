@@ -3,7 +3,7 @@ package me.makkuusen.timing.system.event;
 import lombok.Getter;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
-import me.makkuusen.timing.system.text.TextUtilities;
+import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
@@ -12,15 +12,15 @@ import java.util.Optional;
 
 @Getter
 public class EventSchedule {
-    private List<Round> rounds = new ArrayList<>();
+    private final List<Round> rounds = new ArrayList<>();
     private Integer currentRound = null;
 
     public EventSchedule() {
 
     }
 
-    public boolean start(Event event){
-        if (rounds.size() > 0){
+    public boolean start(Event event) {
+        if (rounds.size() > 0) {
             event.setState(Event.EventState.RUNNING);
             currentRound = 1;
             getRound().get().setState(Round.RoundState.RUNNING);
@@ -29,7 +29,7 @@ public class EventSchedule {
         return false;
     }
 
-    public void addRound(Round round){
+    public void addRound(Round round) {
         rounds.add(round);
     }
 
@@ -37,7 +37,7 @@ public class EventSchedule {
         if (round.getState() != Round.RoundState.FINISHED && round.getState() != Round.RoundState.RUNNING) {
             var heats = round.getHeats().stream().toList();
             for (Heat heat : heats) {
-                if (!round.removeHeat(heat)){
+                if (!round.removeHeat(heat)) {
                     return false;
                 }
             }
@@ -52,30 +52,30 @@ public class EventSchedule {
         return false;
     }
 
-    public Integer getCurrentRound(){
+    public Integer getCurrentRound() {
         if (currentRound != null) {
             return currentRound;
         }
         return null;
     }
 
-    public void nextRound(){
+    public void nextRound() {
         currentRound++;
     }
 
-    public boolean isLastRound(){
+    public boolean isLastRound() {
         return currentRound >= rounds.size();
     }
 
-    public Optional<Round> getRound(int index){
+    public Optional<Round> getRound(int index) {
         if (index > 0 && index <= rounds.size()) {
             return Optional.of(rounds.get(index - 1));
         }
         return Optional.empty();
     }
 
-    public Optional<Round> getRound(){
-        if (currentRound == null){
+    public Optional<Round> getRound() {
+        if (currentRound == null) {
             return Optional.empty();
         }
         if (currentRound - 1 > rounds.size() - 1) {
@@ -84,56 +84,52 @@ public class EventSchedule {
         return Optional.of(rounds.get(currentRound - 1));
     }
 
-    public Optional<Round> getNextRound(){
+    public Optional<Round> getNextRound() {
         return Optional.of(rounds.get(currentRound));
     }
 
 
-    public List<Component> getHeatList(Event event) {
+    public List<Component> getHeatList(Theme theme) {
         List<Component> message = new ArrayList<>();
-        message.add(TextUtilities.getTitleLine("Heats for", event.getDisplayName()));
-        message.addAll(listHeats());
+        message.addAll(listHeats(theme));
         return message;
     }
 
-    public List<Component> getRoundList(Event event) {
-        List<Component> message = new ArrayList<>();
-        message.add(TextUtilities.getTitleLine("Rounds for", event.getDisplayName()));
-        message.addAll(listRounds());
-        return message;
+    public List<Component> getRoundList(Theme theme) {
+        return new ArrayList<>(listRounds(theme));
     }
 
-    public Optional<Heat> getHeat(String name){
+    public Optional<Heat> getHeat(String name) {
         for (Round round : rounds) {
-            if (round.getHeat(name).isPresent()){
+            if (round.getHeat(name).isPresent()) {
                 return round.getHeat(name);
             }
         }
         return Optional.empty();
     }
 
-    public Optional<Round> getRound(String name){
+    public Optional<Round> getRound(String name) {
         return rounds.stream().filter(round -> name.equalsIgnoreCase(round.getName())).findFirst();
     }
 
-    public List<Component> listRounds(){
+    public List<Component> listRounds(Theme theme) {
         List<Component> message = new ArrayList<>();
-        rounds.stream().forEach(round -> message.add(Component.text(" - " + round.getName()).color(TextUtilities.textHighlightColor)));
+        rounds.forEach(round -> message.add(Component.text(" - " + round.getName()).color(theme.getSecondary())));
         return message;
     }
 
-    public List<Component> listHeats() {
+    public List<Component> listHeats(Theme theme) {
         List<Component> message = new ArrayList<>();
         for (Round round : rounds) {
-            round.getHeats().stream().forEach(heat -> message.add(Component.text(" - " + heat.getName()).color(TextUtilities.textHighlightColor)));
+            round.getHeats().forEach(heat -> message.add(Component.text(" - " + heat.getName()).color(theme.getSecondary())));
         }
         return message;
     }
 
-    public void setCurrentRound(){
+    public void setCurrentRound() {
         int lastRound = 1;
         for (Round round : rounds) {
-            if (round.getState() == Round.RoundState.FINISHED){
+            if (round.getState() == Round.RoundState.FINISHED) {
                 lastRound++;
             }
         }

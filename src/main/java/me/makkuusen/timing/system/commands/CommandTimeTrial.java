@@ -1,14 +1,24 @@
-package me.makkuusen.timing.system;
+package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Optional;
+import co.aikar.commands.annotation.Subcommand;
+import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TimeTrialGui;
-import me.makkuusen.timing.system.participant.DriverState;
+import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
@@ -18,11 +28,9 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @CommandAlias("timetrial|tt")
 public class CommandTimeTrial extends BaseCommand {
-    static TimingSystem plugin;
 
     @Default
     @CommandCompletion("@track")
@@ -50,29 +58,29 @@ public class CommandTimeTrial extends BaseCommand {
         } else if (sender instanceof Player) {
             player = (Player) sender;
         } else {
-            sender.sendMessage("This command could not be executed!");
+            Text.send(sender, Error.ONLY_PLAYERS);
             return;
         }
 
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().isRunning()) {
-                player.sendMessage("§cYou can't time trial when you are in a heat.");
+                Text.send(player, Error.NOT_NOW);
                 return;
             }
         }
 
         if (track == null) {
             var tPlayer = Database.getPlayer(player.getUniqueId());
-            new TimeTrialGui(tPlayer, 0).show(player);
+            new TimeTrialGui(tPlayer).show(player);
         } else {
             if (!track.getSpawnLocation().isWorldLoaded()) {
-                player.sendMessage("§cWorld is not loaded!");
+                Text.send(player, Error.WORLD_NOT_LOADED);
                 return;
             }
 
             if (!track.isOpen() && !(player.isOp() || player.hasPermission("track.admin"))) {
-                player.sendMessage("§cTrack is closed!");
+                Text.send(player, Error.TRACK_IS_CLOSED);
                 return;
             }
             ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
@@ -82,29 +90,30 @@ public class CommandTimeTrial extends BaseCommand {
     @Subcommand("cancel|c")
     public static void onCancel(Player player) {
         if (!TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
-            plugin.sendMessage(player, "messages.error.runNotStarted");
+            Text.send(player, Error.NOT_NOW);
             return;
         }
         TimeTrialController.playerCancelMap(player);
-        plugin.sendMessage(player, "messages.cancel");
+        Text.send(player, Success.TIME_TRIAL_CANCELLED);
     }
 
-    public static void onRandom(Player player){
+    public static void onRandom(Player player) {
         onRandom(player, null);
     }
+
     @Subcommand("random|r")
     @CommandCompletion("@trackTag")
-    public static void onRandom(Player player, @Optional TrackTag trackTag){
+    public static void onRandom(Player player, @Optional TrackTag trackTag) {
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().isRunning()) {
-                player.sendMessage("§cYou can't time trial when you are in a heat.");
+                Text.send(player, Error.NOT_NOW);
                 return;
             }
         }
 
-        if (TrackDatabase.getOpenTracks().isEmpty()){
-            plugin.sendMessage(player, "messages.randomTrack.noTracks");
+        if (TrackDatabase.getOpenTracks().isEmpty()) {
+            Text.send(player, Error.TRACKS_NOT_FOUND);
             return;
         }
 
@@ -113,44 +122,28 @@ public class CommandTimeTrial extends BaseCommand {
         if (trackTag != null) {
             tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.hasTag(trackTag)).collect(Collectors.toList());
             if (tracks.size() < 1) {
-                player.sendMessage("§cThere are no tracks with that filter");
+                Text.send(player, Error.TRACKS_NOT_FOUND);
                 return;
             }
         } else {
             tracks = TrackDatabase.getOpenTracks();
         }
-
-        Track t = tracks.get(new Random().nextInt(tracks.size()));
-
-        if (!t.getSpawnLocation().isWorldLoaded()) {
-            player.sendMessage("§cWorld is not loaded!");
-            return;
-        }
-
-        if(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1){
-            plugin.sendMessage(player, "messages.randomTrack.teleport", "%track%", t.getDisplayName(),
-                    "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())))
-            );
-        } else {
-            plugin.sendMessage(player, "messages.randomTrack.teleportNoPos", "%track%", t.getDisplayName());
-        }
-
-        ApiUtilities.teleportPlayerAndSpawnBoat(player, t, t.getSpawnLocation());
+        teleportPlayerToRandomTrack(tracks, player);
     }
 
     @Subcommand("randomunfinished")
     @CommandCompletion("@trackTag")
-    public static void onRandomUnfinished(Player player, @Optional TrackTag trackTag){
+    public static void onRandomUnfinished(Player player, @Optional TrackTag trackTag) {
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().isRunning()) {
-                player.sendMessage("§cYou can't time trial when you are in a heat.");
+                Text.send(player, Error.NOT_NOW);
                 return;
             }
         }
 
-        if (TrackDatabase.getOpenTracks().isEmpty()){
-            plugin.sendMessage(player, "messages.randomTrack.noTracks");
+        if (TrackDatabase.getOpenTracks().isEmpty()) {
+            Text.send(player, Error.TRACKS_NOT_FOUND);
             return;
         }
 
@@ -158,7 +151,7 @@ public class CommandTimeTrial extends BaseCommand {
         if (trackTag != null) {
             tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.hasTag(trackTag)).collect(Collectors.toList());
             if (tracks.size() < 1) {
-                player.sendMessage("§cThere are no tracks with that filter");
+                Text.send(player, Error.TRACKS_NOT_FOUND);
                 return;
             }
         } else {
@@ -167,27 +160,33 @@ public class CommandTimeTrial extends BaseCommand {
 
         tracks = tracks.stream().filter(track -> track.getPlayerTotalFinishes(Database.getPlayer(player.getUniqueId())) < 1).collect(Collectors.toList());
         if (tracks.size() == 0) {
-            player.sendMessage("§cYou have already completed all tracks");
+            Text.send(player, Error.TRACKS_NOT_FOUND);
             return;
         }
 
-        Track t = tracks.get(new Random().nextInt(tracks.size()));
-
-        if (!t.getSpawnLocation().isWorldLoaded()) {
-            player.sendMessage("§cWorld is not loaded!");
-            return;
-        }
-
-        if(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())) != -1){
-            plugin.sendMessage(player, "messages.randomTrack.teleport", "%track%", t.getDisplayName(),
-                    "%pos%", String.valueOf(t.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId())))
-            );
-        } else {
-            plugin.sendMessage(player, "messages.randomTrack.teleportNoPos", "%track%", t.getDisplayName());
-        }
-
-        ApiUtilities.teleportPlayerAndSpawnBoat(player, t, t.getSpawnLocation());
+        teleportPlayerToRandomTrack(tracks, player);
     }
 
+    private static void teleportPlayerToRandomTrack(List<Track> tracks, Player player) {
+        Track track = tracks.get(new Random().nextInt(tracks.size()));
 
+        if (!track.getSpawnLocation().isWorldLoaded()) {
+            Text.send(player, Error.WORLD_NOT_LOADED);
+            return;
+        }
+        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+
+        if (track.getPlayerTopListPosition(tPlayer) != -1) {
+            Component message = Text.get(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
+            var leaderboardPosition = track.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId()));
+            Component positionComponent = tPlayer.getTheme().getParenthesized(String.valueOf(leaderboardPosition));
+            if (message != null) {
+                player.sendMessage(message.append(Component.space()).append(positionComponent));
+            }
+        } else {
+            Text.send(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
+        }
+
+        ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
+    }
 }

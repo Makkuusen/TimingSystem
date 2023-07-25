@@ -9,7 +9,7 @@ import org.bukkit.Location;
 @Setter
 public class TrackCuboidRegion extends TrackRegion {
 
-    public TrackCuboidRegion(DbRow data){
+    public TrackCuboidRegion(DbRow data) {
         super(data);
         setShape(RegionShape.CUBOID);
     }
@@ -22,14 +22,11 @@ public class TrackCuboidRegion extends TrackRegion {
         }
     }
 
-    public boolean isDefined(){
-        if (getMinP() == null || getMaxP() == null) {
-            return false;
-        }
-        return true;
+    public boolean isDefined() {
+        return getMinP() != null && getMaxP() != null;
     }
 
-    public boolean hasEqualBounds(TrackRegion other){
+    public boolean hasEqualBounds(TrackRegion other) {
         if (other instanceof TrackCuboidRegion trackCuboidRegion) {
             if (!other.getWorldName().equalsIgnoreCase(getWorldName())) {
                 return false;
