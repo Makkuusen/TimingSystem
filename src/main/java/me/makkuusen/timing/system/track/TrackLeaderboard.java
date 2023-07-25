@@ -3,7 +3,7 @@ package me.makkuusen.timing.system.track;
 import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.track.holograms.HologramDH;
-import me.makkuusen.timing.system.track.holograms.HologramHGD;
+import me.makkuusen.timing.system.track.holograms.HologramHD;
 import me.makkuusen.timing.system.track.holograms.HologramManager;
 import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Bukkit;
@@ -19,24 +19,27 @@ public class TrackLeaderboard extends TrackLocation {
 
     public TrackLeaderboard(int trackId, int index, Location location, TrackLocation.Type locationType) {
         super(trackId, index, location, locationType);
+        this.init();
+    }
+
+    public TrackLeaderboard(DbRow data) {
+        super(data);
+        this.init();
+    }
+
+    private void init() {
         var maybeTrack = TrackDatabase.getTrackById(getTrackId());
         maybeTrack.ifPresent(value -> this.track = value);
 
         if(Bukkit.getServer().getPluginManager().getPlugin("HolographicDisplays") != null) {
-            hologramManager = new HologramHGD();
+            hologramManager = new HologramHD();
         } else if(Bukkit.getServer().getPluginManager().getPlugin("DecentHolograms") != null) {
             hologramManager = new HologramDH();
         }
     }
 
-    public TrackLeaderboard(DbRow data) {
-        super(data);
-        var maybeTrack = TrackDatabase.getTrackById(getTrackId());
-        maybeTrack.ifPresent(value -> this.track = value);
-    }
-
     public void createOrUpdateHologram() {
-        if (!TimingSystem.enableLeaderboards || hologramManager == null) {
+        if (!TimingSystem.enableLeaderboards) {
             return;
         }
 
@@ -50,7 +53,7 @@ public class TrackLeaderboard extends TrackLocation {
     }
 
     public void removeHologram() {
-        if (!TimingSystem.enableLeaderboards || hologramManager == null) {
+        if (!TimingSystem.enableLeaderboards) {
             return;
         }
         Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {

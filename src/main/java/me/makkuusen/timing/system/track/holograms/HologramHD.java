@@ -8,7 +8,7 @@ import org.bukkit.Location;
 
 import java.util.List;
 
-public class HologramHGD implements HologramManager {
+public class HologramHD implements HologramManager {
     Hologram hologram = null;
 
     @Override
