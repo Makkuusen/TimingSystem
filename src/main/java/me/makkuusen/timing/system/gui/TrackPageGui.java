@@ -23,7 +23,7 @@ public abstract class TrackPageGui extends BaseGui {
     public static final Integer FILTER_SLOT = 46;
 
     public Integer page;
-    public Integer maxPages = 1;
+    public Integer maxPage = 1;
     public Integer TRACKS_PER_PAGE = 45;
     public TPlayer tPlayer;
     public Track.TrackType trackType;
@@ -165,10 +165,10 @@ public abstract class TrackPageGui extends BaseGui {
         }
 
         current.setAmount(page + 1);
-        setItem(getTrackTypeButton(current),slot);
+        setItem(getTrackTypeButton(current), slot);
         setItem(getPageButton(current, page), slot);
 
-        if (page < maxPages - 1) {
+        if (page < maxPage) {
             setItem(getPageButton(next, page + 1), slot + 1);
         }
     }
@@ -199,10 +199,13 @@ public abstract class TrackPageGui extends BaseGui {
             tempTracks = trackStream.filter(track -> track.hasAllTags(filter)).collect(Collectors.toList());
         }
 
-        maxPages = tempTracks.size() % TRACKS_PER_PAGE != 0 ? tempTracks.size() / TRACKS_PER_PAGE + 1 : tempTracks.size() / TRACKS_PER_PAGE;
-        if (maxPages < page) {
-            page = maxPages;
-            tPlayer.setTrackPage(maxPages);
+        maxPage = tempTracks.size() / TRACKS_PER_PAGE;
+        if (tempTracks.size() % TRACKS_PER_PAGE == 0 && tempTracks.size() != 0) {
+            maxPage = maxPage - 1;
+        }
+        if (maxPage < page) {
+            page = maxPage;
+            tPlayer.setTrackPage(maxPage);
         }
         sortTracks(tempTracks);
         int start = TRACKS_PER_PAGE * page;
@@ -268,6 +271,7 @@ public abstract class TrackPageGui extends BaseGui {
         boatButton.setAction(() -> {
             GuiCommon.playConfirm(tPlayer);
             tPlayer.setTrackType(Track.TrackType.BOAT);
+            tPlayer.setTrackPage(0);
             openNewTrackPage(this, tPlayer, title);
         });
         setItem(boatButton,48);
@@ -276,6 +280,7 @@ public abstract class TrackPageGui extends BaseGui {
         elytraButton.setAction(() -> {
             GuiCommon.playConfirm(tPlayer);
             tPlayer.setTrackType(Track.TrackType.ELYTRA);
+            tPlayer.setTrackPage(0);
             openNewTrackPage(this, tPlayer, title);
         });
         setItem(elytraButton,49);
@@ -284,6 +289,7 @@ public abstract class TrackPageGui extends BaseGui {
         parkourButton.setAction(() -> {
             GuiCommon.playConfirm(tPlayer);
             tPlayer.setTrackType(Track.TrackType.PARKOUR);
+            tPlayer.setTrackPage(0);
             openNewTrackPage(this, tPlayer, title);
         });
         setItem(parkourButton,50);
