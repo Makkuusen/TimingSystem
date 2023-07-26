@@ -14,8 +14,11 @@ public class HologramDH implements HologramManager {
     public void createOrUpdateHologram(Location location, List<String> hologramLineStringList) {
         removeHologram();
 
+        // These are slightly taller than HolographicDisplays and needs to spawn on a slight offset to not be stuck in the ground.
+        Location offsetLocation = location.clone();
+        offsetLocation.setY(location.getY() + 0.5);
         String hologramName = String.valueOf(UUID.randomUUID());
-        hologram = DHAPI.createHologram(hologramName, location, false, hologramLineStringList);
+        hologram = DHAPI.createHologram(hologramName, offsetLocation, false, hologramLineStringList);
     }
 
     @Override
