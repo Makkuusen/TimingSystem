@@ -14,7 +14,7 @@ This plugin has made it's first real release. If you want to use it, make sure t
 1. A Minecraft server running [Paper](https://papermc.io) (using native spigot will not work)
 2. World Edit (I do recommend the use of [FastAsyncWorldEdit](https://www.spigotmc.org/resources/fastasyncworldedit.13932/))
 3. MYSQL Database. It needs a database connection. Configure it in the plugins config.yml.
-4. [optional] [HolographicDisplays 3.0.0](https://dev.bukkit.org/projects/holographic-displays/files/4056176/download)
+4. [optional] [DecentHolograms](https://www.spigotmc.org/resources/decentholograms-1-8-1-20-1-papi-support-no-dependencies.96927/) or [HolographicDisplays 3.0.0](https://dev.bukkit.org/projects/holographic-displays/files/4056176/download)
 
 ## Add-ons
 * [Unofficial] [TimingSystemRESTApi](https://github.com/JustBru00/TimingSystemRESTApi) - Adds a basic JSON REST API to the TimingSystem plugin.
