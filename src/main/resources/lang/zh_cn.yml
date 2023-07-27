@@ -220,7 +220,7 @@ info:
   track_mode: "&1模式：&2%mode%"
   track_checkpoints: "&1检查点：&2%size%"
   track_grids: "&1发车格：&2%size%"
-  track_qualification_grids: "&1排位赛发车格：&2c%size%"
+  track_qualification_grids: "&1排位赛发车格：&2%size%"
   track_reset_regions: "&1重置区域：&2%size%"
   track_spawn_location: "&1出生点：&2%location%"
   track_weight: "&1权重：&2%size%"
