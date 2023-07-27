@@ -55,8 +55,10 @@ public class ScoreboardUtils {
     }
 
     public static String paddName(Driver driver, boolean compact) {
+        return paddName(driver.getTPlayer().getName(), compact);
+    }
+    public static String paddName(String name, boolean compact) {
 
-        String name = driver.getTPlayer().getName();
         StringBuilder sb = new StringBuilder();
         if (compact) {
             if (name.length() > 3) {

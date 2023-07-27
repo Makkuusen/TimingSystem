@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.api.events.PlayerJoinHeatEvent;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
@@ -115,6 +116,8 @@ public class Heat {
     }
 
     public void putDriverOnGrid(Driver driver) {
+        PlayerJoinHeatEvent event = new PlayerJoinHeatEvent(driver.getTPlayer(), this);
+        Bukkit.getServer().getPluginManager().callEvent(event);
         var track = getEvent().getTrack();
         boolean qualyGrid = round instanceof QualificationRound && track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0;
         Player player = driver.getTPlayer().getPlayer();

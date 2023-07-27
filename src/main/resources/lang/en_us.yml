@@ -220,7 +220,7 @@ info:
   track_mode: "&1Mode: &2%mode%"
   track_checkpoints: "&1Checkpoints:&2 %size%"
   track_grids: "&1Grids:&2 %size%"
-  track_qualification_grids: "&1QualyGrids:&2c %size%"
+  track_qualification_grids: "&1QualyGrids:&2 %size%"
   track_reset_regions: "&1Reset regions:&2 %size%"
   track_spawn_location: "&1Spawn:&2 %location%"
   track_weight: "&1Weight:&2 %size%"

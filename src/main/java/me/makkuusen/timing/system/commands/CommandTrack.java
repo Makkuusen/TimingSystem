@@ -276,7 +276,7 @@ public class CommandTrack extends BaseCommand {
             Text.send(commandSender, Info.TRACK_GRIDS, "%size%", String.valueOf(track.getTrackLocations(TrackLocation.Type.GRID).size()));
         }
         if (track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0) {
-            Text.send(commandSender, Info.TRACK_QUALIFICATION_GRIDS, "%size%", String.valueOf(track.getTrackLocations(TrackLocation.Type.GRID).size()));
+            Text.send(commandSender, Info.TRACK_QUALIFICATION_GRIDS, "%size%", String.valueOf(track.getTrackLocations(TrackLocation.Type.QUALYGRID).size()));
         }
         Text.send(commandSender, Info.TRACK_RESET_REGIONS, "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.RESET).size()));
         Text.send(commandSender, Info.TRACK_SPAWN_LOCATION, "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));

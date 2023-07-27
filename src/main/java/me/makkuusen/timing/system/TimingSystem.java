@@ -191,6 +191,7 @@ public class TimingSystem extends JavaPlugin {
         var tasks = new Tasks();
         tasks.startPlayerTimer(plugin);
         tasks.startParticleSpawner(plugin);
+        tasks.generateTotalTime(plugin);
 
         if (Bukkit.getPluginManager().getPlugin("HolographicDisplays") == null && Bukkit.getPluginManager().getPlugin("DecentHolograms") == null) {
             ApiUtilities.msgConsole("No Hologram Plugin installed. Leaderboards are disabled.");

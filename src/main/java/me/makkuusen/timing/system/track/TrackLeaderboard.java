@@ -31,7 +31,7 @@ public class TrackLeaderboard extends TrackLocation {
         var maybeTrack = TrackDatabase.getTrackById(getTrackId());
         maybeTrack.ifPresent(value -> this.track = value);
 
-        if(Bukkit.getServer().getPluginManager().getPlugin("HolographicDisplays") != null) {
+        if (Bukkit.getServer().getPluginManager().getPlugin("HolographicDisplays") != null) {
             hologramManager = new HologramHD();
         } else if(Bukkit.getServer().getPluginManager().getPlugin("DecentHolograms") != null) {
             hologramManager = new HologramDH();

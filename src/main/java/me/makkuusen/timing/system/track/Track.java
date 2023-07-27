@@ -60,6 +60,7 @@ public class Track {
     private char[] options;
     private boolean open;
     private long dateChanged;
+    private long totalTimeSpent = 0;
 
 
     public Track(DbRow data) {
@@ -657,35 +658,11 @@ public class Track {
     }
 
     public long getTotalTimeSpent() {
-        long time = 0L;
-        long bestTime = 0L;
-        var topTime = getTopList(1);
-        if (topTime.size() != 0) {
-            bestTime = topTime.get(0).getTime();
+        return totalTimeSpent;
+    }
 
-            for (List<TimeTrialFinish> l : timeTrialFinishes.values()) {
-                for (TimeTrialFinish ttf : l) {
-                    if (ttf.getTime() < (bestTime * 4)) {
-                        time += ttf.getTime();
-                    }
-                }
-            }
-        }
-
-        for (List<TimeTrialAttempt> l : timeTrialAttempts.values()) {
-            for (TimeTrialAttempt ttf : l) {
-                if (bestTime != 0) {
-                    if (ttf.getTime() < (bestTime * 4)) {
-                        time += ttf.getTime();
-                    }
-                } else {
-                    time += ttf.getTime();
-                }
-
-            }
-        }
-
-        return time;
+    public void setTotalTimeSpent(long time) {
+        totalTimeSpent = time;
     }
 
     public boolean isStage() {

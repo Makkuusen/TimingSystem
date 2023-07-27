@@ -290,8 +290,8 @@ public class CommandEvent extends BaseCommand {
     public static void onSignUp(Player player, Event event, @Optional String name) {
         if (name != null) {
 
-            if (!player.hasPermission("event.sign.others") || !player.hasPermission("event.admin") || !player.isOp()) {
-                Text.send(player, Error.NO_EVENT_SELECTED);
+                if (!(player.hasPermission("event.sign.others") || player.hasPermission("event.admin") || player.isOp())) {
+                Text.send(player, Error.PERMISSION_DENIED);
                 return;
             }
 
@@ -331,7 +331,7 @@ public class CommandEvent extends BaseCommand {
             Text.send(player, Warning.NO_LONGER_SIGNED, "%event%", event.getDisplayName());
         } else {
             if (!event.isOpenSign()) {
-                if (!player.hasPermission("event.sign") || !player.hasPermission("event.admin") || !player.isOp()) {
+                if (!(player.hasPermission("event.sign") || player.hasPermission("event.admin") || player.isOp())) {
                     Text.send(player, Error.NOT_NOW);
                     return;
                 }

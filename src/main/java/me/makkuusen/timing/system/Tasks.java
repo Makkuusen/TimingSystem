@@ -11,8 +11,11 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.ActionBar;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
+import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
+import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -23,6 +26,7 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 public class Tasks {
@@ -31,7 +35,7 @@ public class Tasks {
     }
 
     public void startParticleSpawner(TimingSystem plugin) {
-        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+        Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             for (UUID uuid : TimingSystem.playerEditingSession.keySet()) {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player == null) continue;
@@ -45,7 +49,7 @@ public class Tasks {
     }
 
     public void startPlayerTimer(TimingSystem plugin) {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 elytraProtectionCountdown(p);
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
@@ -60,7 +64,44 @@ public class Tasks {
                 }
             }
 
-        }, 5, 5);
+        }, 5, 3);
+    }
+
+    public void generateTotalTime(TimingSystem plugin) {
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+
+            for (Track track : TrackDatabase.getTracks()) {
+                long time = 0L;
+                long bestTime = 0L;
+                var topTime = track.getTopList(1);
+                if (topTime.size() != 0) {
+                    bestTime = topTime.get(0).getTime();
+
+                    for (List<TimeTrialFinish> l : track.getTimeTrialFinishes().values()) {
+                        for (TimeTrialFinish ttf : l) {
+                            if (ttf.getTime() < (bestTime * 4)) {
+                                time += ttf.getTime();
+                            }
+                        }
+                    }
+                }
+
+                for (List<TimeTrialAttempt> l : track.getTimeTrialAttempts().values()) {
+                    for (TimeTrialAttempt ttf : l) {
+                        if (bestTime != 0) {
+                            if (ttf.getTime() < (bestTime * 4)) {
+                                time += ttf.getTime();
+                            }
+                        } else {
+                            time += ttf.getTime();
+                        }
+                    }
+                }
+                track.setTotalTimeSpent(time);
+            }
+        }, 5*20, 900*20);
+
     }
 
     private static void displaySpectatorTimer(Player player) {
