@@ -218,7 +218,7 @@ public class Track {
 
     public boolean removeTag(TrackTag tag) {
         if (tags.contains(tag)) {
-            DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = " + tag.getValue() + " AND `trackId` = " + getId() + ";");
+            DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = '" + tag.getValue() + "' AND `trackId` = " + getId() + ";");
             tags.remove(tag);
             return true;
         }
