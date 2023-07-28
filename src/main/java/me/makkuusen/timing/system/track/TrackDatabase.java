@@ -7,6 +7,7 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import co.aikar.taskchain.TaskChain;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
@@ -44,7 +45,6 @@ public class TrackDatabase {
         loadTracksAndTimeTrials();
         loadTrackRegions();
         loadTrackLocations();
-        clearUselessEndRegions();
     }
 
     private static void loadTracksAndTimeTrials() throws SQLException {
@@ -54,65 +54,94 @@ public class TrackDatabase {
             Track rTrack = new Track(dbRow);
             tracks.add(rTrack);
             TimingSystem.getPlugin().getLogger().info("LOADING IN " + rTrack.getDisplayName());
-
-            loadFinishes(rTrack);
-            loadAttempts(rTrack);
-            loadTrackTags(rTrack);
-            loadCheckpointTimes(rTrack);
+            loadTrackTags();
         }
     }
 
-    private static void loadFinishes(Track rTrack) throws SQLException {
+    public static void loadTrackFinishesAsync() {
+
+
+        TaskChain<?> chain = TimingSystem.newChain();
+        TimingSystem.getPlugin().getLogger().warning("Async loading started'");
+
+        chain.async(TrackDatabase::loadFinishes)
+                .async(TrackDatabase::loadAttempts)
+                .delay(20)
+                .async(TrackDatabase::loadCheckpointTimes)
+                .execute((finished) -> {
+                    TimingSystem.getPlugin().getLogger().warning("Loading of finishes completed");
+                });
+    }
+
+    private static void loadFinishes() {
         //var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE ( `uuid`,`time`) IN (SELECT `uuid`, min(`time`) FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0 GROUP BY `uuid`) AND `trackId` = " + rTrack.getId() + " GROUP BY `uuid` ORDER BY `time` ASC, `date` ASC;");
-        var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE `trackId` = " + rTrack.getId() + " AND `isRemoved` = 0;");
-        for (DbRow finish : resultFinishes) {
-            var uuid = finish.getString("uuid") == null ? null : UUID.fromString(finish.getString("uuid"));
-            if (Database.getPlayer(uuid) != null) {
-                var f = new TimeTrialFinish(finish);
-                rTrack.addTimeTrialFinish(f);
+        TimingSystem.getPlugin().getLogger().warning("Start loading finishes");
+        try {
+            var resultFinishes = DB.getResults("SELECT * FROM `ts_finishes` WHERE `isRemoved` = 0;");
+            for (DbRow finish : resultFinishes) {
+                var uuid = finish.getString("uuid") == null ? null : UUID.fromString(finish.getString("uuid"));
+                if (Database.getPlayer(uuid) != null) {
+                    var maybeTrack = getTrackById(finish.getInt("trackId"));
+                    maybeTrack.ifPresent(track -> track.addTimeTrialFinish(new TimeTrialFinish(finish)));
+                }
             }
-
+        } catch (SQLException e) {
+            TaskChain.abort();
         }
+
+        TimingSystem.getPlugin().getLogger().warning("Finish loading finishes");
     }
 
-    private static void loadAttempts(Track rTrack) throws SQLException {
-        var attempts = DB.getResults("SELECT * FROM `ts_attempts` WHERE `trackId` = " + rTrack.getId() + ";");
-        for (DbRow attempt : attempts) {
-            var uuid = attempt.getString("uuid") == null ? null : UUID.fromString(attempt.getString("uuid"));
-            if (Database.getPlayer(uuid) != null) {
-                rTrack.addTimeTrialAttempt(new TimeTrialAttempt(attempt));
+    private static void loadAttempts() {
+        TimingSystem.getPlugin().getLogger().warning("Start loading attempts");
+        try {
+            var attempts = DB.getResults("SELECT * FROM `ts_attempts`;");
+            for (DbRow attempt : attempts) {
+                var uuid = attempt.getString("uuid") == null ? null : UUID.fromString(attempt.getString("uuid"));
+                if (Database.getPlayer(uuid) != null) {
+                    var maybeTrack = getTrackById(attempt.getInt("trackId"));
+                    maybeTrack.ifPresent(track -> track.addTimeTrialAttempt(new TimeTrialAttempt(attempt)));
+                }
             }
+        } catch (SQLException e) {
         }
+        TimingSystem.getPlugin().getLogger().warning("Finish loading attempts");
     }
 
-    private static void loadTrackTags(Track rTrack) throws SQLException {
-        var tags = DB.getResults("SELECT * FROM `ts_tracks_tags` WHERE `trackId` = " + rTrack.getId() + ";");
+    private static void loadTrackTags() throws SQLException {
+        var tags = DB.getResults("SELECT * FROM `ts_tracks_tags`;");
         for (DbRow tag : tags) {
             var trackTag = TrackTagManager.getTrackTag(tag.getString("tag"));
             if (trackTag != null) {
-                rTrack.addTag(trackTag);
+                var maybeTrack = getTrackById(tag.getInt("trackId"));
+                maybeTrack.ifPresent(track -> track.addTag(trackTag));
             }
         }
-
     }
 
-    private static void loadCheckpointTimes(Track rTrack) throws SQLException {
-
-        var players = rTrack.getTimeTrialFinishes().keySet();
-        for (TPlayer tPlayer : players) {
-            var finish = rTrack.getBestFinish(tPlayer);
-            if (rTrack.getDateChanged() > finish.getDate()) {
-                continue;
-            }
-            var checkpointResults = DB.getResults("SELECT * FROM `ts_finishes_checkpoints` WHERE `finishId` = " + finish.getId() + " AND `isRemoved` = 0;");
-            Map<Integer, Long> checkpointTimes = new HashMap<>();
-            if (!checkpointResults.isEmpty()) {
-                for (DbRow checkpoint : checkpointResults) {
-                    checkpointTimes.put(checkpoint.getInt("checkpointIndex"), Long.valueOf(checkpoint.getInt("time")));
+    private static void loadCheckpointTimes() {
+        TimingSystem.getPlugin().getLogger().warning("Start loading checkpoints");
+        try {
+            for (Track rTrack : getTracks()) {
+                var players = rTrack.getTimeTrialFinishes().keySet();
+                for (TPlayer tPlayer : players) {
+                    var finish = rTrack.getBestFinish(tPlayer);
+                    if (rTrack.getDateChanged() > finish.getDate()) {
+                        continue;
+                    }
+                    var checkpointResults = DB.getResults("SELECT * FROM `ts_finishes_checkpoints` WHERE `finishId` = " + finish.getId() + " AND `isRemoved` = 0;");
+                    Map<Integer, Long> checkpointTimes = new HashMap<>();
+                    if (!checkpointResults.isEmpty()) {
+                        for (DbRow checkpoint : checkpointResults) {
+                            checkpointTimes.put(checkpoint.getInt("checkpointIndex"), Long.valueOf(checkpoint.getInt("time")));
+                        }
+                        finish.updateCheckpointTimes(checkpointTimes);
+                    }
                 }
-                finish.updateCheckpointTimes(checkpointTimes);
             }
+        } catch (SQLException e) {
         }
+        TimingSystem.getPlugin().getLogger().warning("finish loading checkpoints");
 
     }
 
@@ -149,20 +178,6 @@ public class TrackDatabase {
                     addTrackRegion(trackRegion);
                 }
                 rTrack.addRegion(trackRegion);
-            }
-        }
-    }
-
-    private static void clearUselessEndRegions() {
-        for (Track track : tracks) {
-            if (track.hasRegion(TrackRegion.RegionType.START) && track.hasRegion(TrackRegion.RegionType.END)) {
-                for (TrackRegion startRegion : track.getRegions(TrackRegion.RegionType.START)) {
-                    for (TrackRegion endRegion : track.getRegions(TrackRegion.RegionType.END)) {
-                        if (startRegion.hasEqualBounds(endRegion)) {
-                            track.removeRegion(endRegion);
-                        }
-                    }
-                }
             }
         }
     }
