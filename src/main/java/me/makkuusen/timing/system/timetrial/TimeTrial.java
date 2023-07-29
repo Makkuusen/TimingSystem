@@ -309,8 +309,10 @@ public class TimeTrial {
                 if (getBestFinish().getDate() > getTrack().getDateChanged()) {
                     var bestCheckpoint = getBestFinish().getCheckpointTime(latestCheckpoint);
                     var currentCheckpoint = getCheckpointTime(latestCheckpoint);
-                    if (ApiUtilities.getRoundedToTick(bestCheckpoint) <= ApiUtilities.getRoundedToTick(currentCheckpoint)) {
+                    if (ApiUtilities.getRoundedToTick(bestCheckpoint) < ApiUtilities.getRoundedToTick(currentCheckpoint)) {
                         return Component.text(" +" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint)).color(theme.getError());
+                    } else if (ApiUtilities.getRoundedToTick(bestCheckpoint) == ApiUtilities.getRoundedToTick(currentCheckpoint)) {
+                        return Component.text(" -" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint)).color(theme.getWarning());
                     } else {
                         return Component.text(" -" + ApiUtilities.formatAsPersonalGap(bestCheckpoint - currentCheckpoint)).color(theme.getSuccess());
                     }
