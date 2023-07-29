@@ -13,7 +13,6 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.gui.TrackFilter;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
@@ -49,6 +48,7 @@ public class Track {
     private final Set<TrackTag> tags = new HashSet<>();
     private final Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
     private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
+    private List<TPlayer> cachedPositions = new ArrayList<>();
     private TPlayer owner;
     private String displayName;
     private String commandName;
@@ -124,8 +124,7 @@ public class Track {
 
         List<Component> loreToSet = new ArrayList<>();
 
-        var plugin = TimingSystem.getPlugin();
-        loreToSet.add(Text.get(tPlayer, Gui.POSITION, "%pos%", getPlayerTopListPosition(tPlayer) == -1 ? "(-)" : String.valueOf(getPlayerTopListPosition(tPlayer))));
+        loreToSet.add(Text.get(tPlayer, Gui.POSITION, "%pos%", getCachedPlayerPosition(tPlayer) == -1 ? "(-)" : String.valueOf(getCachedPlayerPosition(tPlayer))));
         loreToSet.add(Text.get(tPlayer, Gui.BEST_TIME, "%time%", getBestFinish(tPlayer) == null ? "(-)" : ApiUtilities.formatAsTime(getBestFinish(tPlayer).getTime())));
         loreToSet.add(Text.get(tPlayer, Gui.TOTAL_FINISHES, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer))));
         loreToSet.add(Text.get(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer) + getPlayerTotalAttempts(tPlayer))));
@@ -514,6 +513,14 @@ public class Track {
         return -1;
     }
 
+    public Integer getCachedPlayerPosition(TPlayer tPlayer) {
+        int pos = cachedPositions.indexOf(tPlayer);
+        if (pos != -1) {
+            pos++;
+        }
+        return pos;
+    }
+
     public List<TimeTrialFinish> getTopList(int limit) {
 
         List<TimeTrialFinish> bestTimes = new ArrayList<>();
@@ -524,6 +531,8 @@ public class Track {
             }
         }
         bestTimes.sort(new TimeTrialFinishComparator());
+        cachedPositions = new ArrayList<>();
+        bestTimes.forEach(timeTrialFinish -> cachedPositions.add(timeTrialFinish.getPlayer()));
 
         if (limit == -1) {
             return bestTimes;
@@ -533,16 +542,7 @@ public class Track {
     }
 
     public List<TimeTrialFinish> getTopList() {
-        List<TimeTrialFinish> bestTimes = new ArrayList<>();
-        for (TPlayer player : timeTrialFinishes.keySet()) {
-            TimeTrialFinish bestFinish = getBestFinish(player);
-            if (bestFinish != null) {
-                bestTimes.add(bestFinish);
-            }
-        }
-        bestTimes.sort(new TimeTrialFinishComparator());
-
-        return bestTimes;
+        return getTopList(-1);
     }
 
     public boolean isElytraTrack() {

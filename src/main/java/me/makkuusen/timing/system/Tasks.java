@@ -100,7 +100,7 @@ public class Tasks {
                 }
                 track.setTotalTimeSpent(time);
             }
-        }, 5*20, 900*20);
+        }, 10*20, 900*20);
 
     }
 

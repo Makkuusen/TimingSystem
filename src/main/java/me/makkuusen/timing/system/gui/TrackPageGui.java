@@ -31,12 +31,12 @@ public abstract class TrackPageGui extends BaseGui {
     public TrackFilter filter;
 
     public Comparator<Track> compareTrackPosition = (k1, k2) -> {
-        if (k1.getPlayerTopListPosition(tPlayer) == -1 && k2.getPlayerTopListPosition(tPlayer) > 0) {
+        if (k1.getCachedPlayerPosition(tPlayer) == -1 && k2.getCachedPlayerPosition(tPlayer) > 0) {
             return 1;
-        } else if (k2.getPlayerTopListPosition(tPlayer) == -1 && k1.getPlayerTopListPosition(tPlayer) > 0) {
+        } else if (k2.getCachedPlayerPosition(tPlayer) == -1 && k1.getCachedPlayerPosition(tPlayer) > 0) {
             return -1;
         }
-        return k1.getPlayerTopListPosition(tPlayer).compareTo(k2.getPlayerTopListPosition(tPlayer));
+        return k1.getCachedPlayerPosition(tPlayer).compareTo(k2.getCachedPlayerPosition(tPlayer));
     };
 
     public TrackPageGui(TPlayer tPlayer, Component title) {

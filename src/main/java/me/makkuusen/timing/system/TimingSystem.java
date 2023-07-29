@@ -205,7 +205,11 @@ public class TimingSystem extends JavaPlugin {
         int pluginId = 16012;
         new Metrics(this, pluginId);
 
+
+        TrackDatabase.loadTrackFinishesAsync();
     }
+
+
 
     private void setConfigDefaultColors() {
         for (TSColor tsColor : TSColor.values()) {

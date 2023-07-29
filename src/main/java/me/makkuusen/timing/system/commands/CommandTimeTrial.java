@@ -176,9 +176,9 @@ public class CommandTimeTrial extends BaseCommand {
         }
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
 
-        if (track.getPlayerTopListPosition(tPlayer) != -1) {
+        if (track.getCachedPlayerPosition(tPlayer) != -1) {
             Component message = Text.get(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
-            var leaderboardPosition = track.getPlayerTopListPosition(Database.getPlayer(player.getUniqueId()));
+            var leaderboardPosition = track.getCachedPlayerPosition(tPlayer);
             Component positionComponent = tPlayer.getTheme().getParenthesized(String.valueOf(leaderboardPosition));
             if (message != null) {
                 player.sendMessage(message.append(Component.space()).append(positionComponent));
