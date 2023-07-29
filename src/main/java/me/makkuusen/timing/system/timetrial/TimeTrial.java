@@ -257,9 +257,9 @@ public class TimeTrial {
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, finishMessage);
         } else if (timeTrialTime < track.getBestFinish(tPlayer).getTime()) {
             //New personal best
-            var oldPos = track.getPlayerTopListPosition(tPlayer);
+            var oldPos = track.getCachedPlayerPosition(tPlayer);
             var oldFinish = track.getBestFinish(tPlayer);
-            finish =  newBestFinish(player, timeTrialTime, oldFinish.getTime());
+            finish = newBestFinish(player, timeTrialTime, oldFinish.getTime());
             finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(oldFinish.getTime() - timeTrialTime), "%oldPos%", oldPos.toString(), "%pos%", track.getPlayerTopListPosition(tPlayer).toString());
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, oldFinish, finishMessage);
         } else {

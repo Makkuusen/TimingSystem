@@ -248,7 +248,7 @@ public class CommandTrack extends BaseCommand {
     private static void sendPlayerStatsInfo(CommandSender commandSender, TPlayer tPlayer, Track track) {
         commandSender.sendMessage(Component.empty());
         Text.send(commandSender, Info.PLAYER_STATS_TITLE, "%player%", tPlayer.getName(), "%track%", track.getDisplayName());
-        Text.send(commandSender, Info.PLAYER_STATS_POSITION, "%pos%", (track.getPlayerTopListPosition(tPlayer) == -1 ? "(-)" : String.valueOf(track.getPlayerTopListPosition(tPlayer))));
+        Text.send(commandSender, Info.PLAYER_STATS_POSITION, "%pos%", (track.getCachedPlayerPosition(tPlayer) == -1 ? "(-)" : String.valueOf(track.getCachedPlayerPosition(tPlayer))));
         if (track.getBestFinish(tPlayer) == null) {
             Text.send(commandSender, Info.PLAYER_STATS_BEST_LAP, "%time%", "(-)");
         } else {
