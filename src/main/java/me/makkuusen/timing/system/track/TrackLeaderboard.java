@@ -33,7 +33,7 @@ public class TrackLeaderboard extends TrackLocation {
 
         if (Bukkit.getServer().getPluginManager().getPlugin("HolographicDisplays") != null) {
             hologramManager = new HologramHD();
-        } else if(Bukkit.getServer().getPluginManager().getPlugin("DecentHolograms") != null) {
+        } else if (Bukkit.getServer().getPluginManager().getPlugin("DecentHolograms") != null) {
             hologramManager = new HologramDH();
         }
     }

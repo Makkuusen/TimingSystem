@@ -184,9 +184,8 @@ public class TimingSystem extends JavaPlugin {
         if (!Database.initialize()) return;
         Database.update();
         Database.synchronize();
-
-        EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::resetHeat);
-
+        TrackDatabase.loadTrackFinishesAsync();
+        EventDatabase.initDatabaseSynchronizeAsync();
 
         var tasks = new Tasks();
         tasks.startPlayerTimer(plugin);
@@ -204,9 +203,6 @@ public class TimingSystem extends JavaPlugin {
 
         int pluginId = 16012;
         new Metrics(this, pluginId);
-
-
-        TrackDatabase.loadTrackFinishesAsync();
     }
 
 

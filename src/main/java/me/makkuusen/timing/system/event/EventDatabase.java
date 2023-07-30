@@ -6,6 +6,7 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import co.aikar.taskchain.TaskChain;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
@@ -39,47 +40,63 @@ public class EventDatabase {
     private static final HashMap<UUID, Driver> playerInRunningHeat = new HashMap<>();
     public static TimingSystem plugin;
 
-    public static void initDatabaseSynchronize() throws SQLException {
-        var dbRows = DB.getResults("SELECT * FROM `ts_events` WHERE `isRemoved` = 0;");
 
-        for (DbRow dbRow : dbRows) {
-            if (dbRow.getString("name").equalsIgnoreCase("QuickRace")) {
-                continue;
-            }
-            Event event = new Event(dbRow);
-            events.add(event);
-            EventSchedule es = new EventSchedule();
+    public static void initDatabaseSynchronizeAsync() {
+        TaskChain<?> chain = TimingSystem.newChain();
+        TimingSystem.getPlugin().getLogger().warning("Async events started'");
 
-            var signsDbRows = DB.getResults("SELECT * FROM `ts_events_signs` WHERE `eventId` = " + event.getId() + ";");
-            for (DbRow signsData : signsDbRows) {
-                try {
-                    var type = Subscriber.Type.valueOf(signsData.getString("type"));
-                    if (type == Subscriber.Type.SUBSCRIBER) {
-                        event.subscribers.put(UUID.fromString(signsData.get("uuid")), new Subscriber(signsData));
-                    } else if (type == Subscriber.Type.RESERVE) {
-                        event.reserves.put(UUID.fromString(signsData.get("uuid")), new Subscriber(signsData));
+        chain.async(EventDatabase::initDatabaseSynchronize)
+                .execute((finished) -> {
+                    EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::resetHeat);
+                    TimingSystem.getPlugin().getLogger().warning("Finished loading events");
+                });
+    }
+    public static void initDatabaseSynchronize() {
+
+        try {
+            var dbRows = DB.getResults("SELECT * FROM `ts_events` WHERE `isRemoved` = 0;");
+
+            for (DbRow dbRow : dbRows) {
+                if (dbRow.getString("name").equalsIgnoreCase("QuickRace")) {
+                    continue;
+                }
+                Event event = new Event(dbRow);
+                events.add(event);
+                EventSchedule es = new EventSchedule();
+
+                var signsDbRows = DB.getResults("SELECT * FROM `ts_events_signs` WHERE `eventId` = " + event.getId() + ";");
+                for (DbRow signsData : signsDbRows) {
+                    try {
+                        var type = Subscriber.Type.valueOf(signsData.getString("type"));
+                        if (type == Subscriber.Type.SUBSCRIBER) {
+                            event.subscribers.put(UUID.fromString(signsData.get("uuid")), new Subscriber(signsData));
+                        } else if (type == Subscriber.Type.RESERVE) {
+                            event.reserves.put(UUID.fromString(signsData.get("uuid")), new Subscriber(signsData));
+                        }
+                    } catch (IllegalArgumentException ignored) {
                     }
-                } catch (IllegalArgumentException ignored) {
                 }
-            }
 
-            var roundDbRows = DB.getResults("SELECT * FROM `ts_rounds` WHERE `eventId` = " + event.getId() + " AND `isRemoved` = 0;");
-            for (DbRow roundData : roundDbRows) {
-                Round round;
-                var type = RoundType.valueOf(roundData.getString("type"));
-                if (type == RoundType.FINAL) {
-                    round = new FinalRound(roundData);
-                } else {
-                    round = new QualificationRound(roundData);
+                var roundDbRows = DB.getResults("SELECT * FROM `ts_rounds` WHERE `eventId` = " + event.getId() + " AND `isRemoved` = 0;");
+                for (DbRow roundData : roundDbRows) {
+                    Round round;
+                    var type = RoundType.valueOf(roundData.getString("type"));
+                    if (type == RoundType.FINAL) {
+                        round = new FinalRound(roundData);
+                    } else {
+                        round = new QualificationRound(roundData);
+                    }
+                    var heatDbRows = DB.getResults("SELECT * FROM `ts_heats` WHERE `roundId` = " + round.getId() + " AND `isRemoved` = 0;");
+                    for (DbRow heatData : heatDbRows) {
+                        initHeat(round, heatData);
+                    }
+                    es.addRound(round);
                 }
-                var heatDbRows = DB.getResults("SELECT * FROM `ts_heats` WHERE `roundId` = " + round.getId() + " AND `isRemoved` = 0;");
-                for (DbRow heatData : heatDbRows) {
-                    initHeat(round, heatData);
-                }
-                es.addRound(round);
+                es.setCurrentRound();
+                event.setEventSchedule(es);
             }
-            es.setCurrentRound();
-            event.setEventSchedule(es);
+        } catch (SQLException e) {
+            TimingSystem.getPlugin().getLogger().warning("Failed to sync events");
         }
     }
 

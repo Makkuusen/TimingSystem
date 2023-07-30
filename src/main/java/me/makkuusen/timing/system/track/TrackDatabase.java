@@ -122,27 +122,33 @@ public class TrackDatabase {
     private static void loadCheckpointTimes() {
         TimingSystem.getPlugin().getLogger().warning("Start loading checkpoints");
         try {
+            Map<Integer, Map<Integer, Long>> checkpoints = new HashMap<>();
+
+            var checkpointResults = DB.getResults("SELECT * FROM `ts_finishes_checkpoints` WHERE `isRemoved` = 0;");
+            if (!checkpointResults.isEmpty()) {
+                for (DbRow checkpoint : checkpointResults) {
+                    var finishId = checkpoint.getInt("finishId");
+                    if (!checkpoints.containsKey(finishId)) {
+                        checkpoints.put(finishId, new HashMap<>());
+                    }
+                    checkpoints.get(finishId).put(checkpoint.getInt("checkpointIndex"), Long.valueOf(checkpoint.getInt("time")));
+                }
+            }
+
+            // Sort checkpoints into track
             for (Track rTrack : getTracks()) {
                 var players = rTrack.getTimeTrialFinishes().keySet();
                 for (TPlayer tPlayer : players) {
-                    var finish = rTrack.getBestFinish(tPlayer);
-                    if (rTrack.getDateChanged() > finish.getDate()) {
-                        continue;
-                    }
-                    var checkpointResults = DB.getResults("SELECT * FROM `ts_finishes_checkpoints` WHERE `finishId` = " + finish.getId() + " AND `isRemoved` = 0;");
-                    Map<Integer, Long> checkpointTimes = new HashMap<>();
-                    if (!checkpointResults.isEmpty()) {
-                        for (DbRow checkpoint : checkpointResults) {
-                            checkpointTimes.put(checkpoint.getInt("checkpointIndex"), Long.valueOf(checkpoint.getInt("time")));
+                    for (TimeTrialFinish finish : rTrack.getTimeTrialFinishes().get(tPlayer)) {
+                        if (checkpoints.containsKey(finish.getId())) {
+                            finish.updateCheckpointTimes(checkpoints.get(finish.getId()));
                         }
-                        finish.updateCheckpointTimes(checkpointTimes);
                     }
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException ignored) {
         }
         TimingSystem.getPlugin().getLogger().warning("finish loading checkpoints");
-
     }
 
 

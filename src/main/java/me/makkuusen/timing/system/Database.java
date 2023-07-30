@@ -4,7 +4,6 @@ import co.aikar.idb.BukkitDB;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import co.aikar.idb.PooledDatabaseOptions;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -87,7 +86,6 @@ public class Database {
             }
 
             TrackDatabase.initDatabaseSynchronize();
-            EventDatabase.initDatabaseSynchronize();
         } catch (Exception exception) {
             exception.printStackTrace();
             plugin.getLogger().warning("Failed to synchronize database, disabling plugin.");
@@ -99,6 +97,7 @@ public class Database {
         TrackDatabase.unload();
         try {
             TrackDatabase.initDatabaseSynchronize();
+            TrackDatabase.loadTrackFinishesAsync();
         } catch (Exception exception) {
             exception.printStackTrace();
             plugin.getLogger().warning("Failed to synchronize database, disabling plugin.");
