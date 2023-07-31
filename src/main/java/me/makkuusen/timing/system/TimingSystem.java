@@ -19,6 +19,7 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.gui.GuiCommon;
 import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.papi.TimingSystemPlaceholder;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.TSColor;
@@ -191,6 +192,13 @@ public class TimingSystem extends JavaPlugin {
         tasks.startPlayerTimer(plugin);
         tasks.startParticleSpawner(plugin);
         tasks.generateTotalTime(plugin);
+
+
+            // Small check to make sure that PlaceholderAPI is installed
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new TimingSystemPlaceholder(this).register();
+            ApiUtilities.msgConsole("PlaceholderAPI registerd.");
+        }
 
         if (Bukkit.getPluginManager().getPlugin("HolographicDisplays") == null && Bukkit.getPluginManager().getPlugin("DecentHolograms") == null) {
             ApiUtilities.msgConsole("No Hologram Plugin installed. Leaderboards are disabled.");

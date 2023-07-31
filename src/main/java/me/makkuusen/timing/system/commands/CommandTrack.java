@@ -196,7 +196,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        if (!name.matches("[A-Za-zÅÄÖåäöØÆøæ0-9 ]+")) {
+        if (!name.matches("[A-Za-z0-9 ]+")) {
             Text.send(player, Error.NAME_FORMAT);
             return;
         }
@@ -724,7 +724,7 @@ public class CommandTrack extends BaseCommand {
                 return;
             }
 
-            if (!name.matches("[A-Za-zÅÄÖåäöØÆøæ0-9 ]+")) {
+            if (!name.matches("[A-Za-z0-9 ]+")) {
                 Text.send(commandSender, Error.NAME_FORMAT);
                 return;
             }

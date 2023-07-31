@@ -3,7 +3,7 @@ main: me.makkuusen.timing.system.TimingSystem
 version: 1.6
 authors: [Markus Hellquist (Makkuusen)]
 depend: [WorldEdit]
-softdepend: [HolographicDisplays, DecentHolograms, Multiverse-Core]
+softdepend: [HolographicDisplays, DecentHolograms, Multiverse-Core, PlaceholderAPI]
 api-version: '1.20'
 commands:
    track:
