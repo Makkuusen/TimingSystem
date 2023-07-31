@@ -141,7 +141,6 @@ public class TimeTrial {
         passNextCheckpoint(TimingSystem.currentTime);
         long timeSinceStart = ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime));
         if (tPlayer.isVerbose()) {
-
             Component delta = getBestLapDelta(tPlayer.getTheme(), getLatestCheckpoint());
             tPlayer.getPlayer().sendMessage(Text.get(tPlayer.getPlayer(), Info.TIME_TRIAL_CHECKPOINT, "%checkpoint%", String.valueOf(getLatestCheckpoint()), "%time%", ApiUtilities.formatAsTime(timeSinceStart)).append(delta));
         }
@@ -181,6 +180,7 @@ public class TimeTrial {
         if (track.isBoatTrack() && !(player.getVehicle() instanceof Boat)) {
             return;
         }
+
         TimeTrialController.timeTrials.put(tPlayer.getUniqueId(), this);
         ApiUtilities.msgConsole(tPlayer.getName() + " started on " + track.getDisplayName());
     }

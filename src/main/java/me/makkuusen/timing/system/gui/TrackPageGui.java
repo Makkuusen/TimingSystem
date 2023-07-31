@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
@@ -99,7 +100,7 @@ public abstract class TrackPageGui extends BaseGui {
 
         var button = new GuiButton(item);
         button.setAction(() -> {
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             clearNavRow();
             setSortingItems();
             tPlayer.setOpenGui(this);
@@ -130,7 +131,7 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getFilterButton(ItemStack item) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             new FilterGui(this).show(tPlayer.getPlayer());
         });
         return button;
@@ -139,7 +140,7 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getSortingButton(ItemStack item, TrackSort trackSort) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             tPlayer.setTrackSort(trackSort);
             openNewTrackPage(this, tPlayer, title);
         });
@@ -176,7 +177,7 @@ public abstract class TrackPageGui extends BaseGui {
     private void setResetItem() {
         var resetButton = new GuiButton(new ItemBuilder(Material.BARRIER).setName(Text.get(tPlayer, Gui.RESET)).build());
         resetButton.setAction(() -> {
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             tPlayer.setTrackPage(null);
             tPlayer.setFilter(null);
             tPlayer.setTrackSort(null);
@@ -220,7 +221,7 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getPageButton(ItemStack item, int newPage) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.pageTurn(tPlayer);
             tPlayer.setTrackPage(newPage);
             openNewTrackPage(this, tPlayer, title);
         });
@@ -269,7 +270,7 @@ public abstract class TrackPageGui extends BaseGui {
     public void setTrackTypeButtons() {
         var boatButton = new GuiButton(new ItemBuilder(Material.OAK_BOAT).setName(Text.get(tPlayer, Gui.BOAT_TRACKS)).build());
         boatButton.setAction(() -> {
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             tPlayer.setTrackType(Track.TrackType.BOAT);
             tPlayer.setTrackPage(0);
             openNewTrackPage(this, tPlayer, title);
@@ -278,7 +279,7 @@ public abstract class TrackPageGui extends BaseGui {
 
         var elytraButton = new GuiButton(new ItemBuilder(Material.ELYTRA).setName(Text.get(tPlayer, Gui.ELYTRA_TRACKS)).build());
         elytraButton.setAction(() -> {
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             tPlayer.setTrackType(Track.TrackType.ELYTRA);
             tPlayer.setTrackPage(0);
             openNewTrackPage(this, tPlayer, title);
@@ -287,7 +288,7 @@ public abstract class TrackPageGui extends BaseGui {
 
         var parkourButton = new GuiButton(new ItemBuilder(Material.BIG_DRIPLEAF).setName(Text.get(tPlayer, Gui.PARKOUR_TRACKS)).build());
         parkourButton.setAction(() -> {
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             tPlayer.setTrackType(Track.TrackType.PARKOUR);
             tPlayer.setTrackPage(0);
             openNewTrackPage(this, tPlayer, title);
@@ -298,7 +299,7 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getTrackTypeButton(ItemStack item) {
         var button = new GuiButton(item);
         button.setAction(() -> {
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             clearNavRow();
             setTrackTypeButtons();
             tPlayer.getPlayer().openInventory(getInventory());

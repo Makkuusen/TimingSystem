@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.gui;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import net.kyori.adventure.text.format.TextColor;
@@ -31,7 +32,7 @@ public class ColorSettingsGui extends BaseGui {
         var button = new GuiButton(new ItemBuilder(dye).setName(Text.get(tPlayer, Gui.COLOR).color(TextColor.fromHexString(hexColor))).build());
         button.setAction(() -> {
             tPlayer.setHexColor(hexColor);
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;

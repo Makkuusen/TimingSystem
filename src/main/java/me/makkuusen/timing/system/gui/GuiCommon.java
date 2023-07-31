@@ -5,8 +5,6 @@ import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
 import org.bukkit.inventory.ItemStack;
 
 public class GuiCommon {
@@ -45,9 +43,4 @@ public class GuiCommon {
         return button;
     }
 
-    public static void playConfirm(TPlayer tPlayer) {
-        if (tPlayer.isSound()) {
-            tPlayer.getPlayer().playSound(tPlayer.getPlayer().getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.2F, 1);
-        }
-    }
 }

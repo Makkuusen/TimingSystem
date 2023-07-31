@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import org.bukkit.DyeColor;
@@ -19,7 +20,7 @@ public class SettingsGui extends BaseGui {
         var button = new GuiButton(new ItemBuilder(Material.JUKEBOX).setName(Text.get(tPlayer, Gui.TOGGLE_SOUND)).build());
         button.setAction(() -> {
             tPlayer.toggleSound();
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
@@ -29,7 +30,7 @@ public class SettingsGui extends BaseGui {
         var button = new GuiButton(new ItemBuilder(Material.GOAT_HORN).setName(Text.get(tPlayer, Gui.TOGGLE_VERBOSE)).build());
         button.setAction(() -> {
             tPlayer.toggleVerbose();
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
@@ -39,7 +40,7 @@ public class SettingsGui extends BaseGui {
         var button = new GuiButton(new ItemBuilder(Material.BARRIER).setName(Text.get(tPlayer, Gui.TOGGLE_TIME_TRIAL)).build());
         button.setAction(() -> {
             tPlayer.toggleTimeTrial();
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
@@ -49,7 +50,7 @@ public class SettingsGui extends BaseGui {
         var button = new GuiButton(new ItemBuilder(Material.IRON_DOOR).setName(Text.get(tPlayer, Gui.TOGGLE_OVERRIDE)).build());
         button.setAction(() -> {
             tPlayer.toggleOverride();
-            GuiCommon.playConfirm(tPlayer);
+            PlaySound.buttonClick(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;

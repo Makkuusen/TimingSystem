@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TrackTagManager;
+import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.TrackTag;
@@ -22,7 +23,7 @@ public class FilterGui extends BaseGui{
         setFilterOptions();
         GuiButton save = new GuiButton(new ItemBuilder(Material.ARROW).setName(Text.get(oldTrackPage.tPlayer, Gui.RETURN)).build());
         save.setAction(() -> {
-            GuiCommon.playConfirm(oldTrackPage.tPlayer);
+            PlaySound.buttonClick(oldTrackPage.tPlayer);
             oldTrackPage.tPlayer.setFilter(filter);
             TrackPageGui.openNewTrackPage(oldTrackPage, oldTrackPage.tPlayer, oldTrackPage.title);
         });
@@ -45,7 +46,7 @@ public class FilterGui extends BaseGui{
             var button = new GuiButton(tag.getItem(oldTrackPage.tPlayer.getPlayer()));
             int finalCount = count;
             button.setAction(() -> {
-                GuiCommon.playConfirm(oldTrackPage.tPlayer);
+                PlaySound.buttonClick(oldTrackPage.tPlayer);
                 if (filter.getTags().contains(tag)) {
                     filter.removeTag(tag);
                 } else {

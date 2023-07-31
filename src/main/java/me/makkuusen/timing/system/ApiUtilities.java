@@ -51,6 +51,7 @@ public class ApiUtilities {
 
     private static final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
+
     public static long getTimestamp() {
         return System.currentTimeMillis() / 1000L;
     }
