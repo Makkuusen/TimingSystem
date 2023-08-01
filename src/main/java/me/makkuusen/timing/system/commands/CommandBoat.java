@@ -4,6 +4,8 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.Error;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -14,6 +16,11 @@ public class CommandBoat extends BaseCommand {
     @Default
     public static void onBoat(Player player) {
         if (isPlayerInBoat(player)) {
+            return;
+        }
+
+        if (!player.isOnGround()) {
+            Text.send(player, Error.NOT_NOW);
             return;
         }
         ApiUtilities.spawnBoatAndAddPlayer(player, player.getLocation());
