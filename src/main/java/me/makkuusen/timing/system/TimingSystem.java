@@ -99,9 +99,8 @@ public class TimingSystem extends JavaPlugin {
         );
         manager.getCommandContexts().registerContext(
                 Track.class, TrackDatabase.getTrackContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("track", context ->
-                TrackDatabase.getTracksAsStrings()
-        );
+        manager.getCommandCompletions().registerAsyncCompletion("track", (context -> TrackDatabase.getTracksAsStrings(context.getPlayer())));
+
         manager.getCommandContexts().registerContext(
                 TrackRegion.class, TrackDatabase.getRegionContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("region", TrackDatabase::getRegionsAsStrings
@@ -195,9 +194,9 @@ public class TimingSystem extends JavaPlugin {
 
 
             // Small check to make sure that PlaceholderAPI is installed
-        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new TimingSystemPlaceholder(this).register();
-            ApiUtilities.msgConsole("PlaceholderAPI registerd.");
+            ApiUtilities.msgConsole("PlaceholderAPI registered.");
         }
 
         if (Bukkit.getPluginManager().getPlugin("HolographicDisplays") == null && Bukkit.getPluginManager().getPlugin("DecentHolograms") == null) {

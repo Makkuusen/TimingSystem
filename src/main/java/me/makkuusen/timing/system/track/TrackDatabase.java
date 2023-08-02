@@ -340,9 +340,14 @@ public class TrackDatabase {
         startRegions.remove(region);
     }
 
-    public static List<String> getTracksAsStrings() {
+    public static List<String> getTracksAsStrings(Player player) {
         List<String> tracks = new ArrayList<>();
-        getTracks().forEach(track -> tracks.add(track.getCommandName()));
+        if (player.hasPermission("track.admin") || player.isOp()) {
+            getTracks().forEach(track -> tracks.add(track.getCommandName()));
+        } else {
+            getOpenTracks().forEach(track -> tracks.add(track.getCommandName()));
+        }
+
         return tracks;
     }
 
