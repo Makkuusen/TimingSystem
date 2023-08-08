@@ -44,6 +44,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
@@ -571,9 +572,14 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("reload")
     @CommandPermission("track.admin")
-    public static void onReload(CommandSender commandSender) {
-        Text.send(commandSender, Warning.DANGEROUS_COMMAND);
-        Database.reload();
+    public static void onReload(CommandSender commandSender, @Optional String confirmText) {
+        if(confirmText != null && confirmText.equals("confirm")) {
+            Database.reload();
+            Text.send(commandSender, Success.SAVED);
+            return;
+        }
+
+        Text.send(commandSender, Warning.DANGEROUS_COMMAND, "%command%", "/track reload confirm");
     }
 
     @Subcommand("deletebesttime")

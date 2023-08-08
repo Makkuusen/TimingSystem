@@ -99,7 +99,7 @@ error:
   permission_denied: "&ePermission denied!"
 
 warning:
-  dangerous_command: "&wThis command is dangerous, use it on own risk"
+  dangerous_command: "&wThis command is dangerous, Type \"%command%\" to use it anyways"
   drivers_left_out: "&wDrivers left out: "
   no_longer_spectating: "&wYou are no longer spectating %event%."
   no_longer_signed: "&wYou are no longer signed up for %event%."
@@ -107,6 +107,7 @@ warning:
   player_no_longer_signed: "&w%player% is no longer signed up for %event%."
   player_no_longer_reserve: "&w%player% is no longer signed up as reserve for %event%."
   track_requires_boat_utils: "&wThis track requires the use of the BoatUtils fabric mod"
+  confirm_command: "&wType &o/%command%&r&w to execute this command."
 
 success:
   saved: "&sValue has been saved."
