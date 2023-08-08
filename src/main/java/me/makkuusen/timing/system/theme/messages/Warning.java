@@ -8,7 +8,8 @@ public enum Warning implements Message {
     PLAYER_NO_LONGER_SIGNED,
     PLAYER_NO_LONGER_RESERVE,
     TRACK_REQUIRES_BOAT_UTILS,
-    DANGEROUS_COMMAND;
+    DANGEROUS_COMMAND,
+    CONFIRM_COMMAND;
 
     @Override
     public String getKey() {
