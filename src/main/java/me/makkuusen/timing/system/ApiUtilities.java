@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import co.aikar.taskchain.TaskChain;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
@@ -493,6 +494,10 @@ public class ApiUtilities {
         BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
         Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
 
+        if (boatSpawnEvent.isCancelled()) {
+            return;
+        }
+
         if (boatSpawnEvent.getBoat() != null) {
             return;
         }
@@ -508,6 +513,12 @@ public class ApiUtilities {
 
         BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
         Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
+
+        if (boatSpawnEvent.isCancelled()) {
+            return null;
+        }
+
+
         if (track.hasOption('r')) {
             ApiUtilities.giveBoatUtilsREffect(player);
         }
@@ -529,27 +540,30 @@ public class ApiUtilities {
     }
 
     public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location) {
+
+        TaskChain<?> chain = TimingSystem.newChain();
         location.setPitch(player.getLocation().getPitch());
-        player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(3);
         if (track.isBoatTrack()) {
-            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () ->  {
+            chain.sync(() -> {
                 ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
                 var tPlayer = Database.getPlayer(player.getUniqueId());
                 if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer)) {
                     var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
-                                .hoverEvent(HoverEvent.showText( Text.get(player, Hover.CLICK_TO_OPEN)))
-                                .clickEvent(ClickEvent.openUrl("https://discord.gg/bY558YuthD"));
+                            .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
+                            .clickEvent(ClickEvent.openUrl("https://discord.gg/bY558YuthD"));
                     player.sendMessage(boatUtilsWarning);
                 }
-            }, 3);
+            }).execute();
         } else if (track.isElytraTrack()) {
-
-            ItemStack chest = player.getInventory().getChestplate();
-            if (chest == null) {
-                giveElytra(player);
-            } else if (chest.getItemMeta().hasCustomModelData() && chest.getType() == Material.ELYTRA && chest.getItemMeta().getCustomModelData() == 747) {
-                giveElytra(player);
-            }
+            chain.sync(() -> {
+                ItemStack chest = player.getInventory().getChestplate();
+                if (chest == null) {
+                    giveElytra(player);
+                } else if (chest.getItemMeta().hasCustomModelData() && chest.getType() == Material.ELYTRA && chest.getItemMeta().getCustomModelData() == 747) {
+                    giveElytra(player);
+                }
+            }).execute();
         }
     }
 
@@ -559,15 +573,20 @@ public class ApiUtilities {
     }
 
     public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location, PlayerTeleportEvent.TeleportCause teleportCause) {
+        TaskChain<?> chain = TimingSystem.newChain();
         location.setPitch(player.getLocation().getPitch());
-        player.teleport(location, teleportCause);
+        chain.async(() -> player.teleportAsync(location, teleportCause)).delay(3);
         if (track.isBoatTrack()) {
-            Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track), 3);
+            chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track)).execute();
         } else if (track.isElytraTrack()) {
-            if (player.getInventory().getChestplate() == null) {
-                player.getInventory().setChestplate(new ItemBuilder(Material.ELYTRA).setCustomModelData(747).setName(Component.text("Disposable wings").color(NamedTextColor.RED)).build());
-                TimeTrialController.elytraProtection.put(player.getUniqueId(), Instant.now().getEpochSecond() + 10);
-            }
+            chain.sync(() -> {
+                ItemStack chest = player.getInventory().getChestplate();
+                if (chest == null) {
+                    giveElytra(player);
+                } else if (chest.getItemMeta().hasCustomModelData() && chest.getType() == Material.ELYTRA && chest.getItemMeta().getCustomModelData() == 747) {
+                    giveElytra(player);
+                }
+            }).execute();
         }
     }
 
