@@ -81,7 +81,10 @@ public class TrackTagManager {
         };
     }
 
-    public static List<TrackTag> getSortedTrackTags() {
-        return trackTags.values().stream().sorted(Comparator.comparingInt(TrackTag::getWeight).reversed()).toList();
+    public static List<TrackTag> getSortedTrackTags(boolean includeZeroWeight) {
+        if (includeZeroWeight) {
+            return trackTags.values().stream().sorted(Comparator.comparingInt(TrackTag::getWeight).reversed()).toList();
+        }
+        return trackTags.values().stream().filter(tag -> tag.getWeight() > 0).sorted(Comparator.comparingInt(TrackTag::getWeight).reversed()).toList();
     }
 }

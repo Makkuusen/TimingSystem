@@ -133,7 +133,7 @@ public class Track {
 
         Component tags = Component.empty();
         boolean notFirst = false;
-        for (TrackTag tag : getTags()) {
+        for (TrackTag tag : getDisplayTags()) {
             if (notFirst) {
                 tags = tags.append(Component.text(", ").color(tPlayer.getTheme().getSecondary()));
             }
@@ -226,6 +226,10 @@ public class Track {
 
     public List<TrackTag> getTags() {
         return tags.stream().sorted(Comparator.comparingInt(TrackTag::getWeight).reversed()).collect(Collectors.toList());
+    }
+
+    public List<TrackTag> getDisplayTags() {
+        return tags.stream().filter(tag -> tag.getWeight() > 0).sorted(Comparator.comparingInt(TrackTag::getWeight).reversed()).collect(Collectors.toList());
     }
 
 

@@ -17,10 +17,10 @@ import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TrackGui;
 import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.theme.messages.Success;
-import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Warning;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
@@ -44,7 +44,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @CommandAlias("track|t")
 public class CommandTrack extends BaseCommand {
@@ -285,7 +284,14 @@ public class CommandTrack extends BaseCommand {
         Text.send(commandSender, Info.TRACK_WEIGHT, "%size%", String.valueOf(track.getWeight()));
         Component tags = Component.empty();
         boolean notFirst = false;
-        for (TrackTag tag : track.getTags()) {
+
+        List<TrackTag> trackTags;
+        if (commandSender.hasPermission("track.admin")) {
+            trackTags = track.getTags();
+        } else {
+            trackTags = track.getDisplayTags();
+        }
+        for (TrackTag tag : trackTags) {
             if (notFirst) {
                 tags = tags.append(Component.text(", ").color(Theme.getTheme(commandSender).getSecondary()));
             }
