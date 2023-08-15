@@ -59,7 +59,7 @@ public class Heat {
     private Integer maxDrivers;
     private SpectatorScoreboard scoreboard;
     private Instant lastScoreboardUpdate = Instant.now();
-    private long updateScoreboardDelay = 300;
+    private long updateScoreboardDelay = 1000;
 
     public Heat(DbRow data, Round round) {
         id = data.getInt("id");

@@ -57,12 +57,14 @@ public class DriverScoreboard {
     public List<String> individualScoreboard() {
         List<String> lines = new ArrayList<>();
         int count = 0;
-        int last = Math.min(driver.getPosition() + 7, heat.getDrivers().size());
+        int last = Math.min(30, heat.getDrivers().size());
         int first = last - 14;
         for (Driver driver : heat.getLivePositions()) {
             count++;
             if (count < first) {
                 continue;
+            } else if (count > last) {
+                break;
             }
             if (heat.getRound() instanceof QualificationRound) {
                 lines.add(getDriverRowQualification(driver, this.driver, tPlayer.getCompactScoreboard(), tPlayer.getTheme()));
@@ -76,7 +78,13 @@ public class DriverScoreboard {
 
     public List<String> normalScoreboard() {
         List<String> lines = new ArrayList<>();
+        int count = 0;
+        int last = 30;
         for (Driver driver : heat.getLivePositions()) {
+            count++;
+            if (count > last) {
+                break;
+            }
             if (heat.getRound() instanceof QualificationRound) {
                 lines.add(getDriverRowQualification(driver, this.driver, tPlayer.getCompactScoreboard(), tPlayer.getTheme()));
 

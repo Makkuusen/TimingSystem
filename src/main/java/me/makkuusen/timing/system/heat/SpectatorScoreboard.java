@@ -54,9 +54,15 @@ public class SpectatorScoreboard {
 
     public List<String> normalScoreboard(TPlayer tPlayer) {
         List<String> lines = new ArrayList<>();
+        int count = 0;
+        int last = 30;
         Driver prevDriver = null;
         boolean compareToFirst = true;
         for (Driver driver : heat.getLivePositions()) {
+            count++;
+            if (count > last) {
+                break;
+            }
             if (heat.getRound() instanceof QualificationRound) {
                 lines.add(getDriverRowQualification(driver, prevDriver, tPlayer.getCompactScoreboard(), tPlayer.getTheme()));
                 if (compareToFirst) {
