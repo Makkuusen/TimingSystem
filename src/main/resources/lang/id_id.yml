@@ -309,7 +309,7 @@ gui:
   sorted_by_position: "&1Diurutkan sesuai: &2Position"
   sorted_by_popularity: "&1Diurutkan sesuai: &2Popularity"
   sorted_by_time_spent: "&1Diurutkan sesuai: &2Your time spent"
-  sorted_by_most_recent: "&1Diurutkan sesuai: &2Most recent"
+  sorted_by_recently_added: "&1Diurutkan sesuai: &2Recently added"
   filter_by_none: "&1Filter dengan: &2None"
   filter_by: "&1Filter dengan:"
   previous_page: "&1Halaman sebelumnya"

@@ -309,7 +309,7 @@ gui:
   sorted_by_position: "&1排序方式：&2排名"
   sorted_by_popularity: "&1排序方式：&2人气"
   sorted_by_time_spent: "&1排序方式：&2你花费的时间"
-  sorted_by_most_recent: "&1排序方式：&2最新"
+  sorted_by_recently_added: "&1排序方式：&2最新"
   filter_by_none: "&1过滤器：&2无"
   filter_by: "&1过滤器："
   previous_page: "&1上一页"

@@ -86,8 +86,8 @@ public abstract class TrackPageGui extends BaseGui {
 
     private void setSortingItem() {
         ItemStack item;
-        if (trackSort == TrackSort.MOST_RECENT) {
-            item = new ItemBuilder(Material.CLOCK).setName(Text.get(tPlayer, Gui.SORTED_BY_MOST_RECENT)).build();
+        if (trackSort == TrackSort.RECENTLY_ADDED) {
+            item = new ItemBuilder(Material.CLOCK).setName(Text.get(tPlayer, Gui.SORTED_BY_RECENTLY_ADDED)).build();
         } else if (trackSort == TrackSort.POPULARITY) {
             item = new ItemBuilder(Material.SUNFLOWER).setName(Text.get(tPlayer, Gui.SORTED_BY_POPULARITY)).build();
         } else if (trackSort == TrackSort.POSITION) {
@@ -114,7 +114,7 @@ public abstract class TrackPageGui extends BaseGui {
         setItem(getSortingButton(new ItemBuilder(Material.DRAGON_BREATH).setName(Text.get(tPlayer, Gui.SORTED_BY_POSITION)).build(), TrackSort.POSITION), 46);
         setItem(getSortingButton(new ItemBuilder(Material.SUNFLOWER).setName(Text.get(tPlayer, Gui.SORTED_BY_POPULARITY)).build(), TrackSort.POPULARITY), 47);
         setItem(getSortingButton(new ItemBuilder(Material.NETHER_STAR).setName(Text.get(tPlayer, Gui.SORTED_BY_TIME_SPENT)).build(), TrackSort.TIME_SPENT), 48);
-        setItem(getSortingButton(new ItemBuilder(Material.CLOCK).setName(Text.get(tPlayer, Gui.SORTED_BY_MOST_RECENT)).build(), TrackSort.MOST_RECENT), 49);
+        setItem(getSortingButton(new ItemBuilder(Material.CLOCK).setName(Text.get(tPlayer, Gui.SORTED_BY_RECENTLY_ADDED)).build(), TrackSort.RECENTLY_ADDED), 49);
     }
 
     private void setFilterItems() {

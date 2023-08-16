@@ -310,7 +310,7 @@ gui:
   sorted_by_position: "&1Sorted by: &2Position"
   sorted_by_popularity: "&1Sorted by: &2Popularity"
   sorted_by_time_spent: "&1Sorted by: &2Your time spent"
-  sorted_by_most_recent: "&1Sorted by: &2Most recent"
+  sorted_by_recently_added: "&1Sorted by: &2Recently added"
   filter_by_none: "&1Filter by: &2None"
   filter_by: "&1Filter by:"
   previous_page: "&1Previous page"
