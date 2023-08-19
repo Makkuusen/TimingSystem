@@ -16,4 +16,10 @@ public class PlaySound {
             tPlayer.getPlayer().playSound(tPlayer.getPlayer().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.2F, 1);
         }
     }
+
+    public static void boatUtilsEffect(TPlayer tPlayer) {
+        if (tPlayer.isSound()) {
+            tPlayer.getPlayer().playSound(tPlayer.getPlayer().getLocation(), Sound.BLOCK_BEACON_ACTIVATE, SoundCategory.MASTER, 1, 1);
+        }
+    }
 }

@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.timetrial;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.TimeTrialAttemptEvent;
+import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -14,6 +15,7 @@ public class TimeTrialController {
     public static HashMap<UUID, TimeTrial> timeTrials = new HashMap<>();
     public static HashMap<UUID, Long> elytraProtection = new HashMap<>();
     public static HashMap<UUID, TimeTrialSession> timeTrialSessions = new HashMap<>();
+    public static HashMap<UUID, Track> lastTimeTrialTrack = new HashMap<>();
 
     public static void playerLeavingMap(UUID uuid) {
         if (!TimeTrialController.timeTrials.containsKey(uuid)) {

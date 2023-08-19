@@ -321,7 +321,8 @@ public class TSListener implements Listener {
     public static void onPlayerMoveEvent(PlayerMoveEvent e) {
         Player player = e.getPlayer();
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
-            Track track = TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack();
+            TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
+            Track track = timeTrial.getTrack();
             if (player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType().equals(Material.ELYTRA) && track.hasOption('e')) {
                 Text.send(player, Error.NO_ELYTRA);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
@@ -340,11 +341,11 @@ public class TSListener implements Listener {
             } else if (ApiUtilities.hasBoatUtilsREffect(player) && !track.hasOption('r')) {
                 Text.send(player, Error.NO_STEP_ASSIST_EFFECT);
                 ApiUtilities.removeBoatUtilsEffects(player);
-                TimeTrialController.playerLeavingMap(player.getUniqueId());
+                timeTrial.playerResetMap();
             } else if (ApiUtilities.hasBoatUtilsIEffect(player) && !track.hasOption('i')) {
                 Text.send(player, Error.NO_SLIPPERY_EFFECT);
                 ApiUtilities.removeBoatUtilsEffects(player);
-                TimeTrialController.playerLeavingMap(player.getUniqueId());
+                timeTrial.playerResetMap();
             }
 
         }
@@ -418,6 +419,7 @@ public class TSListener implements Listener {
                         TimeTrial timeTrial = new TimeTrial(track_, Database.getPlayer(player.getUniqueId()));
                         timeTrial.playerStartingMap();
                         TimeTrialController.elytraProtection.remove(player.getUniqueId());
+                        TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track_);
                         if (track_.hasOption('i') && !ApiUtilities.hasBoatUtilsIEffect(player)) {
                             ApiUtilities.giveBoatUtilsIEffect(player);
                         }

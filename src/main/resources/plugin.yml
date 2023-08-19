@@ -29,6 +29,9 @@ commands:
       aliases: [b]
    race:
       description: Quickraces
+   reset:
+      description: Resets time trials for players.
+      aliases: [re]
 
 permissions:
 

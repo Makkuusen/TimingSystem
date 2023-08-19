@@ -10,8 +10,10 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
 import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Hover;
 import me.makkuusen.timing.system.theme.messages.Warning;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
@@ -518,7 +520,6 @@ public class ApiUtilities {
             return null;
         }
 
-
         if (track.hasOption('r')) {
             ApiUtilities.giveBoatUtilsREffect(player);
         }
@@ -543,12 +544,13 @@ public class ApiUtilities {
 
         TaskChain<?> chain = TimingSystem.newChain();
         location.setPitch(player.getLocation().getPitch());
+        TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
         chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(3);
         if (track.isBoatTrack()) {
             chain.sync(() -> {
                 ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
                 var tPlayer = Database.getPlayer(player.getUniqueId());
-                if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer)) {
+                if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer) && !TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()).equals(track)) {
                     var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
                             .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
                             .clickEvent(ClickEvent.openUrl("https://discord.gg/bY558YuthD"));
@@ -575,6 +577,7 @@ public class ApiUtilities {
     public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location, PlayerTeleportEvent.TeleportCause teleportCause) {
         TaskChain<?> chain = TimingSystem.newChain();
         location.setPitch(player.getLocation().getPitch());
+        TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
         chain.async(() -> player.teleportAsync(location, teleportCause)).delay(3);
         if (track.isBoatTrack()) {
             chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track)).execute();
@@ -633,6 +636,37 @@ public class ApiUtilities {
     public static void giveBoatUtilsIEffect(Player player) {
         var luckEffect = new PotionEffect(PotionEffectType.LUCK, 999999, 55, false, false);
         player.addPotionEffect(luckEffect);
+    }
+
+    public static void resetPlayerTimeTrial(Player player) {
+        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().isRunning()) {
+                Text.send(player, Error.NOT_NOW);
+                return;
+            }
+        }
+        if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
+            var tt = TimeTrialController.timeTrials.get(player.getUniqueId());
+            Track track = tt.getTrack();
+            if (!track.getSpawnLocation().isWorldLoaded()) {
+                Text.send(player, Error.WORLD_NOT_LOADED);
+                return;
+            }
+            TimingSystemAPI.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
+            return;
+        }
+
+        if (TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
+            Track track = TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId());
+            if (!track.getSpawnLocation().isWorldLoaded()) {
+                Text.send(player, Error.WORLD_NOT_LOADED);
+                return;
+            }
+            TimingSystemAPI.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
+            return;
+        }
+        Text.send(player, Error.NOT_NOW);
     }
 
     public static String darkenHexColor(String hexColor, double darkenAmount) {

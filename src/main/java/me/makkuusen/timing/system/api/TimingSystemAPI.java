@@ -65,6 +65,10 @@ public class TimingSystemAPI {
         ApiUtilities.teleportPlayerAndSpawnBoat(player, track, location);
     }
 
+    public static void resetPlayer(Player player) {
+        ApiUtilities.resetPlayerTimeTrial(player);
+    }
+
     public static List<Heat> getHeats() {
         return EventDatabase.getHeats();
     }

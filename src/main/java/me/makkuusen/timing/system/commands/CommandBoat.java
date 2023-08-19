@@ -4,8 +4,12 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
+import me.makkuusen.timing.system.track.Track;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -21,6 +25,15 @@ public class CommandBoat extends BaseCommand {
 
         if (!player.isOnGround()) {
             Text.send(player, Error.NOT_NOW);
+            return;
+        }
+
+        if (TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
+            Track track = TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId());
+            ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, player.getLocation(), track);
+            if (track.isBoatUtils()) {
+                PlaySound.boatUtilsEffect(Database.getPlayer(player.getUniqueId()));
+            }
             return;
         }
         ApiUtilities.spawnBoatAndAddPlayer(player, player.getLocation());

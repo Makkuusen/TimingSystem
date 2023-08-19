@@ -9,6 +9,7 @@ import me.makkuusen.timing.system.commands.CommandBoat;
 import me.makkuusen.timing.system.commands.CommandEvent;
 import me.makkuusen.timing.system.commands.CommandHeat;
 import me.makkuusen.timing.system.commands.CommandRace;
+import me.makkuusen.timing.system.commands.CommandReset;
 import me.makkuusen.timing.system.commands.CommandRound;
 import me.makkuusen.timing.system.commands.CommandSettings;
 import me.makkuusen.timing.system.commands.CommandTimeTrial;
@@ -178,6 +179,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandTimingSystem());
         manager.registerCommand(new CommandBoat());
         manager.registerCommand(new CommandRace());
+        manager.registerCommand(new CommandReset());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
 
