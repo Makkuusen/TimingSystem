@@ -126,17 +126,16 @@ public class CommandEvent extends BaseCommand {
 
         Component trackMessage;
         if (event.getTrack() == null) {
-
-            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(Component.text("-").color(theme.getSecondary()));
+            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(Component.text("-").color(theme.getSecondary()));
 
         } else {
-            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(Component.text(event.getTrack().getDisplayName()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
+            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(Component.text(event.getTrack().getDisplayName()).color(theme.getSecondary())).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
 
         }
         if (sender.hasPermission("event.admin") && event.getTrack() == null) {
-            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(theme.getBrackets("-").clickEvent(ClickEvent.suggestCommand("/event set track ")).hoverEvent(HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_EDIT)))).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
+            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(theme.getBrackets("-").clickEvent(ClickEvent.suggestCommand("/event set track ")).hoverEvent(HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_EDIT))));
         } else if (sender.hasPermission("event.admin")) {
-            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(Component.space()).append(theme.getBrackets(event.getTrack().getDisplayName()).clickEvent(ClickEvent.suggestCommand("/event set track ")).hoverEvent(HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_EDIT)))).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
+            trackMessage = Text.get(sender,Info.EVENT_INFO_TRACK).append(theme.getBrackets(event.getTrack().getDisplayName()).clickEvent(ClickEvent.suggestCommand("/event set track ")).hoverEvent(HoverEvent.showText(Text.get(sender, Hover.CLICK_TO_EDIT)))).append(Component.space()).append(theme.getViewButton(sender).clickEvent(ClickEvent.runCommand("/track info " + event.getTrack().getCommandName())).hoverEvent(theme.getClickToViewHoverEvent(sender)));
         }
         sender.sendMessage(trackMessage);
 

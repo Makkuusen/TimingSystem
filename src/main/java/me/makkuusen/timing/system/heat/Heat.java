@@ -367,6 +367,8 @@ public class Heat {
             return false;
         }
         driver.disqualify();
+        driver.removeScoreboard();
+        EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
         if (noDriversRunning()) {
             finishHeat();
         }

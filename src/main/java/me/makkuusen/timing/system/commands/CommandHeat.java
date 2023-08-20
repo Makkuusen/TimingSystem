@@ -18,6 +18,7 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
@@ -472,7 +473,22 @@ public class CommandHeat extends BaseCommand {
             Text.send(player, Error.NOT_NOW);
             return;
         }
+
         Driver driver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).get();
+        Heat heat = driver.getHeat();
+        if (heat.getHeatState() == HeatState.LOADED) {
+            heat.resetHeat();
+            if (heat.removeDriver(heat.getDrivers().get(player.getUniqueId()))) {
+                heat.getEvent().removeSpectator(player.getUniqueId());
+            }
+            heat.loadHeat();
+        }
+
+        if (driver.getState() == DriverState.LOADED && heat.getHeatState() != HeatState.LOADED) {
+            Text.send(player, Error.NOT_NOW);
+            return;
+        }
+
         if (driver.getHeat().disqualifyDriver(driver)) {
             if (player.getVehicle() != null && player.getVehicle() instanceof Boat boat) {
                 boat.remove();

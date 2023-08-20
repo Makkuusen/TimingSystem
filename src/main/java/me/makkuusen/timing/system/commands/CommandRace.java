@@ -10,6 +10,8 @@ import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
+import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.Text;
@@ -22,6 +24,8 @@ import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 @CommandAlias("race")
@@ -188,7 +192,6 @@ public class CommandRace extends BaseCommand {
 
         if (heat.getDrivers().get(player.getUniqueId()) != null) {
             Text.send(player, Error.ALREADY_SIGNED_RACE);
-
             return;
         }
 
@@ -204,6 +207,40 @@ public class CommandRace extends BaseCommand {
         }
 
         Text.send(player, Error.NOT_NOW);
+    }
+
+    @Subcommand("leave")
+    public static void onLeave(Player player) {
+        if (EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).isEmpty()) {
+            Text.send(player, Error.NOT_NOW);
+            return;
+        }
+        Driver driver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).get();
+        Heat heat = driver.getHeat();
+        if (heat.getHeatState() == HeatState.LOADED) {
+            heat.resetHeat();
+            if (heat.removeDriver(heat.getDrivers().get(player.getUniqueId()))) {
+                heat.getEvent().removeSpectator(player.getUniqueId());
+            }
+            heat.loadHeat();
+        }
+
+        if (driver.getState() == DriverState.LOADED && heat.getHeatState() != HeatState.LOADED) {
+            Text.send(player, Error.NOT_NOW);
+            return;
+        }
+
+        if (driver.getHeat().disqualifyDriver(driver)) {
+
+            if (player.getVehicle() != null && player.getVehicle() instanceof Boat boat) {
+                boat.remove();
+            }
+            Location loc = player.getBedSpawnLocation() == null ? player.getWorld().getSpawnLocation() : player.getBedSpawnLocation();
+            player.teleport(loc);
+            Text.send(player, Success.HEAT_ABORTED);
+            return;
+        }
+        Text.send(player, Error.FAILED_TO_ABORT_HEAT);
     }
 
     private void deleteEvent() {
