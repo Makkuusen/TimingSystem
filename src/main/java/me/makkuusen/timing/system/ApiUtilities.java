@@ -544,14 +544,14 @@ public class ApiUtilities {
 
         TaskChain<?> chain = TimingSystem.newChain();
         location.setPitch(player.getLocation().getPitch());
-        boolean sameAsLastTrack = TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId()) && TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()).equals(track);
+        boolean sameAsLastTrack = TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId()) && TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()).getId() == track.getId();
         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
         chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(3);
         if (track.isBoatTrack()) {
             chain.sync(() -> {
                 ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
                 var tPlayer = Database.getPlayer(player.getUniqueId());
-                if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer) && sameAsLastTrack) {
+                if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer) && !sameAsLastTrack) {
                     var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
                             .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
                             .clickEvent(ClickEvent.openUrl("https://discord.gg/bY558YuthD"));
@@ -567,6 +567,8 @@ public class ApiUtilities {
                     giveElytra(player);
                 }
             }).execute();
+        } else {
+            chain.execute();
         }
     }
 
@@ -591,6 +593,8 @@ public class ApiUtilities {
                     giveElytra(player);
                 }
             }).execute();
+        } else {
+            chain.execute();
         }
     }
 
