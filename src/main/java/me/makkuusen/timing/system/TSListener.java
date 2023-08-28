@@ -102,6 +102,8 @@ public class TSListener implements Listener {
                 event.setCancelled(true);
                 return;
             }
+            //Don't care about removing BU effects or playerLeavingMap if driver is an active race.
+            return;
         }
 
         if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.COMMAND) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.NETHER_PORTAL)) {
