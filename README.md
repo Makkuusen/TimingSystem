@@ -3,8 +3,8 @@
 
 ## What does it do?
 TimingSystem is a plugin that aims to do a few things.
-* Creation and timetrials of 3 various track types. [Boats, Elytra and Parkour]
-* Displaying leaderboards. Currently both In-game holograms and a commandbased ones.
+* Creation and time-trials of 3 various track types. [Boats, Elytra and Parkour]
+* Displaying leaderboards. In-game holograms and/or command-based ones.
 * Creating and managing events to host races. (Currently only supports Boats).
 
 ## Installation
@@ -18,6 +18,7 @@ This plugin has made it's first real release. If you want to use it, make sure t
 
 ## Add-ons
 * [Unofficial] [TimingSystemRESTApi](https://github.com/JustBru00/TimingSystemRESTApi) - Adds a basic JSON REST API to the TimingSystem plugin.
+* [Unofficial] [TimingSystemBlueMap](https://github.com/JustBru00/TimingSystemBlueMap) - Adds TimingSystem track locations to [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap).
 
 ## Discord
 If you need support. Look for #support in our discord.
