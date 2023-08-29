@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.heat;
 
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Theme;
@@ -57,8 +58,9 @@ public class DriverScoreboard {
     public List<String> individualScoreboard() {
         List<String> lines = new ArrayList<>();
         int count = 0;
-        int last = Math.min(30, heat.getDrivers().size());
+        int last = Math.min(driver.getPosition() + 7, heat.getDrivers().size());
         int first = last - 14;
+        last = first + TimingSystem.configuration.getScoreboardMaxRows();
         for (Driver driver : heat.getLivePositions()) {
             count++;
             if (count < first) {
@@ -79,7 +81,7 @@ public class DriverScoreboard {
     public List<String> normalScoreboard() {
         List<String> lines = new ArrayList<>();
         int count = 0;
-        int last = 30;
+        int last = TimingSystem.configuration.getScoreboardMaxRows();
         for (Driver driver : heat.getLivePositions()) {
             count++;
             if (count > last) {

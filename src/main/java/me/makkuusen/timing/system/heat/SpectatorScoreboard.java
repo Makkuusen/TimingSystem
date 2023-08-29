@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.heat;
 
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
@@ -55,7 +56,7 @@ public class SpectatorScoreboard {
     public List<String> normalScoreboard(TPlayer tPlayer) {
         List<String> lines = new ArrayList<>();
         int count = 0;
-        int last = 30;
+        int last = TimingSystem.configuration.getScoreboardMaxRows();
         Driver prevDriver = null;
         boolean compareToFirst = true;
         for (Driver driver : heat.getLivePositions()) {

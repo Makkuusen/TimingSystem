@@ -59,7 +59,6 @@ public class Heat {
     private Integer maxDrivers;
     private SpectatorScoreboard scoreboard;
     private Instant lastScoreboardUpdate = Instant.now();
-    private long updateScoreboardDelay = 1000;
 
     public Heat(DbRow data, Round round) {
         id = data.getInt("id");
@@ -381,7 +380,7 @@ public class Heat {
     }
 
     public void updateScoreboard() {
-        if (Duration.between(lastScoreboardUpdate, TimingSystem.currentTime).toMillis() > updateScoreboardDelay) {
+        if (Duration.between(lastScoreboardUpdate, TimingSystem.currentTime).toMillis() > TimingSystem.configuration.getScoreboardInterval()) {
             livePositions.forEach(Driver::updateScoreboard);
             scoreboard.updateScoreboard();
             lastScoreboardUpdate = TimingSystem.currentTime;

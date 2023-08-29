@@ -22,6 +22,9 @@ finals:
 qualifying:
    timeLimit: 60s
    startDelay: 2s
+scoreboard:
+   maxRows: 15
+   interval: 1s
 sql:
    host: '127.0.0.1'
    port: 3306

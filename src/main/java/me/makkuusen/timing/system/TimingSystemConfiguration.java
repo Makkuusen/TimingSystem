@@ -19,6 +19,8 @@ public class TimingSystemConfiguration {
     private final String sqlDatabase;
     private final String sqlUsername;
     private final String sqlPassword;
+    private int scoreboardMaxRows;
+    private Integer scoreboardInterval;
 
     TimingSystemConfiguration(TimingSystem plugin) {
         plugin.saveDefaultConfig();
@@ -39,5 +41,26 @@ public class TimingSystemConfiguration {
         sqlDatabase = plugin.getConfig().getString("sql.database");
         sqlUsername = plugin.getConfig().getString("sql.username");
         sqlPassword = plugin.getConfig().getString("sql.password");
+
+        if (plugin.getConfig().getString("scoreboard.maxRows") != null) {
+            scoreboardMaxRows = plugin.getConfig().getInt("scoreboard.maxRows");
+        } else {
+            scoreboardMaxRows = 15;
+        }
+
+        if (plugin.getConfig().getString("scoreboard.interval") != null) {
+            scoreboardInterval = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("scoreboard.interval"));
+        } else {
+            scoreboardInterval = 1000;
+        }
+    }
+
+
+    public void setScoreboardMaxRows(int rows) {
+        scoreboardMaxRows = rows;
+    }
+
+    public void setScoreboardInterval(String value) {
+        scoreboardInterval =  ApiUtilities.parseDurationToMillis(value);
     }
 }

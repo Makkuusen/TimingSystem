@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
@@ -83,9 +84,19 @@ public class CommandTimingSystem extends BaseCommand {
         Text.send(player, Success.SAVED);
     }
 
+    @Subcommand("scoreboard maxrows")
+    @CommandCompletion("<value>")
+    public static void onMaxRowsScoreboardChange(CommandSender sender, int rows) {
+        TimingSystem.configuration.setScoreboardMaxRows(rows);
+        Text.send(sender, Success.SAVED);
+    }
 
-
-
+    @Subcommand("scoreboard interval")
+    @CommandCompletion("<value in ms>")
+    public static void onIntervalScoreboardChange(CommandSender sender, String value) {
+        TimingSystem.configuration.setScoreboardInterval(value);
+        Text.send(sender, Success.SAVED);
+    }
 
 
     @Subcommand("hexcolor")
