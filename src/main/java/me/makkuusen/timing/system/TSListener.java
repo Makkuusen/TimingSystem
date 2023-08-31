@@ -86,6 +86,7 @@ public class TSListener implements Listener {
             // Update name
             TPlayer.setName(event.getPlayer().getName());
         }
+        BoatUtilsManager.playerBoatUtilsMode.put(event.getPlayer().getUniqueId(), BoatUtilsMode.STANDARD);
     }
 
     @EventHandler
@@ -439,6 +440,7 @@ public class TSListener implements Listener {
     void onPlayerQuit(PlayerQuitEvent event) {
         TPlayer TPlayer = Database.getPlayer(event.getPlayer());
         // Set to offline
+        BoatUtilsManager.playerBoatUtilsMode.remove(event.getPlayer().getUniqueId());
         TPlayer.setPlayer(null);
         TPlayer.clearScoreboard();
     }

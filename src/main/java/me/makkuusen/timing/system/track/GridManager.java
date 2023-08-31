@@ -37,7 +37,7 @@ public class GridManager {
         ar.setGravity(false);
         ar.setVisible(false);
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-            Boat boat = ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
+            Boat boat = ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track);
             ar.addPassenger(boat);
             armorStands.put(player.getUniqueId(), ar);
         }, 2);

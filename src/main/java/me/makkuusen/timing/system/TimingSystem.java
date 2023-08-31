@@ -76,6 +76,8 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new GUIListener(), plugin);
         pm.registerEvents(new TSListener(), plugin);
         pm.registerEvents(new TimeTrialListener(), plugin);
+        //Bukkit.getMessenger().registerIncomingPluginChannel(plugin, "openboatutils:settings", boatUtilsListener = new BoatUtilsListener());
+        Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, "openboatutils:settings");
 
         GuiCommon.init();
 
@@ -169,6 +171,16 @@ public class TimingSystem extends JavaPlugin {
             }
             return res;
         });
+
+        manager.getCommandContexts().registerContext(BoatUtilsMode.class, BoatUtilsManager.getBoatUtilsModeContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("boatutilsmode", context -> {
+            List<String> res = new ArrayList<>();
+            for(BoatUtilsMode mode : BoatUtilsMode.values()) {
+                res.add(mode.name().toLowerCase());
+            }
+            return res;
+        });
+
 
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandRound());

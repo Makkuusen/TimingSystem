@@ -511,7 +511,7 @@ public class ApiUtilities {
         }
     }
 
-    public static Boat spawnBoatAndAddPlayerWithEffects(Player player, Location location, Track track) {
+    public static Boat spawnBoatAndAddPlayerWithBoatUtils(Player player, Location location, Track track) {
 
         BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
         Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
@@ -520,12 +520,17 @@ public class ApiUtilities {
             return null;
         }
 
-        if (track.hasOption('r')) {
-            ApiUtilities.giveBoatUtilsREffect(player);
+        var mode = track.getBoatUtilsMode();
+        switch (mode) {
+            case RALLY -> {
+                ApiUtilities.giveBoatUtilsIEffect(player);
+                ApiUtilities.giveBoatUtilsREffect(player);
+            }
+            case BA -> {
+                ApiUtilities.giveBoatUtilsREffect(player);
+            }
         }
-        if (track.hasOption('i')) {
-            ApiUtilities.giveBoatUtilsIEffect(player);
-        }
+        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode);
 
         var tPlayer = Database.getPlayer(player.getUniqueId());
 
@@ -549,7 +554,7 @@ public class ApiUtilities {
         chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(3);
         if (track.isBoatTrack()) {
             chain.sync(() -> {
-                ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track);
+                ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track);
                 var tPlayer = Database.getPlayer(player.getUniqueId());
                 if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer) && !sameAsLastTrack) {
                     var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
@@ -583,7 +588,7 @@ public class ApiUtilities {
         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
         chain.async(() -> player.teleportAsync(location, teleportCause)).delay(3);
         if (track.isBoatTrack()) {
-            chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithEffects(player, location, track)).execute();
+            chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track)).execute();
         } else if (track.isElytraTrack()) {
             chain.sync(() -> {
                 ItemStack chest = player.getInventory().getChestplate();
@@ -609,6 +614,9 @@ public class ApiUtilities {
         if (unluckEffect != null) {
             return unluckEffect.getAmplifier() == 99;
         }
+        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
+            return !(BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) == BoatUtilsMode.STANDARD);
+        }
         return false;
     }
 
@@ -616,6 +624,11 @@ public class ApiUtilities {
         PotionEffect unluckEffect = player.getPotionEffect(PotionEffectType.UNLUCK);
         if (unluckEffect != null) {
             return unluckEffect.getAmplifier() == 99;
+        }
+
+        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
+            var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
+            return mode == BoatUtilsMode.RALLY || mode == BoatUtilsMode.BA;
         }
         return false;
     }
@@ -625,12 +638,18 @@ public class ApiUtilities {
         if (luckEffect != null) {
             return luckEffect.getAmplifier() == 55;
         }
+
+        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
+            var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
+            return mode == BoatUtilsMode.RALLY;
+        }
         return false;
     }
 
     public static void removeBoatUtilsEffects(Player player) {
         player.removePotionEffect(PotionEffectType.UNLUCK);
         player.removePotionEffect(PotionEffectType.LUCK);
+        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.STANDARD);
     }
 
     public static void giveBoatUtilsREffect(Player player) {

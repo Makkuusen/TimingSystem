@@ -10,6 +10,7 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.BoatUtilsMode;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
@@ -56,6 +57,7 @@ public class Track {
     private Location spawnLocation;
     private TrackType type;
     private TrackMode mode;
+    private BoatUtilsMode boatUtilsMode;
     private int weight;
     private char[] options;
     private boolean open;
@@ -78,7 +80,13 @@ public class Track {
         mode = data.get("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));
         weight = data.getInt("weight");
         dateChanged = data.get("dateChanged") == null ? 0 : data.getInt("dateChanged");
+        boatUtilsMode = data.get("boatUtilsMode") == null ? BoatUtilsMode.STANDARD : BoatUtilsMode.valueOf(data.getString("boatUtilsMode"));
 
+        if (hasOption('i') && hasOption('r')) {
+            setBoatUtilsMode(BoatUtilsMode.RALLY);
+        } else if (hasOption('r')) {
+            setBoatUtilsMode(BoatUtilsMode.BA);
+        }
     }
 
     public static ContextResolver<TrackType, BukkitCommandExecutionContext> getTrackTypeContextResolver() {
@@ -236,6 +244,10 @@ public class Track {
     public void setMode(TrackMode mode) {
         this.mode = mode;
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `mode` = " + Database.sqlString(mode.toString()) + " WHERE `id` = " + id + ";");
+    }
+
+    public void setBoatUtilsMode(BoatUtilsMode mode) {
+        this.boatUtilsMode = mode;
     }
 
     public void setName(String name) {
