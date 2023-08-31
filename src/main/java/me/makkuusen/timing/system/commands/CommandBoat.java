@@ -7,8 +7,8 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.BoatUtilsManager;
-import me.makkuusen.timing.system.BoatUtilsMode;
+import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
+import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
@@ -35,7 +35,7 @@ public class CommandBoat extends BaseCommand {
 
         if (TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
             Track track = TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId());
-            ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, player.getLocation(), track);
+            ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, player.getLocation(), track, true);
             if (track.isBoatUtils()) {
                 PlaySound.boatUtilsEffect(Database.getPlayer(player.getUniqueId()));
             }
@@ -56,7 +56,7 @@ public class CommandBoat extends BaseCommand {
 
     @Subcommand("mode")
     @CommandPermission("boat.admin")
-    @CommandCompletion("@boatutilsmode")
+    @CommandCompletion("@boatUtilsMode")
     public static void onBoatWithMode(Player player, BoatUtilsMode mode) {
 
         if (isPlayerInBoat(player)) {
@@ -69,6 +69,6 @@ public class CommandBoat extends BaseCommand {
         }
 
         ApiUtilities.spawnBoatAndAddPlayer(player, player.getLocation());
-        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode);
+        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, null, false);
     }
 }

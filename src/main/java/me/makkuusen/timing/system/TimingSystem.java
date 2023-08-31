@@ -5,6 +5,8 @@ import co.aikar.idb.DB;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
+import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.commands.CommandBoat;
 import me.makkuusen.timing.system.commands.CommandEvent;
 import me.makkuusen.timing.system.commands.CommandHeat;
@@ -76,7 +78,7 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new GUIListener(), plugin);
         pm.registerEvents(new TSListener(), plugin);
         pm.registerEvents(new TimeTrialListener(), plugin);
-        //Bukkit.getMessenger().registerIncomingPluginChannel(plugin, "openboatutils:settings", boatUtilsListener = new BoatUtilsListener());
+        Bukkit.getMessenger().registerIncomingPluginChannel(plugin, "openboatutils:settings", new PluginMessageReceiver());
         Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, "openboatutils:settings");
 
         GuiCommon.init();
@@ -173,7 +175,7 @@ public class TimingSystem extends JavaPlugin {
         });
 
         manager.getCommandContexts().registerContext(BoatUtilsMode.class, BoatUtilsManager.getBoatUtilsModeContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("boatutilsmode", context -> {
+        manager.getCommandCompletions().registerAsyncCompletion("boatUtilsMode", context -> {
             List<String> res = new ArrayList<>();
             for(BoatUtilsMode mode : BoatUtilsMode.values()) {
                 res.add(mode.name().toLowerCase());
@@ -225,8 +227,6 @@ public class TimingSystem extends JavaPlugin {
         int pluginId = 16012;
         new Metrics(this, pluginId);
     }
-
-
 
     private void setConfigDefaultColors() {
         for (TSColor tsColor : TSColor.values()) {

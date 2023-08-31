@@ -92,8 +92,6 @@ error:
   no_potion_effects: "&eAnda tidak boleh memiliki efek dalam track ini."
   no_riptide: "&eAnda tidak boleh mengunakan trisula dalam track ini."
   no_soul_speed: "&eAnda tidak boleh mengunakan soul speed dalam track ini."
-  no_step_assist_effect: "&eAnda tidak boleh mengunakan BoatUtils step assist pada track ini."
-  no_slippery_effect: "&eAnda tidak boleh mengunakan BoatUtils slippery effect pada track ini."
   lag_detected: "&eTime trial anda dibatalkan karena lag."
   missed_checkpoints: "&eTime trial tidak sah! Anda tidak melewati semua checkpoints"
   permission_denied: "&eIzin ditolak!"

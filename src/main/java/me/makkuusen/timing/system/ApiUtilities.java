@@ -12,18 +12,16 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
+import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
+import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
-import me.makkuusen.timing.system.theme.messages.Hover;
-import me.makkuusen.timing.system.theme.messages.Warning;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -109,7 +107,7 @@ public class ApiUtilities {
 
     public static String parseFlagChange(char[] flagsOriginal, String change) {
         String flagsRaw = new String(flagsOriginal);
-        change = change.replace("*", "bcgeptsuri");
+        change = change.replace("*", "bcgeptsu");
 
         boolean isAdding = true;
 
@@ -169,7 +167,7 @@ public class ApiUtilities {
     }
 
     private static boolean isValidFlag(char currentChar) {
-        return currentChar == 'b' || currentChar == 'c' || currentChar == 'g' || currentChar == 'e' || currentChar == 'p' || currentChar == 't' || currentChar == 's' || currentChar == 'u' || currentChar == 'r' || currentChar == 'i';
+        return currentChar == 'b' || currentChar == 'c' || currentChar == 'g' || currentChar == 'e' || currentChar == 'p' || currentChar == 't' || currentChar == 's' || currentChar == 'u';
     }
 
     public static Integer parseDurationToMillis(String input) {
@@ -511,7 +509,7 @@ public class ApiUtilities {
         }
     }
 
-    public static Boat spawnBoatAndAddPlayerWithBoatUtils(Player player, Location location, Track track) {
+    public static Boat spawnBoatAndAddPlayerWithBoatUtils(Player player, Location location, Track track, boolean sameAsLastTrack) {
 
         BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
         Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
@@ -530,7 +528,7 @@ public class ApiUtilities {
                 ApiUtilities.giveBoatUtilsREffect(player);
             }
         }
-        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode);
+        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
 
         var tPlayer = Database.getPlayer(player.getUniqueId());
 
@@ -554,14 +552,7 @@ public class ApiUtilities {
         chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(3);
         if (track.isBoatTrack()) {
             chain.sync(() -> {
-                ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track);
-                var tPlayer = Database.getPlayer(player.getUniqueId());
-                if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer) && !sameAsLastTrack) {
-                    var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
-                            .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
-                            .clickEvent(ClickEvent.openUrl("https://discord.gg/bY558YuthD"));
-                    player.sendMessage(boatUtilsWarning);
-                }
+                ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, sameAsLastTrack);
             }).execute();
         } else if (track.isElytraTrack()) {
             chain.sync(() -> {
@@ -588,7 +579,7 @@ public class ApiUtilities {
         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
         chain.async(() -> player.teleportAsync(location, teleportCause)).delay(3);
         if (track.isBoatTrack()) {
-            chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track)).execute();
+            chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, true)).execute();
         } else if (track.isElytraTrack()) {
             chain.sync(() -> {
                 ItemStack chest = player.getInventory().getChestplate();
@@ -615,7 +606,7 @@ public class ApiUtilities {
             return unluckEffect.getAmplifier() == 99;
         }
         if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
-            return !(BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) == BoatUtilsMode.STANDARD);
+            return !(BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) == BoatUtilsMode.VANILLA);
         }
         return false;
     }
@@ -649,7 +640,7 @@ public class ApiUtilities {
     public static void removeBoatUtilsEffects(Player player) {
         player.removePotionEffect(PotionEffectType.UNLUCK);
         player.removePotionEffect(PotionEffectType.LUCK);
-        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.STANDARD);
+        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, false);
     }
 
     public static void giveBoatUtilsREffect(Player player) {

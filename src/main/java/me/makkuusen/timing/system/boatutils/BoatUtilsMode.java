@@ -1,7 +1,7 @@
-package me.makkuusen.timing.system;
+package me.makkuusen.timing.system.boatutils;
 
 public enum BoatUtilsMode {
-    STANDARD(-1),
+    VANILLA(-1),
     RALLY( 0),
     RALLY_BLUE(1),
     BA(2),

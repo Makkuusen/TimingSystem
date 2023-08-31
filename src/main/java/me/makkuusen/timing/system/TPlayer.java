@@ -39,11 +39,11 @@ public class TPlayer implements Comparable<TPlayer> {
     private String color;
     private BaseGui openGui;
     private Theme theme;
-
     private TrackFilter filter;
     private TrackSort trackSort;
     private Track.TrackType trackType;
     private Integer page;
+    private Integer boatUtilsVersion = null;
 
 
     public TPlayer(TimingSystem plugin, DbRow data) {
@@ -231,6 +231,14 @@ public class TPlayer implements Comparable<TPlayer> {
     public void toggleCompactScoreboard() {
         this.compactScoreboard = !compactScoreboard;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
+    }
+
+    public boolean hasBoatUtils() {
+        return boatUtilsVersion != null;
+    }
+
+    public void setBoatUtilsVersion(int boatUtilsVersion) {
+        this.boatUtilsVersion = boatUtilsVersion;
     }
 
     public boolean isSound() {

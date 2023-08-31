@@ -92,8 +92,6 @@ error:
   no_potion_effects: "&e不允许在这条赛道上使用药水效果。"
   no_riptide: "&e不允许在这条赛道上使用激流。"
   no_soul_speed: "&e不允许在这条赛道上使用灵魂疾行的靴子。"
-  no_step_assist_effect: "&e不允许在这条赛道上使用BoatUtils step assist。"
-  no_slippery_effect: "&e不允许在这条赛道上使用BoatUtils slippery effect。"
   lag_detected: "&eTimingSystem检测到了一些延迟并遗憾的取消了你的计时。"
   missed_checkpoints: "&e时间无效，没有通过所有的检查点！"
   permission_denied: "&e权限拒绝。"

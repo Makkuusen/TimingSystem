@@ -48,6 +48,8 @@ public class Database {
                 v1_0Update();
                 v1_2Update();
                 v1_3Update();
+                v1_6Update();
+                v1_8Update();
             } else {
                 if (isNewerVersion(row.getString("version"), plugin.getPluginMeta().getVersion())) {
                     updateDatabase(row.getString("version"));
@@ -370,6 +372,10 @@ public class Database {
         if (isNewerVersion(oldVersion, "1.6")) {
             v1_6Update();
         }
+
+        if (isNewerVersion(oldVersion, "1.8")) {
+            v1_8Update();
+        }
     }
 
     private static void rc9Update() {
@@ -427,6 +433,31 @@ public class Database {
             DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `item`;");
         } catch (Exception exception) {
             exception.printStackTrace();
+        }
+    }
+
+    private static void v1_8Update() {
+        // Because of an issue with servers not getting 1.6 update with a fresh installation, I make sure they are applied upon upgrade to 1.8.
+        try {
+            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `dateChanged` bigint(30) DEFAULT NULL AFTER `dateCreated`;");
+            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff' AFTER `tag`;");
+            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"' AFTER `color`;");
+            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `item`;");
+        } catch (Exception ignored) {}
+
+        try {
+            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `boatUtilsMode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'STANDARD' AFTER `options`;");
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        try {
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = 'BA' WHERE `options` LIKE '%r%';");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = 'VANILLA' WHERE `options` LIKE '%i%';");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = 'RALLY' WHERE `options` LIKE '%i%' AND `options` LIKE '%r%';");
+            DB.executeUpdate("UPDATE `ts_tracks` SET options=REPLACE(options,'i','');");
+            DB.executeUpdate("UPDATE `ts_tracks` SET options=REPLACE(options,'r','');");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

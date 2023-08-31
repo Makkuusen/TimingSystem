@@ -9,6 +9,7 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TPlayer;
@@ -271,6 +272,7 @@ public class CommandTrack extends BaseCommand {
         Text.send(commandSender, Info.TRACK_DATE_CREATED, "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
         Text.send(commandSender, Info.TRACK_OPTIONS, "%options%", ApiUtilities.formatPermissions(track.getOptions()));
         Text.send(commandSender, Info.TRACK_MODE, "%mode%", track.getModeAsString());
+        Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", track.getBoatUtilsMode().name());
         Text.send(commandSender, Info.TRACK_CHECKPOINTS, "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()));
         if (track.getTrackLocations(TrackLocation.Type.GRID).size() != 0) {
             Text.send(commandSender, Info.TRACK_GRIDS, "%size%", String.valueOf(track.getTrackLocations(TrackLocation.Type.GRID).size()));
@@ -564,7 +566,7 @@ public class CommandTrack extends BaseCommand {
     public static void onOptions(CommandSender commandSender, Track track, String options) {
         String newOptions = ApiUtilities.parseFlagChange(track.getOptions(), options);
         if (newOptions == null) {
-            Text.send(commandSender, Success.SAVED);
+            Text.send(commandSender, Error.GENERIC);
             return;
         }
 
@@ -699,6 +701,13 @@ public class CommandTrack extends BaseCommand {
         @CommandCompletion("@trackMode @track")
         public static void onMode(Player player, Track.TrackMode mode, Track track) {
             track.setMode(mode);
+            Text.send(player, Success.SAVED);
+        }
+
+        @Subcommand("boatutils")
+        @CommandCompletion("@boatUtilsMode @track")
+        public static void onMode(Player player, BoatUtilsMode mode, Track track) {
+            track.setBoatUtilsMode(mode);
             Text.send(player, Success.SAVED);
         }
 

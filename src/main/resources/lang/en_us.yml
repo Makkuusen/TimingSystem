@@ -92,8 +92,7 @@ error:
   no_potion_effects: "&eYou are not allowed to have effects on this track."
   no_riptide: "&eYou are not allowed to riptide on this track."
   no_soul_speed: "&eYou are not allowed to have soul speed on your boots."
-  no_step_assist_effect: "&eYou are not allowed to use BoatUtils step assist on this track."
-  no_slippery_effect: "&eYou are not allowed to use BoatUtils slippery effect on this track."
+  wrong_boat_utils_mode: "&eYou did not have the correct BoatUtilsMode active."
   lag_detected: "&eTimingSystem detected some lag and unfortunately your time trial has been invalidated."
   missed_checkpoints: "&eTime is invalid, not all checkpoints were passed!"
   permission_denied: "&ePermission denied!"
@@ -106,7 +105,7 @@ warning:
   no_longer_reserve: "&wYou are no longer signed up as reserve for %event%."
   player_no_longer_signed: "&w%player% is no longer signed up for %event%."
   player_no_longer_reserve: "&w%player% is no longer signed up as reserve for %event%."
-  track_requires_boat_utils: "&wThis track requires the use of the BoatUtils fabric mod"
+  track_requires_boat_utils: "&wThis requires the use of the OpenBoatUtils fabric mod"
   confirm_command: "&wType &o/%command%&r&w to execute this command."
 
 success:
@@ -219,6 +218,7 @@ info:
   track_date_created: "&1Created:&2 %date%&1 owned by &2%owner%"
   track_options: "&1Options: &2+%options%"
   track_mode: "&1Mode: &2%mode%"
+  track_boatutils_mode: "&1BoatUtils mode: &2%mode%"
   track_checkpoints: "&1Checkpoints:&2 %size%"
   track_grids: "&1Grids:&2 %size%"
   track_qualification_grids: "&1QualyGrids:&2 %size%"

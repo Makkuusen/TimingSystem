@@ -1,6 +1,8 @@
 package me.makkuusen.timing.system;
 
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
+import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
+import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.commands.CommandRace;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
@@ -86,7 +88,7 @@ public class TSListener implements Listener {
             // Update name
             TPlayer.setName(event.getPlayer().getName());
         }
-        BoatUtilsManager.playerBoatUtilsMode.put(event.getPlayer().getUniqueId(), BoatUtilsMode.STANDARD);
+        BoatUtilsManager.playerBoatUtilsMode.put(event.getPlayer().getUniqueId(), BoatUtilsMode.VANILLA);
     }
 
     @EventHandler
@@ -323,6 +325,7 @@ public class TSListener implements Listener {
     @EventHandler
     public static void onPlayerMoveEvent(PlayerMoveEvent e) {
         Player player = e.getPlayer();
+        BoatUtilsMode mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
             Track track = timeTrial.getTrack();
@@ -341,12 +344,8 @@ public class TSListener implements Listener {
             } else if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.SOUL_SPEED) && track.hasOption('s')) {
                 Text.send(player, Error.NO_SOUL_SPEED);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
-            } else if (ApiUtilities.hasBoatUtilsREffect(player) && !track.hasOption('r')) {
-                Text.send(player, Error.NO_STEP_ASSIST_EFFECT);
-                ApiUtilities.removeBoatUtilsEffects(player);
-                timeTrial.playerResetMap();
-            } else if (ApiUtilities.hasBoatUtilsIEffect(player) && !track.hasOption('i')) {
-                Text.send(player, Error.NO_SLIPPERY_EFFECT);
+            } else if (mode != null && mode != track.getBoatUtilsMode()) {
+                Text.send(player, Error.WRONG_BOAT_UTILS_MODE);
                 ApiUtilities.removeBoatUtilsEffects(player);
                 timeTrial.playerResetMap();
             }
@@ -423,12 +422,6 @@ public class TSListener implements Listener {
                         timeTrial.playerStartingMap();
                         TimeTrialController.elytraProtection.remove(player.getUniqueId());
                         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track_);
-                        if (track_.hasOption('i') && !ApiUtilities.hasBoatUtilsIEffect(player)) {
-                            ApiUtilities.giveBoatUtilsIEffect(player);
-                        }
-                        if (track_.hasOption('r') && !ApiUtilities.hasBoatUtilsREffect(player)) {
-                            ApiUtilities.giveBoatUtilsREffect(player);
-                        }
                     }
                 }
                 PlayerRegionData.instanceOf(player).getEntered().add(regionId);
