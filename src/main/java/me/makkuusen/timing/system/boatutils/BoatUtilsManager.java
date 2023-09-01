@@ -45,25 +45,38 @@ public class BoatUtilsManager {
         }
 
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        if (!tPlayer.hasBoatUtils() && mode != BoatUtilsMode.VANILLA) {
-
-            if (!(mode == BoatUtilsMode.RALLY || mode == BoatUtilsMode.BA)) {
-                var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
-                        .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
-                        .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));
-                player.sendMessage(boatUtilsWarning);
-                return;
-            }
-
-            if (track != null) {
-                if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer) && !sameAsLastTrack) {
+        if (mode != BoatUtilsMode.VANILLA) {
+            if (!tPlayer.hasBoatUtils()) {
+                if (!(mode == BoatUtilsMode.RALLY || mode == BoatUtilsMode.BA)) {
                     var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
                             .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
                             .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));
                     player.sendMessage(boatUtilsWarning);
+                    return;
+                }
+
+                if (track != null) {
+                    if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer) && !sameAsLastTrack) {
+                        var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
+                                .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
+                                .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));
+                        player.sendMessage(boatUtilsWarning);
+                    }
+                }
+            } else {
+                // Need to update OpenBoatUtils
+                if (tPlayer.getBoatUtilsVersion() < mode.getRequiredVersion()) {
+                    var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_NEWER_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
+                            .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
+                            .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));
+                    player.sendMessage(boatUtilsWarning);
+                    player.sendMessage("Your version: " + tPlayer.getBoatUtilsVersion());
+                    player.sendMessage("Required version: " + mode.getRequiredVersion());
+                    return;
                 }
             }
         }
+
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(b);
         try {

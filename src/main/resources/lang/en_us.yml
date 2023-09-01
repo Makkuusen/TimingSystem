@@ -106,6 +106,7 @@ warning:
   player_no_longer_signed: "&w%player% is no longer signed up for %event%."
   player_no_longer_reserve: "&w%player% is no longer signed up as reserve for %event%."
   track_requires_boat_utils: "&wThis requires the use of the OpenBoatUtils fabric mod"
+  track_requires_newer_boat_utils: "&wThis requires a newer version of the OpenBoatUtils fabric mod"
   confirm_command: "&wType &o/%command%&r&w to execute this command."
 
 success:

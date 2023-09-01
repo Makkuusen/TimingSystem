@@ -446,7 +446,7 @@ public class Database {
         } catch (Exception ignored) {}
 
         try {
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `boatUtilsMode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'STANDARD' AFTER `options`;");
+            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `boatUtilsMode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'VANILLA' AFTER `options`;");
         } catch (Exception exception) {
             exception.printStackTrace();
         }
