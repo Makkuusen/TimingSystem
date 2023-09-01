@@ -35,6 +35,9 @@ import me.makkuusen.timing.system.track.TrackRegion;
 import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
+import net.megavex.scoreboardlibrary.api.exception.NoPacketAdapterAvailableException;
+import net.megavex.scoreboardlibrary.api.noop.NoopScoreboardLibrary;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Boat;
@@ -60,6 +63,7 @@ public class TimingSystem extends JavaPlugin {
     public static Map<UUID, TPlayer> players = new HashMap<>();
     private static LanguageManager languageManager;
     public static Instant currentTime = Instant.now();
+    public static ScoreboardLibrary scoreboardLibrary;
 
     public static Theme defaultTheme = new Theme();
     private static TaskChainFactory taskChainFactory;
@@ -73,6 +77,12 @@ public class TimingSystem extends JavaPlugin {
         Database.plugin = this;
         Text.plugin = this;
         languageManager = new LanguageManager(this, "en_us");
+
+        try {
+            scoreboardLibrary = ScoreboardLibrary.loadScoreboardLibrary(plugin);
+        } catch(NoPacketAdapterAvailableException e) {
+            scoreboardLibrary = new NoopScoreboardLibrary();
+        }
 
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new GUIListener(), plugin);
@@ -267,6 +277,7 @@ public class TimingSystem extends JavaPlugin {
     public void onDisable() {
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::onShutdown);
         logger.info("Version " + getPluginMeta().getVersion() + " disabled.");
+        scoreboardLibrary.close();
         DB.close();
         Database.plugin = null;
         TSListener.plugin = null;
