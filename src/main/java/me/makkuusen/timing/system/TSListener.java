@@ -27,6 +27,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.ChestBoat;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -80,15 +81,34 @@ public class TSListener implements Listener {
 
     @EventHandler
     void onPlayerJoin(PlayerJoinEvent event) {
-        TPlayer TPlayer = Database.getPlayer(event.getPlayer().getUniqueId());
+        Player player = event.getPlayer();
+        TPlayer TPlayer = Database.getPlayer(player.getUniqueId());
+        TPlayer.setPlayer(player);
 
-        TPlayer.setPlayer(event.getPlayer());
-
-        if (!TPlayer.getName().equals(event.getPlayer().getName())) {
+        if (!TPlayer.getName().equals(player.getName())) {
             // Update name
-            TPlayer.setName(event.getPlayer().getName());
+            TPlayer.setName(player.getName());
         }
-        BoatUtilsManager.playerBoatUtilsMode.put(event.getPlayer().getUniqueId(), BoatUtilsMode.VANILLA);
+
+        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) == null) {
+            BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, false);
+        }
+
+        var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
+        if (maybeDriver.isPresent()) {
+            Driver driver = maybeDriver.get();
+            Track track = driver.getHeat().getEvent().getTrack();
+            ApiUtilities.teleportPlayerAndSpawnBoat(player, track, player.getLocation().add(0,1,0), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+        } else {
+            if (player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
+                if (TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
+                    ApiUtilities.teleportPlayerAndSpawnBoat(player, TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()), player.getLocation().add(0,1,0));
+                } else {
+                    ApiUtilities.spawnBoatAndAddPlayer(player, player.getLocation().add(0,1,0));
+                    player.getVehicle().remove();
+                }
+            }
+        }
     }
 
     @EventHandler
@@ -433,7 +453,6 @@ public class TSListener implements Listener {
     void onPlayerQuit(PlayerQuitEvent event) {
         TPlayer TPlayer = Database.getPlayer(event.getPlayer());
         // Set to offline
-        BoatUtilsManager.playerBoatUtilsMode.remove(event.getPlayer().getUniqueId());
         TPlayer.setPlayer(null);
         TPlayer.clearScoreboard();
     }

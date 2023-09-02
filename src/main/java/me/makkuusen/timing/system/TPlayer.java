@@ -244,7 +244,7 @@ public class TPlayer implements Comparable<TPlayer> {
         return boatUtilsVersion;
     }
 
-    public void setBoatUtilsVersion(int boatUtilsVersion) {
+    public void setBoatUtilsVersion(Integer boatUtilsVersion) {
         this.boatUtilsVersion = boatUtilsVersion;
     }
 

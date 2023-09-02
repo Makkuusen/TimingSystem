@@ -40,10 +40,6 @@ public class BoatUtilsManager {
     }
 
     public static void sendBoatUtilsModePluginMessage(Player player, BoatUtilsMode mode, Track track, boolean sameAsLastTrack){
-        if (playerBoatUtilsMode.get(player.getUniqueId()) != null && playerBoatUtilsMode.get(player.getUniqueId()) == mode) {
-            return;
-        }
-
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         if (mode != BoatUtilsMode.VANILLA) {
             if (!tPlayer.hasBoatUtils()) {
@@ -70,8 +66,6 @@ public class BoatUtilsManager {
                             .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
                             .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));
                     player.sendMessage(boatUtilsWarning);
-                    player.sendMessage("Your version: " + tPlayer.getBoatUtilsVersion());
-                    player.sendMessage("Required version: " + mode.getRequiredVersion());
                     return;
                 }
             }
@@ -92,7 +86,6 @@ public class BoatUtilsManager {
         player.sendPluginMessage(TimingSystem.getPlugin(), "openboatutils:settings", b.toByteArray());
         playerBoatUtilsMode.put(player.getUniqueId(), mode);
     }
-
 
     public static ContextResolver<BoatUtilsMode, BukkitCommandExecutionContext> getBoatUtilsModeContextResolver() {
         return (c) -> {
