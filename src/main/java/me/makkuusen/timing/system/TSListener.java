@@ -90,18 +90,16 @@ public class TSListener implements Listener {
             TPlayer.setName(player.getName());
         }
 
-        if (player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
-            if (TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
-                player.getVehicle().remove();
+        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+            if (player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) && TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
+                Track track = TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId());
+                boolean sameAsLastTrack = TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId()) && TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()).getId() == track.getId();
+                BoatUtilsManager.sendBoatUtilsModePluginMessage(player, track.getBoatUtilsMode(), TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()), sameAsLastTrack);
                 ApiUtilities.teleportPlayerAndSpawnBoat(player, TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()), player.getLocation().add(0,1,0));
             } else {
-                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-                    player.getVehicle().remove();
-                    ApiUtilities.spawnBoatAndAddPlayer(player, player.getLocation().add(0,1,0));
-                }, 3);
-
+                BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, true);
             }
-        }
+        }, 3);
     }
 
     @EventHandler
