@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.track;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -37,6 +38,7 @@ public class GridManager {
         ar.setGravity(false);
         ar.setVisible(false);
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+            TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
             Boat boat = ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, false);
             ar.addPassenger(boat);
             armorStands.put(player.getUniqueId(), ar);

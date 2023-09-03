@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Hover;
 import me.makkuusen.timing.system.theme.messages.Warning;
 import me.makkuusen.timing.system.track.Track;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.entity.Player;
@@ -84,6 +85,9 @@ public class BoatUtilsManager {
             e.printStackTrace();
         }
         player.sendPluginMessage(TimingSystem.getPlugin(), "openboatutils:settings", b.toByteArray());
+        if (tPlayer.isVerbose() && !(playerBoatUtilsMode.get(player.getUniqueId()) != null && playerBoatUtilsMode.get(player.getUniqueId()) == mode)) {
+            player.sendMessage(Component.text("BU Mode: " + mode.name(), tPlayer.getTheme().getPrimary()));
+        }
         playerBoatUtilsMode.put(player.getUniqueId(), mode);
     }
 

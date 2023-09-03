@@ -502,6 +502,8 @@ public class ApiUtilities {
             return;
         }
 
+        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, true);
+
         var tPlayer = Database.getPlayer(player.getUniqueId());
         Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
         if (boat != null) {

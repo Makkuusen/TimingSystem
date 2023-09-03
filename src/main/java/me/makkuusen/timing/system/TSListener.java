@@ -90,23 +90,16 @@ public class TSListener implements Listener {
             TPlayer.setName(player.getName());
         }
 
-        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) == null) {
-            BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, false);
-        }
-
-        var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
-        if (maybeDriver.isPresent()) {
-            Driver driver = maybeDriver.get();
-            Track track = driver.getHeat().getEvent().getTrack();
-            ApiUtilities.teleportPlayerAndSpawnBoat(player, track, player.getLocation().add(0,1,0), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-        } else {
-            if (player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
-                if (TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
-                    ApiUtilities.teleportPlayerAndSpawnBoat(player, TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()), player.getLocation().add(0,1,0));
-                } else {
-                    ApiUtilities.spawnBoatAndAddPlayer(player, player.getLocation().add(0,1,0));
+        if (player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
+            if (TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
+                player.getVehicle().remove();
+                ApiUtilities.teleportPlayerAndSpawnBoat(player, TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()), player.getLocation().add(0,1,0));
+            } else {
+                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
                     player.getVehicle().remove();
-                }
+                    ApiUtilities.spawnBoatAndAddPlayer(player, player.getLocation().add(0,1,0));
+                }, 3);
+
             }
         }
     }
