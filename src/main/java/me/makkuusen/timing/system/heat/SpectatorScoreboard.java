@@ -7,6 +7,8 @@ import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.TrackRegion;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 
 import java.time.Duration;
@@ -27,7 +29,7 @@ public class SpectatorScoreboard {
             if (!heat.getDrivers().containsKey(spec.getTPlayer().getUniqueId())) {
                 if (spec.getTPlayer().getPlayer() != null) {
                     spec.getTPlayer().initScoreboard();
-                    List<String> lines;
+                    List<Component> lines;
                     lines = normalScoreboard(spec.getTPlayer());
                     setTitle(spec.getTPlayer());
                     spec.getTPlayer().setScoreBoardLines(lines);
@@ -44,7 +46,7 @@ public class SpectatorScoreboard {
             eventName = heat.getEvent().getDisplayName();
         }
 
-        tPlayer.setScoreBoardTitle(ScoreboardUtils.getPrimaryColor(tPlayer.getTheme()) + "&l" + heat.getName() + " | " + eventName);
+        tPlayer.setScoreBoardTitle(Component.text(heat.getName() + " | " + eventName).color(ScoreboardUtils.getPrimaryColor(tPlayer.getTheme())).decorate(TextDecoration.BOLD));
     }
 
     public void removeScoreboards() {
@@ -53,8 +55,8 @@ public class SpectatorScoreboard {
         }
     }
 
-    public List<String> normalScoreboard(TPlayer tPlayer) {
-        List<String> lines = new ArrayList<>();
+    public List<Component> normalScoreboard(TPlayer tPlayer) {
+        List<Component> lines = new ArrayList<>();
         int count = 0;
         int last = TimingSystem.configuration.getScoreboardMaxRows();
         Driver prevDriver = null;
@@ -79,7 +81,7 @@ public class SpectatorScoreboard {
         return lines;
     }
 
-    private String getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
+    private Component getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
         if (driver.getLaps().size() < 1) {
             return ScoreboardUtils.getDriverLineRace(driver, driver.getPosition(), compact, theme);
         }
@@ -114,7 +116,7 @@ public class SpectatorScoreboard {
         return ScoreboardUtils.getDriverLineRaceGap(timeDiff, driver, driver.getPits(), driver.getPosition(), compact, theme);
     }
 
-    private String getDriverRowQualification(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
+    private Component getDriverRowQualification(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
         if (driver.getBestLap().isEmpty()) {
             return ScoreboardUtils.getDriverLine(driver, driver.getPosition(), compact, theme);
         }

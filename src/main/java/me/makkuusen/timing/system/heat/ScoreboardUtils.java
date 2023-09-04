@@ -3,157 +3,152 @@ package me.makkuusen.timing.system.heat;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.theme.Theme;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class ScoreboardUtils {
-    public static String getDriverLine(Driver driver, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + "           " + getTeamIcon(driver) + paddName(driver, compact);
+    public static Component getDriverLine(Driver driver, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text("           ")).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
     }
 
-    public static String getDriverLineQualyTime(long laptime, Driver driver, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + " " + getSecondaryColor(theme) + paddTime(ApiUtilities.formatAsTime(laptime)) + getTeamIcon(driver) + paddName(driver, compact);
+    public static Component getDriverLineQualyTime(long laptime, Driver driver, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" ")).append(paddTime(ApiUtilities.formatAsTime(laptime)).color(getSecondaryColor(theme))).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
     }
 
-    public static String getDriverLineQualyGap(long timeDiff, Driver driver, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + " §a+" + paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)) + getTeamIcon(driver) + paddName(driver, compact);
+    public static Component getDriverLineQualyGap(long timeDiff, Driver driver, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" +").color(NamedTextColor.GREEN)).append(paddGap(ApiUtilities.formatAsQualificationGap(timeDiff))).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
     }
 
-    public static String getDriverLineNegativeQualyGap(long timeDiff, Driver driver, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + " §c-" + paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)) + getTeamIcon(driver) + paddName(driver, compact);
+    public static Component getDriverLineNegativeQualyGap(long timeDiff, Driver driver, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" -").color(NamedTextColor.RED)).append(paddGap(ApiUtilities.formatAsQualificationGap(timeDiff))).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
     }
 
-    public static String getDriverLineRace(Driver driver, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + "           " + getTeamIcon(driver) + paddName(driver, compact) + getPits(compact, theme) + "§f0";
+    public static Component getDriverLineRace(Driver driver, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text("           ")).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(0).color(TextColor.color(0xFFFFFF))).build();
     }
 
-    public static String getDriverLineRace(Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + "           " + getTeamIcon(driver) + paddName(driver, compact) + getPits(compact, theme) + getPitColour(driver, pits);
+    public static Component getDriverLineRace(Driver driver, int pits, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text("           ")).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
-    public static String getDriverLineRaceInPit(Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + " In Pit   " + getTeamIcon(driver) + paddName(driver, compact) + getPits(compact, theme) + getPitColour(driver, pits);
+    public static Component getDriverLineRaceInPit(Driver driver, int pits, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" In Pit   ")).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
-    public static String getDriverLineRaceOffline(Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + " Offline  " + getTeamIcon(driver) + paddName(driver, compact) + getPits(compact, theme) + getPitColour(driver, pits);
+    public static Component getDriverLineRaceOffline(Driver driver, int pits, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" Offline  ")).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
-    public static String getDriverLineRaceLaps(int laps, Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + " Lap: " + getSecondaryColor(theme) + paddLaps(laps) + " " + getTeamIcon(driver) + paddName(driver, compact) + getPits(compact, theme) + getPitColour(driver, pits);
+    public static Component getDriverLineRaceLaps(int laps, Driver driver, int pits, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" Lap: ")).append(paddLaps(laps).color(getSecondaryColor(theme))).append(Component.text(" ")).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
-    public static String getDriverLineRaceGap(long gap, Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + " §a+" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(driver) + paddName(driver, compact) + getPits(compact, theme) + getPitColour(driver, pits);
+    public static Component getDriverLineRaceGap(long gap, Driver driver, int pits, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" +").color(NamedTextColor.GREEN)).append(paddGap(ApiUtilities.formatAsRacingGap(gap))).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
-    public static String getDriverLineNegativeRaceGap(long gap, Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return paddPos(pos, driver) + (compact ? "" : getDivider(theme)) + " §c-" + paddGap(ApiUtilities.formatAsRacingGap(gap)) + getTeamIcon(driver) + paddName(driver, compact) + getPits(compact, theme) + getPitColour(driver, pits);
+    public static Component getDriverLineNegativeRaceGap(long gap, Driver driver, int pits, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" -").color(NamedTextColor.RED)).append(paddGap(ApiUtilities.formatAsRacingGap(gap))).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
-    private static String getDivider(Theme theme) {
-        return getPrimaryColor(theme) + "|";
+    private static Component getDivider(Theme theme) {
+        return Component.text("|").color(getPrimaryColor(theme));
     }
 
-    public static String paddName(Driver driver, boolean compact) {
+    public static Component paddName(Driver driver, boolean compact) {
         return paddName(driver.getTPlayer().getName(), compact);
     }
-    public static String paddName(String name, boolean compact) {
 
-        StringBuilder sb = new StringBuilder();
+    public static Component paddName(String name, boolean compact) {
+
+        TextComponent.Builder c = Component.text().content("");
         if (compact) {
             if (name.length() > 3) {
-                sb.append(name, 0, 4);
+                c.append(Component.text(name.substring(0, 4)));
             } else {
-                sb.append(name);
+                c.append(Component.text(name));
                 int spaces = 4 - name.length();
-                sb.append(" ".repeat(Math.max(0, spaces)));
+                c.append(Component.text(" ".repeat(Math.max(0, spaces))));
             }
         } else {
-            sb.append(name + ChatColor.RESET);
+            c.append(Component.text(name));
             int spaces = 16 - name.length();
-            sb.append(" ".repeat(Math.max(0, spaces)));
+            c.append(Component.text(" ".repeat(Math.max(0, spaces))));
         }
-        return sb.toString();
+        return c.build();
     }
 
-    public static String paddPos(int pos, Driver driver) {
-        if (pos > 9) {
-            return getPosFormat(pos, driver) + pos;
-        }
-        return getPosFormat(pos, driver) + pos + "§r ";
-    }
+    public static Component paddPos(int pos, Driver driver) {
+        TextColor posColour;
 
-    public static String paddGap(String gap) {
-        if (gap.length() == 5) {
-            return gap + "  ";
-        }
-        return gap;
-    }
-
-    public static String paddTime(String time) {
-        if (time.length() == 6) {
-            return time + "  ";
-        }
-        return time;
-    }
-
-    public static String paddLaps(int laps) {
-        if (laps < 10) {
-            return "0" + laps;
-        }
-        return String.valueOf(laps);
-    }
-
-    private static String getPitColour(Driver driver, int pits) {
-        if (driver.getPits() >= driver.getHeat().getTotalPits()) return "§a" + pits;
-        else if (driver.getPits() > 0) return "§6" + pits;
-        else return "§c" + pits;
-    }
-
-    public static String getSecondaryColor(Theme theme) {
-        return String.valueOf(net.md_5.bungee.api.ChatColor.of(theme.getSecondary().asHexString()));
-    }
-
-    public static String getPrimaryColor(Theme theme) {
-        return String.valueOf(net.md_5.bungee.api.ChatColor.of(theme.getPrimary().asHexString()));
-    }
-
-    private static String getPosFormat(int pos, Driver driver) {
-
-        net.md_5.bungee.api.ChatColor posColour;
-
-        switch (pos) {
-            case 1 -> posColour = net.md_5.bungee.api.ChatColor.of("#f6f31a");
-            case 2 -> posColour = net.md_5.bungee.api.ChatColor.of("#c3c3c3");
-            case 3 -> posColour = net.md_5.bungee.api.ChatColor.of("#CD7F32");
-            default -> posColour = net.md_5.bungee.api.ChatColor.of("#ffffff");
+        switch(pos) {
+            case 1 -> posColour = TextColor.color(0xF6F31A);
+            case 2 -> posColour = TextColor.color(0xC3C3C3);
+            case 3 -> posColour = TextColor.color(0xCD7F32);
+            default -> posColour = TextColor.color(0xFFFFFF);
         }
 
+        TextComponent.Builder b = Component.text().content(String.valueOf(pos)).color(posColour);
         boolean hasFastestLap = driver.getHeat().getFastestLapUUID() == driver.getTPlayer().getUniqueId();
 
-        if (driver.isFinished() && hasFastestLap) {
-            return posColour + String.valueOf(ChatColor.UNDERLINE) + ChatColor.ITALIC;
+        if(hasFastestLap) b.decorate(TextDecoration.UNDERLINED);
+        if(driver.isFinished()) b.decorate(TextDecoration.ITALIC);
 
-        } else if (driver.isFinished()) {
-            return posColour + String.valueOf(ChatColor.ITALIC);
-
-        } else if (hasFastestLap) {
-            return posColour + String.valueOf(ChatColor.UNDERLINE);
-
-        } else {
-            return String.valueOf(posColour);
+        if(!(pos > 9)) {
+            b.append(Component.text(" ").decoration(TextDecoration.UNDERLINED, false).decoration(TextDecoration.ITALIC, false));
         }
+
+        return b.build();
     }
 
-    private static String getTeamIcon(Driver driver) {
-        return driver.getTPlayer().getColorCode() + "§l§o||§r ";
+    public static Component paddGap(String gap) {
+        if (gap.length() == 5) {
+            return Component.text(gap + "  ");
+        }
+        return Component.text(gap);
     }
 
-    private static String getPits(boolean compact, Theme theme) {
+    public static Component paddTime(String time) {
+        if (time.length() == 6) {
+            return Component.text(time + "  ");
+        }
+        return Component.text(time);
+    }
+
+    public static Component paddLaps(int laps) {
+        if (laps < 10) {
+            return Component.text("0" + laps);
+        }
+        return Component.text(laps);
+    }
+
+    private static TextColor getPitColour(Driver driver, int pits) {
+        TextColor color = NamedTextColor.RED;
+        if (pits >= driver.getHeat().getTotalPits()) color = NamedTextColor.GREEN;
+        else if (pits > 0) color = NamedTextColor.GOLD;
+        return color;
+    }
+
+    public static TextColor getSecondaryColor(Theme theme) {
+        return theme.getSecondary();
+    }
+
+    public static TextColor getPrimaryColor(Theme theme) {
+        return TextColor.color(theme.getPrimary().value());
+    }
+
+    private static Component getTeamIcon(Driver driver) {
+        return Component.text("§l§o||§r ").color(driver.getTPlayer().getTextColor());
+    }
+
+    private static Component getPits(boolean compact, Theme theme) {
         if (compact) {
-            return " ";
+            return Component.text(" ");
         }
-        return getPrimaryColor(theme) + "Pits: ";
+        return Component.text("Pits: ").color(getPrimaryColor(theme));
     }
 
 }

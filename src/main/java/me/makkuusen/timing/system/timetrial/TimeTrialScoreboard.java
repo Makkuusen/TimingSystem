@@ -4,7 +4,9 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.ScoreBoard;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ public class TimeTrialScoreboard {
         this.tPlayer = tPlayer;
         tPlayer.initScoreboard();
         this.timeTrialSession = timeTrialsession;
-        tPlayer.setScoreBoardTitle(getColor(tPlayer.getTheme().getPrimary()) + "&l" + timeTrialsession.track.getDisplayName());
+        tPlayer.setScoreBoardTitle(Component.text(timeTrialsession.track.getDisplayName()).color(tPlayer.getTheme().getPrimary()).decorate(TextDecoration.BOLD));
     }
 
     public void removeScoreboard() {
@@ -30,7 +32,7 @@ public class TimeTrialScoreboard {
     }
 
     public void setLines() {
-        List<String> lines = new ArrayList<>();
+        List<Component> lines = new ArrayList<>();
 
         long totalTime = 0;
         long totalFinishes = timeTrialSession.getTimeTrialFinishes().size();
@@ -67,17 +69,17 @@ public class TimeTrialScoreboard {
             averageTime = totalTime / totalFinishes;
         }
 
-        String color = getColor(tPlayer.getTheme().getError());
+        TextColor color = tPlayer.getTheme().getError();
         if (percentage > 67) {
-            color = getColor(tPlayer.getTheme().getSuccess());
+            color = tPlayer.getTheme().getSuccess();
         } else if (percentage > 33) {
-            color = getColor(tPlayer.getTheme().getWarning());
+            color = tPlayer.getTheme().getWarning();
         }
 
-        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.FINISHES)) + color + (totalAttempts != 0 ? totalFinishes + "/" + totalAttempts + " (" + percentage + "%)" : "(-)"));
-        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.AVERAGE_TIME)) + getColor(tPlayer.getTheme().getWarning()) + (averageTime != -1 ? ApiUtilities.formatAsTimeNoRounding(averageTime) : "(-)"));
-        lines.add(getColor(tPlayer.getTheme().getSecondary()) + PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.BEST_TIME)) + getColor(tPlayer.getTheme().getSuccess()) + (bestTime != -1 ? ApiUtilities.formatAsTime(bestTime) : "(-)"));
-        lines.add("");
+        lines.add(Component.text(PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.FINISHES))).color(tPlayer.getTheme().getSecondary()).append(Component.text((totalAttempts != 0 ? totalFinishes + "/" + totalAttempts + " (" + percentage + "%)" : "(-)"))).color(color));
+        lines.add(Component.text(PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.AVERAGE_TIME))).color(tPlayer.getTheme().getSecondary()).append(Component.text((averageTime != -1 ? ApiUtilities.formatAsTimeNoRounding(averageTime) : "(-)"))).color(tPlayer.getTheme().getWarning()));
+        lines.add(Component.text(PlainTextComponentSerializer.plainText().serialize(Text.get(tPlayer, ScoreBoard.BEST_TIME))).color(tPlayer.getTheme().getSecondary()).append(Component.text((bestTime != -1 ? ApiUtilities.formatAsTime(bestTime) : "(-)"))).color(tPlayer.getTheme().getSuccess()));
+        lines.add(Component.empty());
         int count = timeTrialSession.getTimeTrialFinishes().size();
 
         int limit = Math.max(0, count - 10);
@@ -85,18 +87,14 @@ public class TimeTrialScoreboard {
             for (int i = count; i > limit; i--) {
                 long time = timeTrialSession.getTimeTrialFinishes().get(i - 1).getTime();
                 if (time == bestTime) {
-                    lines.add(getColor(tPlayer.getTheme().getPrimary()) + i + ". " + getColor(tPlayer.getTheme().getSuccess()) + ApiUtilities.formatAsTime(time));
+                    lines.add(Component.text(i + ". ").color(tPlayer.getTheme().getPrimary()).append(Component.text(ApiUtilities.formatAsTime(time)).color(tPlayer.getTheme().getSuccess())));
                 } else if (time == slowestTime) {
-                    lines.add(getColor(tPlayer.getTheme().getPrimary()) + i + ". " + getColor(tPlayer.getTheme().getError()) + ApiUtilities.formatAsTime(time));
+                    lines.add(Component.text(i + ". ").color(tPlayer.getTheme().getPrimary()).append(Component.text(ApiUtilities.formatAsTime(time)).color(tPlayer.getTheme().getError())));
                 } else {
-                    lines.add(getColor(tPlayer.getTheme().getPrimary()) + i + ". " + getColor(tPlayer.getTheme().getSecondary()) + ApiUtilities.formatAsTime(time));
+                    lines.add(Component.text(i + ". ").color(tPlayer.getTheme().getPrimary()).append(Component.text(ApiUtilities.formatAsTime(time)).color(tPlayer.getTheme().getSecondary())));
                 }
             }
         }
         tPlayer.setScoreBoardLines(lines);
-    }
-
-    private static String getColor(TextColor color) {
-        return String.valueOf(net.md_5.bungee.api.ChatColor.of(color.asHexString()));
     }
 }

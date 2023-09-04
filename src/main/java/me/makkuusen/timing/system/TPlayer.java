@@ -7,14 +7,15 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
-import dev.jcsoftware.jscoreboards.JPerPlayerMethodBasedScoreboard;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
 import me.makkuusen.timing.system.gui.TrackFilter;
 import me.makkuusen.timing.system.gui.TrackSort;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.Track;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import net.megavex.scoreboardlibrary.api.sidebar.Sidebar;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
@@ -26,7 +27,7 @@ import java.util.UUID;
 public class TPlayer implements Comparable<TPlayer> {
     private final TimingSystem plugin;
     private final UUID uuid;
-    JPerPlayerMethodBasedScoreboard jScoreboard;
+    private Sidebar scoreboard;
     private Player player;
     private String name;
     private Boat.Type boat;
@@ -81,40 +82,42 @@ public class TPlayer implements Comparable<TPlayer> {
         if (player == null) {
             return;
         }
-        if (jScoreboard == null) {
-            jScoreboard = new JPerPlayerMethodBasedScoreboard();
-            jScoreboard.addPlayer(player);
+        if (scoreboard == null) {
+            scoreboard = TimingSystem.scoreboardLibrary.createSidebar(TimingSystem.configuration.getScoreboardMaxRows());
+            scoreboard.addPlayer(player);
         }
     }
 
     public void clearScoreboard() {
-        if (jScoreboard != null) {
-            jScoreboard.destroy();
-            jScoreboard = null;
+        if (scoreboard != null) {
+            scoreboard.close();
+            scoreboard = null;
         }
     }
 
-    public void setScoreBoardTitle(String title) {
+    public void setScoreBoardTitle(Component title) {
         if (player == null) {
             return;
         }
-        if (jScoreboard == null) {
+        if (scoreboard == null) {
             initScoreboard();
         }
 
-        jScoreboard.setTitle(player, title);
+        scoreboard.title(title);
     }
 
-    public void setScoreBoardLines(List<String> lines) {
+    public void setScoreBoardLines(List<Component> lines) {
         if (player == null) {
             return;
         }
 
-        if (jScoreboard == null) {
+        if (scoreboard == null) {
             initScoreboard();
         }
 
-        jScoreboard.setLines(player, lines);
+        for(Component line : lines) {
+            scoreboard.line(lines.indexOf(line), line);
+        }
     }
 
     public BaseGui getOpenGui() {

@@ -5,6 +5,8 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Theme;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 
 import java.time.Duration;
@@ -32,7 +34,7 @@ public class DriverScoreboard {
             eventName = heat.getEvent().getDisplayName();
         }
 
-        tPlayer.setScoreBoardTitle(ScoreboardUtils.getPrimaryColor(tPlayer.getTheme()) + "&l" + heat.getName() + " | " + eventName);
+        tPlayer.setScoreBoardTitle(Component.text(heat.getName() + " | " + eventName).color(ScoreboardUtils.getPrimaryColor(tPlayer.getTheme())).decorate(TextDecoration.BOLD));
     }
 
     public void removeScoreboard() {
@@ -45,7 +47,7 @@ public class DriverScoreboard {
     }
 
     public void setLines() {
-        List<String> lines;
+        List<Component> lines;
         int pos = driver.getPosition();
         if (pos > 12 && heat.getLivePositions().size() > 15) {
             lines = individualScoreboard();
@@ -55,8 +57,8 @@ public class DriverScoreboard {
         tPlayer.setScoreBoardLines(lines);
     }
 
-    public List<String> individualScoreboard() {
-        List<String> lines = new ArrayList<>();
+    public List<Component> individualScoreboard() {
+        List<Component> lines = new ArrayList<>();
         int count = 0;
         int last = Math.min(driver.getPosition() + 7, heat.getDrivers().size());
         int first = last - 14;
@@ -78,8 +80,8 @@ public class DriverScoreboard {
         return lines;
     }
 
-    public List<String> normalScoreboard() {
-        List<String> lines = new ArrayList<>();
+    public List<Component> normalScoreboard() {
+        List<Component> lines = new ArrayList<>();
         int count = 0;
         int last = TimingSystem.configuration.getScoreboardMaxRows();
         for (Driver driver : heat.getLivePositions()) {
@@ -97,7 +99,7 @@ public class DriverScoreboard {
         return lines;
     }
 
-    private String getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
+    private Component getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
         if (driver.getLaps().size() < 1) {
             return ScoreboardUtils.getDriverLineRace(driver, driver.getPosition(), compact, theme);
         }
@@ -149,7 +151,7 @@ public class DriverScoreboard {
         return ScoreboardUtils.getDriverLineRace(driver, driver.getPits(), driver.getPosition(), compact, theme);
     }
 
-    private String getDriverRowQualification(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
+    private Component getDriverRowQualification(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
         if (driver.getBestLap().isEmpty()) {
             return ScoreboardUtils.getDriverLine(driver, driver.getPosition(), compact, theme);
         }
