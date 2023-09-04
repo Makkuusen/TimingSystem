@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.makkuusen.timing.system</groupId>
     <artifactId>TimingSystem</artifactId>
-    <version>1.8.1</version>
+    <version>1.9-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -93,7 +93,7 @@
                                 <resource>
                                     <directory>${basedir}/target/</directory>
                                     <includes>
-                                        <include>TimingSystem-1.8.1.jar</include>
+                                        <include>TimingSystem-1.9-SNAPSHOT.jar</include>
                                     </includes>
                                     <!--<include>*.[MIME-TYPE]</include>-->
                                     <filtering>false</filtering>
