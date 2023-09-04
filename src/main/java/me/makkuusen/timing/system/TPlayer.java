@@ -19,6 +19,7 @@ import net.megavex.scoreboardlibrary.api.sidebar.Sidebar;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Range;
 
 import java.awt.*;
 import java.util.List;
@@ -45,6 +46,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private Track.TrackType trackType;
     private Integer page;
     private Integer boatUtilsVersion = null;
+    private Integer oinkScoreboardRows = null;
 
 
     public TPlayer(TimingSystem plugin, DbRow data) {
@@ -249,6 +251,18 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public void setBoatUtilsVersion(Integer boatUtilsVersion) {
         this.boatUtilsVersion = boatUtilsVersion;
+    }
+
+    public void setOinkScoreboardRows(@Range(from = 0, to = 125) int rows) {
+        oinkScoreboardRows = rows;
+    }
+
+    public int getOinkScoreboardRows() {
+        return oinkScoreboardRows;
+    }
+
+    public boolean hasOinkScoreboard() {
+        return oinkScoreboardRows != null;
     }
 
     public boolean isSound() {

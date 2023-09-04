@@ -88,8 +88,10 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new GUIListener(), plugin);
         pm.registerEvents(new TSListener(), plugin);
         pm.registerEvents(new TimeTrialListener(), plugin);
-        Bukkit.getMessenger().registerIncomingPluginChannel(plugin, "openboatutils:settings", new PluginMessageReceiver());
+        PluginMessageReceiver receiver = new PluginMessageReceiver();
+        Bukkit.getMessenger().registerIncomingPluginChannel(plugin, "openboatutils:settings", receiver);
         Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, "openboatutils:settings");
+        Bukkit.getMessenger().registerIncomingPluginChannel(plugin, "oinkscoreboard:settings", receiver);
 
         GuiCommon.init();
 

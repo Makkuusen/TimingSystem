@@ -58,7 +58,7 @@ public class SpectatorScoreboard {
     public List<Component> normalScoreboard(TPlayer tPlayer) {
         List<Component> lines = new ArrayList<>();
         int count = 0;
-        int last = TimingSystem.configuration.getScoreboardMaxRows();
+        int last = Math.min(TimingSystem.configuration.getScoreboardMaxRows(), (tPlayer.hasOinkScoreboard() ? tPlayer.getOinkScoreboardRows() : 15));
         Driver prevDriver = null;
         boolean compareToFirst = true;
         for (Driver driver : heat.getLivePositions()) {

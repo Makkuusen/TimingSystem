@@ -83,7 +83,7 @@ public class DriverScoreboard {
     public List<Component> normalScoreboard() {
         List<Component> lines = new ArrayList<>();
         int count = 0;
-        int last = TimingSystem.configuration.getScoreboardMaxRows();
+        int last = Math.min(TimingSystem.configuration.getScoreboardMaxRows(), (tPlayer.hasOinkScoreboard() ? tPlayer.getOinkScoreboardRows() : 15));
         for (Driver driver : heat.getLivePositions()) {
             count++;
             if (count > last) {
