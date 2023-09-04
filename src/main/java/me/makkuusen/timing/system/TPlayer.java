@@ -83,7 +83,7 @@ public class TPlayer implements Comparable<TPlayer> {
             return;
         }
         if (scoreboard == null) {
-            scoreboard = TimingSystem.scoreboardLibrary.createSidebar();
+            scoreboard = TimingSystem.scoreboardLibrary.createSidebar(TimingSystem.configuration.getScoreboardMaxRows());
             scoreboard.addPlayer(player);
         }
     }
