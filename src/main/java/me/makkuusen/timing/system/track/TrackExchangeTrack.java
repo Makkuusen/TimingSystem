@@ -233,6 +233,13 @@ public class TrackExchangeTrack {
             options = (String) main.get("options");
             totalTimeSpent = (Long) main.get("totalTimeSpent");
 
+            if (!TrackDatabase.trackNameAvailable(name)) {
+                Text.send(player, Error.TRACK_EXISTS);
+                trackDataFile.delete();
+                trackSchematicFile.delete();
+                return null;
+            }
+
             Location from = ApiUtilities.stringToLocation((String) main.get("from"));
             Vector offset = getOffset(from, player.getLocation().toBlockLocation());
             Location newSpawnLocation = getNewLocation(player.getWorld(), ApiUtilities.stringToLocation(spawnLocation), offset);

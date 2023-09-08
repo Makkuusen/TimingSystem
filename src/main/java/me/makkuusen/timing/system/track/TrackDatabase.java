@@ -275,6 +275,9 @@ public class TrackDatabase {
                     region = TrackDatabase.trackRegionNew(new CuboidRegion(BukkitAdapter.adapt(spawnLocation.getWorld()), BlockVector3.at(minP.getBlockX(), minP.getBlockY(), minP.getBlockZ()), BlockVector3.at(maxP.getBlockX(), maxP.getBlockY(), maxP.getBlockZ())), trackId, Integer.parseInt(String.valueOf(regionObject.get("index"))), TrackRegion.RegionType.valueOf((String) regionObject.get("regionType")), newLocation);
                 }
 
+                if(region.getRegionType() == TrackRegion.RegionType.START) {
+                    addTrackRegion(region);
+                }
                 rTrack.addRegion(region);
             }
 
