@@ -7,16 +7,7 @@ import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
-import me.makkuusen.timing.system.commands.CommandBoat;
-import me.makkuusen.timing.system.commands.CommandEvent;
-import me.makkuusen.timing.system.commands.CommandHeat;
-import me.makkuusen.timing.system.commands.CommandRace;
-import me.makkuusen.timing.system.commands.CommandReset;
-import me.makkuusen.timing.system.commands.CommandRound;
-import me.makkuusen.timing.system.commands.CommandSettings;
-import me.makkuusen.timing.system.commands.CommandTimeTrial;
-import me.makkuusen.timing.system.commands.CommandTimingSystem;
-import me.makkuusen.timing.system.commands.CommandTrack;
+import me.makkuusen.timing.system.commands.*;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.GUIListener;
@@ -204,6 +195,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandBoat());
         manager.registerCommand(new CommandRace());
         manager.registerCommand(new CommandReset());
+        manager.registerCommand(new CommandTrackExchange());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
 
