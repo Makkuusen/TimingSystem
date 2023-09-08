@@ -269,7 +269,6 @@ public class TrackDatabase {
                         JSONObject vec = (JSONObject) points.get(String.valueOf(i));
                         BlockVector2 point = BlockVector2.at(Double.parseDouble(String.valueOf(vec.get("x"))) - offset.getX(), Double.parseDouble(String.valueOf(vec.get("z"))) - offset.getZ());
                         finalPoints.add(point);
-                        System.out.println(point.getX() + " | " + point.getZ());
                     }
                     region = TrackDatabase.trackRegionNew(new Polygonal2DRegion(BukkitAdapter.adapt(spawnLocation.getWorld()), finalPoints, minP.getBlockY(), maxP.getBlockY()), trackId, Integer.parseInt(String.valueOf(regionObject.get("index"))), TrackRegion.RegionType.valueOf((String) regionObject.get("regionType")), newLocation);
                 } else {

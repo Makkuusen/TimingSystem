@@ -20,10 +20,7 @@ import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
-import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
-import me.makkuusen.timing.system.track.TrackRegion;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.*;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
@@ -35,6 +32,7 @@ import org.bukkit.entity.Boat;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -198,6 +196,8 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandTrackExchange());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
+        File dir = new File(TrackExchangeTrack.PATH);
+        if(!dir.exists()) dir.mkdir(); // create trackexchange handling folder.
 
         if (!Database.initialize()) return;
         Database.update();

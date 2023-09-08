@@ -12,7 +12,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.json.simple.JSONArray;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -27,8 +28,8 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class TrackExchangeTrack {
-    private static final String CURRENT_VERSION = "1.9";
-    private static final String PATH = TimingSystem.getPlugin().getDataFolder() + File.separator + "tracks" + File.separator;
+    public static final String CURRENT_VERSION = "1.9";
+    public static final String PATH = TimingSystem.getPlugin().getDataFolder() + File.separator + "tracks" + File.separator;
 
     private String version;
     private String name;
@@ -52,7 +53,7 @@ public class TrackExchangeTrack {
     /**
      * For new file from track.
      */
-    public TrackExchangeTrack(Track track, Clipboard clipboard) {
+    public TrackExchangeTrack(@NotNull Track track, @Nullable Clipboard clipboard) {
         version = CURRENT_VERSION;
         name = track.getDisplayName();
         ownerUUID = track.getOwner().getUniqueId().toString();
@@ -91,7 +92,7 @@ public class TrackExchangeTrack {
     }
 
     /**
-     * For new track from imported file with pasteas command.
+     * For new track from imported file with newnames.
      */
     public TrackExchangeTrack(String newTrackName) {
         version = null;
@@ -112,91 +113,96 @@ public class TrackExchangeTrack {
         origin = origin.toBlockLocation();
 
         String simpleName = name.replace(" ", "").toLowerCase();
-        File dir = new File(PATH);
         File pack = new File(PATH + simpleName);
-        File trackDataFile = new File(PATH + simpleName + File.separator + "0" + ".trackdata");
-        File trackSchematicFile = new File(PATH + simpleName + File.separator + "1" + ".trackschem");
-        if(!dir.exists()) dir.mkdir(); // init tracks folder.
-        if(!pack.exists()) {
+        File packZip = new File(pack.toPath() + ".zip");
+        File trackDataFile = new File(PATH + simpleName + File.separator + "0.trackdata");
+        File trackSchematicFile = new File(PATH + simpleName + File.separator + "1.trackschem");
+        if(!packZip.exists()) {
             pack.mkdir(); // create track specific folder, throws exception if this track already exists.
         } else throw new FileAlreadyExistsException(pack.getPath());
-        if (!trackDataFile.exists()) trackDataFile.createNewFile(); // create track data file, trackSchematicFile is created last;
-
-        JSONObject main = new JSONObject();
-        main.put("version", version);
-        main.put("name", name);
-        main.put("ownerUUID", ownerUUID);
-        main.put("dateCreated", dateCreated);
-        main.put("guiItem", guiItem);
-        main.put("spawnLocation", spawnLocation);
-        main.put("trackType", trackType);
-        main.put("trackMode", trackMode);
-        main.put("boatUtilsMode", boatUtilsMode);
-        main.put("weight", weight);
-        main.put("options", options);
-        main.put("totalTimeSpent", totalTimeSpent);
-
-        main.put("from", ApiUtilities.locationToString(origin));
-
-        JSONObject clipOffset = new JSONObject();
-        Vector offsetVec = getOffset(ApiUtilities.getLocationFromBlockVector3(origin.getWorld(), clipboard.getOrigin()), origin);
-        clipOffset.put("x", offsetVec.getX());
-        clipOffset.put("y", offsetVec.getY());
-        clipOffset.put("z", offsetVec.getZ());
-        main.put("clipOffset", clipOffset);
-
-        JSONObject trackRegions = new JSONObject();
-        int regionId = 0;
-        for(TrackRegion region : this.trackRegions) {
-            JSONObject r = new JSONObject();
-            r.put("index", region.getRegionIndex());
-            r.put("regionType", region.getRegionType().toString());
-            r.put("regionShape", region.getShape().toString());
-            r.put("spawnLocation", ApiUtilities.locationToString(region.getSpawnLocation()));
-            r.put("minP", ApiUtilities.locationToString(region.getMinP()));
-            r.put("maxP", ApiUtilities.locationToString(region.getMaxP()));
-
-            if(region instanceof TrackPolyRegion polyRegion) {
-                JSONObject vecs = new JSONObject();
-                int pointsId = 0;
-                for(BlockVector2 vec2 : polyRegion.getPolygonal2DRegion().getPoints()) {
-                    JSONObject vec = new JSONObject();
-                    vec.put("x", vec2.getX());
-                    vec.put("z", vec2.getZ());
-                    pointsId++;
-                    vecs.put(String.valueOf(pointsId), vec);
-                }
-                r.put("points", vecs);
-            }
-            regionId++;
-            trackRegions.put(String.valueOf(regionId), r);
-        }
-        main.put("trackRegions", trackRegions);
-
-        JSONObject trackLocations = new JSONObject();
-        int locationId = 0;
-        for(TrackLocation location : this.trackLocations) {
-            JSONObject l = new JSONObject();
-            l.put("index", location.getIndex());
-            l.put("location", ApiUtilities.locationToString(location.getLocation()));
-            l.put("locationType", location.getLocationType().toString());
-            locationId++;
-            trackLocations.put(String.valueOf(locationId), l);
-        }
-        main.put("trackLocations", trackLocations);
 
         // trackDataFile
         try(FileWriter writer = new FileWriter(trackDataFile)) {
+            JSONObject main = new JSONObject();
+            main.put("version", version);
+            main.put("name", name);
+            main.put("ownerUUID", ownerUUID);
+            main.put("dateCreated", dateCreated);
+            main.put("guiItem", guiItem);
+            main.put("spawnLocation", spawnLocation);
+            main.put("trackType", trackType);
+            main.put("trackMode", trackMode);
+            main.put("boatUtilsMode", boatUtilsMode);
+            main.put("weight", weight);
+            main.put("options", options);
+            main.put("totalTimeSpent", totalTimeSpent);
+
+            main.put("from", ApiUtilities.locationToString(origin));
+
+            JSONObject clipOffset = new JSONObject();
+            if(clipboard != null) {
+                Vector offsetVec = getOffset(ApiUtilities.getLocationFromBlockVector3(origin.getWorld(), clipboard.getOrigin()), origin);
+                clipOffset.put("x", offsetVec.getX());
+                clipOffset.put("y", offsetVec.getY());
+                clipOffset.put("z", offsetVec.getZ());
+            } else {
+                clipOffset.put("x", 0);
+                clipOffset.put("y", 0);
+                clipOffset.put("z", 0);
+            }
+            main.put("clipOffset", clipOffset);
+
+            JSONObject trackRegions = new JSONObject();
+            int regionId = 0;
+            for(TrackRegion region : this.trackRegions) {
+                JSONObject r = new JSONObject();
+                r.put("index", region.getRegionIndex());
+                r.put("regionType", region.getRegionType().toString());
+                r.put("regionShape", region.getShape().toString());
+                r.put("spawnLocation", ApiUtilities.locationToString(region.getSpawnLocation()));
+                r.put("minP", ApiUtilities.locationToString(region.getMinP()));
+                r.put("maxP", ApiUtilities.locationToString(region.getMaxP()));
+
+                if(region instanceof TrackPolyRegion polyRegion) {
+                    JSONObject vecs = new JSONObject();
+                    int pointsId = 0;
+                    for(BlockVector2 vec2 : polyRegion.getPolygonal2DRegion().getPoints()) {
+                        JSONObject vec = new JSONObject();
+                        vec.put("x", vec2.getX());
+                        vec.put("z", vec2.getZ());
+                        pointsId++;
+                        vecs.put(String.valueOf(pointsId), vec);
+                    }
+                    r.put("points", vecs);
+                }
+                regionId++;
+                trackRegions.put(String.valueOf(regionId), r);
+            }
+            main.put("trackRegions", trackRegions);
+
+            JSONObject trackLocations = new JSONObject();
+            int locationId = 0;
+            for(TrackLocation location : this.trackLocations) {
+                JSONObject l = new JSONObject();
+                l.put("index", location.getIndex());
+                l.put("location", ApiUtilities.locationToString(location.getLocation()));
+                l.put("locationType", location.getLocationType().toString());
+                locationId++;
+                trackLocations.put(String.valueOf(locationId), l);
+            }
+            main.put("trackLocations", trackLocations);
             writer.write(main.toJSONString());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // trackSchematicFile
-        try(ClipboardWriter clipboardWriter = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(trackSchematicFile))) {
-            clipboardWriter.write(clipboard);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(clipboard != null) {
+            try(ClipboardWriter clipboardWriter = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(trackSchematicFile))) {
+                clipboardWriter.write(clipboard);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         zipDir(pack);
@@ -234,15 +240,17 @@ public class TrackExchangeTrack {
             JSONObject clipOff = (JSONObject) main.get("clipOffset");
             clipboardOffset = new Vector(Double.parseDouble(String.valueOf(clipOff.get("x"))), Double.parseDouble(String.valueOf(clipOff.get("y"))), Double.parseDouble(String.valueOf(clipOff.get("z"))));
 
-            try(ClipboardReader clipboardReader = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(new FileInputStream(trackSchematicFile))) {
-                clipboard = clipboardReader.read();
-            }
-
             this.track = TrackDatabase.trackNewFromTrackExchange(name, UUID.fromString(ownerUUID), dateCreated, newSpawnLocation, Track.TrackType.valueOf(trackType), Track.TrackMode.valueOf(trackMode), ApiUtilities.stringToItem(guiItem), weight, (JSONObject) main.get("trackRegions"), (JSONObject) main.get("trackLocations"), BoatUtilsMode.valueOf(boatUtilsMode), offset);
         } catch (IOException | ParseException e) {
             Text.send(player, Error.GENERIC);
             e.printStackTrace();
             return null;
+        }
+
+        try(ClipboardReader clipboardReader = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(new FileInputStream(trackSchematicFile))) {
+            clipboard = clipboardReader.read();
+        } catch (FileNotFoundException e) {
+            clipboard = null;
         }
 
         trackDataFile.delete();
