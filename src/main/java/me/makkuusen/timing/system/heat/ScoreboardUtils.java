@@ -19,11 +19,11 @@ public class ScoreboardUtils {
     }
 
     public static Component getDriverLineQualyGap(long timeDiff, Driver driver, int pos, boolean compact, Theme theme) {
-        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" +").color(NamedTextColor.GREEN)).append(paddGap(ApiUtilities.formatAsQualificationGap(timeDiff))).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" +").color(NamedTextColor.GREEN)).append(paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)).color(NamedTextColor.GREEN)).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
     }
 
     public static Component getDriverLineNegativeQualyGap(long timeDiff, Driver driver, int pos, boolean compact, Theme theme) {
-        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" -").color(NamedTextColor.RED)).append(paddGap(ApiUtilities.formatAsQualificationGap(timeDiff))).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" -").color(NamedTextColor.RED)).append(paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)).color(NamedTextColor.RED)).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
     }
 
     public static Component getDriverLineRace(Driver driver, int pos, boolean compact, Theme theme) {
@@ -35,11 +35,11 @@ public class ScoreboardUtils {
     }
 
     public static Component getDriverLineRaceInPit(Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" In Pit   ")).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" In Pit   ", NamedTextColor.GRAY)).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
     public static Component getDriverLineRaceOffline(Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" Offline  ")).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" Offline  ", NamedTextColor.GRAY)).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
     public static Component getDriverLineRaceLaps(int laps, Driver driver, int pits, int pos, boolean compact, Theme theme) {
@@ -47,11 +47,11 @@ public class ScoreboardUtils {
     }
 
     public static Component getDriverLineRaceGap(long gap, Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" +").color(NamedTextColor.GREEN)).append(paddGap(ApiUtilities.formatAsRacingGap(gap))).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" +").color(NamedTextColor.GREEN)).append(paddGap(ApiUtilities.formatAsRacingGap(gap)).color(NamedTextColor.GREEN)).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
     public static Component getDriverLineNegativeRaceGap(long gap, Driver driver, int pits, int pos, boolean compact, Theme theme) {
-        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" -").color(NamedTextColor.RED)).append(paddGap(ApiUtilities.formatAsRacingGap(gap))).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" -").color(NamedTextColor.RED)).append(paddGap(ApiUtilities.formatAsRacingGap(gap)).color(NamedTextColor.RED)).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
     private static Component getDivider(Theme theme) {
