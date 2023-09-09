@@ -32,6 +32,9 @@ commands:
    reset:
       description: Resets time trials for players.
       aliases: [re]
+   trackexchange:
+      description: Copy/paste for tracks.
+      aliases: [te]
 
 permissions:
 

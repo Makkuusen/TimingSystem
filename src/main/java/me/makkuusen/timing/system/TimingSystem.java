@@ -7,16 +7,7 @@ import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
-import me.makkuusen.timing.system.commands.CommandBoat;
-import me.makkuusen.timing.system.commands.CommandEvent;
-import me.makkuusen.timing.system.commands.CommandHeat;
-import me.makkuusen.timing.system.commands.CommandRace;
-import me.makkuusen.timing.system.commands.CommandReset;
-import me.makkuusen.timing.system.commands.CommandRound;
-import me.makkuusen.timing.system.commands.CommandSettings;
-import me.makkuusen.timing.system.commands.CommandTimeTrial;
-import me.makkuusen.timing.system.commands.CommandTimingSystem;
-import me.makkuusen.timing.system.commands.CommandTrack;
+import me.makkuusen.timing.system.commands.*;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.GUIListener;
@@ -29,10 +20,7 @@ import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
-import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
-import me.makkuusen.timing.system.track.TrackRegion;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.*;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
@@ -44,6 +32,7 @@ import org.bukkit.entity.Boat;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -204,8 +193,11 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandBoat());
         manager.registerCommand(new CommandRace());
         manager.registerCommand(new CommandReset());
+        manager.registerCommand(new CommandTrackExchange());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
+        File dir = new File(TrackExchangeTrack.PATH);
+        if(!dir.exists()) dir.mkdir(); // create trackexchange handling folder.
 
         if (!Database.initialize()) return;
         Database.update();
