@@ -220,10 +220,6 @@ public class Heat {
         if (getHeatState() != HeatState.RACING) {
             return false;
         }
-
-        HeatFinishEvent finishEvent = new HeatFinishEvent(this);
-        Bukkit.getServer().getPluginManager().callEvent(finishEvent);
-
         updatePositions();
         setHeatState(HeatState.FINISHED);
         setEndTime(TimingSystem.currentTime);
@@ -251,6 +247,9 @@ public class Heat {
 
         var heatResults = EventResults.generateHeatResults(this);
         EventAnnouncements.broadcastHeatResult(heatResults, this);
+
+        HeatFinishEvent finishEvent = new HeatFinishEvent(this);
+        Bukkit.getServer().getPluginManager().callEvent(finishEvent);
 
         return true;
     }
