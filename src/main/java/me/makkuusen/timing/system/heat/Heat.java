@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.api.events.HeatFinishEvent;
 import me.makkuusen.timing.system.api.events.PlayerJoinHeatEvent;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
@@ -219,6 +220,10 @@ public class Heat {
         if (getHeatState() != HeatState.RACING) {
             return false;
         }
+
+        HeatFinishEvent finishEvent = new HeatFinishEvent(this);
+        Bukkit.getServer().getPluginManager().callEvent(finishEvent);
+
         updatePositions();
         setHeatState(HeatState.FINISHED);
         setEndTime(TimingSystem.currentTime);
