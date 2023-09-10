@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.api.events.HeatFinishEvent;
 import me.makkuusen.timing.system.api.events.PlayerJoinHeatEvent;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
@@ -246,6 +247,9 @@ public class Heat {
 
         var heatResults = EventResults.generateHeatResults(this);
         EventAnnouncements.broadcastHeatResult(heatResults, this);
+
+        HeatFinishEvent finishEvent = new HeatFinishEvent(this);
+        Bukkit.getServer().getPluginManager().callEvent(finishEvent);
 
         return true;
     }
