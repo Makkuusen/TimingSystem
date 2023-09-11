@@ -2,10 +2,12 @@ package me.makkuusen.timing.system.heat;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.api.events.PlayerFinishHeatEvent;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 
 import java.time.Duration;
 
@@ -22,6 +24,10 @@ public class QualifyHeat {
             EventAnnouncements.sendFinishSound(driver);
             EventAnnouncements.sendFinishTitleQualification(driver);
             EventAnnouncements.broadcastFinishQualification(driver.getHeat(), driver);
+
+            PlayerFinishHeatEvent event = new PlayerFinishHeatEvent(driver.getHeat(), driver);
+            Bukkit.getServer().getPluginManager().callEvent(event);
+
             if (driver.getHeat().noDriversRunning()) {
                 driver.getHeat().finishHeat();
             }
