@@ -29,7 +29,7 @@ public class QuickRaceAPI {
     }
 
     public static boolean create(UUID playerHost, Track track, int laps, int pits) {
-        if(quickRaceExists() && heat.isFinished()) deleteEvent();
+        if(getQuickRaceHeat().isPresent() && heat.isFinished()) deleteEvent();
         else return false;
 
         if(!track.isOpen() || !track.hasTrackLocation(TrackLocation.Type.GRID) || !track.hasRegion(TrackRegion.RegionType.START)) return false;
