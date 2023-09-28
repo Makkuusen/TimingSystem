@@ -4,6 +4,7 @@ import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
+import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.Text;
@@ -14,6 +15,8 @@ import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
@@ -95,6 +98,31 @@ public class QuickRaceAPI {
         }
 
         deleteEvent();
+        return true;
+    }
+
+    public static boolean addPlayer(Player player) {
+        if(EventDatabase.heatDriverNew(player.getUniqueId(), heat, heat.getStartPositions().size() + 1)) {
+            heat.addDriverToGrid(heat.getDrivers().get(player.getUniqueId()));
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean removePlayer(Player player) {
+        Optional<Driver> d = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
+        if(d.isEmpty()) return false;
+
+        if (heat.getHeatState() == HeatState.LOADED) {
+            heat.resetHeat();
+            if(heat.removeDriver(heat.getDrivers().get(player.getUniqueId()))) heat.getEvent().removeSpectator(player.getUniqueId());
+            heat.loadHeat();
+        }
+
+        Driver driver = d.get();
+        if(!driver.getHeat().disqualifyDriver(driver)) return false;
+        if (player.getVehicle() != null && player.getVehicle() instanceof Boat boat) boat.remove();
+        player.teleport(player.getBedSpawnLocation() == null ? player.getWorld().getSpawnLocation() : player.getBedSpawnLocation());
         return true;
     }
 
