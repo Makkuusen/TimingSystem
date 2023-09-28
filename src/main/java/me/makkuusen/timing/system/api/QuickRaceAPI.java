@@ -8,8 +8,6 @@ import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Broadcast;
-import me.makkuusen.timing.system.theme.messages.Error;
-import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -32,12 +30,10 @@ public class QuickRaceAPI {
     }
 
     public static boolean create(UUID playerHost, Track track, @Range(from = 1, to = Integer.MAX_VALUE) int laps, @Range(from = 0, to = Integer.MAX_VALUE) int pits) {
-        if(heat != null && heat.isFinished()) deleteEvent();
+        if(quickRaceExists() && heat.isFinished()) deleteEvent();
         else return false;
 
-        if(!track.isOpen()) return false;
-        if(!track.hasTrackLocation(TrackLocation.Type.GRID)) return false;
-        if(!track.hasRegion(TrackRegion.RegionType.START)) return false;
+        if(!track.isOpen() || !track.hasTrackLocation(TrackLocation.Type.GRID) || !track.hasRegion(TrackRegion.RegionType.START)) return false;
 
         final String name = "QuickRace";
         Optional<Event> maybeEvent = EventDatabase.eventNew(playerHost, name);
@@ -100,8 +96,21 @@ public class QuickRaceAPI {
         return true;
     }
 
+    public static Optional<Event> getQuickRaceEvent() {
+        return Optional.ofNullable(event);
+    }
+
+    public static Optional<Heat> getQuickRaceHeat() {
+        return Optional.ofNullable(heat);
+    }
+
     public static boolean quickRaceExists() {
-        return heat != null;
+        return getQuickRaceHeat().isPresent();
+    }
+
+    public static boolean quickRaceActive() {
+        if(quickRaceExists()) return heat.isActive();
+        return false;
     }
 
     private static void deleteEvent() {
