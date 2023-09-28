@@ -15,7 +15,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Range;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -29,7 +28,7 @@ public class QuickRaceAPI {
     private QuickRaceAPI() {
     }
 
-    public static boolean create(UUID playerHost, Track track, @Range(from = 1, to = Integer.MAX_VALUE) int laps, @Range(from = 0, to = Integer.MAX_VALUE) int pits) {
+    public static boolean create(UUID playerHost, Track track, int laps, int pits) {
         if(quickRaceExists() && heat.isFinished()) deleteEvent();
         else return false;
 
@@ -50,6 +49,9 @@ public class QuickRaceAPI {
         Optional<Heat> maybeHeat = round.getHeat("R1F1");
         if(maybeHeat.isEmpty()) return false;
         heat = maybeHeat.get();
+
+        laps = Math.max(1, laps);
+        pits = Math.max(0, pits);
 
         if(track.isStage()) {
             heat.setTotalLaps(1);
@@ -104,12 +106,8 @@ public class QuickRaceAPI {
         return Optional.ofNullable(heat);
     }
 
-    public static boolean quickRaceExists() {
-        return getQuickRaceHeat().isPresent();
-    }
-
     public static boolean quickRaceActive() {
-        if(quickRaceExists()) return heat.isActive();
+        if(getQuickRaceHeat().isPresent()) return heat.isActive();
         return false;
     }
 
