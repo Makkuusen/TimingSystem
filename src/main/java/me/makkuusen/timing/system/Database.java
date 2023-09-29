@@ -50,6 +50,7 @@ public class Database {
                 v1_3Update();
                 v1_6Update();
                 v1_8Update();
+                v1_9Update();
             } else {
                 if (isNewerVersion(row.getString("version"), plugin.getPluginMeta().getVersion())) {
                     updateDatabase(row.getString("version"));
@@ -376,6 +377,10 @@ public class Database {
         if (isNewerVersion(oldVersion, "1.8")) {
             v1_8Update();
         }
+
+        if (isNewerVersion(oldVersion, "1.9")) {
+            v1_9Update();
+        }
     }
 
     private static void rc9Update() {
@@ -458,6 +463,14 @@ public class Database {
             DB.executeUpdate("UPDATE `ts_tracks` SET options=REPLACE(options,'r','');");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void v1_9Update() {
+        try {
+            DB.executeUpdate("ALTER TABLE `ts_players` ADD `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0' AFTER `toggleSound`;");
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 

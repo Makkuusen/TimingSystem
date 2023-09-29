@@ -78,6 +78,14 @@ public class SettingsGui extends BaseGui {
         return button;
     }
 
+    public static GuiButton getHeatMenuButton(TPlayer tPlayer) {
+        var button = new GuiButton(new ItemBuilder(Material.CAMPFIRE).setName(Text.get(tPlayer, Gui.HEAT_SETTINGS)).build());
+        button.setAction(() -> {
+            new HeatSettingsGui(tPlayer).show(tPlayer.getPlayer());
+        });
+        return button;
+    }
+
     private void setButtons(TPlayer tPlayer) {
         Player player = tPlayer.getPlayer();
         if (player != null && (player.isOp() || player.hasPermission("track.admin"))) {
@@ -92,7 +100,8 @@ public class SettingsGui extends BaseGui {
         setItem(tPlayer.isTimeTrial() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 3);
         setItem(getTimeTrialButton(tPlayer), 12);
 
-        setItem(getBoatMenuButton(tPlayer), 14);
+        setItem(getHeatMenuButton(tPlayer), 14);
+        setItem(getBoatMenuButton(tPlayer), 15);
         setItem(getColorMenuButton(tPlayer), 16);
     }
 }

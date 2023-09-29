@@ -37,6 +37,7 @@ public class TPlayer implements Comparable<TPlayer> {
     private boolean timeTrial;
     private boolean override;
     private boolean compactScoreboard;
+    private boolean sendFinalLaps;
     private String color;
     private BaseGui openGui;
     private Theme theme;
@@ -58,6 +59,8 @@ public class TPlayer implements Comparable<TPlayer> {
         timeTrial = data.get("timetrial");
         color = data.getString("color");
         compactScoreboard = data.get("compactScoreboard");
+        sendFinalLaps = data.get("sendFinalLaps");
+
         theme = TimingSystem.defaultTheme;
     }
 
@@ -210,6 +213,9 @@ public class TPlayer implements Comparable<TPlayer> {
         return compactScoreboard;
     }
 
+    public boolean isSendFinalLaps() {
+        return sendFinalLaps;
+    }
 
     public void toggleOverride() {
         override = !override;
@@ -234,6 +240,11 @@ public class TPlayer implements Comparable<TPlayer> {
     public void toggleCompactScoreboard() {
         this.compactScoreboard = !compactScoreboard;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
+    }
+
+    public void toggleSendFinalLaps() {
+        sendFinalLaps = !sendFinalLaps;
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `sendFinalLaps` = " + sendFinalLaps + " WHERE `uuid` = '" + uuid + "';");
     }
 
     public boolean hasBoatUtils() {

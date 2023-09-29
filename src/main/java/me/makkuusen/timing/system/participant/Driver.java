@@ -104,7 +104,7 @@ public class Driver extends Participant implements Comparable<Driver> {
             if (heat.getRound() instanceof QualificationRound) {
                 EventAnnouncements.broadcastQualifyingLap(heat, this, getCurrentLap(), oldBest);
             } else {
-                EventAnnouncements.sendLapTime(this, getCurrentLap().getLapTime());
+                EventAnnouncements.broadcastLapTime(heat, this, getCurrentLap().getLapTime());
             }
         }
         ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLapTime()));
