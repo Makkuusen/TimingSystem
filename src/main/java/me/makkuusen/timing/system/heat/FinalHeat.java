@@ -28,5 +28,10 @@ public class FinalHeat {
         EventAnnouncements.sendFinishSound(driver);
         EventAnnouncements.sendFinishTitle(driver);
         EventAnnouncements.broadcastFinish(driver.getHeat(), driver, driver.getFinishTime());
+
+        driver.getHeat().getEvent().getTrack().getFinishTpLocation(driver.getPosition()).ifPresentOrElse(
+                loc -> driver.getTPlayer().getPlayer().teleport(loc),
+                () -> driver.getHeat().getEvent().getTrack().getFinishTpLocation().ifPresent(loc -> driver.getTPlayer().getPlayer().teleport(loc))
+        );
     }
 }

@@ -647,6 +647,20 @@ public class CommandTrack extends BaseCommand {
         public static List<TrackLocation> restoreLocations = new ArrayList<>();
         public static Track restoreTrack = null;
 
+        @Subcommand("finishtp")
+        @CommandCompletion("@track <index>")
+        public static void onSetTpFinish(Player player, Track track, @Optional String index) {
+            if(index == null) {
+                createOrUpdateTrackLocation(track, TrackLocation.Type.FINISH_TP_ALL, 1, player.getLocation());
+            } else {
+                if(index.equals("remove")) {
+                    createOrUpdateTrackIndexLocation(track, TrackLocation.Type.FINISH_TP_ALL, "-1", player, player.getLocation());
+                    return;
+                }
+                createOrUpdateTrackIndexLocation(track, TrackLocation.Type.FINISH_TP, index, player, player.getLocation());
+            }
+        }
+
         @Subcommand("open")
         @CommandCompletion("true|false @track")
         public static void onOpen(Player player, boolean open, Track track) {

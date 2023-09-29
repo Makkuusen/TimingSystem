@@ -375,6 +375,16 @@ public class Track {
         trackLocations.add(trackLocation);
     }
 
+    public Optional<Location> getFinishTpLocation() {
+        return Optional.ofNullable(trackLocations.stream().filter(l -> l.getLocationType() == TrackLocation.Type.FINISH_TP_ALL).toList().get(0).getLocation());
+    }
+
+    public Optional<Location> getFinishTpLocation(int pos) {
+        List<TrackLocation> teleportLocations = trackLocations.stream().filter(l -> l.getLocationType() == TrackLocation.Type.FINISH_TP).toList();
+        if(teleportLocations.size() == 0 || pos - 1 >= teleportLocations.size()) return Optional.empty();
+        return Optional.of(teleportLocations.get(pos - 1).getLocation());
+    }
+
     public boolean hasTrackLocation(TrackLocation.Type locationType) {
         return trackLocations.stream().anyMatch(trackLocation -> trackLocation.getLocationType().equals(locationType));
     }
