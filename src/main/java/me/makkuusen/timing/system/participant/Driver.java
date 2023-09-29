@@ -150,6 +150,7 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public long getFinishTime() {
+        if(endTime == null) return 0;
         return Duration.between(startTime, endTime).toMillis();
     }
 
