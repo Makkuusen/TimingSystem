@@ -1,12 +1,7 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Optional;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
@@ -17,6 +12,7 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TrackGui;
+import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -51,7 +47,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("move")
     @CommandCompletion("@track")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_move")
     public static void onMove(Player player, Track track) {
         var moveTo = player.getLocation().toBlockLocation();
         var moveFrom = track.getSpawnLocation().toBlockLocation();
@@ -114,20 +110,19 @@ public class CommandTrack extends BaseCommand {
 
 
     @Default
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_menu")
     public static void onTrack(Player player) {
         new TrackGui(Database.getPlayer(player.getUniqueId())).show(player);
     }
 
     @Subcommand("tp")
-    @CommandPermission("track.admin")
     @CommandCompletion("@track @region")
+    @CommandPermission("%permissiontrack_tp")
     public static void onTrackTp(Player player, Track track, @Optional String region) {
         if (!track.getSpawnLocation().isWorldLoaded()) {
             Text.send(player, Error.WORLD_NOT_LOADED);
             return;
         }
-
 
         if (region != null) {
             var rg = region.split("-");
@@ -189,7 +184,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("create")
     @CommandCompletion("@trackType name")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_create")
     public static void onCreate(Player player, Track.TrackType trackType, String name) {
         int maxLength = 25;
         if (name.length() > maxLength) {
@@ -230,11 +225,11 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("info")
     @CommandCompletion("@track @players")
+    @CommandPermission("%permissiontrack_info")
     public static void onInfo(CommandSender commandSender, Track track, @Optional String name) {
-
         TPlayer tPlayer;
-        if (name != null && commandSender.isOp()) {
-            tPlayer = Database.getPlayer(name);
+        tPlayer = Database.getPlayer(name);
+        if (name != null && commandSender.hasPermission(PermissionTrack.VIEW_PLAYERSTATS.getNode())) {
             if (tPlayer == null) {
                 Text.send(commandSender, Error.PLAYER_NOT_FOUND);
                 return;
@@ -305,7 +300,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("regions")
     @CommandCompletion("@track")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_view_regions")
     public static void onRegions(CommandSender sender, Track track) {
         Text.send(sender, Info.REGIONS_TITLE, "%track%", track.getDisplayName());
 
@@ -322,7 +317,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("locations")
     @CommandCompletion("@track")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_view_locations")
     public static void onLocations(CommandSender sender, Track track) {
         Text.send(sender, Info.LOCATIONS_TITLE, "%track%", track.getDisplayName());
 
@@ -337,7 +332,12 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("here")
+    @CommandPermission("%permissiontrack_view_here")
     public static void onHere(Player player) {
+        if(!player.hasPermission(PermissionTrack.VIEW_HERE.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         boolean inRegion = false;
         for (Track track : TrackDatabase.getTracks()) {
             for (TrackRegion region : track.getRegions()) {
@@ -355,8 +355,8 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("session")
     @CommandCompletion("@track")
+    @CommandPermission("%permissiontrack_session_timetrail")
     public static void toggleSession(Player player, @Optional Track track) {
-
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().isRunning()) {
@@ -395,7 +395,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        if (!track.isOpen() && !(player.isOp() || player.hasPermission("track.admin"))) {
+        if (!track.isOpen() && !player.hasPermission("timingsystem.packs.trackadmin")) {
             Text.send(player, Error.TRACK_IS_CLOSED);
             return;
         }
@@ -410,7 +410,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("delete")
     @CommandCompletion("@track")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_delete_track")
     public static void onDelete(Player player, Track track) {
         TrackDatabase.removeTrack(track);
         Text.send(player, Success.REMOVED_TRACK, "%track%", track.getDisplayName());
@@ -419,6 +419,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("times")
     @CommandCompletion("@track <page>")
+    @CommandPermission("%permissiontrack_view_times")
     public static void onTimes(CommandSender commandSender, Track track, @Optional Integer pageStart) {
         if (pageStart == null) {
             pageStart = 1;
@@ -448,6 +449,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("mytimes")
     @CommandCompletion("@track <page>")
+    @CommandPermission("%permissiontrack_view_mytimes")
     public static void onMyTimes(Player player, Track track, @Optional Integer pageStart) {
         if (pageStart == null) {
             pageStart = 1;
@@ -490,6 +492,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("alltimes")
     @CommandCompletion("@players <page>")
+    @CommandPermission("%permissiontrack_view_alltimes")
     public static void onAllTimes(Player player, @Optional String name, @Optional Integer pageStart) {
         if (pageStart == null) {
             pageStart = 1;
@@ -497,7 +500,7 @@ public class CommandTrack extends BaseCommand {
         TPlayer tPlayer;
         if (name != null) {
 
-            if (!player.hasPermission("track.admin")) {
+            if (!player.hasPermission("timingsystem.packs.trackadmin")) {
                 Text.send(player, Error.PERMISSION_DENIED);
                 return;
             }
@@ -549,7 +552,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("edit")
     @CommandCompletion("@track")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_session_edit")
     public static void onEdit(Player player, @Optional Track track) {
         if (track == null) {
             TimingSystem.playerEditingSession.remove(player.getUniqueId());
@@ -562,7 +565,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("options")
     @CommandCompletion("@track options")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_view_options")
     public static void onOptions(CommandSender commandSender, Track track, String options) {
         String newOptions = ApiUtilities.parseFlagChange(track.getOptions(), options);
         if (newOptions == null) {
@@ -579,7 +582,7 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("reload")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_reload")
     public static void onReload(CommandSender commandSender, @Optional String confirmText) {
         if(confirmText != null && confirmText.equals("confirm")) {
             Database.reload();
@@ -591,8 +594,8 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("deletebesttime")
-    @CommandPermission("track.admin")
     @CommandCompletion("@track <playername>")
+    @CommandPermission("%permissiontrack_delete_besttime")
     public static void onDeleteBestTime(CommandSender commandSender, Track track, String name) {
         TPlayer TPlayer = Database.getPlayer(name);
         if (TPlayer == null) {
@@ -611,8 +614,8 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("deletealltimes")
-    @CommandPermission("track.admin")
     @CommandCompletion("@track <player>")
+    @CommandPermission("%permissiontrack_delete_alltimes")
     public static void onDeleteAllTimes(CommandSender commandSender, Track track, @Optional String playerName) {
         if (playerName != null) {
             TPlayer tPlayer = Database.getPlayer(playerName);
@@ -633,14 +636,13 @@ public class CommandTrack extends BaseCommand {
     }
 
     @Subcommand("updateleaderboards")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontrack_updateleaderboards")
     public static void onUpdateLeaderboards(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), LeaderboardManager::updateAllFastestTimeLeaderboard);
         Text.send(player, Info.UPDATING_LEADERBOARDS);
     }
 
     @Subcommand("set")
-    @CommandPermission("track.admin")
     public class Set extends BaseCommand {
 
         public static List<TrackRegion> restoreRegions = new ArrayList<>();
@@ -649,6 +651,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("finishtp")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_finishtp")
         public static void onSetTpFinish(Player player, Track track, @Optional String index) {
             if(index == null) {
                 createOrUpdateTrackLocation(track, TrackLocation.Type.FINISH_TP_ALL, 1, player.getLocation());
@@ -663,6 +666,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("open")
         @CommandCompletion("true|false @track")
+        @CommandPermission("%permissiontrack_set_open")
         public static void onOpen(Player player, boolean open, Track track) {
             track.setOpen(open);
             if (track.isOpen()) {
@@ -674,6 +678,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("weight")
         @CommandCompletion("<value> @track")
+        @CommandPermission("%permissiontrack_set_weight")
         public static void onWeight(Player player, int weight, Track track) {
             track.setWeight(weight);
             Text.send(player, Success.SAVED);
@@ -681,8 +686,8 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("tag")
         @CommandCompletion("@track +/- @trackTag")
+        @CommandPermission("%permissiontrack_set_tag")
         public static void onTag(CommandSender sender, Track track, String plusOrMinus, TrackTag tag) {
-
             if (!TrackTagManager.hasTag(tag)) {
                 Text.send(sender, Error.TAG_NOT_FOUND);
                 return;
@@ -706,6 +711,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("type")
         @CommandCompletion("@trackType @track")
+        @CommandPermission("%permissiontrack_set_type")
         public static void onType(Player player, Track.TrackType type, Track track) {
             track.setTrackType(type);
             Text.send(player, Success.SAVED);
@@ -713,6 +719,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("mode")
         @CommandCompletion("@trackMode @track")
+        @CommandPermission("%permissiontrack_set_mode")
         public static void onMode(Player player, Track.TrackMode mode, Track track) {
             track.setMode(mode);
             Text.send(player, Success.SAVED);
@@ -720,6 +727,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("boatutils")
         @CommandCompletion("@boatUtilsMode @track")
+        @CommandPermission("%permissiontrack_set_boatutilsmode")
         public static void onMode(Player player, BoatUtilsMode mode, Track track) {
             track.setBoatUtilsMode(mode);
             Text.send(player, Success.SAVED);
@@ -727,6 +735,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("spawn")
         @CommandCompletion("@track @region")
+        @CommandPermission("%permissiontrack_set_location_spawn")
         public static void onSpawn(Player player, Track track, @Optional TrackRegion region) {
             if (region != null) {
                 region.setSpawn(player.getLocation());
@@ -739,6 +748,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("leaderboard")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_location_leaderboard")
         public static void onLeaderboard(Player player, Track track, @Optional String index) {
             Location loc = player.getLocation();
             loc.setY(loc.getY() + 3);
@@ -747,6 +757,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("name")
         @CommandCompletion("@track name")
+        @CommandPermission("%permissiontrack_set_name")
         public static void onName(CommandSender commandSender, Track track, String name) {
             int maxLength = 25;
             if (name.length() > maxLength) {
@@ -776,6 +787,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("gui")
         @CommandCompletion("@track")
+        @CommandPermission("%permissiontrack_set_item")
         public static void onGui(Player player, Track track) {
             var item = player.getInventory().getItemInMainHand();
             if (item.getItemMeta() == null) {
@@ -788,6 +800,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("owner")
         @CommandCompletion("@track <player>")
+        @CommandPermission("%permissiontrack_set_owner")
         public static void onOwner(CommandSender commandSender, Track track, String name) {
             TPlayer TPlayer = Database.getPlayer(name);
             if (TPlayer == null) {
@@ -800,36 +813,42 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("startregion")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_region_start")
         public static void onStartRegion(Player player, Track track, @Optional String index) {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.START, index, player);
         }
 
         @Subcommand("endregion")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_region_end")
         public static void onEndRegion(Player player, Track track, @Optional String index) {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.END, index, player);
         }
 
         @Subcommand("pitregion")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_region_pit")
         public static void onPitRegion(Player player, Track track, @Optional String index) {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.PIT, index, player);
         }
 
         @Subcommand("resetregion")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_region_reset")
         public static void onResetRegion(Player player, Track track, @Optional String index) {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.RESET, index, player);
         }
 
         @Subcommand("inpit")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_region_inpit")
         public static void onInPit(Player player, Track track, @Optional String index) {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.INPIT, index, player);
         }
 
         @Subcommand("lagstart")
         @CommandCompletion("@track <->")
+        @CommandPermission("%permissiontrack_set_region_lagstart")
         public static void onLagStart(Player player, Track track, @Optional String remove) {
             boolean toRemove = false;
             if (remove != null) {
@@ -856,6 +875,7 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("lagend")
         @CommandCompletion("@track <->")
+        @CommandPermission("%permissiontrack_set_region_lagend")
         public static void onLagEnd(Player player, Track track, @Optional String remove) {
             boolean toRemove = false;
             if (remove != null) {
@@ -882,18 +902,21 @@ public class CommandTrack extends BaseCommand {
 
         @Subcommand("grid")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_location_grid")
         public static void onGridLocation(Player player, Track track, @Optional String index) {
             createOrUpdateTrackIndexLocation(track, TrackLocation.Type.GRID, index, player, player.getLocation());
         }
 
         @Subcommand("qualygrid")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_location_qualigrid")
         public static void onQualificationGridLocation(Player player, Track track, @Optional String index) {
             createOrUpdateTrackIndexLocation(track, TrackLocation.Type.QUALYGRID, index, player, player.getLocation());
         }
 
         @Subcommand("checkpoint")
         @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_region_checkpoint")
         public static void onCheckpoint(Player player, Track track, @Optional String index) {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.CHECKPOINT, index, player);
         }

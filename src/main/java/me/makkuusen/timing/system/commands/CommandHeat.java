@@ -1,12 +1,7 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Optional;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
@@ -51,6 +46,7 @@ public class CommandHeat extends BaseCommand {
 
     @Default
     @Subcommand("list")
+    @CommandPermission("%permissionheat_list")
     public static void onHeats(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -68,6 +64,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("info")
     @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_info")
     public static void onHeatInfo(Player player, Heat heat) {
         Theme theme = Database.getPlayer(player).getTheme();
         player.sendMessage(Component.empty());
@@ -85,7 +82,7 @@ public class CommandHeat extends BaseCommand {
         if (heat.getTimeLimit() != null) {
             var message = Text.get(player, Info.HEAT_INFO_TIME_LIMIT);
 
-            if (!heat.isFinished() && player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("timingsystem.packs.eventadmin")) {
                 message = message.append(theme.getEditButton(player, (heat.getTimeLimit() / 1000) + "s", theme).clickEvent(ClickEvent.suggestCommand("/heat set timelimit " + heat.getName() + " ")));
             } else {
                 message = message.append(theme.highlight((heat.getTimeLimit() / 1000) + "s"));
@@ -95,7 +92,7 @@ public class CommandHeat extends BaseCommand {
         if (heat.getStartDelay() != null) {
             var message = Text.get(player, Info.HEAT_INFO_START_DELAY);
 
-            if (!heat.isFinished() && player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("timingsystem.packs.eventadmin")) {
                 message = message.append(theme.getEditButton(player, (heat.getStartDelay()) + "ms", theme).clickEvent(ClickEvent.suggestCommand("/heat set startdelay " + heat.getName() + " ")));
             } else {
                 message = message.append(theme.highlight((heat.getStartDelay()) + "ms"));
@@ -106,7 +103,7 @@ public class CommandHeat extends BaseCommand {
         if (heat.getTotalLaps() != null) {
             var message = Text.get(player, Info.HEAT_INFO_LAPS);
 
-            if (!heat.isFinished() && player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("timingsystem.packs.eventadmin")) {
                 message = message.append(theme.getEditButton(player, String.valueOf(heat.getTotalLaps()), theme).clickEvent(ClickEvent.suggestCommand("/heat set laps " + heat.getName() + " ")));
             } else {
                 message = message.append(theme.highlight(String.valueOf(heat.getTotalLaps())));
@@ -116,7 +113,7 @@ public class CommandHeat extends BaseCommand {
         if (heat.getTotalPits() != null) {
             var message = Text.get(player, Info.HEAT_INFO_PITS);
 
-            if (!heat.isFinished() && player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("timingsystem.packs.eventadmin")) {
                 message = message.append(theme.getEditButton(player, String.valueOf(heat.getTotalPits()), theme).clickEvent(ClickEvent.suggestCommand("/heat set pits " + heat.getName() + " ")));
             } else {
                 message = message.append(theme.highlight(String.valueOf(heat.getTotalPits())));
@@ -126,7 +123,7 @@ public class CommandHeat extends BaseCommand {
 
         var maxDriversMessage = Text.get(player, Info.HEAT_INFO_MAX_DRIVERS);
 
-        if (!heat.isFinished() && player.hasPermission("event.admin")) {
+        if (!heat.isFinished() && player.hasPermission("timingsystem.packs.eventadmin")) {
             maxDriversMessage = maxDriversMessage.append(theme.getEditButton(player, String.valueOf(heat.getMaxDrivers()), theme).clickEvent(ClickEvent.suggestCommand("/heat set maxdrivers " + heat.getName() + " ")));
         } else {
             maxDriversMessage = maxDriversMessage.append(theme.highlight(String.valueOf(heat.getMaxDrivers())));
@@ -140,7 +137,7 @@ public class CommandHeat extends BaseCommand {
 
         var driverMessage = Text.get(player, Info.HEAT_INFO_DRIVERS);
 
-        if (!heat.isFinished() && player.hasPermission("event.admin")) {
+        if (!heat.isFinished() && player.hasPermission("timingsystem.packs.eventadmin")) {
             driverMessage = driverMessage.append(Component.space()).append(theme.getAddButton().clickEvent(ClickEvent.suggestCommand("/heat add " + heat.getName() + " ")));
         }
 
@@ -149,7 +146,7 @@ public class CommandHeat extends BaseCommand {
         for (Driver d : heat.getStartPositions()) {
             var message = theme.tab().append(Component.text(d.getStartPosition() + ": " + d.getTPlayer().getName()).color(NamedTextColor.WHITE));
 
-            if (!heat.isFinished() && player.hasPermission("event.admin")) {
+            if (!heat.isFinished() && player.hasPermission("timingsystem.packs.eventadmin")) {
                 message = message.append(theme.tab()).append(theme.getMoveButton().clickEvent(ClickEvent.suggestCommand("/heat set driverposition " + heat.getName() + " " + d.getTPlayer().getName() + " ")).hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_EDIT_POSITION)))).append(Component.space()).append(theme.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete driver " + heat.getName() + " " + d.getTPlayer().getName())));
             }
 
@@ -158,8 +155,8 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("start")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_start")
     public static void onHeatStart(Player player, Heat heat) {
         if (heat.startCountdown()) {
             Text.send(player, Success.HEAT_COUNTDOWN_STARTED);
@@ -169,8 +166,8 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("finish")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_finish")
     public static void onHeatFinish(Player player, Heat heat) {
         if (heat.finishHeat()) {
             Text.send(player, Success.HEAT_FINISHED);
@@ -180,10 +177,9 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("load")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_load")
     public static void onHeatLoad(Player player, Heat heat) {
-
         var state = heat.getHeatState();
         if (state != HeatState.SETUP) {
             if (!heat.resetHeat()) {
@@ -204,8 +200,8 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("reset")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_reset")
     public static void onHeatReset(Player player, Heat heat) {
         if (heat.resetHeat()) {
             EventAnnouncements.broadcastReset(heat);
@@ -216,8 +212,8 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("delete")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_remove")
     public static void onHeatRemove(Player player, Heat heat) {
         if (EventDatabase.removeHeat(heat)) {
             Text.send(player, Success.REMOVED_HEAT, "%heat%", heat.getName());
@@ -228,7 +224,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("create")
     @CommandCompletion("@round")
-    @CommandPermission("event.admin")
+    @CommandPermission("%permissionheat_create")
     public static void onHeatCreate(Player player, Round round, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -248,16 +244,16 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set laps")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <laps>")
+    @CommandPermission("%permissionheat_set_laps")
     public static void onHeatSetLaps(Player player, Heat heat, Integer laps) {
         heat.setTotalLaps(laps);
         Text.send(player, Success.SAVED);
     }
 
     @Subcommand("set pits")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <pits>")
+    @CommandPermission("%permissionheat_set_laps")
     public static void onHeatSetPits(Player player, Heat heat, Integer pits) {
         if (heat.getRound() instanceof QualificationRound) {
             Text.send(player, Error.CAN_NOT);
@@ -268,8 +264,8 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set startdelay")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <h/m/s>")
+    @CommandPermission("%permissionheat_set_startdelay")
     public static void onHeatStartDelay(Player player, Heat heat, String startDelay) {
         Integer delay = ApiUtilities.parseDurationToMillis(startDelay);
         if (delay == null) {
@@ -282,8 +278,8 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set timelimit")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <h/m/s>")
+    @CommandPermission("%permissionheat_set_timelimit")
     public static void onHeatSetTime(Player player, Heat heat, String time) {
         Integer timeLimit = ApiUtilities.parseDurationToMillis(time);
         if (timeLimit == null) {
@@ -295,16 +291,16 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set maxdrivers")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <max>")
+    @CommandPermission("%permissionheat_set_maxdrivers")
     public static void onHeatMaxDrivers(Player player, Heat heat, Integer maxDrivers) {
         heat.setMaxDrivers(maxDrivers);
         Text.send(player, Success.SAVED);
     }
 
     @Subcommand("set driverposition")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat @players <[+/-]pos>")
+    @CommandPermission("%permissionheat_set_driverposition")
     public static void onHeatSetDriverPosition(Player sender, Heat heat, String playerName, String position) {
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
@@ -363,6 +359,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("set reversegrid")
     @CommandCompletion("@heat <%>")
+    @CommandPermission("%permissionheat_set_reversegrid")
     public static void onReverseGrid(Player player, Heat heat, @Optional Integer percentage) {
         if (percentage == null) {
             percentage = 100;
@@ -375,8 +372,8 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("add")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat @players ")
+    @CommandPermission("%permissionheat_add_driver")
     public static void onHeatAddDriver(Player sender, Heat heat, String playerName) {
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
             Text.send(sender, Error.ADD_DRIVER_FUTURE_ROUND);
@@ -413,8 +410,8 @@ public class CommandHeat extends BaseCommand {
 
 
     @Subcommand("delete driver")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat @players")
+    @CommandPermission("%permissionheat_removedriver")
     public static void onHeatRemoveDriver(Player sender, Heat heat, String playerName) {
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
@@ -468,6 +465,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("quit")
+    @CommandPermission("%permissionheat_quit")
     public static void onHeatDriverQuit(Player player) {
         if (EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).isEmpty()) {
             Text.send(player, Error.NOT_NOW);
@@ -503,8 +501,8 @@ public class CommandHeat extends BaseCommand {
 
 
     @Subcommand("add alldrivers")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_add_all")
     public static void onHeatAddDrivers(Player sender, Heat heat) {
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
             Text.send(sender, Error.ADD_DRIVER_FUTURE_ROUND);
@@ -541,6 +539,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("results")
     @CommandCompletion("@heat @players")
+    @CommandPermission("%permissionheat_results")
     public static void onHeatResults(Player sender, Heat heat, @Optional String name) {
         Theme theme = Database.getPlayer(sender).getTheme();
 
@@ -601,7 +600,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("sort tt")
     @CommandCompletion("@heat")
-    @CommandPermission("event.admin")
+    @CommandPermission("%permissionheat_sort_tt")
     public static void onSortByTT(Player player, Heat heat) {
         if (heat.getHeatState() == HeatState.FINISHED) {
             Text.send(player, Error.NOT_NOW);
@@ -654,7 +653,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("sort random")
     @CommandCompletion("@heat")
-    @CommandPermission("event.admin")
+    @CommandPermission("%permissionheat_sort_random")
     public static void onSortByRandom(Player player, Heat heat) {
         if (heat.getHeatState() == HeatState.FINISHED) {
             Text.send(player, Error.NOT_NOW);

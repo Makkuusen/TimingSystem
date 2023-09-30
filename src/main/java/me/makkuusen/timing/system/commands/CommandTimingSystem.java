@@ -7,6 +7,7 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
+import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
@@ -23,12 +24,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @CommandAlias("timingsystem|ts")
-@CommandPermission("timingsystem.admin")
 public class CommandTimingSystem extends BaseCommand {
     @Subcommand("tag create")
     @CommandCompletion("<tag>")
+    @CommandPermission("%permissiontimingsystem_tag_create")
     public static void onCreateTag(CommandSender commandSender, String value) {
-
         if (!value.matches("[A-Za-zÅÄÖåäöØÆøæ0-9]+")) {
             Text.send(commandSender, Error.INVALID_NAME);
             return;
@@ -44,6 +44,7 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("tag color")
     @CommandCompletion("@trackTag <hexcolorcode>")
+    @CommandPermission("%permissiontimingsystem_tag_set_color")
     public static void onSetTagColor(CommandSender commandSender, TrackTag tag, String color) {
         if (!color.startsWith("#")) {
             color = "#" + color;
@@ -60,6 +61,7 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("tag item")
     @CommandCompletion("@trackTag")
+    @CommandPermission("%permissiontimingsystem_tag_set_item")
     public static void onSetTagItem(Player player, TrackTag tag) {
         var item = player.getInventory().getItemInMainHand();
         if (item.getItemMeta() == null) {
@@ -72,6 +74,7 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("tag weight")
     @CommandCompletion("@trackTag <value>")
+    @CommandPermission("%permissiontimingsystem_tag_set_weight")
     public static void onSetTagItem(Player player, TrackTag tag, int weight) {
         tag.setWeight(weight);
         Text.send(player, Success.SAVED);
@@ -79,6 +82,7 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("tag delete")
     @CommandCompletion("@trackTag <value>")
+    @CommandPermission("%permissiontimingsystem_tag_delete")
     public static void onDeleteTag(Player player, TrackTag tag) {
         TrackTagManager.deleteTag(tag);
         Text.send(player, Success.SAVED);
@@ -86,6 +90,7 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("scoreboard maxrows")
     @CommandCompletion("<value>")
+    @CommandPermission("%permissiontimingsystem_scoreboard_set_maxrows")
     public static void onMaxRowsScoreboardChange(CommandSender sender, int rows) {
         TimingSystem.configuration.setScoreboardMaxRows(rows);
         Text.send(sender, Success.SAVED);
@@ -93,6 +98,7 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("scoreboard interval")
     @CommandCompletion("<value in ms>")
+    @CommandPermission("%permissiontimingsystem_scoreboard_set_interval")
     public static void onIntervalScoreboardChange(CommandSender sender, String value) {
         TimingSystem.configuration.setScoreboardInterval(value);
         Text.send(sender, Success.SAVED);
@@ -101,6 +107,7 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("hexcolor")
     @CommandCompletion("@tscolor <hexcolorcode>")
+    @CommandPermission("%permissiontimingsystem_color_set_hex")
     public static void onColorChange(CommandSender sender, TSColor tsColor, String hex) {
         if (!hex.startsWith("#")) {
             hex = "#" + hex;
@@ -133,7 +140,15 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("color")
     @CommandCompletion("@tscolor @namedColor")
+    @CommandPermission("%permissiontimingsystem_color_set_named")
     public static void onNamedColorChange(CommandSender sender, TSColor tsColor, NamedTextColor color) {
+        if(sender instanceof Player player) {
+            if (!player.hasPermission(PermissionTimingSystem.COLOR_SET_NAMED.getNode())) {
+                Text.send(player, Error.PERMISSION_DENIED);
+                return;
+            }
+        }
+
         Theme theme = Theme.getTheme(sender);
         switch (tsColor) {
             case SECONDARY -> theme.setSecondary(color);

@@ -37,19 +37,132 @@ commands:
       aliases: [te]
 
 permissions:
+   timingsystem.packs.default:
+      description: Default commands for all players
+      default: true
+      children:
+         timingsystem.track.view.mytimes: true
+         timingsystem.track.session.timetrail: true
+         timingsystem.track.view.times: true
+         timingsystem.settings: true
+         timingsystem.boat: true
+         timingsystem.reset: true
+         timingsystem.timetrail.menu: true
+         timingsystem.timetrail.cancel: true
+         timingsystem.timetrail.random: true
+         timingsystem.race.join: true
+         timingsystem.race.leave: true
+         timingsystem.event.select: true
+         timingsystem.event.spectate: true
+         timingsystem.event.info: true
+         timingsystem.event.sign: true
+         timingsystem.event.reserve: true
+         timingsystem.event.listsigns: true
+         timingsystem.event.list: true
+         timingsystem.round.info: true
+         timingsystem.round.list: true
+         timingsystem.round.results: true
+         timingsystem.heat.info: true
+         timingsystem.heat.list: true
+         timingsystem.heat.results: true
+         timingsystem.heat.quit: true
 
-   track.admin:
-      description: Player can admin tracks
+   timingsystem.packs.trackbuilder:
+      description: Player has the tools to build a track
+      default: false
+      children:
+         timingsystem.packs.default: true
+         timingsystem.track.session.edit: true
+         timingsystem.track.create: true
+         timingsystem.track.info: true
+         timingsystem.track.view.regions: true
+         timingsystem.track.view.locations: true
+         timingsystem.track.view.options: true
+         timingsystem.track.set.finishtp: true
+         timingsystem.track.set.mode: true
+         timingsystem.track.set.boatutilsmode: true
+         timingsystem.track.set.name: true
+         timingsystem.track.set.item: true
+         timingsystem.track.set.region.start: true
+         timingsystem.track.set.region.end: true
+         timingsystem.track.set.region.pit: true
+         timingsystem.track.set.region.inpit: true
+         timingsystem.track.set.region.reset: true
+         timingsystem.track.set.region.lagstart: true
+         timingsystem.track.set.region.lagend: true
+         timingsystem.track.set.region.checkpoint: true
+         timingsystem.track.set.location.spawn: true
+         timingsystem.track.set.location.leaderboard: true
+         timingsystem.track.set.location.grid: true
+         timingsystem.track.set.location.qualigrid: true
+
+   timingsystem.packs.trackadmin:
+      description: Player has all track commands
       default: op
-   event.admin:
-      description: Player can admin events
+      children:
+         timingsystem.packs.trackbuilder: true
+         timingsystem.track.here: true
+         timingsystem.track.menu: true
+         timingsystem.track.move: true
+         timingsystem.track.tp: true
+         timingsystem.track.view.here: true
+         timingsystem.track.view.alltimes: true
+         timingsystem.track.reload: true
+         timingsystem.track.delete.track: true
+         timingsystem.track.delete.besttime: true
+         timingsystem.track.delete.alltimes: true
+         timingsystem.track.updateleaderboards: true
+         timingsystem.track.set.open: true
+         timingsystem.track.set.weight: true
+         timingsystem.track.set.tag: true
+         timingsystem.track.set.type: true
+         timingsystem.track.set.owner: true
+
+   timingsystem.packs.racehoster:
+      description: Player has the tools to host quick races
+      default: false
+      children:
+         timingsystem.race.create: true
+         timingsystem.race.start: true
+         timingsystem.race.end: true
+
+   timingsystem.packs.eventhoster:
+      description: Player has the tools to host events
+      default: false
+      children:
+         timingsystem.packs.default: true
+         timingsystem.event.start: true
+         timingsystem.event.finish: true
+         timingsystem.event.set.track: true
+         timingsystem.event.set.signs: true
+         timingsystem.event.signothers: true
+         timingsystem.event.clicktosign: true
+         timingsystem.event.clicktoreserve: true
+         timingsystem.round.create: true
+         timingsystem.round.delete: true
+         timingsystem.round.finish: true
+         timingsystem.fillheats: true
+         timingsystem.removedrivers: true
+         timingsystem.heat.start: true
+         timingsystem.heat.finish: true
+         timingsystem.heat.load: true
+         timingsystem.heat.reset: true
+         timingsystem.heat.remove: true
+         timingsystem.heat.create: true
+         timingsystem.heat.set.laps: true
+         timingsystem.heat.set.pits: true
+         timingsystem.heat.set.startdelay: true
+         timingsystem.heat.set.timelimit: true
+         timingsystem.heat.set.maxdrivers: true
+         timingsystem.heat.set.setdriverposition: true
+         timingsystem.heat.set.reversegrid: true
+         timingsystem.heat.sort.tt: true
+         timingsystem.heat.sort.random: true
+
+   timingsystem.packs.eventadmin:
+      description: Player has access to all event related commands
       default: op
-   event.sign:
-      description: Allows signing to sign to closed events
-      default: op
-   event.sign.others:
-      description: Allows admin per to sign others into events
-      default: op
-   race.admin:
-      description: Allows admin of quickraces
-      default: op
+      children:
+         timingsystem.packs.eventhoster: true
+         timingsystem.packs.racehoster: true
+         timingsystem.event.delete: true

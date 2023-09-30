@@ -1,16 +1,13 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Optional;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TimeTrialGui;
+import me.makkuusen.timing.system.permissions.PermissionTimeTrail;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -34,6 +31,7 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Default
     @CommandCompletion("@track")
+    @CommandPermission("%permissiontimetrail_menu")
     public static void onTimeTrial(CommandSender sender, @Optional Track track) {
         Player player = null;
         if (sender instanceof BlockCommandSender blockCommandSender) {
@@ -55,8 +53,8 @@ public class CommandTimeTrial extends BaseCommand {
             if (player == null) {
                 return;
             }
-        } else if (sender instanceof Player) {
-            player = (Player) sender;
+        } else if (sender instanceof Player p) {
+            player = p;
         } else {
             Text.send(sender, Error.ONLY_PLAYERS);
             return;
@@ -79,7 +77,7 @@ public class CommandTimeTrial extends BaseCommand {
                 return;
             }
 
-            if (!track.isOpen() && !(player.isOp() || player.hasPermission("track.admin"))) {
+            if (!track.isOpen() && !(player.hasPermission("timingsystem.packs.trackadmin"))) {
                 Text.send(player, Error.TRACK_IS_CLOSED);
                 return;
             }
@@ -88,6 +86,7 @@ public class CommandTimeTrial extends BaseCommand {
     }
 
     @Subcommand("cancel|c")
+    @CommandPermission("%permissiontimetrail_cancel")
     public static void onCancel(Player player) {
         if (!TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             Text.send(player, Error.NOT_NOW);
@@ -103,6 +102,7 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("random|r")
     @CommandCompletion("@trackTag")
+    @CommandPermission("%permissiontimetrail_random")
     public static void onRandom(Player player, @Optional TrackTag trackTag) {
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
@@ -133,6 +133,7 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("randomunfinished")
     @CommandCompletion("@trackTag")
+    @CommandPermission("%permissiontimetrail_random")
     public static void onRandomUnfinished(Player player, @Optional TrackTag trackTag) {
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {

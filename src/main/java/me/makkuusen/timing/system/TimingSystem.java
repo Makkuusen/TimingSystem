@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.gui.GuiCommon;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.papi.TimingSystemPlaceholder;
+import me.makkuusen.timing.system.permissions.*;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.TSColor;
@@ -85,6 +86,38 @@ public class TimingSystem extends JavaPlugin {
         PaperCommandManager manager = new PaperCommandManager(this);
         // enable brigadier integration for paper servers
         manager.enableUnstableAPI("brigadier");
+
+        for (PermissionTimingSystem perm : PermissionTimingSystem.values()) {
+            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
+        }
+
+        for (PermissionTrack perm : PermissionTrack.values()) {
+            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
+        }
+
+        for (PermissionTrackExchange perm : PermissionTrackExchange.values()) {
+            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
+        }
+
+        for (PermissionRace perm : PermissionRace.values()) {
+            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
+        }
+
+        for (PermissionEvent perm : PermissionEvent.values()) {
+            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
+        }
+
+        for (PermissionHeat perm : PermissionHeat.values()) {
+            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
+        }
+
+        for (PermissionTimeTrail perm : PermissionTimeTrail.values()) {
+            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
+        }
+
+        for (PermissionRound perm : PermissionRound.values()) {
+            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
+        }
 
         manager.getCommandContexts().registerContext(
                 Event.class, EventDatabase.getEventContextResolver());

@@ -1,12 +1,7 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Optional;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
@@ -17,6 +12,7 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Subscriber;
+import me.makkuusen.timing.system.permissions.PermissionRound;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
@@ -44,6 +40,7 @@ import java.util.stream.Collectors;
 public class CommandRound extends BaseCommand {
     @Default
     @Subcommand("list")
+    @CommandPermission("%permissionround_list")
     public static void onRounds(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -61,7 +58,7 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("create")
     @CommandCompletion("@roundType")
-    @CommandPermission("event.admin")
+    @CommandPermission("%permissionround_create")
     public static void onCreate(Player player, RoundType roundType, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -91,6 +88,7 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("delete")
     @CommandCompletion("@round")
+    @CommandPermission("%permissionround_delete")
     public static void onDelete(Player player, Round round) {
         if (EventDatabase.removeRound(round)) {
             Text.send(player, Success.REMOVED_ROUND, "%round%", round.getDisplayName());
@@ -101,6 +99,7 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("info")
     @CommandCompletion("@round")
+    @CommandPermission("%permissionround_info")
     public static void onRoundInfo(Player player, Round round) {
         Theme theme = Database.getPlayer(player).getTheme();
         player.sendMessage(Component.space());
@@ -108,7 +107,7 @@ public class CommandRound extends BaseCommand {
 
         var heatsMessage = Text.get(player, Info.ROUND_INFO_HEATS);
 
-        if (player.hasPermission("event.admin")) {
+        if (player.hasPermission("timingsystem.packs.eventadmin")) {
             heatsMessage.append(theme.tab()).append(theme.getAddButton(Text.get(player, TextButton.ADD_HEAT)).clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent(player)));
         }
         player.sendMessage(heatsMessage);
@@ -117,7 +116,7 @@ public class CommandRound extends BaseCommand {
 
             var message = theme.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(theme.tab()).append(theme.getViewButton(player).clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(theme.getClickToViewHoverEvent(player)));
 
-            if (player.hasPermission("event.admin")) {
+            if (player.hasPermission("timingsystem.packs.eventadmin")) {
                 message = message.append(Component.space()).append(theme.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
             }
 
@@ -127,7 +126,7 @@ public class CommandRound extends BaseCommand {
 
 
     @Subcommand("finish")
-    @CommandPermission("event.admin")
+    @CommandPermission("%permissionround_finish")
     public static void onRoundFinish(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -147,6 +146,7 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("results")
     @CommandCompletion("@round")
+    @CommandPermission("%permissionround_results")
     public static void onRoundResults(Player player, Round round, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -178,7 +178,7 @@ public class CommandRound extends BaseCommand {
     }
 
     @Subcommand("removeDriversFromRound")
-    @CommandPermission("event.admin")
+    @CommandPermission("%permissionround_removedrivers")
     public static void onRemoveDriversFromHeats(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -215,8 +215,8 @@ public class CommandRound extends BaseCommand {
 
 
     @Subcommand("fillheats")
-    @CommandPermission("event.admin")
     @CommandCompletion("random|sorted all|signed|reserves")
+    @CommandPermission("%permissionround_fillheats")
     public static void onFillHeats(Player player, String sort, String group) {
         Event event;
         var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());

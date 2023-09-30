@@ -1,11 +1,7 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
@@ -23,6 +19,7 @@ import org.bukkit.entity.Player;
 public class CommandBoat extends BaseCommand {
 
         @Default
+        @CommandPermission("%permissiontimingsystem_boat")
         public static void onBoat(Player player) {
         if (isPlayerInBoat(player)) {
             return;
@@ -55,10 +52,9 @@ public class CommandBoat extends BaseCommand {
     }
 
     @Subcommand("mode")
-    @CommandPermission("boat.admin")
     @CommandCompletion("@boatUtilsMode")
+    @CommandPermission("%permissiontimingsystem_boat_mode")
     public static void onBoatWithMode(Player player, BoatUtilsMode mode) {
-
         if (isPlayerInBoat(player)) {
             return;
         }

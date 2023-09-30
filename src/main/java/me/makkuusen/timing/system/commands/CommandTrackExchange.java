@@ -11,6 +11,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.permissions.PermissionTrackExchange;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -22,19 +23,17 @@ import me.makkuusen.timing.system.track.TrackExchangeTrack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.Arrays;
 
 @CommandAlias("trackexchange|te")
-@CommandPermission("track.admin")
 public class CommandTrackExchange extends BaseCommand {
 
     @Subcommand("cut")
     @CommandCompletion("@track")
+    @CommandPermission("%permissiontrackexchange_cut")
     public static void onCutTrack(Player player, Track track) {
         BlockArrayClipboard clipboard = null;
         try {
@@ -76,6 +75,7 @@ public class CommandTrackExchange extends BaseCommand {
 
     @Subcommand("copy")
     @CommandCompletion("@track")
+    @CommandPermission("%permissiontrackexchange_copy")
     public static void onCopyTrack(Player player, Track track) {
         BlockArrayClipboard clipboard = null;
         try {
@@ -101,6 +101,7 @@ public class CommandTrackExchange extends BaseCommand {
 
     @Subcommand("paste")
     @CommandCompletion("trackfile <newname>")
+    @CommandPermission("%permissiontrackexchange_paste")
     public static void onPasteTrack(Player player, String fileName, @Optional String newName) {
         if(newName != null) {
             int maxLength = 25;
@@ -157,6 +158,7 @@ public class CommandTrackExchange extends BaseCommand {
 
     @Subcommand("pasteoutdated")
     @CommandCompletion("trackfile <newname>")
+    @CommandPermission("%permissiontrackexchange_pasteoutdated")
     public static void onPasteOutdated(Player player, String fileName, @Optional String newName) {
         if(newName != null) {
             int maxLength = 25;

@@ -1,14 +1,11 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.gui.SettingsGui;
+import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -22,11 +19,13 @@ import java.util.regex.Pattern;
 public class CommandSettings extends BaseCommand {
 
     @Default
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onSettings(Player player) {
         new SettingsGui(Database.getPlayer(player.getUniqueId())).show(player);
     }
 
     @Subcommand("verbose")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onVerbose(Player player) {
         var tPlayer = Database.getPlayer(player);
         tPlayer.toggleVerbose();
@@ -35,6 +34,7 @@ public class CommandSettings extends BaseCommand {
 
     @Subcommand("boat")
     @CommandCompletion("@boat")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onBoat(Player player, Boat.Type type) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.setBoat(type);
@@ -45,6 +45,7 @@ public class CommandSettings extends BaseCommand {
     }
 
     @Subcommand("sound")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onTTSound(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.toggleSound();
@@ -52,6 +53,7 @@ public class CommandSettings extends BaseCommand {
     }
 
     @Subcommand("compactScoreboard")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onCompactScoreboard(Player player) {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.toggleCompactScoreboard();
@@ -59,7 +61,7 @@ public class CommandSettings extends BaseCommand {
     }
 
     @Subcommand("override")
-    @CommandPermission("track.admin")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onOverride(Player player) {
         var tPlayer = Database.getPlayer(player);
         tPlayer.toggleOverride();
@@ -69,6 +71,7 @@ public class CommandSettings extends BaseCommand {
 
     @Subcommand("color")
     @CommandCompletion("<hexcolorcode>")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onColor(Player player, String hex) {
         if (!hex.startsWith("#")) {
             hex = "#" + hex;
