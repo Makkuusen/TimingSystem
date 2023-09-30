@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
@@ -26,14 +27,8 @@ import java.util.regex.Pattern;
 public class CommandTimingSystem extends BaseCommand {
     @Subcommand("tag create")
     @CommandCompletion("<tag>")
+    @CommandPermission("%permissiontimingsystem_tag_create")
     public static void onCreateTag(CommandSender commandSender, String value) {
-        if(commandSender instanceof Player p) {
-            if(!p.hasPermission(PermissionTimingSystem.TAG_CREATE.getNode())) {
-                Text.send(p, Error.PERMISSION_DENIED);
-                return;
-            }
-        }
-
         if (!value.matches("[A-Za-zÅÄÖåäöØÆøæ0-9]+")) {
             Text.send(commandSender, Error.INVALID_NAME);
             return;
@@ -49,14 +44,8 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("tag color")
     @CommandCompletion("@trackTag <hexcolorcode>")
+    @CommandPermission("%permissiontimingsystem_tag_set_color")
     public static void onSetTagColor(CommandSender commandSender, TrackTag tag, String color) {
-        if(commandSender instanceof Player player) {
-            if (!player.hasPermission(PermissionTimingSystem.TAG_SET_COLOR.getNode())) {
-                Text.send(player, Error.PERMISSION_DENIED);
-                return;
-            }
-        }
-
         if (!color.startsWith("#")) {
             color = "#" + color;
         }
@@ -72,11 +61,8 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("tag item")
     @CommandCompletion("@trackTag")
+    @CommandPermission("%permissiontimingsystem_tag_set_item")
     public static void onSetTagItem(Player player, TrackTag tag) {
-        if (!player.hasPermission(PermissionTimingSystem.TAG_SET_ITEM.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         var item = player.getInventory().getItemInMainHand();
         if (item.getItemMeta() == null) {
             Text.send(player, Error.ITEM_NOT_FOUND);
@@ -88,48 +74,32 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("tag weight")
     @CommandCompletion("@trackTag <value>")
+    @CommandPermission("%permissiontimingsystem_tag_set_weight")
     public static void onSetTagItem(Player player, TrackTag tag, int weight) {
-        if (!player.hasPermission(PermissionTimingSystem.TAG_SET_WEIGHT.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         tag.setWeight(weight);
         Text.send(player, Success.SAVED);
     }
 
     @Subcommand("tag delete")
     @CommandCompletion("@trackTag <value>")
+    @CommandPermission("%permissiontimingsystem_tag_delete")
     public static void onDeleteTag(Player player, TrackTag tag) {
-        if (!player.hasPermission(PermissionTimingSystem.TAG_DELETE.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         TrackTagManager.deleteTag(tag);
         Text.send(player, Success.SAVED);
     }
 
     @Subcommand("scoreboard maxrows")
     @CommandCompletion("<value>")
+    @CommandPermission("%permissiontimingsystem_scoreboard_set_maxrows")
     public static void onMaxRowsScoreboardChange(CommandSender sender, int rows) {
-        if(sender instanceof Player player) {
-            if (!player.hasPermission(PermissionTimingSystem.SCOREBOARD_SET_MAXROWS.getNode())) {
-                Text.send(player, Error.PERMISSION_DENIED);
-                return;
-            }
-        }
         TimingSystem.configuration.setScoreboardMaxRows(rows);
         Text.send(sender, Success.SAVED);
     }
 
     @Subcommand("scoreboard interval")
     @CommandCompletion("<value in ms>")
+    @CommandPermission("%permissiontimingsystem_scoreboard_set_interval")
     public static void onIntervalScoreboardChange(CommandSender sender, String value) {
-        if(sender instanceof Player player) {
-            if (!player.hasPermission(PermissionTimingSystem.SCOREBOARD_SET_INTERVAL.getNode())) {
-                Text.send(player, Error.PERMISSION_DENIED);
-                return;
-            }
-        }
         TimingSystem.configuration.setScoreboardInterval(value);
         Text.send(sender, Success.SAVED);
     }
@@ -137,14 +107,8 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("hexcolor")
     @CommandCompletion("@tscolor <hexcolorcode>")
+    @CommandPermission("%permissiontimingsystem_color_set_hex")
     public static void onColorChange(CommandSender sender, TSColor tsColor, String hex) {
-        if(sender instanceof Player player) {
-            if (!player.hasPermission(PermissionTimingSystem.COLOR_SET_HEX.getNode())) {
-                Text.send(player, Error.PERMISSION_DENIED);
-                return;
-            }
-        }
-
         if (!hex.startsWith("#")) {
             hex = "#" + hex;
         }
@@ -176,6 +140,7 @@ public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("color")
     @CommandCompletion("@tscolor @namedColor")
+    @CommandPermission("%permissiontimingsystem_color_set_named")
     public static void onNamedColorChange(CommandSender sender, TSColor tsColor, NamedTextColor color) {
         if(sender instanceof Player player) {
             if (!player.hasPermission(PermissionTimingSystem.COLOR_SET_NAMED.getNode())) {

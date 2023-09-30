@@ -33,11 +33,8 @@ public class CommandTrackExchange extends BaseCommand {
 
     @Subcommand("cut")
     @CommandCompletion("@track")
+    @CommandPermission("%permissiontrackexchange_cut")
     public static void onCutTrack(Player player, Track track) {
-        if(!player.hasPermission(PermissionTrackExchange.CUT.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         BlockArrayClipboard clipboard = null;
         try {
             Region r = WorldEdit.getInstance().getSessionManager().get(BukkitAdapter.adapt(player)).getSelection();
@@ -78,11 +75,8 @@ public class CommandTrackExchange extends BaseCommand {
 
     @Subcommand("copy")
     @CommandCompletion("@track")
+    @CommandPermission("%permissiontrackexchange_copy")
     public static void onCopyTrack(Player player, Track track) {
-        if(!player.hasPermission(PermissionTrackExchange.COPY.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         BlockArrayClipboard clipboard = null;
         try {
             Region r = WorldEdit.getInstance().getSessionManager().get(BukkitAdapter.adapt(player)).getSelection();
@@ -107,12 +101,8 @@ public class CommandTrackExchange extends BaseCommand {
 
     @Subcommand("paste")
     @CommandCompletion("trackfile <newname>")
+    @CommandPermission("%permissiontrackexchange_paste")
     public static void onPasteTrack(Player player, String fileName, @Optional String newName) {
-        if(!player.hasPermission(PermissionTrackExchange.PASTE.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
-
         if(newName != null) {
             int maxLength = 25;
             if (newName.length() > maxLength) {
@@ -168,11 +158,8 @@ public class CommandTrackExchange extends BaseCommand {
 
     @Subcommand("pasteoutdated")
     @CommandCompletion("trackfile <newname>")
+    @CommandPermission("%permissiontrackexchange_pasteoutdated")
     public static void onPasteOutdated(Player player, String fileName, @Optional String newName) {
-        if(!player.hasPermission(PermissionTrackExchange.PASTEOUTDATED.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if(newName != null) {
             int maxLength = 25;
             if (newName.length() > maxLength) {

@@ -1,10 +1,7 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.gui.SettingsGui;
@@ -22,20 +19,14 @@ import java.util.regex.Pattern;
 public class CommandSettings extends BaseCommand {
 
     @Default
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onSettings(Player player) {
-        if(!player.hasPermission(PermissionTimingSystem.SETTINGS.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         new SettingsGui(Database.getPlayer(player.getUniqueId())).show(player);
     }
 
     @Subcommand("verbose")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onVerbose(Player player) {
-        if(!player.hasPermission(PermissionTimingSystem.SETTINGS.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         var tPlayer = Database.getPlayer(player);
         tPlayer.toggleVerbose();
         Text.send(player, tPlayer.isVerbose() ? Success.CHECKPOINTS_ANNOUNCEMENTS_ON : Success.CHECKPOINTS_ANNOUNCEMENTS_OFF);
@@ -43,11 +34,8 @@ public class CommandSettings extends BaseCommand {
 
     @Subcommand("boat")
     @CommandCompletion("@boat")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onBoat(Player player, Boat.Type type) {
-        if(!player.hasPermission(PermissionTimingSystem.SETTINGS.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.setBoat(type);
         if (player.getVehicle() instanceof Boat boat) {
@@ -57,33 +45,24 @@ public class CommandSettings extends BaseCommand {
     }
 
     @Subcommand("sound")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onTTSound(Player player) {
-        if(!player.hasPermission(PermissionTimingSystem.SETTINGS.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.toggleSound();
         Text.send(player, tPlayer.isSound() ? Success.SOUND_ON : Success.SOUND_OFF);
     }
 
     @Subcommand("compactScoreboard")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onCompactScoreboard(Player player) {
-        if(!player.hasPermission(PermissionTimingSystem.SETTINGS.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         tPlayer.toggleCompactScoreboard();
         Text.send(player, tPlayer.isCompactScoreboard() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
     }
 
     @Subcommand("override")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onOverride(Player player) {
-        if(!player.hasPermission(PermissionTimingSystem.SETTINGS_OVERRIDE.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         var tPlayer = Database.getPlayer(player);
         tPlayer.toggleOverride();
         Text.send(player, tPlayer.isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
@@ -92,11 +71,8 @@ public class CommandSettings extends BaseCommand {
 
     @Subcommand("color")
     @CommandCompletion("<hexcolorcode>")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onColor(Player player, String hex) {
-        if(!player.hasPermission(PermissionTimingSystem.SETTINGS.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if (!hex.startsWith("#")) {
             hex = "#" + hex;
         }

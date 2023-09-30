@@ -17,8 +17,8 @@ public enum PermissionTimingSystem implements Permissions {
     COLOR_SET_HEX;
 
     @Override
-    public final String getNode() {
-        return getNodeBase() + this.toString().toLowerCase();
+    public String getNode() {
+        return getNodeBase() + this.toString().replace("_", ".").toLowerCase();
     }
 
     public static String getNodeBase() {

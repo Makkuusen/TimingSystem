@@ -2,13 +2,12 @@ package me.makkuusen.timing.system.permissions;
 
 public enum PermissionTimeTrail implements Permissions {
     MENU,
-    TELEPORT,
     CANCEL,
     RANDOM;
 
     @Override
     public final String getNode() {
-        return getNodeBase() + this.toString().toLowerCase();
+        return getNodeBase() + this.toString().replace("_", ".").toLowerCase();
     }
 
     public static String getNodeBase() {

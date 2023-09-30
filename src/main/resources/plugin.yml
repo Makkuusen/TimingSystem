@@ -48,7 +48,6 @@ permissions:
          timingsystem.boat: true
          timingsystem.reset: true
          timingsystem.timetrail.menu: true
-         timingsystem.timetrail.teleport: true
          timingsystem.timetrail.cancel: true
          timingsystem.timetrail.random: true
          timingsystem.race.join: true

@@ -1,17 +1,13 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.Optional;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
-import me.makkuusen.timing.system.permissions.PermissionRace;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.Text;
@@ -35,11 +31,8 @@ public class CommandRace extends BaseCommand {
     public static Heat heat;
 
     @Subcommand("start")
+    @CommandPermission("%permissionrace_start")
     public static void onStart(Player player) {
-        if(!player.hasPermission(PermissionRace.START.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if (heat == null) {
             Text.send(player, Error.RACE_NOT_FOUND);
 
@@ -54,11 +47,8 @@ public class CommandRace extends BaseCommand {
     }
 
     @Subcommand("end")
+    @CommandPermission("%permissionrace_end")
     public void onEnd(Player player) {
-        if(!player.hasPermission(PermissionRace.END.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if (event == null) {
             Text.send(player, Error.RACE_NOT_FOUND);
             return;
@@ -76,11 +66,8 @@ public class CommandRace extends BaseCommand {
 
     @Subcommand("create")
     @CommandCompletion("@track laps pits")
+    @CommandPermission("%permissionrace_create")
     public void onCreate(Player player, Track track, @Optional Integer laps, @Optional Integer pits) {
-        if(!player.hasPermission(PermissionRace.CREATE.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if (heat != null) {
             if (heat.isFinished()) {
                 deleteEvent();
@@ -185,11 +172,8 @@ public class CommandRace extends BaseCommand {
     }
 
     @Subcommand("join")
+    @CommandPermission("%permissionrace_join")
     public static void onClickToJoin(Player player) {
-        if(!player.hasPermission(PermissionRace.JOIN.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if (heat == null) {
             Text.send(player, Error.NOT_NOW);
             return;
@@ -220,11 +204,8 @@ public class CommandRace extends BaseCommand {
     }
 
     @Subcommand("leave")
+    @CommandPermission("%permissionrace_leave")
     public static void onLeave(Player player) {
-        if(!player.hasPermission(PermissionRace.LEAVE.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if (EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).isEmpty()) {
             Text.send(player, Error.NOT_NOW);
             return;

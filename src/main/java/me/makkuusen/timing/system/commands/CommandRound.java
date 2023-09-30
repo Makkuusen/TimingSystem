@@ -1,11 +1,7 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Optional;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
@@ -44,12 +40,8 @@ import java.util.stream.Collectors;
 public class CommandRound extends BaseCommand {
     @Default
     @Subcommand("list")
+    @CommandPermission("%permissionround_list")
     public static void onRounds(Player player, @Optional Event event) {
-        if(!player.hasPermission(PermissionRound.LIST.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
-
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -66,12 +58,8 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("create")
     @CommandCompletion("@roundType")
+    @CommandPermission("%permissionround_create")
     public static void onCreate(Player player, RoundType roundType, @Optional Event event) {
-        if(!player.hasPermission(PermissionRound.CREATE.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
-
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -100,11 +88,8 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("delete")
     @CommandCompletion("@round")
+    @CommandPermission("%permissionround_delete")
     public static void onDelete(Player player, Round round) {
-        if(!player.hasPermission(PermissionRound.DELETE.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if (EventDatabase.removeRound(round)) {
             Text.send(player, Success.REMOVED_ROUND, "%round%", round.getDisplayName());
             return;
@@ -114,19 +99,15 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("info")
     @CommandCompletion("@round")
+    @CommandPermission("%permissionround_info")
     public static void onRoundInfo(Player player, Round round) {
-        if(!player.hasPermission(PermissionRound.INFO.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
-
         Theme theme = Database.getPlayer(player).getTheme();
         player.sendMessage(Component.space());
         player.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(round.getState().name())))).append(Component.space()).append(theme.getBrackets(Text.get(player, TextButton.VIEW_EVENT), theme.getButton()).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent(player))));
 
         var heatsMessage = Text.get(player, Info.ROUND_INFO_HEATS);
 
-        if (player.hasPermission("event.admin")) {
+        if (player.hasPermission("timingsystem.packs.eventadmin")) {
             heatsMessage.append(theme.tab()).append(theme.getAddButton(Text.get(player, TextButton.ADD_HEAT)).clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent(player)));
         }
         player.sendMessage(heatsMessage);
@@ -135,7 +116,7 @@ public class CommandRound extends BaseCommand {
 
             var message = theme.tab().append(Component.text(heat.getName()).color(theme.getSecondary())).append(theme.tab()).append(theme.getViewButton(player).clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).hoverEvent(theme.getClickToViewHoverEvent(player)));
 
-            if (player.hasPermission("event.admin")) {
+            if (player.hasPermission("timingsystem.packs.eventadmin")) {
                 message = message.append(Component.space()).append(theme.getRemoveButton().clickEvent(ClickEvent.suggestCommand("/heat delete " + heat.getName())));
             }
 
@@ -145,12 +126,8 @@ public class CommandRound extends BaseCommand {
 
 
     @Subcommand("finish")
+    @CommandPermission("%permissionround_finish")
     public static void onRoundFinish(Player player, @Optional Event event) {
-        if(!player.hasPermission(PermissionRound.FINISH.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
-
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -169,11 +146,8 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("results")
     @CommandCompletion("@round")
+    @CommandPermission("%permissionround_results")
     public static void onRoundResults(Player player, Round round, @Optional Event event) {
-        if(!player.hasPermission(PermissionRound.RESULTS.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -204,11 +178,8 @@ public class CommandRound extends BaseCommand {
     }
 
     @Subcommand("removeDriversFromRound")
+    @CommandPermission("%permissionround_removedrivers")
     public static void onRemoveDriversFromHeats(Player player, @Optional Event event) {
-        if(!player.hasPermission(PermissionRound.REMOVEDRIVERS.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -245,11 +216,8 @@ public class CommandRound extends BaseCommand {
 
     @Subcommand("fillheats")
     @CommandCompletion("random|sorted all|signed|reserves")
+    @CommandPermission("%permissionround_fillheats")
     public static void onFillHeats(Player player, String sort, String group) {
-        if(!player.hasPermission(PermissionRound.FILLHEATS.getNode())) {
-            Text.send(player, Error.PERMISSION_DENIED);
-            return;
-        }
         Event event;
         var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
         if (maybeEvent.isPresent()) {
