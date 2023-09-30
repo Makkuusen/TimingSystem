@@ -41,6 +41,9 @@ permissions:
    track.admin:
       description: Player can admin tracks
       default: op
+   track.operator:
+      description: Player can access operator only track information.
+      default: op
    event.admin:
       description: Player can admin events
       default: op
