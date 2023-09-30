@@ -233,7 +233,7 @@ public class CommandTrack extends BaseCommand {
     public static void onInfo(CommandSender commandSender, Track track, @Optional String name) {
 
         TPlayer tPlayer;
-        if (name != null && commandSender.hasPermission("track.admin")) {
+        if (name != null && commandSender.hasPermission("track.operator")) {
             tPlayer = Database.getPlayer(name);
             if (tPlayer == null) {
                 Text.send(commandSender, Error.PLAYER_NOT_FOUND);
