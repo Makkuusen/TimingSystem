@@ -47,11 +47,17 @@ public class TrackGui extends TrackPageGui {
     }
 
     private ItemStack setTrackLore(Player player, Track track, ItemStack toReturn) {
+        StringBuilder sb = new StringBuilder(track.getOwners().get(0).getName());
+        for(TPlayer tp : track.getOwners()) {
+            if(tp == track.getOwners().get(0)) continue;
+            sb.append(", ").append(tp.getName());
+        }
+
         List<Component> loreToSet = new ArrayList<>();
         loreToSet.add(Text.get(player, Gui.TOTAL_FINISHES, "%total%", String.valueOf(track.getTotalFinishes())));
         loreToSet.add(Text.get(player, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(track.getTotalFinishes() + track.getTotalAttempts())));
         loreToSet.add(Text.get(player, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
-        loreToSet.add(Text.get(player, Gui.CREATED_BY, "%player%", track.getOwner().getName()));
+        loreToSet.add(Text.get(player, Gui.CREATED_BY, "%player%", sb.toString()));
         loreToSet.add(Text.get(player, Gui.CREATED_AT, "%time%", ApiUtilities.niceDate(track.getDateCreated())));
         loreToSet.add(Text.get(player, Gui.WEIGHT, "%weight%", String.valueOf(track.getWeight())));
 
