@@ -57,10 +57,10 @@ public class TrackExchangeTrack {
     public TrackExchangeTrack(@NotNull Track track, @Nullable Clipboard clipboard) {
         version = CURRENT_VERSION;
         name = track.getDisplayName();
-        StringBuilder sb = new StringBuilder(track.getOwners().get(0).getName());
+        StringBuilder sb = new StringBuilder(track.getOwners().get(0).getUniqueId().toString());
         for(TPlayer tp : track.getOwners()) {
             if(tp == track.getOwners().get(0)) continue;
-            sb.append(",").append(tp.getName());
+            sb.append(",").append(tp.getUniqueId());
         }
         ownerUUIDs = sb.toString();
         dateCreated = track.getDateCreated();

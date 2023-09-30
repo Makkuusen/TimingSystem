@@ -145,8 +145,7 @@ public class CommandTrackExchange extends BaseCommand {
 
             if(trackExchangeTrack.getClipboard() != null) {
                 Operations.complete(new ClipboardHolder(trackExchangeTrack.getClipboard()).createPaste(editSession).to(BlockVector3.at(player.getLocation().x() + trackExchangeTrack.getClipboardOffset().getX(), player.getLocation().y() + trackExchangeTrack.getClipboardOffset().getY(), player.getLocation().z() + trackExchangeTrack.getClipboardOffset().getZ())).copyEntities(true).build());
-                player.sendMessage(Component.text("Loading without schematic").color(Theme.getTheme(player).getWarning()));
-            }
+            } else player.sendMessage(Component.text("Loading without schematic").color(Theme.getTheme(player).getWarning()));
             Text.send(player, Success.CREATED_TRACK, "%track%", trackExchangeTrack.getTrack().getDisplayName());
         } catch (FileNotFoundException e) {
             Text.send(player, Error.TRACKS_NOT_FOUND);
