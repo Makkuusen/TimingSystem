@@ -13,6 +13,7 @@ public enum PermissionTrack implements Permissions {
     VIEW_MYTIMES,
     VIEW_TIMES,
     VIEW_ALLTIMES,
+    VIEW_PLAYERSTATS,
     SESSION_TIMETRAIL,
     SESSION_EDIT,
     RELOAD,

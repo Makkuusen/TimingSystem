@@ -253,8 +253,8 @@ public class CommandTrack extends BaseCommand {
         }
 
         TPlayer tPlayer;
-        if (name != null && commandSender.isOp()) {
-            tPlayer = Database.getPlayer(name);
+        tPlayer = Database.getPlayer(name);
+        if (name != null && commandSender.hasPermission(PermissionTrack.VIEW_PLAYERSTATS.getNode())) {
             if (tPlayer == null) {
                 Text.send(commandSender, Error.PLAYER_NOT_FOUND);
                 return;
