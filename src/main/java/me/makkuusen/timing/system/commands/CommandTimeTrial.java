@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TimeTrialGui;
+import me.makkuusen.timing.system.permissions.PermissionTimeTrail;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -55,7 +56,11 @@ public class CommandTimeTrial extends BaseCommand {
             if (player == null) {
                 return;
             }
-        } else if (sender instanceof Player) {
+        } else if (sender instanceof Player p) {
+            if(!p.hasPermission(PermissionTimeTrail.TELEPORT.getNode())) {
+                Text.send(p, Error.PERMISSION_DENIED);
+                return;
+            }
             player = (Player) sender;
         } else {
             Text.send(sender, Error.ONLY_PLAYERS);
@@ -89,6 +94,11 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("cancel|c")
     public static void onCancel(Player player) {
+        if(!player.hasPermission(PermissionTimeTrail.CANCEL.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         if (!TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             Text.send(player, Error.NOT_NOW);
             return;
@@ -104,6 +114,10 @@ public class CommandTimeTrial extends BaseCommand {
     @Subcommand("random|r")
     @CommandCompletion("@trackTag")
     public static void onRandom(Player player, @Optional TrackTag trackTag) {
+        if(!player.hasPermission(PermissionTimeTrail.RANDOM.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().isRunning()) {
@@ -134,6 +148,10 @@ public class CommandTimeTrial extends BaseCommand {
     @Subcommand("randomunfinished")
     @CommandCompletion("@trackTag")
     public static void onRandomUnfinished(Player player, @Optional TrackTag trackTag) {
+        if(!player.hasPermission(PermissionTimeTrail.RANDOM.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
             if (maybeDriver.get().isRunning()) {

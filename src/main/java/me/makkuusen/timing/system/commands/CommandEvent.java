@@ -3,7 +3,6 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Optional;
@@ -18,6 +17,7 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Subscriber;
+import me.makkuusen.timing.system.permissions.PermissionEvent;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
@@ -49,6 +49,11 @@ public class CommandEvent extends BaseCommand {
     @Description("Active events")
     public static void onActiveEvents(CommandSender commandSender) {
         if (commandSender instanceof Player player) {
+            if(!player.hasPermission(PermissionEvent.LIST.getNode())) {
+                Text.send(player, Error.PERMISSION_DENIED);
+                return;
+            }
+
             Event event;
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -63,6 +68,13 @@ public class CommandEvent extends BaseCommand {
 
     @Subcommand("list")
     public static void onListEvents(CommandSender commandSender) {
+        if(commandSender instanceof Player player) {
+            if(!player.hasPermission(PermissionEvent.LIST.getNode())) {
+                Text.send(player, Error.PERMISSION_DENIED);
+                return;
+            }
+        }
+
         var list = EventDatabase.getEvents().stream().filter(Event::isActive).sorted(Comparator.comparingLong(Event::getDate)).toList();
         commandSender.sendMessage(Component.empty());
         Text.send(commandSender, Info.ACTIVE_EVENTS_TITLE);
@@ -72,9 +84,13 @@ public class CommandEvent extends BaseCommand {
         }
     }
 
-    @CommandPermission("event.admin")
     @Subcommand("start")
     public static void onStart(Player player, @Optional Event event) {
+        if(!player.hasPermission(PermissionEvent.START.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -93,9 +109,13 @@ public class CommandEvent extends BaseCommand {
         Text.send(player, Error.FAILED_TO_START_EVENT);
     }
 
-    @CommandPermission("event.admin")
     @Subcommand("finish")
     public static void onFinish(Player player, @Optional Event event) {
+        if(!player.hasPermission(PermissionEvent.FINISH.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -116,6 +136,10 @@ public class CommandEvent extends BaseCommand {
     @CommandCompletion("@event")
     public static void onInfo(CommandSender sender, Event event) {
         if (sender instanceof Player player) {
+            if(!player.hasPermission(PermissionEvent.INFO.getNode())) {
+                Text.send(player, Error.PERMISSION_DENIED);
+                return;
+            }
             EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
         }
 
@@ -197,10 +221,14 @@ public class CommandEvent extends BaseCommand {
             }
         }    }
 
-    @CommandPermission("event.admin")
     @Subcommand("create")
     @CommandCompletion("<name> @track")
     public static void onCreate(Player player, @Single String name, @Optional Track track) {
+        if(!player.hasPermission(PermissionEvent.CREATE.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         if (name.equalsIgnoreCase("QuickRace")) {
             Text.send(player, Error.INVALID_NAME);
             return;
@@ -216,10 +244,14 @@ public class CommandEvent extends BaseCommand {
         Text.send(player,Error.FAILED_TO_CREATE_EVENT);
     }
 
-    @CommandPermission("event.admin")
     @Subcommand("delete")
     @CommandCompletion("@event")
     public static void onRemove(Player player, Event event) {
+        if(!player.hasPermission(PermissionEvent.DELETE.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         if (EventDatabase.removeEvent(event)) {
             Text.send(player, Success.REMOVED_EVENT, "%event%", event.getDisplayName());
             return;
@@ -230,14 +262,22 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("select")
     @CommandCompletion("@event")
     public static void onSelectEvent(Player player, Event event) {
+        if(!player.hasPermission(PermissionEvent.SELECT.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         EventDatabase.setPlayerSelectedEvent(player.getUniqueId(), event);
         Text.send(player, Success.EVENT_SELECTED);
     }
 
-    @CommandPermission("event.admin")
     @Subcommand("set track")
     @CommandCompletion("@track")
     public static void onSetTrack(Player player, Track track) {
+        if(!player.hasPermission(PermissionEvent.SET_TRACK.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         Event event;
         var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
         if (maybeEvent.isPresent()) {
@@ -250,10 +290,14 @@ public class CommandEvent extends BaseCommand {
         Text.send(player, Success.TRACK_SELECTED);
     }
 
-    @CommandPermission("event.admin")
     @Subcommand("set signs")
     @CommandCompletion("open|closed")
     public static void setOpen(Player player, String open) {
+        if(!player.hasPermission(PermissionEvent.SET_SIGNS.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         Event event;
         var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
         if (maybeEvent.isPresent()) {
@@ -276,6 +320,11 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("spectate")
     @CommandCompletion("@event")
     public static void onSpectate(Player player, Event event) {
+        if(!player.hasPermission(PermissionEvent.SPECTATE.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         if (event.isSpectating(player.getUniqueId())) {
             event.removeSpectator(player.getUniqueId());
             Text.send(player, Warning.NO_LONGER_SPECTATING, "%event%", event.getDisplayName());
@@ -291,7 +340,7 @@ public class CommandEvent extends BaseCommand {
     public static void onSignUp(Player player, Event event, @Optional String name) {
         if (name != null) {
 
-                if (!(player.hasPermission("event.sign.others") || player.hasPermission("event.admin") || player.isOp())) {
+                if (!(player.hasPermission(PermissionEvent.SIGNOTHERS.getNode()))) {
                 Text.send(player, Error.PERMISSION_DENIED);
                 return;
             }
@@ -310,6 +359,10 @@ public class CommandEvent extends BaseCommand {
                 event.removeSubscriber(tPlayer.getUniqueId());
                 Text.send(player, Warning.PLAYER_NO_LONGER_SIGNED, "%player%", tPlayer.getName(), "%event%", event.getDisplayName());
             } else {
+                if(!player.hasPermission(PermissionEvent.SIGN.getNode())) {
+                    Text.send(player, Error.PERMISSION_DENIED);
+                    return;
+                }
 
                 if (event.isReserving(tPlayer.getUniqueId())) {
                     event.removeReserve(tPlayer.getUniqueId());
@@ -351,6 +404,11 @@ public class CommandEvent extends BaseCommand {
 
     @Subcommand("signs")
     public static void onListSigns(Player player, @Optional Event event) {
+        if(!player.hasPermission(PermissionEvent.LISTSIGNS.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -417,6 +475,10 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("reserve")
     @CommandCompletion("@event")
     public static void onReserve(Player player, Event event, @Optional String name) {
+        if(!player.hasPermission(PermissionEvent.RESERVE.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (name != null) {
 
             if (!player.hasPermission("event.admin") || !player.isOp()) {
@@ -470,8 +532,11 @@ public class CommandEvent extends BaseCommand {
     }
 
     @Subcommand("broadcast clicktosign")
-    @CommandPermission("event.admin")
     public static void onSendSignUp(Player player, @Optional Event event) {
+        if(!player.hasPermission(PermissionEvent.BROADCAST_CLICKTOSIGN.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -500,8 +565,11 @@ public class CommandEvent extends BaseCommand {
     }
 
     @Subcommand("broadcast clicktoreserve")
-    @CommandPermission("event.admin")
     public static void onSendReserve(Player player, @Optional Event event) {
+        if(!player.hasPermission(PermissionEvent.BROADCAST_CLICKTORESERVE.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {

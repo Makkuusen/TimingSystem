@@ -3,7 +3,6 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
@@ -19,6 +18,7 @@ import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
+import me.makkuusen.timing.system.permissions.PermissionHeat;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
@@ -52,6 +52,10 @@ public class CommandHeat extends BaseCommand {
     @Default
     @Subcommand("list")
     public static void onHeats(Player player, @Optional Event event) {
+        if(!player.hasPermission(PermissionHeat.LIST.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -69,6 +73,11 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("info")
     @CommandCompletion("@heat")
     public static void onHeatInfo(Player player, Heat heat) {
+        if(!player.hasPermission(PermissionHeat.INFO.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         Theme theme = Database.getPlayer(player).getTheme();
         player.sendMessage(Component.empty());
         player.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(heat.getName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(heat.getHeatState().name()).append(Component.space()).append(theme.getBrackets(Text.get(player, TextButton.VIEW_EVENT), theme.getButton()).clickEvent(ClickEvent.runCommand("/event info " + heat.getEvent().getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent(player)))))));
@@ -158,9 +167,13 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("start")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatStart(Player player, Heat heat) {
+        if(!player.hasPermission(PermissionHeat.START.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         if (heat.startCountdown()) {
             Text.send(player, Success.HEAT_COUNTDOWN_STARTED);
             return;
@@ -169,9 +182,12 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("finish")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatFinish(Player player, Heat heat) {
+        if(!player.hasPermission(PermissionHeat.FINISH.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (heat.finishHeat()) {
             Text.send(player, Success.HEAT_FINISHED);
             return;
@@ -180,10 +196,12 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("load")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatLoad(Player player, Heat heat) {
-
+        if(!player.hasPermission(PermissionHeat.LOAD.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         var state = heat.getHeatState();
         if (state != HeatState.SETUP) {
             if (!heat.resetHeat()) {
@@ -204,9 +222,12 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("reset")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatReset(Player player, Heat heat) {
+        if(!player.hasPermission(PermissionHeat.RESET.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (heat.resetHeat()) {
             EventAnnouncements.broadcastReset(heat);
             Text.send(player, Success.HEAT_RESET);
@@ -216,9 +237,12 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("delete")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatRemove(Player player, Heat heat) {
+        if(!player.hasPermission(PermissionHeat.REMOVE.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (EventDatabase.removeHeat(heat)) {
             Text.send(player, Success.REMOVED_HEAT, "%heat%", heat.getName());
             return;
@@ -228,8 +252,11 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("create")
     @CommandCompletion("@round")
-    @CommandPermission("event.admin")
     public static void onHeatCreate(Player player, Round round, @Optional Event event) {
+        if(!player.hasPermission(PermissionHeat.CREATE.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
             if (maybeEvent.isPresent()) {
@@ -248,17 +275,24 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set laps")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <laps>")
     public static void onHeatSetLaps(Player player, Heat heat, Integer laps) {
+        if(!player.hasPermission(PermissionHeat.SET_LAPS.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         heat.setTotalLaps(laps);
         Text.send(player, Success.SAVED);
     }
 
     @Subcommand("set pits")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <pits>")
     public static void onHeatSetPits(Player player, Heat heat, Integer pits) {
+        if(!player.hasPermission(PermissionHeat.SET_PITS.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (heat.getRound() instanceof QualificationRound) {
             Text.send(player, Error.CAN_NOT);
         } else {
@@ -268,9 +302,12 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set startdelay")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <h/m/s>")
     public static void onHeatStartDelay(Player player, Heat heat, String startDelay) {
+        if(!player.hasPermission(PermissionHeat.SET_STARTDELAY.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         Integer delay = ApiUtilities.parseDurationToMillis(startDelay);
         if (delay == null) {
             Text.send(player, Error.TIME_FORMAT);
@@ -282,9 +319,12 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set timelimit")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <h/m/s>")
     public static void onHeatSetTime(Player player, Heat heat, String time) {
+        if(!player.hasPermission(PermissionHeat.SET_TIMELIMIT.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         Integer timeLimit = ApiUtilities.parseDurationToMillis(time);
         if (timeLimit == null) {
             Text.send(player, Error.TIME_FORMAT);
@@ -295,17 +335,23 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("set maxdrivers")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat <max>")
     public static void onHeatMaxDrivers(Player player, Heat heat, Integer maxDrivers) {
+        if(!player.hasPermission(PermissionHeat.SET_MAXDRIVERS.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         heat.setMaxDrivers(maxDrivers);
         Text.send(player, Success.SAVED);
     }
 
     @Subcommand("set driverposition")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat @players <[+/-]pos>")
     public static void onHeatSetDriverPosition(Player sender, Heat heat, String playerName, String position) {
+        if(!sender.hasPermission(PermissionHeat.SET_DRIVERPOSITION.getNode())) {
+            Text.send(sender, Error.PERMISSION_DENIED);
+            return;
+        }
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
@@ -364,6 +410,10 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("set reversegrid")
     @CommandCompletion("@heat <%>")
     public static void onReverseGrid(Player player, Heat heat, @Optional Integer percentage) {
+        if(!player.hasPermission(PermissionHeat.SET_REVERSEGRID.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (percentage == null) {
             percentage = 100;
         }
@@ -375,9 +425,12 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("add")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat @players ")
     public static void onHeatAddDriver(Player sender, Heat heat, String playerName) {
+        if(!sender.hasPermission(PermissionHeat.ADD_DRIVER.getNode())) {
+            Text.send(sender, Error.PERMISSION_DENIED);
+            return;
+        }
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
             Text.send(sender, Error.ADD_DRIVER_FUTURE_ROUND);
             return;
@@ -413,9 +466,12 @@ public class CommandHeat extends BaseCommand {
 
 
     @Subcommand("delete driver")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat @players")
     public static void onHeatRemoveDriver(Player sender, Heat heat, String playerName) {
+        if(!sender.hasPermission(PermissionHeat.REMOVEDRIVER.getNode())) {
+            Text.send(sender, Error.PERMISSION_DENIED);
+            return;
+        }
         TPlayer tPlayer = Database.getPlayer(playerName);
         if (tPlayer == null) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
@@ -469,6 +525,11 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("quit")
     public static void onHeatDriverQuit(Player player) {
+        if(!player.hasPermission(PermissionHeat.QUIT.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
+
         if (EventDatabase.getDriverFromRunningHeat(player.getUniqueId()).isEmpty()) {
             Text.send(player, Error.NOT_NOW);
             return;
@@ -503,9 +564,12 @@ public class CommandHeat extends BaseCommand {
 
 
     @Subcommand("add alldrivers")
-    @CommandPermission("event.admin")
     @CommandCompletion("@heat")
     public static void onHeatAddDrivers(Player sender, Heat heat) {
+        if(!sender.hasPermission(PermissionHeat.ADD_ALL.getNode())) {
+            Text.send(sender, Error.PERMISSION_DENIED);
+            return;
+        }
         if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
             Text.send(sender, Error.ADD_DRIVER_FUTURE_ROUND);
             return;
@@ -542,6 +606,10 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("results")
     @CommandCompletion("@heat @players")
     public static void onHeatResults(Player sender, Heat heat, @Optional String name) {
+        if(!sender.hasPermission(PermissionHeat.RESULTS.getNode())) {
+            Text.send(sender, Error.PERMISSION_DENIED);
+            return;
+        }
         Theme theme = Database.getPlayer(sender).getTheme();
 
         if (name != null) {
@@ -601,8 +669,11 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("sort tt")
     @CommandCompletion("@heat")
-    @CommandPermission("event.admin")
     public static void onSortByTT(Player player, Heat heat) {
+        if(!player.hasPermission(PermissionHeat.SORT_TT.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (heat.getHeatState() == HeatState.FINISHED) {
             Text.send(player, Error.NOT_NOW);
             return;
@@ -654,8 +725,11 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("sort random")
     @CommandCompletion("@heat")
-    @CommandPermission("event.admin")
     public static void onSortByRandom(Player player, Heat heat) {
+        if(!player.hasPermission(PermissionHeat.SORT_RANDOM.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
+            return;
+        }
         if (heat.getHeatState() == HeatState.FINISHED) {
             Text.send(player, Error.NOT_NOW);
             return;

@@ -3,13 +3,13 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -25,6 +25,11 @@ public class CommandBoat extends BaseCommand {
         @Default
         public static void onBoat(Player player) {
         if (isPlayerInBoat(player)) {
+            return;
+        }
+
+        if(!player.hasPermission(PermissionTimingSystem.BOAT.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
             return;
         }
 
@@ -55,11 +60,14 @@ public class CommandBoat extends BaseCommand {
     }
 
     @Subcommand("mode")
-    @CommandPermission("boat.admin")
     @CommandCompletion("@boatUtilsMode")
     public static void onBoatWithMode(Player player, BoatUtilsMode mode) {
-
         if (isPlayerInBoat(player)) {
+            return;
+        }
+
+        if(!player.hasPermission(PermissionTimingSystem.BOAT_MODE.getNode())) {
+            Text.send(player, Error.PERMISSION_DENIED);
             return;
         }
 
