@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.api;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Driver;
@@ -151,5 +152,17 @@ public class TimingSystemAPI {
 
         return getDriverDetailsFromHeat(heat, driver.get().getTPlayer().getUniqueId(), null);
 
+    }
+
+    public static List<Event> getEvents() {
+        return EventDatabase.getEvents().stream().toList();
+    }
+
+    public static List<Event> getActiveEvents() {
+        return EventDatabase.getEvents().stream().filter(Event::isActive).toList();
+    }
+
+    public static Optional<Event> getEvent(String name) {
+        return EventDatabase.getEvent(name);
     }
 }
