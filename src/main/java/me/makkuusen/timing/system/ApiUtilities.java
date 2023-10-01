@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import co.aikar.taskchain.TaskChain;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
@@ -9,47 +10,51 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
+import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
+import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
+import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.DyeColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ApiUtilities {
 
-    static TimingSystem plugin;
     private static final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-    private static final Pattern niceLocation = Pattern.compile("^\\(\\[([A-Za-z0-9_]+)\\]([\\-]{0,1}[0-9]+),[ ]{0,1}([\\-]{0,1}[0-9]+),[ ]{0,1}([\\-]{0,1}[0-9]+)\\)$");
+
 
     public static long getTimestamp() {
         return System.currentTimeMillis() / 1000L;
-    }
-
-    public static String concat(String[] arguments, int startIndex) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (int i = startIndex; i < arguments.length; i++) {
-            stringBuilder.append(" ");
-            stringBuilder.append(arguments[i]);
-        }
-
-        return stringBuilder.substring(1);
     }
 
     public static String locationToString(Location location) {
@@ -67,25 +72,6 @@ public class ApiUtilities {
 
         String[] split = string.split(" ");
         return new Location(Bukkit.getWorld(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Float.parseFloat(split[4]), Float.parseFloat(split[5]));
-    }
-
-    public static Location stringToBlockVector3(String string) {
-        if (string == null || string.length() == 0) {
-            return null;
-        }
-
-        String[] split = string.split(" ");
-        return new Location(Bukkit.getWorld(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Float.parseFloat(split[4]), Float.parseFloat(split[5]));
-    }
-
-    public static Location niceStringToLocation(String string) {
-        Matcher m = niceLocation.matcher(string);
-
-        if (!m.find()) {
-            return null;
-        }
-
-        return new Location(Bukkit.getWorld(m.group(1)), Double.parseDouble(m.group(2)), Double.parseDouble(m.group(3)), Double.parseDouble(m.group(4)));
     }
 
     public static String niceDate(long timestamp) {
@@ -180,44 +166,45 @@ public class ApiUtilities {
         return flagsNew.toString();
     }
 
-    private static boolean isValidFlag(char currentChar){
-        if (currentChar != 'b' && currentChar != 'c' && currentChar != 'g' && currentChar != 'e' && currentChar != 'p' && currentChar != 't' && currentChar != 's' && currentChar != 'u') {
-            return false;
-        }
-        return true;
+    private static boolean isValidFlag(char currentChar) {
+        return currentChar == 'b' || currentChar == 'c' || currentChar == 'g' || currentChar == 'e' || currentChar == 'p' || currentChar == 't' || currentChar == 's' || currentChar == 'u';
     }
 
-    public static Integer parseDurationToMillis(String input)
-    {
+    public static Integer parseDurationToMillis(String input) {
         long duration = 0;
         String tmp = "";
 
-        for (Character character : input.toCharArray())
-        {
-            if (character.toString().matches("[0-9]"))
-            {
+        for (Character character : input.toCharArray()) {
+            if (character.toString().matches("[0-9]")) {
                 tmp += character;
-            }
+            } else {
+                if (tmp.length() == 0) {
+                    return null;
+                }
 
-            else
-            {
-                if (tmp.length() == 0) { return null; }
-
-                if (character == 's') { duration += Integer.parseInt(tmp) * 1000; }
-                else if (character == 'm') { duration += Integer.parseInt(tmp) * 60 * 1000; }
-                else if (character == 'h') { duration += Integer.parseInt(tmp) * 3600 * 1000; }
-                else if (character == 'd') { duration += Integer.parseInt(tmp) * 86400 * 1000; }
-                else { return null; }
+                if (character == 's') {
+                    duration += Integer.parseInt(tmp) * 1000L;
+                } else if (character == 'm') {
+                    duration += (long) Integer.parseInt(tmp) * 60 * 1000;
+                } else if (character == 'h') {
+                    duration += (long) Integer.parseInt(tmp) * 3600 * 1000;
+                } else if (character == 'd') {
+                    duration += (long) Integer.parseInt(tmp) * 86400 * 1000;
+                } else {
+                    return null;
+                }
 
                 tmp = "";
             }
         }
 
         // default to milliseconds
-        if (tmp.length() != 0)
-        {
-            try { duration += Integer.parseInt(tmp); }
-            catch (Exception exception) { return null; }
+        if (tmp.length() != 0) {
+            try {
+                duration += Integer.parseInt(tmp);
+            } catch (Exception exception) {
+                return null;
+            }
         }
 
         return Integer.valueOf(String.valueOf(duration));
@@ -259,16 +246,8 @@ public class ApiUtilities {
         return yamlConfig.saveToString();
     }
 
-    public static void sendActionBar(String msg, Player player) {
-        player.sendActionBar(Component.text(msg));
-    }
-
     public static void msgConsole(String msg) {
         TimingSystem.getPlugin().logger.info(msg);
-    }
-
-    public static String color(String uncolored) {
-        return ChatColor.translateAlternateColorCodes('&', uncolored);
     }
 
     public static String formatAsTime(long time) {
@@ -277,14 +256,45 @@ public class ApiUtilities {
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String milis = String.format("%03d", (timeInMillis % 1000));
+        String millis = String.format("%03d", (timeInMillis % 1000));
 
         if (hours == 0 && minutes == 0) {
-            toReturn = String.format("%02d", seconds) + "." + milis;
+            toReturn = String.format("%02d", seconds) + "." + millis;
         } else if (hours == 0) {
-            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + milis;
+            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + millis;
         } else {
-            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
+        }
+        return toReturn;
+    }
+
+    public static String formatAsTimeNoRounding(long time) {
+        String toReturn;
+        long hours = TimeUnit.MILLISECONDS.toHours(time);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(time) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(time) % TimeUnit.MINUTES.toSeconds(1);
+        String millis = String.format("%03d", (time % 1000));
+
+        if (hours == 0 && minutes == 0) {
+            toReturn = String.format("%02d", seconds) + "." + millis;
+        } else if (hours == 0) {
+            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + millis;
+        } else {
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
+        }
+        return toReturn;
+    }
+
+    public static String formatAsTimeSpent(long time) {
+        String toReturn;
+        long timeInMillis = getRoundedToTick(time);
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+
+        if (hours == 0) {
+            toReturn = minutes + "m";
+        } else {
+            toReturn = hours + "h " + minutes + "m";
         }
         return toReturn;
     }
@@ -306,79 +316,74 @@ public class ApiUtilities {
         return toReturn;
     }
 
-    // Used by scoreboard and bossbar
     public static String formatAsRacingGap(long time) {
         String toReturn;
         long timeInMillis = getRoundedToTick(time);
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String milis = String.format("%02d", (timeInMillis % 1000) / 10);
+        String millis = String.format("%02d", (timeInMillis % 1000) / 10);
 
         if (hours == 0 && minutes == 0) {
-            toReturn = String.format("%02d", seconds) + "." + milis;
+            toReturn = String.format("%02d", seconds) + "." + millis;
         } else if (hours == 0) {
-            toReturn = String.format("%d:%02d", minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d", minutes, seconds) + "." + millis;
         } else {
-            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
         }
         return toReturn;
     }
 
-    public static String formatAsQualyGap(long time) {
+    public static String formatAsQualificationGap(long time) {
         String toReturn;
         long timeInMillis = getRoundedToTick(time);
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String milis = String.format("%02d", (timeInMillis % 1000) / 10);
+        String millis = String.format("%02d", (timeInMillis % 1000) / 10);
 
         if (hours == 0 && minutes == 0) {
-            toReturn = String.format("%02d", seconds) + "." + milis;
+            toReturn = String.format("%02d", seconds) + "." + millis;
         } else if (hours == 0) {
-            toReturn = String.format("%d:%02d", minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d", minutes, seconds) + "." + millis;
         } else {
-            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + milis;
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
         }
         return toReturn;
     }
-    public static Boat spawnBoat(Location location, Boat.Type type) {
+
+    public static String formatAsPersonalGap(long time) {
+        String toReturn;
+        long timeInMillis = getRoundedToTick(time);
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
+        String millis = String.format("%02d", (timeInMillis % 1000) / 10);
+
+        if (hours == 0 && minutes == 0) {
+            toReturn = String.format("%d", seconds) + "." + millis;
+        } else if (hours == 0) {
+            toReturn = String.format("%d:%02d", minutes, seconds) + "." + millis;
+        } else {
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
+        }
+        return toReturn;
+    }
+
+    public static Boat spawnBoat(Location location, Boat.Type type, boolean isChestBoat) {
         if (!location.isWorldLoaded()) {
             return null;
         }
-        Boat boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
-        boat.setMetadata("spawned", new FixedMetadataValue(TimingSystem.getPlugin(), null));
-        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-            boat.setBoatType(type);
-        }, 2);
+        Boat boat;
+        if (isChestBoat) {
+            boat = (Boat) location.getWorld().spawnEntity(location, EntityType.CHEST_BOAT);
+        } else {
+            boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
+        }
+        boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", TimingSystem.getPlugin())), PersistentDataType.INTEGER, 1);
+        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> boat.setBoatType(type), 2);
 
         return boat;
-    }
-
-    public static List<Location> getPositions(Player player) {
-        BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
-        LocalSession session = WorldEdit.getInstance().getSessionManager().get(bPlayer);
-        Region selection;
-        try {
-            selection = session.getSelection(bPlayer.getWorld());
-        } catch (IncompleteRegionException e) {
-            plugin.sendMessage(player, "messages.error.missing.selection");
-            return null;
-        }
-
-        if (selection instanceof CuboidRegion) {
-            List<Location> locations = new ArrayList<>();
-            BlockVector3 p1 = selection.getMinimumPoint();
-            locations.add(new Location(player.getWorld(), p1.getBlockX(), p1.getBlockY(), p1.getBlockZ()));
-            BlockVector3 p2 = selection.getMaximumPoint();
-            locations.add(new Location(player.getWorld(), p2.getBlockX(), p2.getBlockY(), p2.getBlockZ()));
-            return locations;
-        }  else if (selection instanceof Polygonal2DRegion) {
-            return null;
-        } else {
-            plugin.sendMessage(player, "messages.error.selectionException");
-            return null;
-        }
     }
 
     public static Optional<Region> getSelection(Player player) {
@@ -395,81 +400,80 @@ public class ApiUtilities {
         return new Location(world, v.getBlockX(), v.getBlockY(), v.getBlockZ());
     }
 
-    public static long getRoundedToTick(long mapTime){
-        if ( mapTime % 50 == 0) {
+    public static long getRoundedToTick(long mapTime) {
+        if (mapTime % 50 == 0) {
             return mapTime;
         } else {
             long mapTime2 = mapTime + 1;
             if (mapTime2 % 50 == 0) {
                 return mapTime2;
-            }
-            else {
+            } else {
                 long rest = mapTime % 50;
                 if (rest < 25) {
                     return mapTime - rest;
                 } else {
-                    mapTime = mapTime + (50-rest);
+                    mapTime = mapTime + (50 - rest);
                 }
             }
         }
         return mapTime;
     }
 
-    public static boolean isRegionMatching(TrackRegion trackRegion, Region selection){
+    public static boolean isRegionMatching(TrackRegion trackRegion, Region selection) {
         if (trackRegion instanceof TrackCuboidRegion && selection instanceof CuboidRegion) {
             return true;
-        } else if (trackRegion instanceof TrackPolyRegion && selection instanceof Polygonal2DRegion) {
-            return true;
-        }
-        return false;
+        } else return trackRegion instanceof TrackPolyRegion && selection instanceof Polygonal2DRegion;
     }
 
-    private static final List<String> rejectedWords = Arrays.asList("random", "r", "cancel", "c", "help", "verbose", "toggleSound");
-    public static boolean checkTrackName(String name){
-        for(String rejected : rejectedWords){
-            if(name.equalsIgnoreCase(rejected)){
+    private static final List<String> rejectedWords = Arrays.asList("random", "randomunfinished", "r", "cancel", "c", "help");
+
+    public static boolean checkTrackName(String name) {
+        for (String rejected : rejectedWords) {
+            if (name.equalsIgnoreCase(rejected)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static List<Material> getBoatMaterials(){
-        return List.of(
-                Material.BIRCH_BOAT,
-                Material.ACACIA_BOAT,
-                Material.DARK_OAK_BOAT,
-                Material.JUNGLE_BOAT,
-                Material.MANGROVE_BOAT,
-                Material.OAK_BOAT,
-                Material.SPRUCE_BOAT
-        );
+    public static List<Material> getBoatMaterials() {
+        return List.of(Material.BIRCH_BOAT, Material.BIRCH_CHEST_BOAT, Material.ACACIA_BOAT, Material.ACACIA_CHEST_BOAT, Material.DARK_OAK_BOAT, Material.DARK_OAK_CHEST_BOAT, Material.JUNGLE_BOAT, Material.JUNGLE_CHEST_BOAT, Material.MANGROVE_BOAT, Material.MANGROVE_CHEST_BOAT, Material.OAK_BOAT, Material.OAK_CHEST_BOAT, Material.SPRUCE_BOAT, Material.SPRUCE_CHEST_BOAT, Material.CHERRY_BOAT, Material.CHERRY_CHEST_BOAT, Material.BAMBOO_RAFT, Material.BAMBOO_CHEST_RAFT);
     }
 
-    public static Boat.Type getBoatType(Material material){
+    public static Boat.Type getBoatType(Material material) {
         switch (material) {
-            case ACACIA_BOAT -> {
+            case ACACIA_BOAT, ACACIA_CHEST_BOAT -> {
                 return Boat.Type.ACACIA;
             }
-            case BIRCH_BOAT -> {
+            case BIRCH_BOAT, BIRCH_CHEST_BOAT -> {
                 return Boat.Type.BIRCH;
             }
-            case DARK_OAK_BOAT -> {
+            case DARK_OAK_BOAT, DARK_OAK_CHEST_BOAT -> {
                 return Boat.Type.DARK_OAK;
             }
-            case SPRUCE_BOAT -> {
+            case SPRUCE_BOAT, SPRUCE_CHEST_BOAT -> {
                 return Boat.Type.SPRUCE;
             }
-            case JUNGLE_BOAT -> {
+            case JUNGLE_BOAT, JUNGLE_CHEST_BOAT -> {
                 return Boat.Type.JUNGLE;
             }
-            case MANGROVE_BOAT -> {
+            case MANGROVE_BOAT, MANGROVE_CHEST_BOAT -> {
                 return Boat.Type.MANGROVE;
+            }
+            case CHERRY_BOAT, CHERRY_CHEST_BOAT -> {
+                return Boat.Type.CHERRY;
+            }
+            case BAMBOO_RAFT, BAMBOO_CHEST_RAFT -> {
+                return Boat.Type.BAMBOO;
             }
             default -> {
                 return Boat.Type.OAK;
             }
         }
+    }
+
+    public static boolean isChestBoat(Material material) {
+        return material.name().contains("CHEST_BOAT") || material.name().contains("CHEST_RAFT") ;
     }
 
     public static String getHexFromDyeColor(Material dye) {
@@ -485,16 +489,224 @@ public class ApiUtilities {
         return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
     }
 
-    public static Boat spawnBoatAndAddPlayer(Player player, Location location) {
+    public static void spawnBoatAndAddPlayer(Player player, Location location) {
 
         BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
         Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
 
+        if (boatSpawnEvent.isCancelled()) {
+            return;
+        }
+
+        if (boatSpawnEvent.getBoat() != null) {
+            return;
+        }
+
+        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, true);
+
+        var tPlayer = Database.getPlayer(player.getUniqueId());
+        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
+        if (boat != null) {
+            boat.addPassenger(player);
+        }
+    }
+
+    public static Boat spawnBoatAndAddPlayerWithBoatUtils(Player player, Location location, Track track, boolean sameAsLastTrack) {
+
+        BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(player, location);
+        Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
+
+        if (boatSpawnEvent.isCancelled()) {
+            return null;
+        }
+
+        var mode = track.getBoatUtilsMode();
+        switch (mode) {
+            case RALLY -> {
+                ApiUtilities.giveBoatUtilsIEffect(player);
+                ApiUtilities.giveBoatUtilsREffect(player);
+            }
+            case BA -> {
+                ApiUtilities.giveBoatUtilsREffect(player);
+            }
+        }
+        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
+
+        var tPlayer = Database.getPlayer(player.getUniqueId());
+
         if (boatSpawnEvent.getBoat() != null) {
             return boatSpawnEvent.getBoat();
         }
-        Boat boat = ApiUtilities.spawnBoat(location, Database.getPlayer(player.getUniqueId()).getBoat());
-        boat.addPassenger(player);
+
+        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
+        if (boat != null) {
+            boat.addPassenger(player);
+        }
         return boat;
+    }
+
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location) {
+
+        TaskChain<?> chain = TimingSystem.newChain();
+        location.setPitch(player.getLocation().getPitch());
+        boolean sameAsLastTrack = TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId()) && TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()).getId() == track.getId();
+        TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
+        chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(3);
+        if (track.isBoatTrack()) {
+            chain.sync(() -> {
+                ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, sameAsLastTrack);
+            }).execute();
+        } else if (track.isElytraTrack()) {
+            chain.sync(() -> {
+                ItemStack chest = player.getInventory().getChestplate();
+                if (chest == null) {
+                    giveElytra(player);
+                } else if (chest.getItemMeta().hasCustomModelData() && chest.getType() == Material.ELYTRA && chest.getItemMeta().getCustomModelData() == 747) {
+                    giveElytra(player);
+                }
+            }).execute();
+        } else {
+            chain.execute();
+        }
+    }
+
+    private static void giveElytra(Player player) {
+        player.getInventory().setChestplate(new ItemBuilder(Material.ELYTRA).setCustomModelData(747).setName(Component.text("Disposable wings").color(NamedTextColor.RED)).build());
+        TimeTrialController.elytraProtection.put(player.getUniqueId(), Instant.now().getEpochSecond() + 10);
+    }
+
+    public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location, PlayerTeleportEvent.TeleportCause teleportCause) {
+        TaskChain<?> chain = TimingSystem.newChain();
+        location.setPitch(player.getLocation().getPitch());
+        TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
+        chain.async(() -> player.teleportAsync(location, teleportCause)).delay(3);
+        if (track.isBoatTrack()) {
+            chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, true)).execute();
+        } else if (track.isElytraTrack()) {
+            chain.sync(() -> {
+                ItemStack chest = player.getInventory().getChestplate();
+                if (chest == null) {
+                    giveElytra(player);
+                } else if (chest.getItemMeta().hasCustomModelData() && chest.getType() == Material.ELYTRA && chest.getItemMeta().getCustomModelData() == 747) {
+                    giveElytra(player);
+                }
+            }).execute();
+        } else {
+            chain.execute();
+        }
+    }
+
+    public static boolean hasBoatUtilsEffects(Player player) {
+        PotionEffect luckEffect = player.getPotionEffect(PotionEffectType.LUCK);
+        if (luckEffect != null) {
+            if (luckEffect.getAmplifier() == 55) {
+                return true;
+            }
+        }
+        PotionEffect unluckEffect = player.getPotionEffect(PotionEffectType.UNLUCK);
+        if (unluckEffect != null) {
+            return unluckEffect.getAmplifier() == 99;
+        }
+        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
+            return !(BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) == BoatUtilsMode.VANILLA);
+        }
+        return false;
+    }
+
+    public static boolean hasBoatUtilsREffect(Player player) {
+        PotionEffect unluckEffect = player.getPotionEffect(PotionEffectType.UNLUCK);
+        if (unluckEffect != null) {
+            return unluckEffect.getAmplifier() == 99;
+        }
+
+        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
+            var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
+            return mode == BoatUtilsMode.RALLY || mode == BoatUtilsMode.BA;
+        }
+        return false;
+    }
+
+    public static boolean hasBoatUtilsIEffect(Player player) {
+        PotionEffect luckEffect = player.getPotionEffect(PotionEffectType.LUCK);
+        if (luckEffect != null) {
+            return luckEffect.getAmplifier() == 55;
+        }
+
+        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
+            var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
+            return mode == BoatUtilsMode.RALLY;
+        }
+        return false;
+    }
+
+    public static void removeBoatUtilsEffects(Player player) {
+        player.removePotionEffect(PotionEffectType.UNLUCK);
+        player.removePotionEffect(PotionEffectType.LUCK);
+        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, false);
+    }
+
+    public static void giveBoatUtilsREffect(Player player) {
+        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK, 999999, 99, false, false);
+        player.addPotionEffect(unluckEffect);
+    }
+
+    public static void giveBoatUtilsIEffect(Player player) {
+        var luckEffect = new PotionEffect(PotionEffectType.LUCK, 999999, 55, false, false);
+        player.addPotionEffect(luckEffect);
+    }
+
+    public static void resetPlayerTimeTrial(Player player) {
+        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+        if (maybeDriver.isPresent()) {
+            if (maybeDriver.get().isRunning()) {
+                Text.send(player, Error.NOT_NOW);
+                return;
+            }
+        }
+        if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
+            var tt = TimeTrialController.timeTrials.get(player.getUniqueId());
+            Track track = tt.getTrack();
+            if (!track.getSpawnLocation().isWorldLoaded()) {
+                Text.send(player, Error.WORLD_NOT_LOADED);
+                return;
+            }
+            TimingSystemAPI.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
+            return;
+        }
+
+        if (TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
+            Track track = TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId());
+            if (!track.getSpawnLocation().isWorldLoaded()) {
+                Text.send(player, Error.WORLD_NOT_LOADED);
+                return;
+            }
+            TimingSystemAPI.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
+            return;
+        }
+        Text.send(player, Error.NOT_NOW);
+    }
+
+    public static String darkenHexColor(String hexColor, double darkenAmount) {
+        // Remove the '#' symbol and convert to RGB values
+        int r = Integer.parseInt(hexColor.substring(1, 3), 16);
+        int g = Integer.parseInt(hexColor.substring(3, 5), 16);
+        int b = Integer.parseInt(hexColor.substring(5, 7), 16);
+
+        // Darken each color component
+        r = (int) (r * (1 - darkenAmount));
+        g = (int) (g * (1 - darkenAmount));
+        b = (int) (b * (1 - darkenAmount));
+
+        // Ensure the color components are within the valid range (0-255)
+        r = Math.max(0, Math.min(255, r));
+        g = Math.max(0, Math.min(255, g));
+        b = Math.max(0, Math.min(255, b));
+
+        // Convert the darkened RGB values back to hex
+        return String.format("#%02X%02X%02X", r, g, b);
+    }
+
+    public static void leaveHeat() {
+
     }
 }

@@ -1,0 +1,335 @@
+Description: >
+  Special formatting codes:
+    &1 = primary color
+    &2 = secondary color
+    &e = error color
+    &s = success color
+    &w = warning color
+    &b = broadcast color
+    &a = award color
+    &c = award secondary color
+    &t = title color
+    &l = bold decoration
+    &o = italic decoration
+    &r = reset decoration and color
+    %example% = Placeholder, do not touch.
+
+error:
+  generic: '&eAda sesuatu yang salah.'
+  not_now: "&eAnda tidak bisa melakukan ini sekarang."
+  can_not: "&eAnda tidak bisa melakukan ini."
+  only_players: "&eHanya pemain yang bisa melakukan command ini"
+  world_not_loaded: "&eDunia belum dimuat."
+  syntax: "&eSyntax yang salah."
+  number_format: '&eValue tidak bisa diurai. Apakah value sebuah angka?'
+  time_format: "&eAnda perlu memformat waktu dengan benar, contoh: 2s [s=detik, m=menit]"
+  color_format: "&eColor tidak bisa diurai. Apakah hex code yang benar?"
+  length_exceeded: '&eNama tidak bisa lebih panjang dari %length% karakter.'
+  name_format: '&eNama hanya bisa memiliki huruf, spasi, atau angka.'
+  selection: '&eSeleksi World Edit anda tidak dapat digunakan.'
+  no_zero_index: "&eIndex tidak bisa 0."
+  nothing_to_remove: '&eTidak ada apa-apa untuk dihilangkan.'
+  nothing_to_restore: "&eTidak ada apa-apa untuk dipulihkan."
+  player_not_found: "&ePemain tidak ditemukan."
+  tracks_not_found: "&eTrack tidak ditemukan."
+  regions_not_found: "&Daerah tidak ditemukan."
+  page_not_found: "&eHalaman tidak ditemukan."
+  item_not_found: '&eAnda perlu memegang sesuatu di tangan.'
+  tag_not_found: "&eTag tidak ditemukan."
+  round_not_found: "&eRonde tidak ditemukan."
+  heat_not_found: "&eHeat tidak ditemukan."
+  event_not_found: "&eEvent tidak ditemukan."
+  track_not_found_for_event: "&eDalam event ini tidak ditemukan track. Coba lakukan /event set track <name>"
+  race_not_found: "&eBalapan tidak ditemukan. Buat satu dengan /race create"
+  track_is_closed: "&eTrack sedang ditutup."
+  track_exists: '&eTrack sudah ada.'
+  round_not_finished: "&eRonde masih belum selesai."
+  qualification_not_supported: "&eQualification tidak didukung dalam track ini."
+  event_already_started: "&eEvent sudah mulai."
+  heat_already_started: "&eHeat sudah mulai."
+  no_event_selected: "&eAnda belum ada event yang dipilih, pilih dengan /event select <nama>"
+  already_signed: "&eAnda sudah mendaftar untuk %event%."
+  already_signed_race: "&eAnda sudah mendaftar untuk balapan ini."
+  player_already_in_round: "&ePemain sudah didalam ronde ini."
+  failed_to_add_driver: "&ePembalap tidak bisa ditambahkan."
+  failed_to_teleport: "&eTeleportasi gagal."
+  failed_to_remove: "&eTidak bisa dihilangkan."
+  failed_to_remove_tag: "&eTag tidak bisa dihilangkan."
+  failed_to_remove_round: "&eRonde tidak bisa dihilangkan."
+  failed_to_remove_heat: "&eHeat tidak bisa dihilangkan."
+  failed_to_remove_drivers: "&ePembalap-pembalap tidak bisa dihilangkan."
+  failed_to_remove_event: "&eEvent tidak bisa dihilangkan, apakah masih ada heat yang belum selesai?"
+  failed_to_remove_driver: "&Pembalap tidak bisa dihilangkan."
+  failed_to_disqualify_driver: "&Pembalap tidak bisa didiskualifikasi."
+  failed_to_add_tag: "&eTag tidak bisa dibuat."
+  failed_to_create_tag: "&eTag tidak bisa dibuat."
+  failed_to_create_round: "&eRonde tidak bisa dibuat."
+  failed_to_create_heat: "&eHeat tidak bisa dibuat."
+  failed_to_create_event: "&eEvent tidak bisa dibuat."
+  failed_to_finish_round: "&eRonde tidak bisa selesai."
+  failed_to_finish_heat: "&eHeat tidak bisa selesai."
+  failed_to_finish_event: "&eEvent tidak bisa selesai."
+  failed_to_start_event: "&eEvent belum bisa mulai. Setup masih belum selesai."
+  failed_to_start_heat: "&eHeat tidak bisa mulai."
+  failed_to_load_heat: "&eHeat tidak bisa dimuat."
+  failed_to_reset_heat: "&eHeat tidak bisa diulang."
+  failed_to_abort_heat: "&eAnda tidak boleh membatalkan heat."
+  race_exists: '&eBalapan sudah ada.'
+  race_full: "&eBalapan sudah penuh."
+  heat_full: "&eHeat sudah penuh."
+  add_driver_future_round: "&eAnda tidak bisa menambahkan pembalap di ronde mendatang. Anda perlu menselesaikan ronde ini."
+  sort_drivers_future_round: "&eAnda tidak bisa memilah pembalap di ronde mendatang. Anda perlu menyeselaikan ronde ini."
+  invalid_track_type: '&eTipe track yang salah.'
+  invalid_track_name: '&eNama track yang salah.'
+  invalid_track_mode: '&eMode track yang salah.'
+  invalid_name: "&eNama yang salah."
+  left_boat: "&eTime trial anda dibatalkan karena anda keluar dari perahu anda."
+  race_in_progress: "&eSudah ada balapan di %track%."
+  no_hooking_others: "&eAnda tidak boleh memancing orang lain."
+  no_fishing_others: "&eAnda tidak boleh memancing orang lain."
+  no_elytra: "&eAnda tidak boleh menggunakan sayap dalam track ini."
+  stopped_flying: "&eTime trial anda dihentikan karena anda berhenti terbang."
+  no_potion_effects: "&eAnda tidak boleh memiliki efek dalam track ini."
+  no_riptide: "&eAnda tidak boleh mengunakan trisula dalam track ini."
+  no_soul_speed: "&eAnda tidak boleh mengunakan soul speed dalam track ini."
+  lag_detected: "&eTime trial anda dibatalkan karena lag."
+  missed_checkpoints: "&eTime trial tidak sah! Anda tidak melewati semua checkpoints"
+  permission_denied: "&eIzin ditolak!"
+
+warning:
+  dangerous_command: "&wCommand ini berbahaya, gunakan dengan risiko anda sendiri"
+  drivers_left_out: "&wPembalap yang keluar: "
+  no_longer_spectating: "&wAnda sudah tidak menonton %event%."
+  no_longer_signed: "&wAnda sudah tidak diregistrasi di %event%."
+  no_longer_reserve: "&wAnda sudah tidak diregistrasi sebagai cadangan di %event%."
+  player_no_longer_signed: "&w%player% sudah tidak diregistrasi di %event%."
+  player_no_longer_reserve: "&w%player% sudah tidak diregistrasi sebagai cadangan di %event%."
+  track_requires_boat_utils: "&wTrack ini memperlukan mod fabric BoatUtils, dapatkan BoatUtils dari discord frosthex"
+
+success:
+  saved: "&sValue telah disimpan."
+  created: '&sBarang anda telah dibuat.'
+  created_tag: "&sTag %tag% telah dibuat."
+  created_track: "&sTrack %track% telah dibuat."
+  created_round: "&sRonde %round% telah dibuat."
+  created_heat: "&sHeat telah dibuat untuk %round%."
+  created_event: "&sEvent %event% telah dibuat"
+  added_tag: "&sTag %tag% telah ditambahkan."
+  adding_drivers: "&sMenambahkan pembalap untuk %heat%."
+  added_driver: "&sPembalap dimasukkan."
+  added_all_drivers: "&sSemua pemain yang sedang online telah dimasukkan."
+  removed: '&sBarang anda telah dihapus.'
+  removed_best_finish: '&sWaktu terbaik %player% telah dihapuskan pada %track%.'
+  removed_all_finishes: "&sSemua waktu-waktu telah dihapuskan"
+  removed_tag: "&sTag telah dihapuskan."
+  removed_locations: "&sSemua %type% locations telah dihilangkan."
+  removed_regions: "&sSemua %type% regions telah dihilangkan."
+  removed_track: "&s%track% telah dihilangkan."
+  removed_round: "&s%round% telah dihilangkan."
+  removed_heat: "&s%heat% telah dihilangkan."
+  removed_event: "&s%event% telah dihilangkan."
+  removed_drivers: "&sPembalap-pembalap telah dihilangkan."
+  restored_locations: "&sLocations telah dipulihkan."
+  restored_regions: "&sRegions telah dipulihkan."
+  time_trial_cancelled: "&sTime trial dibatalkan."
+  track_now_open: "&sTrack sudah dibuka."
+  track_now_closed: "&sTrack sudah &editutup&s."
+  track_moved: "&sTrack dipindahkan dari %to% ke %from%"
+  track_options_cleared: '&sSemua pilihan telah dihapus.'
+  track_options_new: '&sPilihan sekarang adalah: %options%'
+  teleport_to_track: "&1Anda sekarang ada di &2%track%"
+  session_ended: "&sSesi anda telah selesai."
+  session_started: "&sSesi dimulai pada %track%"
+  checkpoints_announcements_on: '&sPengumuman checkpoint telah dinyalakan.'
+  checkpoints_announcements_off: '&sPengumuman checkpoint telah dimatikan.'
+  sound_on: "&sMenyalakan suara-suara."
+  sound_off: "&s&eMematikan&s suara-suara."
+  compact_scoreboard_on: "&sScoreboard kompak telah dinyalakan."
+  compact_scoreboard_off: "&sScoreboard kompak telah &edimatikan&s."
+  override_on: "&sOverride telah dinyalakan."
+  override_off: "&sOverride telah &edimatikan&s."
+  color_updated: "Warna anda telah diganti."
+  round_finished: "&sRonde sudah selesai."
+  event_finished: "&sEvent sudah selesai."
+  race_finished: "&sBalapan sudah selesai."
+  heat_finished: "&sHeat sudah selesai."
+  event_selected: "&sEvent dipilih."
+  track_selected: "&sTrack dipilih."
+  event_started: "&sEvent dimulai."
+  heat_countdown_started: "&sCountdown dimulai."
+  heat_loaded: "&sHeat dimuat."
+  heat_reset: "&sHeat diulang."
+  heat_reversed_grid: "&sMembalikkan %percent%% dari grid."
+  heat_aborted: "&sAnda telah keluar dari heat."
+  heat_sorted_by_time: "&sHeat telah diurutkan sesuai waktu."
+  heat_sorted_by_random: "&sHeat telah diurutkan secara acak."
+  signs_now_open: "&sPendaftaran telah dibuka."
+  signs_now_closed: "&sPendaftaran telah &editutup&s."
+  spectating: "&sAnda sedang menonton %event%."
+  signed: "&sAnda telah mendaftar untuk %event%."
+  reserve: "&sAnda telah mendaftar sebagai cadangan untuk %event%."
+  signed_race: "&sAnda telah mendaftar untuk balapan."
+  player_signed: "&s%player% telah mendaftar untuk %event%."
+  player_reserve: "&s%player% telah mendaftar sebagai cadangan untuk %event%."
+  driver_new_start_position: "&s%driver% akan mulai pada %pos%."
+  driver_disqualified: "&sPembalap telah didiskualifikasi."
+  driver_removed: "&sPembalap telah dikeluarkan."
+
+info:
+  page_current_of_max: "&1page &l&2%current% &r&1of &l&2%max%"
+  track_title: '&1--- &2Track: %name% (%id%) &1---'
+  track_times_title: "&1--- Times for &2%track% &1---"
+  player_best_times_title: "&1--- &2%player% &1best times on &2%track% &1---"
+  player_recent_times_title: "&1--- &1Waktu-waktu &2%player% &1---"
+  player_stats_title: "&1--- &2%player%&1 statistika untuk &2%track% &1---"
+  regions_title: "&1--- Regions untuk &2%track% &1---"
+  locations_title: "&1--- Locations untuk &2%track% &1---"
+  ranked_title: "&1--- Papan Peringkat ---"
+  rounds_title: "&1--- Ronde untuk &2%event% &1---"
+  heats_title: "&1--- Heat untuk &2%event% &1---"
+  round_result_title: "&1--- Hasil ronde untuk &2%round% &1---"
+  heat_result_title: "&1--- Hasil heat untuk &2%heat% &1---"
+  player_heat_result_title: "&1--- Hasil untuk &2%player% &1pada &2%heat% &1---"
+  player_heat_result_position: "&1Posisi: &2%pos%"
+  player_heat_result_start_position: "&1Posisi mulai: &2%pos%"
+  player_heat_result_fastest_lap: "&1Ronde tercepat: &2%time%"
+  event_info_track: "&1Track: "
+  event_info_signs: "&1Pendaftaran: "
+  event_info_signed_drivers: "&1Pembalap yang terdaftar: "
+  event_info_rounds: "&1Ronde: &2%total%"
+  event_info_round_final: "&1  Ronde %index% - Terakhir: "
+  event_info_round_qualification: "&1  Ronde %index% - Kualifikasi: "
+  heat_info_start_delay: "&1Mulai yang ditunda: "
+  heat_info_time_limit: "&1Batas waktu: "
+  heat_info_laps: "&1Ronde: "
+  heat_info_pits: "&1Pits: "
+  heat_info_max_drivers: "&1Pembalap maksimum: "
+  heat_info_drivers: "&1Pembalap-pembalap: "
+  heat_info_fastest_lap: "&1Ronde tercepat: &2%time% &1oleh &2%player%"
+  round_info_heats: "&1Heats:"
+  signs_title: "&1--- Pendaftaran untuk &2%event% &1---"
+  reserves_title: "&1--- Cadangan untuk &2%event% &1---"
+  active_events_title: "&1--- Event yang sedang dilaksanakan sekarang &1---"
+  track_type: '&1Type:&2 %type%'
+  track_open: '&1Dibuka: &2Tidak'
+  track_closed: '&1Dibuka: &2Tidak'
+  track_date_created: '&1Dibuat pada:&2 %date%&1 dimiliki oleh &2%owner%'
+  track_options: '&1Pengaturan: &2+%options%'
+  track_mode: '&1Mode: &2%mode%'
+  track_checkpoints: '&1Checkpoints:&2 %size%'
+  track_grids: '&1Grids:&2 %size%'
+  track_qualification_grids: '&1QualyGrids:&2 %size%'
+  track_reset_regions: '&1Reset regions:&2 %size%'
+  track_spawn_location: '&1Spawn:&2 %location%'
+  track_weight: "&1Weight:&2 %size%"
+  track_tags: "&1Tags: "
+  player_stats_best_lap: "&1Ronde tercepat: &2%time%"
+  player_stats_position: "&1Posisi: &2%pos%"
+  player_stats_finishes: "&1Finishes: &2%size%"
+  player_stats_attempts: "&1Attempts: &2%size%"
+  player_stats_time_spent: "&1Waktu main: &2%size%"
+  updating_leaderboards: '&1Mengubahkan Papan Peringkat.'
+  time_trial_first_finish: '&cWaktu Pertama Anda!&a Anda selesai &c%track%&a pada &c%time% &a(&c%pos%&a).'
+  time_trial_new_record: '&cWaktu Terbaik Anda!&a Anda selesai &c%track%&a pada &c%time% &s-%delta% &a(&c%oldPos%&a->&c%pos%&a).'
+  time_trial_finish: '&1Anda selesai &2%track%&1 pada &2%time% &e+%delta%'
+  time_trial_checkpoint: '&1Checkpoint %checkpoint% > &2%time%'
+  time_trial_lag_start: '&1Lagstart > &2%time%'
+  time_trial_lag_end: '&1Lagend > &2%time%'
+
+hover:
+  click_to_add: "Klik untuk menambahkan"
+  click_to_delete: "Klik untuk menghapuskan"
+  click_to_view: "Klik untuk melihat"
+  click_to_edit: "Klik untuk mengedit"
+  click_to_edit_position: "Klik untuk mengedit posisi"
+  click_to_open: "Klik untuk membuka"
+  click_to_close: "Klik untuk menutup"
+  click_to_finish: "Klik untuk selesai"
+  click_to_load: "Klik untuk memuat"
+  click_to_reset: "Klik untuk mengulang"
+  click_to_start: "Klik untuk memulai"
+  click_to_select: "Klik untuk memilih"
+
+word:
+  open: "Buka"
+  closed: "Tutup"
+  finish: "Selesai"
+  load: "Memuat"
+  reset: "Mengulang"
+  start: "Memulai"
+
+text_button:
+  add_heat: "Membuat heat"
+  add_round: "Membuat ronde"
+  view_event: "Melihat event"
+
+broadcast:
+  click_to_sign: "&b--> Klik untuk mendaftar untuk &l%event%&r&b <--"
+  click_to_reserve: "&b--> Klik untuk mendaftar sebagai cadangan untuk &l%event%&r&b <--"
+  click_to_join_race: "&b--> Klik untuk mengikuti balapan di &l%track%&r&b (%laps% laps) <--"
+  click_to_spectate_event: "&a--> Klik untuk menonton &l%event%&r&a <--"
+  player_signed_event: "&b%player% mendaftar."
+  player_reserve_event: "&b%player% mendaftar sebagai cadangan."
+  event_player_pit: '&2%player% &1menyelesaikan pit: &2&l%pit%'
+  event_player_finish: '&2%player% &1selesai &2&lP%position%&r&1 dalam &2%time%'
+  event_player_finish_basic: '&2%player% &1selesai.'
+  event_player_finished_lap: '&1Anda selesai ronde dalam: &2%time%'
+  event_player_fastest_lap: '&2%player% &1membuat ronde tercepat dengan &2%time%'
+  event_player_finished_qualification_lap: "&1%player% > &2%time%"
+  event_results: "&1Hasil akhir untuk &2%event%"
+  event_results_qualification: "&1Hasil kualifikasi untuk &2%event%"
+  heat_results: "&1Hasil untuk &2%heat%"
+  heat_result_row: "&1%pos%. &2%player%&1 - &2%laps% &1ronde dalam &2%time%"
+  heat_reset: "&eHeat diulang"
+  heat_finish_title_pos: "&aAnda selesai P%pos%"
+  heat_finish_title: "&aAnda selesai"
+
+actionbar:
+  race: '&1Lap: &2&l%laps%&1/&2%Ronde total%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits'
+  race_spectator: '&2%name% > &1Ronde: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits'
+
+gui:
+  settings_title: "&tAturan"
+  tracks_title: "&tTrack"
+  medals_title: "&tMedali"
+  filter_title: "&tFilter"
+  ranked_title: "&tRanked"
+  best_time: "&1Waktu terbaik anda: &2%time%"
+  position: "&1Posisi: &2%pos%"
+  total_finishes: "&1Semua penyelesaian: &2%total%"
+  total_attempts: "&1Semua upaya: &2%total%"
+  time_spent: "&1Waktu main: &2%time%"
+  created_by: "&1Dibuat oleh: &2%player%"
+  created_at: "&1Dibuat pada: &2%time%"
+  weight: "&1Weight: &2%weight%"
+  tags: "&1Tags: "
+  sorted_by_default: "&1Diurutkan sesuai: &2Default"
+  sorted_by_position: "&1Diurutkan sesuai: &2Position"
+  sorted_by_popularity: "&1Diurutkan sesuai: &2Popularity"
+  sorted_by_time_spent: "&1Diurutkan sesuai: &2Your time spent"
+  sorted_by_recently_added: "&1Diurutkan sesuai: &2Recently added"
+  filter_by_none: "&1Filter dengan: &2None"
+  filter_by: "&1Filter dengan:"
+  previous_page: "&1Halaman sebelumnya"
+  next_page: "&1Halaman setelahnya"
+  change_track_type: "&1Ubah tipe track"
+  change_boat_type: "&1Ubah tipe perahu"
+  change_team_color: "&1Ubah warna tim"
+  boat_tracks: "&1Track perahu"
+  elytra_tracks: "&1Track sayap"
+  parkour_tracks: "&1Track parkour"
+  toggle_sound: "&1Toggle: &2Suara"
+  toggle_verbose: "&1Toggle: &2Notifikasi Checkpoint"
+  toggle_time_trial: "&1Toggle: &2Time trial"
+  toggle_override: "&1Toggle: &2Override"
+  toggle_medals: "&1Toggle medali"
+  color: "Warna"
+  on: "&1On"
+  off: "&1Off"
+  return: "&1Balik"
+  reset: "&eUlangkan GUI"
+
+scoreboard:
+  finishes: "Finishes: "
+  average_time: "Waktu rata-rata: "
+  best_time: "Waktu terbaik: "

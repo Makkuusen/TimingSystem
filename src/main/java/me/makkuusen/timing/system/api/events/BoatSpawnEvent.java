@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
 public class BoatSpawnEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
-    private Player player;
-    private Location location;
+    private final Player player;
+    private final Location location;
+    private final boolean isPermitted = false;
     private Boat boat = null;
-    private boolean isPermitted = false;
     private boolean cancelled = false;
 
     public BoatSpawnEvent(Player player, Location location) {
@@ -22,29 +22,28 @@ public class BoatSpawnEvent extends Event implements Cancellable {
         this.location = location;
     }
 
-    public Player getPlayer(){
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
+    public Player getPlayer() {
         return player;
     }
 
-    public Location getLocation(){
+    public Location getLocation() {
         return location;
-    }
-
-    public void setBoat(Boat boat){
-        this.boat = boat;
     }
 
     public Boat getBoat() {
         return boat;
     }
 
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return handlers;
+    public void setBoat(Boat boat) {
+        this.boat = boat;
     }
 
-    public static HandlerList getHandlerList()
-    {
+    @Override
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 

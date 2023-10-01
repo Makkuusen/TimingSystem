@@ -18,7 +18,7 @@ import java.util.List;
 public class TrackPolyRegion extends TrackRegion {
     Polygonal2DRegion polygonal2DRegion;
 
-    public TrackPolyRegion(DbRow data, List<BlockVector2> points){
+    public TrackPolyRegion(DbRow data, List<BlockVector2> points) {
         super(data);
         setShape(RegionShape.POLY);
         polygonal2DRegion = new Polygonal2DRegion(BukkitAdapter.adapt(getSpawnLocation().getWorld()), points, getMinP().getBlockY(), getMaxP().getBlockY());
@@ -26,7 +26,7 @@ public class TrackPolyRegion extends TrackRegion {
 
     public boolean updateRegion(List<BlockVector2> points) {
         try {
-            DB.executeUpdateAsync("DELETE FROM `ts_points` WHERE `regionId` = " + getId() + ";");
+            DB.executeUpdate("DELETE FROM `ts_points` WHERE `regionId` = " + getId() + ";");
             for (BlockVector2 v : points) {
                 DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(" + getId() + ", " + v.getBlockX() + ", " + v.getBlockZ() + ");");
             }
@@ -46,5 +46,18 @@ public class TrackPolyRegion extends TrackRegion {
     @Override
     public boolean isDefined() {
         return true;
+    }
+
+    public boolean hasEqualBounds(TrackRegion other) {
+        if (other instanceof TrackPolyRegion trackPolyRegion) {
+            if (!other.getWorldName().equalsIgnoreCase(getWorldName())) {
+                return false;
+            }
+            if (!isDefined() || !other.isDefined()) {
+                return false;
+            }
+            return getMinP().equals(trackPolyRegion.getMinP()) && getMaxP().equals(trackPolyRegion.getMaxP());
+        }
+        return false;
     }
 }

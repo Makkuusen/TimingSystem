@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,33 +31,39 @@ public class LanguageManager {
     }
 
     private YamlConfiguration getOrLoadLocale(@NotNull String locale) {
+        String LANG_FOLDER = "lang/";
         YamlConfiguration loaded = locales.get(locale);
         if (loaded != null) {
             return loaded;
         }
 
-        InputStream resourceStream = plugin.getResource(locale + ".yml");
+        InputStream resourceStream = plugin.getResource(LANG_FOLDER + locale + ".yml");
         YamlConfiguration localeConfigDefaults;
         if (resourceStream == null) {
             localeConfigDefaults = new YamlConfiguration();
         } else {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceStream))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceStream, StandardCharsets.UTF_8))) {
                 localeConfigDefaults = YamlConfiguration.loadConfiguration(reader);
             } catch (IOException e) {
-                plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to load resource " + locale + ".yml", e);
+                plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to load resource " + LANG_FOLDER + locale + ".yml", e);
                 localeConfigDefaults = new YamlConfiguration();
             }
         }
 
-        File file = new File(plugin.getDataFolder(), locale + ".yml");
+        File file = new File(plugin.getDataFolder(), LANG_FOLDER + locale + ".yml");
         YamlConfiguration localeConfig;
-
+        localeConfig = localeConfigDefaults;
+        try {
+            localeConfigDefaults.save(file);
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + LANG_FOLDER + locale + ".yml", e);
+        }
+        /*
         if (!file.exists()) {
-            localeConfig = localeConfigDefaults;
             try {
                 localeConfigDefaults.save(file);
             } catch (IOException e) {
-                plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + locale + ".yml", e);
+                plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + LANG_FOLDER + locale + ".yml", e);
             }
         } else {
             localeConfig = YamlConfiguration.loadConfiguration(file);
@@ -81,10 +88,11 @@ public class LanguageManager {
                 try {
                     localeConfig.save(file);
                 } catch (IOException e) {
-                    plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + locale + ".yml", e);
+                    plugin.getLogger().log(Level.WARNING, "[LanguageManager] Unable to save resource " + LANG_FOLDER + locale + ".yml", e);
                 }
             }
         }
+        */
 
         if (!locale.equals(defaultLocale)) {
             localeConfigDefaults = locales.get(defaultLocale);
@@ -128,12 +136,41 @@ public class LanguageManager {
     }
 
     @Nullable
+    public String getNewValue(@NotNull String key, @Nullable String locale) {
+        String value = getOrLoadLocale(locale == null ? defaultLocale : locale.toLowerCase()).getString(key);
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+
+        return value;
+    }
+
+    @Nullable
     public String getValue(@NotNull String key, @Nullable String locale, @NotNull String... replacements) {
         if (replacements.length % 2 != 0) {
             plugin.getLogger().log(Level.WARNING, "[LanguageManager] Replacement data is uneven", new Exception());
         }
 
         String value = getValue(key, locale);
+
+        if (value == null) {
+            return null;
+        }
+
+        for (int i = 0; i < replacements.length; i += 2) {
+            value = value.replace(replacements[i], replacements[i + 1]);
+        }
+
+        return value;
+    }
+
+    @Nullable
+    public String getNewValue(@NotNull String key, @Nullable String locale, @NotNull String... replacements) {
+        if (replacements.length % 2 != 0) {
+            plugin.getLogger().log(Level.WARNING, "[LanguageManager] Replacement data is uneven", new Exception());
+        }
+
+        String value = getNewValue(key, locale);
 
         if (value == null) {
             return null;

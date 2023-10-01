@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.makkuusen.timing.system</groupId>
     <artifactId>TimingSystem</artifactId>
-    <version>1.0</version>
+    <version>1.9-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,12 +14,11 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
                 <includes>
                     <include>config.yml</include>
                     <include>plugin.yml</include>
-                    <include>en_us.yml</include>
-                    <include>sv_se.yml</include>
+                    <include>lang/*.yml</include>
                 </includes>
             </resource>
         </resources>
@@ -76,6 +75,34 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-files-on-build</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>C:\Users\Markus\Documents\Kakcraft\boatcraft_1.20\plugins</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/target/</directory>
+                                    <includes>
+                                        <include>TimingSystem-1.9-SNAPSHOT.jar</include>
+                                    </includes>
+                                    <!--<include>*.[MIME-TYPE]</include>-->
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -84,7 +111,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.19.2-R0.1-SNAPSHOT</version>
+            <version>1.20-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -92,6 +119,13 @@
             <groupId>me.filoghost.holographicdisplays</groupId>
             <artifactId>holographicdisplays-api</artifactId>
             <version>3.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.decentsoftware-eu</groupId>
+            <artifactId>decentholograms</artifactId>
+            <version>2.8.3</version>
             <scope>provided</scope>
         </dependency>
 
@@ -136,20 +170,41 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>dev.jcsoftware</groupId>
-            <artifactId>JScoreboards</artifactId>
-            <version>2.1.5-RELEASE</version>
-        </dependency>
-        <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>3.0.0</version>
             <scope>compile</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.megavexnetwork.scoreboard-library</groupId>
+            <artifactId>scoreboard-library-api</artifactId>
+            <version>daa32239b9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.megavexnetwork.scoreboard-library</groupId>
+            <artifactId>scoreboard-library-implementation</artifactId>
+            <version>daa32239b9</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.megavexnetwork.scoreboard-library</groupId>
+            <artifactId>scoreboard-library-modern</artifactId>
+            <version>daa32239b9</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.11.3</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <repositories>
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
         <repository>
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
@@ -166,9 +221,13 @@
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
-        <repository>
+        <!--<repository>
             <id>jordanosterberg-repo</id>
             <url>https://nexus-repo.jordanosterberg.com/repository/maven-releases/</url>
+        </repository>-->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 </project>

@@ -4,17 +4,16 @@ import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
 
 
-public class FinalHeat{
+public class FinalHeat {
 
-    public static boolean passLap(Driver driver){
+    public static boolean passLap(Driver driver) {
         if (driver.getHeat().getHeatState() != HeatState.RACING) {
             return false;
         }
 
-        if (driver.getHeat().getTotalLaps() <= driver.getLaps().size() && driver.getHeat().getTotalPits() <= driver.getPits())
-        {
+        if (driver.getHeat().getTotalLaps() <= driver.getLaps().size() && driver.getHeat().getTotalPits() <= driver.getPits()) {
             finishDriver(driver);
-            if (driver.getHeat().noDriversRunning()){
+            if (driver.getHeat().noDriversRunning()) {
                 driver.getHeat().finishHeat();
             }
             return true;
@@ -29,5 +28,10 @@ public class FinalHeat{
         EventAnnouncements.sendFinishSound(driver);
         EventAnnouncements.sendFinishTitle(driver);
         EventAnnouncements.broadcastFinish(driver.getHeat(), driver, driver.getFinishTime());
+
+        driver.getHeat().getEvent().getTrack().getFinishTpLocation(driver.getPosition()).ifPresentOrElse(
+                loc -> driver.getTPlayer().getPlayer().teleport(loc),
+                () -> driver.getHeat().getEvent().getTrack().getFinishTpLocation().ifPresent(loc -> driver.getTPlayer().getPlayer().teleport(loc))
+        );
     }
 }

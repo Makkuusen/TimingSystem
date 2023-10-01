@@ -1,8 +1,8 @@
 package me.makkuusen.timing.system.track;
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -16,12 +16,12 @@ import java.util.UUID;
 
 public class GridManager {
 
-    private HashMap<UUID, ArmorStand> armorStands = new HashMap<>();
+    private final HashMap<UUID, ArmorStand> armorStands = new HashMap<>();
 
     public GridManager() {
     }
 
-    public void teleportPlayerToGrid(Player player, Location location){
+    public void teleportPlayerToGrid(Player player, Location location, Track track) {
         location.setPitch(player.getLocation().getPitch());
         if (!location.isWorldLoaded()) {
             return;
@@ -38,7 +38,8 @@ public class GridManager {
         ar.setGravity(false);
         ar.setVisible(false);
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
-            Boat boat = ApiUtilities.spawnBoatAndAddPlayer(player, location);
+            TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
+            Boat boat = ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, false);
             ar.addPassenger(boat);
             armorStands.put(player.getUniqueId(), ar);
         }, 2);
@@ -51,7 +52,7 @@ public class GridManager {
         }
     }
 
-    public void clearArmorstands(){
+    public void clearArmorstands() {
         armorStands.values().stream().forEach(armorStand -> armorStand.remove());
     }
 }
