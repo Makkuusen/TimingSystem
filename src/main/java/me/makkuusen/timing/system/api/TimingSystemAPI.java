@@ -7,6 +7,7 @@ import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
@@ -164,5 +165,26 @@ public class TimingSystemAPI {
 
     public static Optional<Event> getEvent(String name) {
         return EventDatabase.getEvent(name);
+    }
+
+    public static List<Round> getRounds(Event event) {
+        return event.getEventSchedule().getRounds();
+    }
+
+    public static Optional<Round> getRound(Event event, String name) {
+        return event.getEventSchedule().getRound(name);
+    }
+
+    // index: base 1
+    public static Optional<Round> getRound(Event event, int index) {
+        return event.getEventSchedule().getRound(index);
+    }
+
+    public static List<Heat> getHeats(Round round) {
+        return round.getHeats();
+    }
+
+    public static Optional<Heat> getHeat(Round round, String name) {
+        return round.getHeat(name);
     }
 }
