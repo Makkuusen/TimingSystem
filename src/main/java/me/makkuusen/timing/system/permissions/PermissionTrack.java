@@ -1,5 +1,7 @@
 package me.makkuusen.timing.system.permissions;
 
+import co.aikar.commands.CommandReplacements;
+
 public enum PermissionTrack implements Permissions {
     MENU,
     MOVE,
@@ -51,5 +53,11 @@ public enum PermissionTrack implements Permissions {
 
     public static String getNodeBase() {
         return "timingsystem.track.";
+    }
+
+    public static void init(CommandReplacements replacements) {
+        for(PermissionTrack perm : values()) {
+            Permissions.register(perm, replacements);
+        }
     }
 }

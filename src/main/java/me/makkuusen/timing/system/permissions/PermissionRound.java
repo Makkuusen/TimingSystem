@@ -1,5 +1,7 @@
 package me.makkuusen.timing.system.permissions;
 
+import co.aikar.commands.CommandReplacements;
+
 public enum PermissionRound implements Permissions {
     INFO,
     LIST,
@@ -17,5 +19,11 @@ public enum PermissionRound implements Permissions {
 
     public static String getNodeBase() {
         return "timingsystem.round.";
+    }
+
+    public static void init(CommandReplacements replacements) {
+        for(PermissionRound perm : values()) {
+            Permissions.register(perm, replacements);
+        }
     }
 }
