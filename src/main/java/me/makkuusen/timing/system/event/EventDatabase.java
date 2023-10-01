@@ -40,6 +40,7 @@ public class EventDatabase {
     private static final HashMap<UUID, Driver> playerInRunningHeat = new HashMap<>();
     public static TimingSystem plugin;
 
+    private static boolean finishedLoading = false;
 
     public static void initDatabaseSynchronizeAsync() {
         TaskChain<?> chain = TimingSystem.newChain();
@@ -48,6 +49,7 @@ public class EventDatabase {
         chain.async(EventDatabase::initDatabaseSynchronize)
                 .execute((finished) -> {
                     EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::resetHeat);
+                    finishedLoading = true;
                     TimingSystem.getPlugin().getLogger().warning("Finished loading events");
                 });
     }
@@ -176,7 +178,7 @@ public class EventDatabase {
 
     static public Optional<Event> eventNew(UUID uuid, String name) {
         try {
-            if (getEvent(name).isPresent()) {
+            if (!finishedLoading || getEvent(name).isPresent()) {
                 return Optional.empty();
             }
             var eventId = DB.executeInsert("INSERT INTO `ts_events`(" +
