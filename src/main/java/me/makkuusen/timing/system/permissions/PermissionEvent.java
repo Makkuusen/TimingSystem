@@ -1,5 +1,7 @@
 package me.makkuusen.timing.system.permissions;
 
+import co.aikar.commands.CommandReplacements;
+
 public enum PermissionEvent implements Permissions {
     LIST,
     INFO,
@@ -25,5 +27,11 @@ public enum PermissionEvent implements Permissions {
 
     public static String getNodeBase() {
         return "timingsystem.event.";
+    }
+
+    public static void init(CommandReplacements replacements) {
+        for(PermissionEvent perm : values()) {
+            Permissions.register(perm, replacements);
+        }
     }
 }
