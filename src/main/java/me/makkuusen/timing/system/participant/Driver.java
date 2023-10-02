@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.api.events.driver.*;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.DriverScoreboard;
@@ -68,15 +69,24 @@ public class Driver extends Participant implements Comparable<Driver> {
         finishLap();
         setEndTime(TimingSystem.currentTime);
         state = DriverState.FINISHED;
+
+        DriverFinishHeatEvent e = new DriverFinishHeatEvent(this);
+        e.callEvent();
     }
 
     public void disqualify() {
         state = DriverState.FINISHED;
+
+        DriverDisqualifyEvent e = new DriverDisqualifyEvent(this);
+        e.callEvent();
     }
 
     public void start() {
         state = DriverState.RUNNING;
         newLap();
+
+        DriverStartEvent e = new DriverStartEvent(this);
+        e.callEvent();
     }
 
     public void passLap() {
@@ -89,6 +99,10 @@ public class Driver extends Participant implements Comparable<Driver> {
             setPits(pits + 1);
             EventAnnouncements.broadcastPit(getHeat(), this, pits);
             getCurrentLap().setPitted(true);
+
+            DriverPassPitEvent e = new DriverPassPitEvent(this, getCurrentLap(), pits);
+            e.callEvent();
+
             return true;
         }
         return false;
@@ -97,7 +111,8 @@ public class Driver extends Participant implements Comparable<Driver> {
     private void finishLap() {
         var oldBest = getBestLap();
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
-        if (heat.getFastestLapUUID() == null || getCurrentLap().getLapTime() < heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get().getLapTime() || getCurrentLap().equals(heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get())) {
+        boolean isFastestLap = heat.getFastestLapUUID() == null || getCurrentLap().getLapTime() < heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get().getLapTime() || getCurrentLap().equals(heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get());
+        if (isFastestLap) {
             EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap(), oldBest);
             heat.setFastestLapUUID(getTPlayer().getUniqueId());
         } else {
@@ -107,6 +122,10 @@ public class Driver extends Participant implements Comparable<Driver> {
                 EventAnnouncements.broadcastLapTime(heat, this, getCurrentLap().getLapTime());
             }
         }
+
+        DriverFinishLapEvent e = new DriverFinishLapEvent(this, getCurrentLap(), isFastestLap);
+        e.callEvent();
+
         ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLapTime()));
     }
 
@@ -147,6 +166,8 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     private void newLap() {
         laps.add(new Lap(this, heat.getEvent().getTrack()));
+        DriverNewLapEvent e = new DriverNewLapEvent(this, getCurrentLap());
+        e.callEvent();
     }
 
     public long getFinishTime() {
