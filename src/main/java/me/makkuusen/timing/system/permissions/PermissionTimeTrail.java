@@ -1,5 +1,7 @@
 package me.makkuusen.timing.system.permissions;
 
+import co.aikar.commands.CommandReplacements;
+
 public enum PermissionTimeTrail implements Permissions {
     MENU,
     CANCEL,
@@ -12,5 +14,11 @@ public enum PermissionTimeTrail implements Permissions {
 
     public static String getNodeBase() {
         return "timingsystem.timetrail.";
+    }
+
+    public static void init(CommandReplacements replacements) {
+        for(PermissionTimeTrail perm : values()) {
+            Permissions.register(perm, replacements);
+        }
     }
 }

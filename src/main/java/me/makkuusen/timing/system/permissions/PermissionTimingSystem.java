@@ -1,5 +1,7 @@
 package me.makkuusen.timing.system.permissions;
 
+import co.aikar.commands.CommandReplacements;
+
 public enum PermissionTimingSystem implements Permissions {
     RESET,
     BOAT,
@@ -23,5 +25,11 @@ public enum PermissionTimingSystem implements Permissions {
 
     public static String getNodeBase() {
         return "timingsystem.";
+    }
+
+    public static void init(CommandReplacements replacements) {
+        for(PermissionTimingSystem perm : values()) {
+            Permissions.register(perm, replacements);
+        }
     }
 }

@@ -3,9 +3,11 @@ package me.makkuusen.timing.system.api;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
@@ -151,5 +153,38 @@ public class TimingSystemAPI {
 
         return getDriverDetailsFromHeat(heat, driver.get().getTPlayer().getUniqueId(), null);
 
+    }
+
+    public static List<Event> getEvents() {
+        return EventDatabase.getEvents().stream().toList();
+    }
+
+    public static List<Event> getActiveEvents() {
+        return EventDatabase.getEvents().stream().filter(Event::isActive).toList();
+    }
+
+    public static Optional<Event> getEvent(String name) {
+        return EventDatabase.getEvent(name);
+    }
+
+    public static List<Round> getRounds(Event event) {
+        return event.getEventSchedule().getRounds();
+    }
+
+    public static Optional<Round> getRound(Event event, String name) {
+        return event.getEventSchedule().getRound(name);
+    }
+
+    // index: base 1
+    public static Optional<Round> getRound(Event event, int index) {
+        return event.getEventSchedule().getRound(index);
+    }
+
+    public static List<Heat> getHeats(Round round) {
+        return round.getHeats();
+    }
+
+    public static Optional<Heat> getHeat(Round round, String name) {
+        return round.getHeat(name);
     }
 }

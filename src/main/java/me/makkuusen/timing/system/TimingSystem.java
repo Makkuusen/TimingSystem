@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import co.aikar.commands.CommandReplacements;
 import co.aikar.commands.PaperCommandManager;
 import co.aikar.idb.DB;
 import co.aikar.taskchain.BukkitTaskChainFactory;
@@ -87,37 +88,15 @@ public class TimingSystem extends JavaPlugin {
         // enable brigadier integration for paper servers
         manager.enableUnstableAPI("brigadier");
 
-        for (PermissionTimingSystem perm : PermissionTimingSystem.values()) {
-            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
-        }
-
-        for (PermissionTrack perm : PermissionTrack.values()) {
-            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
-        }
-
-        for (PermissionTrackExchange perm : PermissionTrackExchange.values()) {
-            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
-        }
-
-        for (PermissionRace perm : PermissionRace.values()) {
-            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
-        }
-
-        for (PermissionEvent perm : PermissionEvent.values()) {
-            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
-        }
-
-        for (PermissionHeat perm : PermissionHeat.values()) {
-            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
-        }
-
-        for (PermissionTimeTrail perm : PermissionTimeTrail.values()) {
-            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
-        }
-
-        for (PermissionRound perm : PermissionRound.values()) {
-            manager.getCommandReplacements().addReplacement(perm.getDeclaringClass().getSimpleName().toLowerCase() + "_" + perm.toString().toLowerCase(), perm.getNode());
-        }
+        CommandReplacements cr = manager.getCommandReplacements();
+        PermissionTimingSystem.init(cr);
+        PermissionTrack.init(cr);
+        PermissionTimeTrail.init(cr);
+        PermissionRace.init(cr);
+        PermissionEvent.init(cr);
+        PermissionRound.init(cr);
+        PermissionHeat.init(cr);
+        PermissionTrackExchange.init(cr);
 
         manager.getCommandContexts().registerContext(
                 Event.class, EventDatabase.getEventContextResolver());

@@ -44,6 +44,8 @@ public class Tasks {
                 track.getRegions().forEach(trackRegion -> setParticles(player, trackRegion));
                 track.getTrackLocations(TrackLocation.Type.GRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_OFF));
                 track.getTrackLocations(TrackLocation.Type.QUALYGRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_ON));
+                track.getTrackLocations(TrackLocation.Type.FINISH_TP).forEach(location -> setParticles(player, location.getLocation(), Particle.HEART));
+                track.getTrackLocations(TrackLocation.Type.FINISH_TP_ALL).forEach(location -> setParticles(player, location.getLocation(), Particle.VILLAGER_ANGRY));
             }
         }, 0, 10);
     }
