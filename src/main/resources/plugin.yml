@@ -131,6 +131,7 @@ permissions:
       default: false
       children:
          timingsystem.packs.default: true
+         timingsystem.packs.create: true
          timingsystem.event.start: true
          timingsystem.event.finish: true
          timingsystem.event.set.track: true
@@ -166,3 +167,11 @@ permissions:
          timingsystem.packs.eventhoster: true
          timingsystem.packs.racehoster: true
          timingsystem.event.delete: true
+
+   timingsystem.packs.admin:
+      description: Player has access to most commands
+      default: op
+      children:
+         timingsystem.packs.eventadmin: true
+         timingsystem.packs.trackadmin: true
+
