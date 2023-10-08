@@ -11,11 +11,7 @@ public enum PermissionRace implements Permissions {
 
     @Override
     public String getNode() {
-        return getNodeBase() + this.toString().replace("_", ".").toLowerCase();
-    }
-
-    public static String getNodeBase() {
-        return "timingsystem.race.";
+        return "timingsystem.race." + this.toString().replace("_", ".").toLowerCase();
     }
 
     public static void init(CommandReplacements replacements) {

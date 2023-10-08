@@ -9,11 +9,7 @@ public enum PermissionTimeTrail implements Permissions {
 
     @Override
     public final String getNode() {
-        return getNodeBase() + this.toString().replace("_", ".").toLowerCase();
-    }
-
-    public static String getNodeBase() {
-        return "timingsystem.timetrail.";
+        return "timingsystem.timetrail." + this.toString().replace("_", ".").toLowerCase();
     }
 
     public static void init(CommandReplacements replacements) {

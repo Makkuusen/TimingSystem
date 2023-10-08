@@ -10,11 +10,7 @@ public enum PermissionTrackExchange implements Permissions {
 
     @Override
     public String getNode() {
-        return getNodeBase() + this.toString().replace("_", ".").toLowerCase();
-    }
-
-    public static String getNodeBase() {
-        return "timingsystem.trackexchange.";
+        return "timingsystem.trackexchange." + this.toString().replace("_", ".").toLowerCase();
     }
 
     public static void init(CommandReplacements replacements) {
