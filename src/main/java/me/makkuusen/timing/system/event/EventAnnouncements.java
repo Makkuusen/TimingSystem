@@ -76,7 +76,6 @@ public class EventAnnouncements {
     public static void broadcastQualifyingLap(Heat heat, Driver driver, Lap time, Optional<Lap> oldBest) {
         for (Participant p : heat.getParticipants()) {
             if (p.getTPlayer().getPlayer() == null) continue;
-            if(driver.getTPlayer() != p.getTPlayer()) continue;
             Player player = p.getTPlayer().getPlayer();
             Component delta = Component.empty();
             if (oldBest.isPresent()) {
