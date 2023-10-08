@@ -28,11 +28,7 @@ public enum PermissionHeat implements Permissions {
 
     @Override
     public String getNode() {
-        return getNodeBase() + this.toString().replace("_", ".").toLowerCase();
-    }
-
-    public static String getNodeBase() {
-        return "timingsystem.heat.";
+        return "timingsystem.heat." + this.toString().replace("_", ".").toLowerCase();
     }
 
     public static void init(CommandReplacements replacements) {

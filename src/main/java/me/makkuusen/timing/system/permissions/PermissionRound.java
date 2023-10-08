@@ -14,11 +14,7 @@ public enum PermissionRound implements Permissions {
 
     @Override
     public String getNode() {
-        return getNodeBase() + this.toString().replace("_", ".").toLowerCase();
-    }
-
-    public static String getNodeBase() {
-        return "timingsystem.round.";
+        return "timingsystem.round." + this.toString().replace("_", ".").toLowerCase();
     }
 
     public static void init(CommandReplacements replacements) {

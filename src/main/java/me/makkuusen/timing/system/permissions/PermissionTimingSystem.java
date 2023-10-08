@@ -20,11 +20,7 @@ public enum PermissionTimingSystem implements Permissions {
 
     @Override
     public String getNode() {
-        return getNodeBase() + this.toString().replace("_", ".").toLowerCase();
-    }
-
-    public static String getNodeBase() {
-        return "timingsystem.";
+        return "timingsystem." + this.toString().replace("_", ".").toLowerCase();
     }
 
     public static void init(CommandReplacements replacements) {

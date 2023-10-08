@@ -142,8 +142,8 @@ permissions:
          timingsystem.round.create: true
          timingsystem.round.delete: true
          timingsystem.round.finish: true
-         timingsystem.fillheats: true
-         timingsystem.removedrivers: true
+         timingsystem.round.fillheats: true
+         timingsystem.round.removedrivers: true
          timingsystem.heat.start: true
          timingsystem.heat.finish: true
          timingsystem.heat.load: true
