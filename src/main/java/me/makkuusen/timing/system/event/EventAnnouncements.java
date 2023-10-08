@@ -76,7 +76,6 @@ public class EventAnnouncements {
     public static void broadcastQualifyingLap(Heat heat, Driver driver, Lap time, Optional<Lap> oldBest) {
         for (Participant p : heat.getParticipants()) {
             if (p.getTPlayer().getPlayer() == null) continue;
-            if(driver.getTPlayer() != p.getTPlayer()) continue;
             Player player = p.getTPlayer().getPlayer();
             Component delta = Component.empty();
             if (oldBest.isPresent()) {
@@ -89,8 +88,7 @@ public class EventAnnouncements {
     public static void broadcastLapTime(Heat heat, Driver driver, long time) {
         if (driver.getTPlayer().getPlayer() == null) return;
         Text.send(driver.getTPlayer().getPlayer(), Broadcast.EVENT_PLAYER_FINISHED_LAP, "%time%", ApiUtilities.formatAsTime(time));
-        for(Participant p : heat.getParticipants().stream().filter(participant -> participant instanceof Spectator && participant.getTPlayer().isSendFinalLaps()).toList()) {
-            if(driver.getTPlayer() == p.getTPlayer()) continue;
+        for(Participant p : heat.getParticipants().stream().filter(participant -> participant.getTPlayer().getPlayer() != null && participant.getTPlayer() != driver.getTPlayer() && participant.getTPlayer().isSendFinalLaps()).toList()) {
             Text.send(p.getTPlayer().getPlayer(), Broadcast.EVENT_PLAYER_FINISHED_LAP_ANNOUNCE, "%player%", driver.getTPlayer().getName(), "%lap%", String.valueOf(driver.getLaps().size()), "%time%", ApiUtilities.formatAsTime(time));
         }
     }
