@@ -89,8 +89,7 @@ public class EventAnnouncements {
     public static void broadcastLapTime(Heat heat, Driver driver, long time) {
         if (driver.getTPlayer().getPlayer() == null) return;
         Text.send(driver.getTPlayer().getPlayer(), Broadcast.EVENT_PLAYER_FINISHED_LAP, "%time%", ApiUtilities.formatAsTime(time));
-        for(Participant p : heat.getParticipants().stream().filter(participant -> participant instanceof Spectator && participant.getTPlayer().isSendFinalLaps()).toList()) {
-            if(driver.getTPlayer() == p.getTPlayer()) continue;
+        for(Participant p : heat.getParticipants().stream().filter(participant -> participant.getTPlayer().getPlayer() != null && participant.getTPlayer() != driver.getTPlayer() && participant.getTPlayer().isSendFinalLaps()).toList()) {
             Text.send(p.getTPlayer().getPlayer(), Broadcast.EVENT_PLAYER_FINISHED_LAP_ANNOUNCE, "%player%", driver.getTPlayer().getName(), "%lap%", String.valueOf(driver.getLaps().size()), "%time%", ApiUtilities.formatAsTime(time));
         }
     }
