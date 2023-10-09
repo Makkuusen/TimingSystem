@@ -137,8 +137,8 @@ permissions:
          timingsystem.event.set.track: true
          timingsystem.event.set.signs: true
          timingsystem.event.signothers: true
-         timingsystem.event.clicktosign: true
-         timingsystem.event.clicktoreserve: true
+         timingsystem.event.broadcast.clicktosign: true
+         timingsystem.event.broadcast.clicktoreserve: true
          timingsystem.round.create: true
          timingsystem.round.delete: true
          timingsystem.round.finish: true
