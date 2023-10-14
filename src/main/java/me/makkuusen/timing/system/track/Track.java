@@ -374,7 +374,8 @@ public class Track {
     }
 
     public Optional<Location> getFinishTpLocation() {
-        return Optional.ofNullable(trackLocations.stream().filter(l -> l.getLocationType() == TrackLocation.Type.FINISH_TP_ALL).toList().get(0).getLocation());
+        if(trackLocations.stream().noneMatch(l -> l.getLocationType() == TrackLocation.Type.FINISH_TP_ALL)) return Optional.empty();
+        return Optional.of(trackLocations.stream().filter(l -> l.getLocationType() == TrackLocation.Type.FINISH_TP_ALL).toList().get(0).getLocation());
     }
 
     public Optional<Location> getFinishTpLocation(int pos) {
