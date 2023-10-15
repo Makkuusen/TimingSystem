@@ -41,11 +41,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class ApiUtilities {
@@ -708,5 +704,39 @@ public class ApiUtilities {
 
     public static void leaveHeat() {
 
+    }
+
+    public static List<UUID> extractUUIDsFromString(String s) {
+        List<UUID> result = new ArrayList<>();
+
+        for(String split : s.split(",")) {
+            result.add(UUID.fromString(split));
+        }
+
+        return result;
+    }
+
+    public static String uuidListToString(List<UUID> uuids) {
+        if(uuids.isEmpty()) return "";
+
+        StringBuilder sb = new StringBuilder(uuids.get(0).toString());
+        uuids.subList(1, uuids.size());
+
+        uuids.forEach(uuid -> sb.append(",").append(uuid));
+
+        return sb.toString();
+    }
+
+    public static List<TPlayer> tPlayersFromUUIDList(List<UUID> uuids) {
+        if(uuids.isEmpty()) return new ArrayList<>();
+        List<TPlayer> result = new ArrayList<>();
+        uuids.forEach(uuid -> result.add(Database.getPlayer(uuid)));
+        return result;
+    }
+
+    public static List<UUID> uuidListFromTPlayersList(List<TPlayer> tPlayers) {
+        List<UUID> uuids = new ArrayList<>();
+        tPlayers.forEach(tPlayer -> uuids.add(tPlayer.getUniqueId()));
+        return uuids;
     }
 }

@@ -43,6 +43,7 @@ public class Track {
     private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
     private List<TPlayer> cachedPositions = new ArrayList<>();
     private TPlayer owner;
+    private List<TPlayer> contributors;
     private String displayName;
     private String commandName;
     private ItemStack guiItem;
@@ -60,6 +61,7 @@ public class Track {
     public Track(DbRow data) {
         id = data.getInt("id");
         owner = data.getString("uuid") == null ? null : Database.getPlayer(UUID.fromString(data.getString("uuid")));
+        contributors = data.getString("contributors") == null ? new ArrayList<>() : ApiUtilities.tPlayersFromUUIDList(ApiUtilities.extractUUIDsFromString(data.getString("contributors")));
         displayName = data.getString("name");
         commandName = displayName.replaceAll(" ", "");
         dateCreated = data.getInt("dateCreated");
@@ -124,6 +126,7 @@ public class Track {
         loreToSet.add(Text.get(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer) + getPlayerTotalAttempts(tPlayer))));
         loreToSet.add(Text.get(tPlayer, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(getPlayerTotalTimeSpent(tPlayer))));
         loreToSet.add(Text.get(tPlayer, Gui.CREATED_BY, "%player%", getOwner().getName()));
+        if(!getContributorsAsString().isBlank()) loreToSet.add(Text.get(tPlayer, Gui.CONTRIBUTORS, "%contributors%", getContributorsAsString()));
 
         Component tags = Component.empty();
         boolean notFirst = false;
@@ -614,6 +617,25 @@ public class Track {
         this.options = options.toCharArray();
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `options` = " + Database.sqlString(options) + " WHERE `id` = " + id + ";");
 
+    }
+
+    public void addContributor(TPlayer tPlayer) {
+        if(contributors.contains(tPlayer)) return;
+        contributors.add(tPlayer);
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors))) + " WHERE `id` = " + id + ";");
+    }
+
+    public void removeContributor(TPlayer tPlayer) {
+        contributors.remove(tPlayer);
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors))) + " WHERE `id` = " + id + ";");
+    }
+
+    public String getContributorsAsString() {
+        if(contributors.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder(contributors.get(0).getName());
+        List<TPlayer> rest = List.copyOf(contributors).subList(1, contributors.size());
+        rest.forEach(tp -> sb.append(", ").append(tp.getName()));
+        return sb.toString();
     }
 
     public boolean hasOption(char needle) {

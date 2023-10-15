@@ -469,6 +469,7 @@ public class Database {
     private static void v1_9Update() {
         try {
             DB.executeUpdate("ALTER TABLE `ts_players` ADD `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0' AFTER `toggleSound`;");
+            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `contributors` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `uuid`;");
         } catch (Exception exception) {
             exception.printStackTrace();
         }

@@ -811,6 +811,32 @@ public class CommandTrack extends BaseCommand {
             Text.send(commandSender, Success.SAVED);
         }
 
+        @Subcommand("contributors add")
+        @CommandCompletion("@track <player>")
+        @CommandPermission("%permissiontrack_set_contributors")
+        public static void onAddContributor(CommandSender sender, Track track, String name) {
+            TPlayer tPlayer = Database.getPlayer(name);
+            if(tPlayer == null) {
+                Text.send(sender, Error.PLAYER_NOT_FOUND);
+                return;
+            }
+            track.addContributor(tPlayer);
+            Text.send(sender, Success.SAVED);
+        }
+
+        @Subcommand("contributors remove")
+        @CommandCompletion("@track <player>")
+        @CommandPermission("%permissiontrack_set_contributors")
+        public static void onRemoveContributor(CommandSender sender, Track track, String name) {
+            TPlayer tPlayer = Database.getPlayer(name);
+            if(tPlayer == null) {
+                Text.send(sender, Error.PLAYER_NOT_FOUND);
+                return;
+            }
+            track.removeContributor(tPlayer);
+            Text.send(sender, Success.SAVED);
+        }
+
         @Subcommand("startregion")
         @CommandCompletion("@track <index>")
         @CommandPermission("%permissiontrack_set_region_start")

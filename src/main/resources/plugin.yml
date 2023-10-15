@@ -117,6 +117,7 @@ permissions:
          timingsystem.track.set.tag: true
          timingsystem.track.set.type: true
          timingsystem.track.set.owner: true
+         timingsystem.track.set.contributors: true
 
    timingsystem.packs.racehoster:
       description: Player has the tools to host quick races

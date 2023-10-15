@@ -13,6 +13,7 @@ public enum Gui implements Message {
     TOTAL_ATTEMPTS,
     TIME_SPENT,
     CREATED_BY,
+    CONTRIBUTORS,
     CREATED_AT,
     WEIGHT,
     TAGS,

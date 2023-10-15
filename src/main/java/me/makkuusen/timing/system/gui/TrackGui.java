@@ -52,6 +52,7 @@ public class TrackGui extends TrackPageGui {
         loreToSet.add(Text.get(player, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(track.getTotalFinishes() + track.getTotalAttempts())));
         loreToSet.add(Text.get(player, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
         loreToSet.add(Text.get(player, Gui.CREATED_BY, "%player%", track.getOwner().getName()));
+        if(!track.getContributorsAsString().isBlank()) loreToSet.add(Text.get(player, Gui.CONTRIBUTORS, "%contributors%", track.getContributorsAsString()));
         loreToSet.add(Text.get(player, Gui.CREATED_AT, "%time%", ApiUtilities.niceDate(track.getDateCreated())));
         loreToSet.add(Text.get(player, Gui.WEIGHT, "%weight%", String.valueOf(track.getWeight())));
 
