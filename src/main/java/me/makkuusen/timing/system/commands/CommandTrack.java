@@ -255,16 +255,6 @@ public class CommandTrack extends BaseCommand {
         Text.send(commandSender, Info.PLAYER_STATS_TIME_SPENT, "%size%", ApiUtilities.formatAsTimeSpent(track.getPlayerTotalTimeSpent(tPlayer)));
     }
 
-    private static String getTrackOwners(Track track) {
-        StringBuilder sb = new StringBuilder(track.getOwners().get(0).getName());
-        for(TPlayer owner : track.getOwners()) {
-            if(owner == track.getOwners().get(0)) continue;
-            sb.append(", ").append(owner.getName());
-        }
-
-        return sb.toString();
-    }
-
     private static void sendTrackInfo(CommandSender commandSender, Track track) {
         commandSender.sendMessage(Component.empty());
         Text.send(commandSender, Info.TRACK_TITLE, "%name%", track.getDisplayName(), "%id%", String.valueOf(track.getId()));
@@ -274,7 +264,7 @@ public class CommandTrack extends BaseCommand {
             Text.send(commandSender, Info.TRACK_CLOSED);
         }
         Text.send(commandSender, Info.TRACK_TYPE, "%type%", track.getTypeAsString());
-        Text.send(commandSender, Info.TRACK_DATE_CREATED, "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", getTrackOwners(track));
+        Text.send(commandSender, Info.TRACK_DATE_CREATED, "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
         Text.send(commandSender, Info.TRACK_OPTIONS, "%options%", ApiUtilities.formatPermissions(track.getOptions()));
         Text.send(commandSender, Info.TRACK_MODE, "%mode%", track.getModeAsString());
         Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", track.getBoatUtilsMode().name());
@@ -808,7 +798,7 @@ public class CommandTrack extends BaseCommand {
             Text.send(player, Success.SAVED);
         }
 
-        @Subcommand("addowner")
+        @Subcommand("owner")
         @CommandCompletion("@track <player>")
         @CommandPermission("%permissiontrack_set_owner")
         public static void onAddOwner(CommandSender commandSender, Track track, String name) {
@@ -817,25 +807,7 @@ public class CommandTrack extends BaseCommand {
                 Text.send(commandSender, Error.PLAYER_NOT_FOUND);
                 return;
             }
-            track.getOwners().add(TPlayer);
-            track.setOwners(track.getOwners());
-            Text.send(commandSender, Success.SAVED);
-        }
-
-        @Subcommand("removeowner")
-        @CommandCompletion("@track <player>")
-        @CommandPermission("%permissiontrack_set_owner")
-        public static void onRemoveOwner(CommandSender commandSender, Track track, String name) {
-            TPlayer TPlayer = Database.getPlayer(name);
-            if (TPlayer == null) {
-                Text.send(commandSender, Error.PLAYER_NOT_FOUND);
-                return;
-            }
-            if(track.getOwners().size() == 1) {
-                Text.send(commandSender, Error.NOT_NOW);
-                return;
-            }
-            track.getOwners().remove(TPlayer);
+            track.setOwner(TPlayer);
             Text.send(commandSender, Success.SAVED);
         }
 
