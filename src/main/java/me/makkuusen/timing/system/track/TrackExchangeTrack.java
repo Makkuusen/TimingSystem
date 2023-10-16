@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.track;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.*;
 import com.sk89q.worldedit.math.BlockVector2;
+import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
@@ -28,9 +29,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+@Getter
 public class TrackExchangeTrack {
-    public static final String CURRENT_VERSION = "1.9";
-    public static final String PATH = TimingSystem.getPlugin().getDataFolder() + File.separator + "tracks" + File.separator;
+    private static final String CURRENT_VERSION = "1.9";
+    private static final String PATH = TimingSystem.getPlugin().getDataFolder() + File.separator + "tracks" + File.separator;
 
     private String version;
     private String name;
@@ -83,18 +85,7 @@ public class TrackExchangeTrack {
      * For new track from imported file.
      */
     public TrackExchangeTrack() {
-        version = null;
-        name = null;
-        ownerUUIDs = null;
-        dateCreated = null;
-        guiItem = null;
-        spawnLocation = null;
-        trackType = null;
-        trackMode = null;
-        boatUtilsMode = null;
-        weight = null;
-        options = null;
-        totalTimeSpent = null;
+        this(null);
     }
 
     /**
@@ -270,22 +261,6 @@ public class TrackExchangeTrack {
         trackSchematicFile.delete();
 
         return this;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public Clipboard getClipboard() {
-        return clipboard;
-    }
-
-    public Vector getClipboardOffset() {
-        return clipboardOffset;
-    }
-
-    public Track getTrack() {
-        return track;
     }
 
     public static Vector getOffset(Location from, Location to) {
