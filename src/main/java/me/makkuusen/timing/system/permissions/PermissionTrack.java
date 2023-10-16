@@ -30,6 +30,7 @@ public enum PermissionTrack implements Permissions {
     SET_TYPE,
     SET_MODE,
     SET_BOATUTILSMODE,
+    SET_CONTRIBUTORS,
     SET_NAME,
     SET_ITEM,
     SET_OWNER,

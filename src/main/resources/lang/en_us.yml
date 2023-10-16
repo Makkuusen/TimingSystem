@@ -305,6 +305,7 @@ gui:
   total_attempts: "&1Total attempts: &2%total%"
   time_spent: "&1Time spent: &2%time%"
   created_by: "&1Created by: &2%player%"
+  contributors: "&1Contributors: &2%contributors%"
   created_at: "&1Created at: &2%time%"
   weight: "&1Weight: &2%weight%"
   tags: "&1Tags: "

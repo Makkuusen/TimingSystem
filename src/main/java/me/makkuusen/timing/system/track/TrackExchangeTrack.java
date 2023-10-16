@@ -34,7 +34,7 @@ public class TrackExchangeTrack {
 
     private String version;
     private String name;
-    private String ownerUUIDs;
+    private String ownerUUID;
     private Long dateCreated;
     private String guiItem;
     private String spawnLocation;
@@ -57,12 +57,7 @@ public class TrackExchangeTrack {
     public TrackExchangeTrack(@NotNull Track track, @Nullable Clipboard clipboard) {
         version = CURRENT_VERSION;
         name = track.getDisplayName();
-        StringBuilder sb = new StringBuilder(track.getOwners().get(0).getUniqueId().toString());
-        for(TPlayer tp : track.getOwners()) {
-            if(tp == track.getOwners().get(0)) continue;
-            sb.append(",").append(tp.getUniqueId());
-        }
-        ownerUUIDs = sb.toString();
+        ownerUUID = track.getOwner().getUniqueId().toString();
         dateCreated = track.getDateCreated();
         guiItem = ApiUtilities.itemToString(track.getGuiItem());
         spawnLocation = ApiUtilities.locationToString(track.getSpawnLocation());
@@ -83,18 +78,7 @@ public class TrackExchangeTrack {
      * For new track from imported file.
      */
     public TrackExchangeTrack() {
-        version = null;
-        name = null;
-        ownerUUIDs = null;
-        dateCreated = null;
-        guiItem = null;
-        spawnLocation = null;
-        trackType = null;
-        trackMode = null;
-        boatUtilsMode = null;
-        weight = null;
-        options = null;
-        totalTimeSpent = null;
+        this(null);
     }
 
     /**
@@ -103,7 +87,7 @@ public class TrackExchangeTrack {
     public TrackExchangeTrack(String newTrackName) {
         version = null;
         name = newTrackName;
-        ownerUUIDs = null;
+        ownerUUID = null;
         dateCreated = null;
         guiItem = null;
         spawnLocation = null;
@@ -132,7 +116,7 @@ public class TrackExchangeTrack {
             JSONObject main = new JSONObject();
             main.put("version", version);
             main.put("name", name);
-            main.put("ownerUUID", ownerUUIDs);
+            main.put("ownerUUID", ownerUUID);
             main.put("dateCreated", dateCreated);
             main.put("guiItem", guiItem);
             main.put("spawnLocation", spawnLocation);
@@ -228,7 +212,7 @@ public class TrackExchangeTrack {
             JSONObject main = (JSONObject) new JSONParser().parse(reader);
             version = (String) main.get("version");
             if(name == null) name = (String) main.get("name");
-            ownerUUIDs = (String) main.get("ownerUUID");
+            ownerUUID = (String) main.get("ownerUUID");
             dateCreated = (Long) main.get("dateCreated");
             guiItem = (String) main.get("guiItem");
             spawnLocation = (String) main.get("spawnLocation");
@@ -253,7 +237,7 @@ public class TrackExchangeTrack {
             JSONObject clipOff = (JSONObject) main.get("clipOffset");
             clipboardOffset = new Vector(Double.parseDouble(String.valueOf(clipOff.get("x"))), Double.parseDouble(String.valueOf(clipOff.get("y"))), Double.parseDouble(String.valueOf(clipOff.get("z"))));
 
-            this.track = TrackDatabase.trackNewFromTrackExchange(name, ownerUUIDs, dateCreated, newSpawnLocation, Track.TrackType.valueOf(trackType), Track.TrackMode.valueOf(trackMode), ApiUtilities.stringToItem(guiItem), weight, (JSONObject) main.get("trackRegions"), (JSONObject) main.get("trackLocations"), BoatUtilsMode.valueOf(boatUtilsMode), offset);
+            this.track = TrackDatabase.trackNewFromTrackExchange(name, UUID.fromString(ownerUUID), dateCreated, newSpawnLocation, Track.TrackType.valueOf(trackType), Track.TrackMode.valueOf(trackMode), ApiUtilities.stringToItem(guiItem), weight, (JSONObject) main.get("trackRegions"), (JSONObject) main.get("trackLocations"), BoatUtilsMode.valueOf(boatUtilsMode), offset);
         } catch (IOException | ParseException e) {
             Text.send(player, Error.GENERIC);
             e.printStackTrace();

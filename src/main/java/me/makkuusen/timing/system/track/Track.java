@@ -42,7 +42,8 @@ public class Track {
     private final Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
     private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
     private List<TPlayer> cachedPositions = new ArrayList<>();
-    private List<TPlayer> owners = new ArrayList<>();
+    private TPlayer owner;
+    private List<TPlayer> contributors;
     private String displayName;
     private String commandName;
     private ItemStack guiItem;
@@ -59,7 +60,8 @@ public class Track {
 
     public Track(DbRow data) {
         id = data.getInt("id");
-        if(data.getString("uuid") != null) Arrays.stream(data.getString("uuid").split(",")).forEach(s -> owners.add(Database.getPlayer(UUID.fromString(s))));
+        owner = data.getString("uuid") == null ? null : Database.getPlayer(UUID.fromString(data.getString("uuid")));
+        contributors = data.getString("contributors") == null ? new ArrayList<>() : ApiUtilities.tPlayersFromUUIDList(ApiUtilities.extractUUIDsFromString(data.getString("contributors")));
         displayName = data.getString("name");
         commandName = displayName.replaceAll(" ", "");
         dateCreated = data.getInt("dateCreated");
@@ -116,12 +118,6 @@ public class Track {
         }
         TPlayer tPlayer = Database.getPlayer(uuid);
 
-        StringBuilder sb = new StringBuilder(getOwners().get(0).getName());
-        for(TPlayer tp : getOwners()) {
-            if(tp == getOwners().get(0)) continue;
-            sb.append(", ").append(tp.getName());
-        }
-
         List<Component> loreToSet = new ArrayList<>();
 
         loreToSet.add(Text.get(tPlayer, Gui.POSITION, "%pos%", getCachedPlayerPosition(tPlayer) == -1 ? "(-)" : String.valueOf(getCachedPlayerPosition(tPlayer))));
@@ -129,7 +125,8 @@ public class Track {
         loreToSet.add(Text.get(tPlayer, Gui.TOTAL_FINISHES, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer))));
         loreToSet.add(Text.get(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getPlayerTotalFinishes(tPlayer) + getPlayerTotalAttempts(tPlayer))));
         loreToSet.add(Text.get(tPlayer, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(getPlayerTotalTimeSpent(tPlayer))));
-        loreToSet.add(Text.get(tPlayer, Gui.CREATED_BY, "%player%", sb.toString()));
+        loreToSet.add(Text.get(tPlayer, Gui.CREATED_BY, "%player%", getOwner().getName()));
+        if(!getContributorsAsString().isBlank()) loreToSet.add(Text.get(tPlayer, Gui.CONTRIBUTORS, "%contributors%", getContributorsAsString()));
 
         Component tags = Component.empty();
         boolean notFirst = false;
@@ -611,21 +608,34 @@ public class Track {
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `type` = " + Database.sqlString(type.toString()) + " WHERE `id` = " + id + ";");
     }
 
-    public void setOwners(List<TPlayer> owners) {
-        this.owners = owners;
-        StringBuilder sb = new StringBuilder(owners.get(0).getUniqueId().toString());
-        for(TPlayer tp : owners) {
-            if(tp == getOwners().get(0)) continue;
-            sb.append(",").append(tp.getUniqueId());
-        }
-
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `uuid` = '" + sb + "' WHERE `id` = " + id + ";");
+    public void setOwner(TPlayer owner) {
+        this.owner = owner;
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `uuid` = '" + owner.getUniqueId() + "' WHERE `id` = " + id + ";");
     }
 
     public void setOptions(String options) {
         this.options = options.toCharArray();
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `options` = " + Database.sqlString(options) + " WHERE `id` = " + id + ";");
 
+    }
+
+    public void addContributor(TPlayer tPlayer) {
+        if(contributors.contains(tPlayer)) return;
+        contributors.add(tPlayer);
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors))) + " WHERE `id` = " + id + ";");
+    }
+
+    public void removeContributor(TPlayer tPlayer) {
+        contributors.remove(tPlayer);
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors))) + " WHERE `id` = " + id + ";");
+    }
+
+    public String getContributorsAsString() {
+        if(contributors.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder(contributors.get(0).getName());
+        List<TPlayer> rest = List.copyOf(contributors).subList(1, contributors.size());
+        rest.forEach(tp -> sb.append(", ").append(tp.getName()));
+        return sb.toString();
     }
 
     public boolean hasOption(char needle) {
