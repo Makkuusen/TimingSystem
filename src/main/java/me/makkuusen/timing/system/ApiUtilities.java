@@ -720,7 +720,7 @@ public class ApiUtilities {
         if(uuids.isEmpty()) return "";
 
         StringBuilder sb = new StringBuilder(uuids.get(0).toString());
-        uuids.subList(1, uuids.size());
+        uuids = uuids.subList(1, uuids.size());
 
         uuids.forEach(uuid -> sb.append(",").append(uuid));
 
