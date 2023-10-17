@@ -10,6 +10,7 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
@@ -30,6 +31,7 @@ public class CommandTrackExchange extends BaseCommand {
     @CommandPermission("%permissiontrackexchange_cut")
     public static void onCutTrack(Player player, Track track) {
         TimingSystem.newChain().async(() -> {
+            Text.send(player, Info.TRACK_EXCHANGE_SAVING, "%trackfile%", track.getCommandName().toLowerCase() + ".zip");
             try {
                 Clipboard playerClip = TrackExchangeTrack.makeSchematicFile(player);
                 TrackExchangeTrack te = new TrackExchangeTrack(track, playerClip);
@@ -41,7 +43,7 @@ public class CommandTrackExchange extends BaseCommand {
                 Text.send(player, Error.TRACK_EXISTS);
             } catch (IOException e) {
                 e.printStackTrace();
-                Text.send(player, Error.GENERIC);
+                Text.send(player, Error.TRACK_EXCHANGE_SAVE_FAILED, "%reason%", "File Creation Failed");
             }
         }).execute(finished -> {
             TrackDatabase.removeTrack(track);
@@ -54,13 +56,14 @@ public class CommandTrackExchange extends BaseCommand {
     @CommandPermission("%permissiontrackexchange_copy")
     public static void onCopyTrack(Player player, Track track) {
         TimingSystem.newChain().async(() -> {
+            Text.send(player, Info.TRACK_EXCHANGE_SAVING, "%trackfile%", track.getCommandName().toLowerCase() + ".zip");
             try {
                 Clipboard clip = TrackExchangeTrack.makeSchematicFile(player);
                 TrackExchangeTrack te = new TrackExchangeTrack(track, clip);
                 te.writeTrackToFile(player.getLocation());
             } catch (IOException e) {
                 e.printStackTrace();
-                Text.send(player, Error.GENERIC);
+                Text.send(player, Error.TRACK_EXCHANGE_SAVE_FAILED, "%reason%", "File Creation Failed");
             }
         }).execute(finished -> {
             Text.send(player, Success.CREATED);
@@ -98,13 +101,14 @@ public class CommandTrackExchange extends BaseCommand {
 
         final String fName = fileName;
         TimingSystem.newChain().async(() -> {
+            Text.send(player, Info.TRACK_EXCHANGE_PASTING, "%trackfile%", fName + ".zip", "%track%", newName == null ? fName : newName);
             TrackExchangeTrack trackExchangeTrack;
             try {
                 if (newName == null) trackExchangeTrack = new TrackExchangeTrack().readFile(player, fName);
                 else trackExchangeTrack = new TrackExchangeTrack(newName).readFile(player, fName);
 
                 if(trackExchangeTrack == null) {
-                    Text.send(player, Error.GENERIC);
+                    Text.send(player, Error.TRACK_EXCHANGE_PASTE_FAILED, "%reason%", "Track failed to be created");
                     return;
                 }
 
@@ -113,7 +117,7 @@ public class CommandTrackExchange extends BaseCommand {
                 Text.send(player, Success.CREATED_TRACK, "%track%", trackExchangeTrack.getTrack().getDisplayName());
             } catch (IOException e) {
                 e.printStackTrace();
-                Text.send(player, Error.GENERIC);
+                Text.send(player, Error.TRACK_EXCHANGE_PASTE_FAILED, "%reason%", "Track file could not be read");
             }
         }).execute();
     }

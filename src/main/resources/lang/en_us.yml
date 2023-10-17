@@ -96,6 +96,8 @@ error:
   lag_detected: "&eTimingSystem detected some lag and unfortunately your time trial has been invalidated."
   missed_checkpoints: "&eTime is invalid, not all checkpoints were passed!"
   permission_denied: "&ePermission denied!"
+  track_exchange_save_failed: "&eFailed to save track: %reason%"
+  track_exchange_paste_failed: "&eFailed to paste track: %reason%"
 
 warning:
   dangerous_command: "&wThis command is dangerous, Type \"%command%\" to use it anyways"
@@ -239,6 +241,8 @@ info:
   time_trial_checkpoint: "&1Checkpoint %checkpoint% > &2%time%"
   time_trial_lag_start: "&1Lagstart > &2%time%"
   time_trial_lag_end: "&1Lagend > &2%time%"
+  track_exchange_saving: "&1Saving track to &2%trackfile%&1..."
+  track_exchange_pasting: "&1Pasting track &2%trackfile% &1as &2%track%"
 
 hover:
   click_to_add: "Click to add"
