@@ -229,6 +229,7 @@ info:
   track_spawn_location: "&1Spawn:&2 %location%"
   track_weight: "&1Weight:&2 %size%"
   track_tags: "&1Tags: "
+  track_contributors: "&1Contributors: "
   player_stats_best_lap: "&1Best time: &2%time%"
   player_stats_position: "&1Position: &2%pos%"
   player_stats_finishes: "&1Finishes: &2%size%"
