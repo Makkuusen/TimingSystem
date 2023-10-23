@@ -627,7 +627,8 @@ public class Track {
 
     public void removeContributor(TPlayer tPlayer) {
         contributors.remove(tPlayer);
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors))) + " WHERE `id` = " + id + ";");
+        String uuids = ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors));
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(uuids.isEmpty() ? null : uuids) + " WHERE `id` = " + id + ";");
     }
 
     public String getContributorsAsString() {
