@@ -1,14 +1,27 @@
 package me.makkuusen.timing.system.track;
 
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.*;
+import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
+import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector2;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.session.ClipboardHolder;
+import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -28,11 +41,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+@Getter
 public class TrackExchangeTrack {
-    public static final String CURRENT_VERSION = "1.9";
     public static final String PATH = TimingSystem.getPlugin().getDataFolder() + File.separator + "tracks" + File.separator;
 
-    private String version;
     private String name;
     private String ownerUUID;
     private Long dateCreated;
@@ -55,7 +67,6 @@ public class TrackExchangeTrack {
      * For new file from track.
      */
     public TrackExchangeTrack(@NotNull Track track, @Nullable Clipboard clipboard) {
-        version = CURRENT_VERSION;
         name = track.getDisplayName();
         ownerUUID = track.getOwner().getUniqueId().toString();
         dateCreated = track.getDateCreated();
@@ -85,7 +96,6 @@ public class TrackExchangeTrack {
      * For new track from imported file with newnames.
      */
     public TrackExchangeTrack(String newTrackName) {
-        version = null;
         name = newTrackName;
         ownerUUID = null;
         dateCreated = null;
@@ -99,7 +109,29 @@ public class TrackExchangeTrack {
         totalTimeSpent = null;
     }
 
-    public TrackExchangeTrack writeToFile(Location origin) throws IOException {
+    public static Clipboard makeSchematicFile(Player player) {
+        try {
+            Region r = WorldEdit.getInstance().getSessionManager().get(BukkitAdapter.adapt(player)).getSelection();
+            BlockArrayClipboard clipboard = new BlockArrayClipboard(r);
+            Operations.complete(new ForwardExtentCopy(BukkitAdapter.adapt(player.getWorld()), r, clipboard, r.getMinimumPoint()));
+            return clipboard;
+        } catch (WorldEditException e) {
+            Text.send(player, Error.GENERIC);
+            return null;
+        }
+    }
+
+    public void pasteTrackSchematicAsync(Player player) {
+        try(EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(player.getWorld()))) {
+            if (clipboard != null) {
+                Operations.complete(new ClipboardHolder(clipboard).createPaste(editSession).to(BlockVector3.at(player.getLocation().x() + clipboardOffset.getX(), player.getLocation().y() + clipboardOffset.getY(), player.getLocation().z() + clipboardOffset.getZ())).copyEntities(true).build());
+            } else player.sendMessage(Component.text("Loading without schematic").color(Theme.getTheme(player).getWarning()));
+        } catch (WorldEditException e) {
+            Text.send(player, Error.GENERIC);
+        }
+    }
+
+    public TrackExchangeTrack writeTrackToFile(Location origin) throws IOException {
         origin = origin.toBlockLocation();
 
         String simpleName = name.replace(" ", "").toLowerCase();
@@ -114,7 +146,6 @@ public class TrackExchangeTrack {
         // trackDataFile
         try(FileWriter writer = new FileWriter(trackDataFile)) {
             JSONObject main = new JSONObject();
-            main.put("version", version);
             main.put("name", name);
             main.put("ownerUUID", ownerUUID);
             main.put("dateCreated", dateCreated);
@@ -210,7 +241,6 @@ public class TrackExchangeTrack {
 
         try(Reader reader = new FileReader(trackDataFile)) {
             JSONObject main = (JSONObject) new JSONParser().parse(reader);
-            version = (String) main.get("version");
             if(name == null) name = (String) main.get("name");
             ownerUUID = (String) main.get("ownerUUID");
             dateCreated = (Long) main.get("dateCreated");
@@ -254,22 +284,6 @@ public class TrackExchangeTrack {
         trackSchematicFile.delete();
 
         return this;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public Clipboard getClipboard() {
-        return clipboard;
-    }
-
-    public Vector getClipboardOffset() {
-        return clipboardOffset;
-    }
-
-    public Track getTrack() {
-        return track;
     }
 
     public static Vector getOffset(Location from, Location to) {
