@@ -42,14 +42,14 @@ permissions:
       default: true
       children:
          timingsystem.track.view.mytimes: true
-         timingsystem.track.session.timetrail: true
+         timingsystem.track.session.timetrial: true
          timingsystem.track.view.times: true
          timingsystem.settings: true
          timingsystem.boat: true
          timingsystem.reset: true
-         timingsystem.timetrail.menu: true
-         timingsystem.timetrail.cancel: true
-         timingsystem.timetrail.random: true
+         timingsystem.timetrial.menu: true
+         timingsystem.timetrial.cancel: true
+         timingsystem.timetrial.random: true
          timingsystem.race.join: true
          timingsystem.race.leave: true
          timingsystem.event.select: true

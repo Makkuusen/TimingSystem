@@ -7,7 +7,6 @@ import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TimeTrialGui;
-import me.makkuusen.timing.system.permissions.PermissionTimeTrail;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -31,7 +30,7 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Default
     @CommandCompletion("@track")
-    @CommandPermission("%permissiontimetrail_menu")
+    @CommandPermission("%permissiontimetrial_menu")
     public static void onTimeTrial(CommandSender sender, @Optional Track track) {
         Player player = null;
         if (sender instanceof BlockCommandSender blockCommandSender) {
@@ -86,7 +85,7 @@ public class CommandTimeTrial extends BaseCommand {
     }
 
     @Subcommand("cancel|c")
-    @CommandPermission("%permissiontimetrail_cancel")
+    @CommandPermission("%permissiontimetrial_cancel")
     public static void onCancel(Player player) {
         if (!TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             Text.send(player, Error.NOT_NOW);
@@ -102,7 +101,7 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("random|r")
     @CommandCompletion("@trackTag")
-    @CommandPermission("%permissiontimetrail_random")
+    @CommandPermission("%permissiontimetrial_random")
     public static void onRandom(Player player, @Optional TrackTag trackTag) {
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
@@ -133,7 +132,7 @@ public class CommandTimeTrial extends BaseCommand {
 
     @Subcommand("randomunfinished")
     @CommandCompletion("@trackTag")
-    @CommandPermission("%permissiontimetrail_random")
+    @CommandPermission("%permissiontimetrial_random")
     public static void onRandomUnfinished(Player player, @Optional TrackTag trackTag) {
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {

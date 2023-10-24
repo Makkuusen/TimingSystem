@@ -16,7 +16,7 @@ public enum PermissionTrack implements Permissions {
     VIEW_TIMES,
     VIEW_ALLTIMES,
     VIEW_PLAYERSTATS,
-    SESSION_TIMETRAIL,
+    SESSION_TIMETRIAL,
     SESSION_EDIT,
     RELOAD,
     DELETE_TRACK,
