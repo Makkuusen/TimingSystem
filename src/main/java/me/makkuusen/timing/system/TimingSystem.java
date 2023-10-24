@@ -91,7 +91,7 @@ public class TimingSystem extends JavaPlugin {
         CommandReplacements cr = manager.getCommandReplacements();
         PermissionTimingSystem.init(cr);
         PermissionTrack.init(cr);
-        PermissionTimeTrail.init(cr);
+        PermissionTimeTrial.init(cr);
         PermissionRace.init(cr);
         PermissionEvent.init(cr);
         PermissionRound.init(cr);

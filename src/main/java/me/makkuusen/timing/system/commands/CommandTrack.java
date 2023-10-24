@@ -366,7 +366,7 @@ public class CommandTrack extends BaseCommand {
 
     @Subcommand("session")
     @CommandCompletion("@track")
-    @CommandPermission("%permissiontrack_session_timetrail")
+    @CommandPermission("%permissiontrack_session_timetrial")
     public static void toggleSession(Player player, @Optional Track track) {
         var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (maybeDriver.isPresent()) {
