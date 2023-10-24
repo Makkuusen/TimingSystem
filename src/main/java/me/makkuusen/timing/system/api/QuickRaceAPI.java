@@ -40,7 +40,6 @@ public class QuickRaceAPI {
      */
     public static boolean create(UUID playerHost, Track track, int laps, int pits) {
         if(getQuickRaceHeat().isPresent() && heat.isFinished()) deleteEvent();
-        else return false;
 
         if(!track.isOpen() || !track.hasTrackLocation(TrackLocation.Type.GRID) || !track.hasRegion(TrackRegion.RegionType.START)) return false;
 
@@ -56,7 +55,8 @@ public class QuickRaceAPI {
         if(maybeRound.isEmpty()) return false;
         round = maybeRound.get();
 
-        Optional<Heat> maybeHeat = round.getHeat("R1F1");
+        round.createHeat(1);
+        var maybeHeat = round.getHeat("R1F1");
         if(maybeHeat.isEmpty()) return false;
         heat = maybeHeat.get();
 
