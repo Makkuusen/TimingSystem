@@ -78,10 +78,12 @@ public class SettingsGui extends BaseGui {
         return button;
     }
 
-    public static GuiButton getHeatMenuButton(TPlayer tPlayer) {
-        var button = new GuiButton(new ItemBuilder(Material.CAMPFIRE).setName(Text.get(tPlayer, Gui.HEAT_SETTINGS)).build());
+    public static GuiButton getHeatLapsButton(TPlayer tPlayer) {
+        var button = new GuiButton(new ItemBuilder(Material.BAMBOO_SIGN).setName(Text.get(tPlayer, Gui.TOGGLE_FINAL_LAPS)).build());
         button.setAction(() -> {
-            new HeatSettingsGui(tPlayer).show(tPlayer.getPlayer());
+            tPlayer.toggleSendFinalLaps();
+            PlaySound.buttonClick(tPlayer);
+            new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
     }
@@ -99,8 +101,9 @@ public class SettingsGui extends BaseGui {
         setItem(getVerboseButton(tPlayer), 11);
         setItem(tPlayer.isTimeTrial() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 3);
         setItem(getTimeTrialButton(tPlayer), 12);
+        setItem(tPlayer.isSendFinalLaps() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 4);
+        setItem(getHeatLapsButton(tPlayer), 13);
 
-        setItem(getHeatMenuButton(tPlayer), 14);
         setItem(getBoatMenuButton(tPlayer), 15);
         setItem(getColorMenuButton(tPlayer), 16);
     }

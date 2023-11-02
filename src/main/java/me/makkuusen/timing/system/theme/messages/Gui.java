@@ -29,7 +29,6 @@ public enum Gui implements Message {
     CHANGE_TRACK_TYPE,
     CHANGE_BOAT_TYPE,
     CHANGE_TEAM_COLOR,
-    HEAT_SETTINGS,
     BOAT_TRACKS,
     ELYTRA_TRACKS,
     PARKOUR_TRACKS,
