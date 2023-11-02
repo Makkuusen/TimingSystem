@@ -326,7 +326,6 @@ gui:
   change_track_type: "&1Change track type"
   change_boat_type: "&1Change boat type"
   change_team_color: "&1Change team color"
-  heat_settings: "&1Heat Settings"
   boat_tracks: "&1Boat tracks"
   elytra_tracks: "&1Elytra tracks"
   parkour_tracks: "&1Parkour tracks"
