@@ -4,6 +4,7 @@ import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
+import com.destroystokyo.paper.ClientOption;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import me.makkuusen.timing.system.Database;
@@ -22,9 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class BoatUtilsManager {
 
@@ -101,5 +100,8 @@ public class BoatUtilsManager {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }
         };
+    }
+    public static List<BoatUtilsMode> getAvailableModes(int version) {
+        return Arrays.stream(BoatUtilsMode.values()).filter(mode -> mode.getRequiredVersion() <= version).toList();
     }
 }

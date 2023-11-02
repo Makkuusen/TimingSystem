@@ -36,11 +36,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -186,10 +182,21 @@ public class TimingSystem extends JavaPlugin {
         });
 
         manager.getCommandContexts().registerContext(BoatUtilsMode.class, BoatUtilsManager.getBoatUtilsModeContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("boatUtilsMode", context -> {
+        manager.getCommandCompletions().registerAsyncCompletion("allBoatUtilsMode", context -> {
             List<String> res = new ArrayList<>();
-            for(BoatUtilsMode mode : BoatUtilsMode.values()) {
-                res.add(mode.name().toLowerCase());
+            Arrays.stream(BoatUtilsMode.values()).forEach(mode -> res.add(mode.name().toLowerCase()));
+            return res;
+        });
+        manager.getCommandCompletions().registerAsyncCompletion("boatUtilsMode", context -> {
+            TPlayer tPlayer = Database.getPlayer(context.getPlayer().getUniqueId());
+            List<String> res = new ArrayList<>();
+
+            if(tPlayer.hasBoatUtils()) {
+                List<BoatUtilsMode> availableModes = BoatUtilsManager.getAvailableModes(tPlayer.getBoatUtilsVersion());
+                availableModes.forEach(mode -> res.add(mode.name().toLowerCase()));
+            } else {
+                res.add(BoatUtilsMode.BA.name().toLowerCase());
+                res.add(BoatUtilsMode.RALLY.name().toLowerCase());
             }
             return res;
         });

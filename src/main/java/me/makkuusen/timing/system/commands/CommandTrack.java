@@ -737,7 +737,7 @@ public class CommandTrack extends BaseCommand {
         }
 
         @Subcommand("boatutils")
-        @CommandCompletion("@boatUtilsMode @track")
+        @CommandCompletion("@allBoatUtilsMode @track")
         @CommandPermission("%permissiontrack_set_boatutilsmode")
         public static void onMode(Player player, BoatUtilsMode mode, Track track) {
             track.setBoatUtilsMode(mode);
