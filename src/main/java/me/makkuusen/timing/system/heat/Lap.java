@@ -62,7 +62,7 @@ public class Lap implements Comparable<Lap> {
     }
 
     public boolean hasPassedAllCheckpoints() {
-        return checkpoints.size() == track.getRegions(TrackRegion.RegionType.CHECKPOINT).size();
+        return checkpoints.size() == track.getNumberOfCheckpoints();
     }
 
     public void passNextCheckpoint(Instant timeStamp) {

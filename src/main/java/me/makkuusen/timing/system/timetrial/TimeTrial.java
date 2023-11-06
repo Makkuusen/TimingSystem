@@ -63,7 +63,7 @@ public class TimeTrial {
     }
 
     private boolean hasNotPassedAllCheckpoints() {
-        return checkpoints.size() != track.getRegions(TrackRegion.RegionType.CHECKPOINT).size();
+        return checkpoints.size() != track.getNumberOfCheckpoints();
     }
 
     public int getNextCheckpoint() {

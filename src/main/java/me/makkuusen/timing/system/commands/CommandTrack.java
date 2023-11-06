@@ -852,35 +852,35 @@ public class CommandTrack extends BaseCommand {
         @CommandCompletion("@track <index>")
         @CommandPermission("%permissiontrack_set_region_start")
         public static void onStartRegion(Player player, Track track, @Optional String index) {
-            createOrUpdateIndexRegion(track, TrackRegion.RegionType.START, index, player);
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.START, index, player, false);
         }
 
         @Subcommand("endregion")
         @CommandCompletion("@track <index>")
         @CommandPermission("%permissiontrack_set_region_end")
         public static void onEndRegion(Player player, Track track, @Optional String index) {
-            createOrUpdateIndexRegion(track, TrackRegion.RegionType.END, index, player);
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.END, index, player, false);
         }
 
         @Subcommand("pitregion")
         @CommandCompletion("@track <index>")
         @CommandPermission("%permissiontrack_set_region_pit")
         public static void onPitRegion(Player player, Track track, @Optional String index) {
-            createOrUpdateIndexRegion(track, TrackRegion.RegionType.PIT, index, player);
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.PIT, index, player, false);
         }
 
         @Subcommand("resetregion")
         @CommandCompletion("@track <index>")
         @CommandPermission("%permissiontrack_set_region_reset")
         public static void onResetRegion(Player player, Track track, @Optional String index) {
-            createOrUpdateIndexRegion(track, TrackRegion.RegionType.RESET, index, player);
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.RESET, index, player, false);
         }
 
         @Subcommand("inpit")
         @CommandCompletion("@track <index>")
         @CommandPermission("%permissiontrack_set_region_inpit")
         public static void onInPit(Player player, Track track, @Optional String index) {
-            createOrUpdateIndexRegion(track, TrackRegion.RegionType.INPIT, index, player);
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.INPIT, index, player, false);
         }
 
         @Subcommand("lagstart")
@@ -955,7 +955,14 @@ public class CommandTrack extends BaseCommand {
         @CommandCompletion("@track <index>")
         @CommandPermission("%permissiontrack_set_region_checkpoint")
         public static void onCheckpoint(Player player, Track track, @Optional String index) {
-            createOrUpdateIndexRegion(track, TrackRegion.RegionType.CHECKPOINT, index, player);
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.CHECKPOINT, index, player, false);
+        }
+
+        @Subcommand("checkpointsplit")
+        @CommandCompletion("@track <index>")
+        @CommandPermission("%permissiontrack_set_region_checkpoint")
+        public static void onCheckpointSplit(Player player, Track track, String index) {
+            createOrUpdateIndexRegion(track, TrackRegion.RegionType.CHECKPOINT, index, player, true);
         }
 
         private static boolean createOrUpdateRegion(Track track, TrackRegion.RegionType regionType, Player player) {
@@ -973,7 +980,7 @@ public class CommandTrack extends BaseCommand {
             }
         }
 
-        private static boolean createOrUpdateRegion(Track track, TrackRegion.RegionType regionType, int index, Player player) {
+        private static boolean createOrUpdateRegion(Track track, TrackRegion.RegionType regionType, int index, Player player, boolean split) {
             var maybeSelection = ApiUtilities.getSelection(player);
             if (maybeSelection.isEmpty()) {
                 Text.send(player, Error.SELECTION);
@@ -981,7 +988,9 @@ public class CommandTrack extends BaseCommand {
             }
             var selection = maybeSelection.get();
 
-            if (track.hasRegion(regionType, index)) {
+            if (split) {
+                return track.createRegion(regionType, index, selection, player.getLocation());
+            } else if (track.hasRegion(regionType, index)) {
                 return track.updateRegion(track.getRegion(regionType, index).get(), selection, player.getLocation());
             } else {
                 return track.createRegion(regionType, index, selection, player.getLocation());
@@ -1068,7 +1077,7 @@ public class CommandTrack extends BaseCommand {
 
         }
 
-        private static void createOrUpdateIndexRegion(Track track, TrackRegion.RegionType regionType, String index, Player player) {
+        private static void createOrUpdateIndexRegion(Track track, TrackRegion.RegionType regionType, String index, Player player, boolean split) {
             int regionIndex;
             boolean remove = false;
             if (index != null) {
@@ -1098,19 +1107,21 @@ public class CommandTrack extends BaseCommand {
                 }
             }
             if (remove) {
-                var maybeRegion = track.getRegion(regionType, regionIndex);
-                if (maybeRegion.isPresent()) {
-                    if (track.removeRegion(maybeRegion.get())) {
-                        Text.send(player, Success.REMOVED);
-                    } else {
-                        Text.send(player, Error.FAILED_TO_REMOVE);
+                var checkpointRegions = track.getCheckpointRegions(regionIndex);
+                if (!checkpointRegions.isEmpty()) {
+                    for (TrackRegion region : checkpointRegions) {
+                        if (track.removeRegion(region)) {
+                            Text.send(player, Success.REMOVED);
+                        } else {
+                            Text.send(player, Error.FAILED_TO_REMOVE);
+                        }
                     }
                 } else {
                     Text.send(player, Error.NOTHING_TO_REMOVE);
                 }
                 return;
             }
-            if (createOrUpdateRegion(track, regionType, regionIndex, player)) {
+            if (createOrUpdateRegion(track, regionType, regionIndex, player, split)) {
                 Text.send(player, Success.SAVED);
             }
         }
