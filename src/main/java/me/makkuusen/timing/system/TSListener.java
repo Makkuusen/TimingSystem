@@ -537,9 +537,10 @@ public class TSListener implements Listener {
         if (nextCheckpoint == timeTrial.getLatestCheckpoint()) {
             return;
         }
-        var checkpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == nextCheckpoint).findFirst();
-        if (checkpoint.isPresent() && checkpoint.get().contains(player.getLocation())) {
-            timeTrial.playerPassingNextCheckpoint();
+        for (TrackRegion checkpoint : track.getCheckpointRegions(nextCheckpoint)) {
+            if (checkpoint.contains(player.getLocation())){
+                timeTrial.playerPassingNextCheckpoint();
+            }
         }
     }
 

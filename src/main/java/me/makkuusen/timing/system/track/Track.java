@@ -287,6 +287,19 @@ public class Track {
         return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(regionType)).filter(trackRegion -> trackRegion.getRegionIndex() == index).findFirst();
     }
 
+    public List<TrackRegion> getCheckpointRegions(int index) {
+        return regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(TrackRegion.RegionType.CHECKPOINT)).filter(trackRegion -> trackRegion.getRegionIndex() == index).toList();
+    }
+
+    public int getNumberOfCheckpoints() {
+        var checkpoints = regions.stream().filter(trackRegion -> trackRegion.getRegionType().equals(TrackRegion.RegionType.CHECKPOINT)).toList();
+        Set<Integer> count = new HashSet<>();
+        for (TrackRegion r : checkpoints) {
+            count.add(r.getRegionIndex());
+        }
+        return count.size();
+    }
+
     public Optional<TrackRegion> getStartRegion() {
         return hasRegion(TrackRegion.RegionType.START, 1) ? getRegion(TrackRegion.RegionType.START, 1) : getRegion(TrackRegion.RegionType.START);
 
