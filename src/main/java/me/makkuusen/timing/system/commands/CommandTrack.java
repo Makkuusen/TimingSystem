@@ -958,10 +958,10 @@ public class CommandTrack extends BaseCommand {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.CHECKPOINT, index, player, false);
         }
 
-        @Subcommand("checkpointsplit")
+        @Subcommand("checkpointoverload")
         @CommandCompletion("@track <index>")
         @CommandPermission("%permissiontrack_set_region_checkpoint")
-        public static void onCheckpointSplit(Player player, Track track, String index) {
+        public static void onCheckpointOverload(Player player, Track track, String index) {
             createOrUpdateIndexRegion(track, TrackRegion.RegionType.CHECKPOINT, index, player, true);
         }
 
@@ -980,7 +980,7 @@ public class CommandTrack extends BaseCommand {
             }
         }
 
-        private static boolean createOrUpdateRegion(Track track, TrackRegion.RegionType regionType, int index, Player player, boolean split) {
+        private static boolean createOrUpdateRegion(Track track, TrackRegion.RegionType regionType, int index, Player player, boolean overload) {
             var maybeSelection = ApiUtilities.getSelection(player);
             if (maybeSelection.isEmpty()) {
                 Text.send(player, Error.SELECTION);
@@ -988,7 +988,7 @@ public class CommandTrack extends BaseCommand {
             }
             var selection = maybeSelection.get();
 
-            if (split) {
+            if (overload) {
                 return track.createRegion(regionType, index, selection, player.getLocation());
             } else if (track.hasRegion(regionType, index)) {
                 return track.updateRegion(track.getRegion(regionType, index).get(), selection, player.getLocation());
@@ -1077,7 +1077,7 @@ public class CommandTrack extends BaseCommand {
 
         }
 
-        private static void createOrUpdateIndexRegion(Track track, TrackRegion.RegionType regionType, String index, Player player, boolean split) {
+        private static void createOrUpdateIndexRegion(Track track, TrackRegion.RegionType regionType, String index, Player player, boolean overload) {
             int regionIndex;
             boolean remove = false;
             if (index != null) {
@@ -1121,7 +1121,7 @@ public class CommandTrack extends BaseCommand {
                 }
                 return;
             }
-            if (createOrUpdateRegion(track, regionType, regionIndex, player, split)) {
+            if (createOrUpdateRegion(track, regionType, regionIndex, player, overload)) {
                 Text.send(player, Success.SAVED);
             }
         }
