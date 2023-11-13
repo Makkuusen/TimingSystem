@@ -26,6 +26,7 @@ import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -246,54 +247,61 @@ public class TrackDatabase {
         }
     }
 
-    public static Track trackNewFromTrackExchange(String name, UUID uuid, long dateCreated, Location spawnLocation, Track.TrackType type, Track.TrackMode mode, ItemStack gui, int weight, JSONObject trackRegions, JSONObject trackLocations, BoatUtilsMode boatUtilsMode, Vector offset) {
+    public static Track trackNewFromTrackExchange(TrackExchangeTrack trackExchangeTrack, Location newSpawnLocation, Vector offset) {
         try {
+            World world = newSpawnLocation.getWorld();
+            String name = trackExchangeTrack.getName();
+            UUID uuid = trackExchangeTrack.getOwnerUUID();
+            long dateCreated = trackExchangeTrack.getDateCreated();
+            Track.TrackType trackType = trackExchangeTrack.getTrackType();
+            Track.TrackMode trackMode = trackExchangeTrack.getTrackMode();
+            ItemStack gui = trackExchangeTrack.getGuiItem();
+            int weight = trackExchangeTrack.getWeight();
+            BoatUtilsMode boatUtilsMode = trackExchangeTrack.getBoatUtilsMode();
+
             // Create track
-            var trackId = DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `boatUtilsMode`, `isRemoved`) " + "VALUES('" + uuid + "', " + Database.sqlString(name) + ", " + dateCreated + ", " + weight + ", " + Database.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(spawnLocation) + "', '" + ApiUtilities.locationToString(spawnLocation) + "', " + Database.sqlString(type.toString()) + "," + Database.sqlString(mode.toString()) + ", 0, NULL, " + Database.sqlString(boatUtilsMode.toString()) + " , 0);");
+            var trackId = DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `boatUtilsMode`, `isRemoved`) " + "VALUES('" + uuid + "', " + Database.sqlString(name) + ", " + dateCreated + ", " + weight + ", " + Database.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(newSpawnLocation) + "', '" + ApiUtilities.locationToString(newSpawnLocation) + "', " + Database.sqlString(trackType.toString()) + "," + Database.sqlString(trackMode.toString()) + ", 0, NULL, " + Database.sqlString(boatUtilsMode.toString()) + " , 0);");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_tracks` WHERE `id` = " + trackId + ";");
 
             Track rTrack = new Track(dbRow);
             tracks.add(rTrack);
 
-            // Create track regions
-            for(Object r : trackRegions.values()) {
-                TrackRegion region;
-                JSONObject regionObject = (JSONObject) r;
-                Location newLocation = TrackExchangeTrack.getNewLocation(spawnLocation.getWorld(), ApiUtilities.stringToLocation((String) regionObject.get("spawnLocation")), offset);
-                Location minP = TrackExchangeTrack.getNewLocation(spawnLocation.getWorld(), ApiUtilities.stringToLocation((String) regionObject.get("minP")), offset);
-                Location maxP = TrackExchangeTrack.getNewLocation(spawnLocation.getWorld(), ApiUtilities.stringToLocation((String) regionObject.get("maxP")), offset);
-                if(TrackRegion.RegionShape.valueOf((String) regionObject.get("regionShape")) == TrackRegion.RegionShape.POLY) {
-                    List<BlockVector2> finalPoints = new ArrayList<>();
-                    JSONObject points = (JSONObject) regionObject.get("points");
-                    for (int i = 1; i <= points.size(); i++) {
-                        JSONObject vec = (JSONObject) points.get(String.valueOf(i));
-                        BlockVector2 point = BlockVector2.at(Double.parseDouble(String.valueOf(vec.get("x"))) - offset.getX(), Double.parseDouble(String.valueOf(vec.get("z"))) - offset.getZ());
-                        finalPoints.add(point);
-                    }
-                    region = TrackDatabase.trackRegionNew(new Polygonal2DRegion(BukkitAdapter.adapt(spawnLocation.getWorld()), finalPoints, minP.getBlockY(), maxP.getBlockY()), trackId, Integer.parseInt(String.valueOf(regionObject.get("index"))), TrackRegion.RegionType.valueOf((String) regionObject.get("regionType")), newLocation);
-                } else {
-                    region = TrackDatabase.trackRegionNew(new CuboidRegion(BukkitAdapter.adapt(spawnLocation.getWorld()), BlockVector3.at(minP.getBlockX(), minP.getBlockY(), minP.getBlockZ()), BlockVector3.at(maxP.getBlockX(), maxP.getBlockY(), maxP.getBlockZ())), trackId, Integer.parseInt(String.valueOf(regionObject.get("index"))), TrackRegion.RegionType.valueOf((String) regionObject.get("regionType")), newLocation);
-                }
+            // Create regions
+            trackExchangeTrack.getTrackRegions().forEach(serializableRegion -> {
+                try {
+                    TrackRegion region;
+                    Location newLocation = TrackExchangeTrack.getNewLocation(newSpawnLocation.getWorld(), serializableRegion.getSpawnLocation(world), offset);
+                    Location minP = TrackExchangeTrack.getNewLocation(newSpawnLocation.getWorld(), serializableRegion.getMinP(world), offset);
+                    Location maxP = TrackExchangeTrack.getNewLocation(newSpawnLocation.getWorld(), serializableRegion.getMaxP(world), offset);
+                    if (serializableRegion.getRegionShape() == TrackRegion.RegionShape.POLY) {
+                        List<BlockVector2> finalPoints = new ArrayList<>();
+                        for (BlockVector2 point : serializableRegion.getPoints()) {
+                            point = point.subtract(offset.getBlockX(), offset.getBlockZ());
+                            finalPoints.add(point);
+                        }
+                        region = TrackDatabase.trackRegionNew(new Polygonal2DRegion(BukkitAdapter.adapt(newSpawnLocation.getWorld()), finalPoints, minP.getBlockY(), maxP.getBlockY()), trackId, serializableRegion.getRegionIndex(), serializableRegion.getRegionType(), newLocation);
+                    } else
+                        region = TrackDatabase.trackRegionNew(new CuboidRegion(BukkitAdapter.adapt(newSpawnLocation.getWorld()), BlockVector3.at(minP.getBlockX(), minP.getBlockY(), minP.getBlockZ()), BlockVector3.at(maxP.getBlockX(), maxP.getBlockY(), maxP.getBlockZ())), trackId, serializableRegion.getRegionIndex(), serializableRegion.getRegionType(), newLocation);
 
-                if(region.getRegionType() == TrackRegion.RegionType.START) {
-                    addTrackRegion(region);
+                    if(region.getRegionType() == TrackRegion.RegionType.START)
+                        addTrackRegion(region);
+
+                    rTrack.addRegion(region);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
-                rTrack.addRegion(region);
-            }
+            });
 
             // Create track locations
-            for(Object l : trackLocations.values()) {
-                JSONObject locationObject = (JSONObject) l;
-                TrackLocation tl = TrackDatabase.trackLocationNew(trackId.intValue(), Integer.parseInt(String.valueOf(locationObject.get("index"))), TrackLocation.Type.valueOf((String) locationObject.get("locationType")), TrackExchangeTrack.getNewLocation(spawnLocation.getWorld(), ApiUtilities.stringToLocation((String) locationObject.get("location")), offset));
-                rTrack.addTrackLocation(tl);
-                if(tl instanceof TrackLeaderboard leaderboard) {
+            trackExchangeTrack.getTrackLocations().stream().map(serializableLocation -> serializableLocation.toTrackLocation(world)).forEach(location -> {
+                rTrack.addTrackLocation(location);
+                if(location instanceof TrackLeaderboard leaderboard)
                     leaderboard.createOrUpdateHologram();
-                }
-            }
+            });
+
             return rTrack;
         } catch (SQLException exception) {
-            exception.printStackTrace();
-            return null;
+            throw new RuntimeException(exception);
         }
     }
 

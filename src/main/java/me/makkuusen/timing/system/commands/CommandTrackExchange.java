@@ -19,7 +19,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 
@@ -99,20 +98,20 @@ public class CommandTrackExchange extends BaseCommand {
 
         if(fileName.matches(".+\\.zip")) fileName = fileName.substring(0, fileName.length() - 4);
 
-        final String fName = fileName;
+        String fName = fileName;
         TimingSystem.newChain().async(() -> {
-            Text.send(player, Info.TRACK_EXCHANGE_PASTING, "%trackfile%", fName + ".zip", "%track%", newName == null ? fName : newName);
+            String name = newName == null ? fName : newName;
+            Text.send(player, Info.TRACK_EXCHANGE_PASTING, "%trackfile%", fName + ".zip", "%track%", name);
             TrackExchangeTrack trackExchangeTrack;
             try {
-                if (newName == null) trackExchangeTrack = new TrackExchangeTrack().readFile(player, fName);
-                else trackExchangeTrack = new TrackExchangeTrack(newName).readFile(player, fName);
+                trackExchangeTrack = TrackExchangeTrack.readFile(player, fName, name);
 
                 if(trackExchangeTrack == null) {
                     Text.send(player, Error.TRACK_EXCHANGE_PASTE_FAILED, "%reason%", "Track failed to be created");
                     return;
                 }
 
-                trackExchangeTrack.pasteTrackSchematicAsync(player);
+                trackExchangeTrack.pasteTrackSchematic(player);
 
                 Text.send(player, Success.CREATED_TRACK, "%track%", trackExchangeTrack.getTrack().getDisplayName());
             } catch (IOException e) {
