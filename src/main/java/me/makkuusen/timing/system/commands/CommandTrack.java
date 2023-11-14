@@ -283,7 +283,7 @@ public class CommandTrack extends BaseCommand {
         boolean notFirst = false;
 
         List<TrackTag> trackTags;
-        if (commandSender.hasPermission("track.admin")) {
+        if (commandSender.hasPermission("timingsystem.packs.trackadmin")) {
             trackTags = track.getTags();
         } else {
             trackTags = track.getDisplayTags();

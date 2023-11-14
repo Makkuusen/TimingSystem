@@ -23,6 +23,7 @@ import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import org.bukkit.Location;
@@ -372,7 +373,7 @@ public class TrackDatabase {
     }
 
     static public List<Track> getAvailableTracks(Player player) {
-        if (!player.hasPermission("track.admin") && !player.isOp()) {
+        if (!player.hasPermission("timingsystem.packs.trackadmin") && !player.isOp()) {
             return TrackDatabase.getTracks().stream().filter(Track::isOpen).toList();
         }
 
@@ -407,7 +408,7 @@ public class TrackDatabase {
 
     public static List<String> getTracksAsStrings(Player player) {
         List<String> tracks = new ArrayList<>();
-        if (player.hasPermission("track.admin") || player.isOp()) {
+        if (player.hasPermission(PermissionTrack.MENU.getNode()) || player.hasPermission("timingsystem.packs.trackadmin") || player.isOp()) {
             getTracks().forEach(track -> tracks.add(track.getCommandName()));
         } else {
             getOpenTracks().forEach(track -> tracks.add(track.getCommandName()));

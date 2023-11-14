@@ -172,7 +172,7 @@ public class EventAnnouncements {
         for (Player p : Bukkit.getOnlinePlayers()) {
             // Only send to admins that have the event selected.
             EventDatabase.getPlayerSelectedEvent(p.getUniqueId()).ifPresent(e -> {
-                if (e.getId() == event.getId() && p.hasPermission("event.admin")) {
+                if (e.getId() == event.getId() && p.hasPermission("timingsystem.packs.eventadmin")) {
                     Text.send(p, Broadcast.PLAYER_SIGNED_EVENT, "%player%", name);
                 }
             });
@@ -183,7 +183,7 @@ public class EventAnnouncements {
         for (Player p : Bukkit.getOnlinePlayers()) {
             // Only send to admins that have the event selected.
             EventDatabase.getPlayerSelectedEvent(p.getUniqueId()).ifPresent(e -> {
-                if (e.getId() == event.getId() && p.hasPermission("event.admin")) {
+                if (e.getId() == event.getId() && p.hasPermission("timingsystem.packs.eventadmin")) {
                     Text.send(p, Broadcast.PLAYER_RESERVE_EVENT, "%player%", name);
                 }
             });

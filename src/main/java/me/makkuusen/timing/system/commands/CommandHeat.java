@@ -75,7 +75,7 @@ public class CommandHeat extends BaseCommand {
         Component start = theme.getBrackets(Text.get(player, Word.START), NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/heat start " + heat.getName())).hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_START)));
         Component finish = theme.getBrackets(Text.get(player, Word.FINISH), NamedTextColor.GRAY).clickEvent(ClickEvent.runCommand("/heat finish " + heat.getName())).hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_START)));
 
-        if (player.hasPermission("event.admin") && heat.getHeatState() != HeatState.FINISHED) {
+        if (player.hasPermission("timingsystem.packs.eventadmin") && heat.getHeatState() != HeatState.FINISHED) {
             player.sendMessage(load.append(Component.space()).append(reset).append(Component.space()).append(start).append(Component.space()).append(finish));
         }
 

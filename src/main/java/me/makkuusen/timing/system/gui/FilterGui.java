@@ -33,7 +33,7 @@ public class FilterGui extends BaseGui{
     public void setFilterOptions() {
 
         int count = 0;
-        boolean getZeroWeight = oldTrackPage.tPlayer.getPlayer().hasPermission("track.admin");
+        boolean getZeroWeight = oldTrackPage.tPlayer.getPlayer().hasPermission("timingsystem.packs.trackadmin");
         for (TrackTag tag : TrackTagManager.getSortedTrackTags(getZeroWeight)) {
             if (count > 25) {
                 break;
