@@ -2,6 +2,8 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
+import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
@@ -90,7 +92,7 @@ public class SettingsGui extends BaseGui {
 
     private void setButtons(TPlayer tPlayer) {
         Player player = tPlayer.getPlayer();
-        if (player != null && (player.isOp() || player.hasPermission("track.admin"))) {
+        if (player != null && (player.isOp() || player.hasPermission(PermissionTimingSystem.SETTINGS_OVERRIDE.getNode()))) {
             setItem(tPlayer.isOverride() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 0);
             setItem(getOverrideButton(tPlayer), 9);
         }

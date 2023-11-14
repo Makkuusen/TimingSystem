@@ -14,6 +14,8 @@ import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
+import me.makkuusen.timing.system.permissions.PermissionEvent;
+import me.makkuusen.timing.system.permissions.PermissionHeat;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
@@ -75,8 +77,17 @@ public class CommandHeat extends BaseCommand {
         Component start = theme.getBrackets(Text.get(player, Word.START), NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/heat start " + heat.getName())).hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_START)));
         Component finish = theme.getBrackets(Text.get(player, Word.FINISH), NamedTextColor.GRAY).clickEvent(ClickEvent.runCommand("/heat finish " + heat.getName())).hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_START)));
 
-        if (player.hasPermission("event.admin") && heat.getHeatState() != HeatState.FINISHED) {
-            player.sendMessage(load.append(Component.space()).append(reset).append(Component.space()).append(start).append(Component.space()).append(finish));
+        if (heat.getHeatState() != HeatState.FINISHED) {
+            Component result = Component.empty();
+            if(player.hasPermission(PermissionHeat.LOAD.getNode()))
+                result = result.append(load).append(Component.space());
+            if(player.hasPermission(PermissionHeat.RESET.getNode()))
+                result = result.append(reset).append(Component.space());
+            if(player.hasPermission(PermissionHeat.START.getNode()))
+                result = result.append(start).append(Component.space());
+            if(player.hasPermission(PermissionHeat.FINISH.getNode()))
+                result = result.append(finish);
+            player.sendMessage(result);
         }
 
         if (heat.getTimeLimit() != null) {

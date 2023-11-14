@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.gui.TrackGui;
+import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
 import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
@@ -283,7 +284,7 @@ public class CommandTrack extends BaseCommand {
         boolean notFirst = false;
 
         List<TrackTag> trackTags;
-        if (commandSender.hasPermission("track.admin")) {
+        if (commandSender.hasPermission("timingsystem.packs.trackadmin") || commandSender.hasPermission(PermissionTimingSystem.TAG_CREATE.getNode())) {
             trackTags = track.getTags();
         } else {
             trackTags = track.getDisplayTags();

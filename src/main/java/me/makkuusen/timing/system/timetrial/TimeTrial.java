@@ -6,6 +6,7 @@ import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.TimeTrialAttemptEvent;
 import me.makkuusen.timing.system.api.events.TimeTrialFinishEvent;
+import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -125,14 +126,14 @@ public class TimeTrial {
 
     public void playerPassingLagStart() {
         Player player = tPlayer.getPlayer();
-        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("track.admin"))) {
+        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
             Text.send(player, Info.TIME_TRIAL_LAG_START, "%time%", ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
         }
     }
 
     public void playerPassingLagEnd() {
         Player player = tPlayer.getPlayer();
-        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("track.admin"))) {
+        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
             Text.send(player, Info.TIME_TRIAL_LAG_END, "%time%", ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
         }
     }

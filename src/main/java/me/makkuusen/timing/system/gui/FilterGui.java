@@ -2,6 +2,8 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TrackTagManager;
+import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
+import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
@@ -33,7 +35,7 @@ public class FilterGui extends BaseGui{
     public void setFilterOptions() {
 
         int count = 0;
-        boolean getZeroWeight = oldTrackPage.tPlayer.getPlayer().hasPermission("track.admin");
+        boolean getZeroWeight = oldTrackPage.tPlayer.getPlayer().hasPermission(PermissionTimingSystem.TAG_CREATE.getNode()) || oldTrackPage.tPlayer.getPlayer().isOp();
         for (TrackTag tag : TrackTagManager.getSortedTrackTags(getZeroWeight)) {
             if (count > 25) {
                 break;

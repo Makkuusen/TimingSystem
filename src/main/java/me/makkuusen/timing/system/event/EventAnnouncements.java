@@ -169,10 +169,11 @@ public class EventAnnouncements {
     }
 
     public static void broadcastPlayerSigned(String name, Event event) {
+        var eventOwner = Bukkit.getPlayer(event.getUuid());
         for (Player p : Bukkit.getOnlinePlayers()) {
-            // Only send to admins that have the event selected.
+            // Only send to admins that have the event selected and the owner of the event.
             EventDatabase.getPlayerSelectedEvent(p.getUniqueId()).ifPresent(e -> {
-                if (e.getId() == event.getId() && p.hasPermission("event.admin")) {
+                if (e.getId() == event.getId() && (p.hasPermission("timingsystem.packs.eventadmin")) || (eventOwner != null && eventOwner.getUniqueId() == event.getUuid())) {
                     Text.send(p, Broadcast.PLAYER_SIGNED_EVENT, "%player%", name);
                 }
             });
@@ -180,10 +181,11 @@ public class EventAnnouncements {
     }
 
     public static void broadcastPlayerSignedReserve(String name, Event event) {
+        var eventOwner = Bukkit.getPlayer(event.getUuid());
         for (Player p : Bukkit.getOnlinePlayers()) {
             // Only send to admins that have the event selected.
             EventDatabase.getPlayerSelectedEvent(p.getUniqueId()).ifPresent(e -> {
-                if (e.getId() == event.getId() && p.hasPermission("event.admin")) {
+                if (e.getId() == event.getId() && (p.hasPermission("timingsystem.packs.eventadmin")) || (eventOwner != null && eventOwner.getUniqueId() == event.getUuid())) {
                     Text.send(p, Broadcast.PLAYER_RESERVE_EVENT, "%player%", name);
                 }
             });

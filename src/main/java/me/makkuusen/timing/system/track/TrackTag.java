@@ -6,6 +6,8 @@ import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ItemBuilder;
+import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
+import me.makkuusen.timing.system.permissions.PermissionTrack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -62,7 +64,7 @@ public class TrackTag {
         }
         ItemMeta im = toReturn.getItemMeta();
         im.displayName(Component.text(value).color(color));
-        if (player.hasPermission("track.admin")) {
+        if (player.hasPermission(PermissionTimingSystem.TAG_CREATE.getNode())) {
             im.lore(List.of(Component.text(getWeight()).color(NamedTextColor.DARK_GRAY)));
         }
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
