@@ -90,7 +90,7 @@ public class SettingsGui extends BaseGui {
 
     private void setButtons(TPlayer tPlayer) {
         Player player = tPlayer.getPlayer();
-        if (player != null && (player.isOp() || player.hasPermission("track.admin"))) {
+        if (player != null && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
             setItem(tPlayer.isOverride() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 0);
             setItem(getOverrideButton(tPlayer), 9);
         }

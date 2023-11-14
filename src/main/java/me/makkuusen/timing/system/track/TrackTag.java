@@ -62,7 +62,7 @@ public class TrackTag {
         }
         ItemMeta im = toReturn.getItemMeta();
         im.displayName(Component.text(value).color(color));
-        if (player.hasPermission("track.admin")) {
+        if (player.hasPermission("timingsystem.packs.trackadmin")) {
             im.lore(List.of(Component.text(getWeight()).color(NamedTextColor.DARK_GRAY)));
         }
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);

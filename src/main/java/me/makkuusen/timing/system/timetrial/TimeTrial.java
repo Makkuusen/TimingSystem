@@ -125,14 +125,14 @@ public class TimeTrial {
 
     public void playerPassingLagStart() {
         Player player = tPlayer.getPlayer();
-        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("track.admin"))) {
+        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
             Text.send(player, Info.TIME_TRIAL_LAG_START, "%time%", ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
         }
     }
 
     public void playerPassingLagEnd() {
         Player player = tPlayer.getPlayer();
-        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("track.admin"))) {
+        if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
             Text.send(player, Info.TIME_TRIAL_LAG_END, "%time%", ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
         }
     }
