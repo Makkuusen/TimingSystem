@@ -430,7 +430,7 @@ public class TSListener implements Listener {
 
                     if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
                         TimeTrial timeTrial = new TimeTrial(track_, Database.getPlayer(player.getUniqueId()));
-                        timeTrial.playerStartingMap();
+                        timeTrial.playerStartingTimeTrial();
                         TimeTrialController.elytraProtection.remove(player.getUniqueId());
                         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track_);
                     }

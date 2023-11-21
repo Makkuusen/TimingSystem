@@ -1102,6 +1102,8 @@ public class CommandTrack extends BaseCommand {
             } else {
                 if (regionType == TrackRegion.RegionType.START || regionType == TrackRegion.RegionType.END || regionType == TrackRegion.RegionType.PIT) {
                     regionIndex = 1;
+                } else if (regionType == TrackRegion.RegionType.CHECKPOINT) {
+                    regionIndex = track.getNumberOfCheckpoints() + 1;
                 } else {
                     regionIndex = track.getRegions(regionType).size() + 1;
                 }

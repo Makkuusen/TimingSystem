@@ -6,6 +6,7 @@ import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.TimeTrialAttemptEvent;
 import me.makkuusen.timing.system.api.events.TimeTrialFinishEvent;
+import me.makkuusen.timing.system.api.events.TimeTrialStartEvent;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -56,6 +57,10 @@ public class TimeTrial {
 
     public TimeTrialFinish getBestFinish() {
         return bestFinish;
+    }
+
+    public void setBestFinish(TimeTrialFinish finish) {
+        bestFinish = finish;
     }
 
     public Track getTrack() {
@@ -162,7 +167,7 @@ public class TimeTrial {
 
     }
 
-    public void playerStartingMap() {
+    public void playerStartingTimeTrial() {
         Player player = tPlayer.getPlayer();
 
         if (!tPlayer.isTimeTrial()) {
@@ -180,6 +185,9 @@ public class TimeTrial {
         if (track.isBoatTrack() && !(player.getVehicle() instanceof Boat)) {
             return;
         }
+
+        var eventTimeTrialStart = new TimeTrialStartEvent(tPlayer.getPlayer(), this);
+        Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialStart);
 
         TimeTrialController.timeTrials.put(tPlayer.getUniqueId(), this);
         ApiUtilities.msgConsole(tPlayer.getName() + " started on " + track.getDisplayName());
@@ -250,22 +258,22 @@ public class TimeTrial {
 
         Component finishMessage;
         TimeTrialFinish finish;
-        if (track.getBestFinish(tPlayer) == null) {
+        if (bestFinish == null) {
             //First finish
             finish = newBestFinish(player, timeTrialTime, -1);
             finishMessage = Text.get(player, Info.TIME_TRIAL_FIRST_FINISH,"%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%pos%", String.valueOf(track.getPlayerTopListPosition(tPlayer)));
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, finishMessage);
-        } else if (timeTrialTime < track.getBestFinish(tPlayer).getTime()) {
+        } else if (timeTrialTime < bestFinish.getTime()) {
             //New personal best
             var oldPos = track.getCachedPlayerPosition(tPlayer);
-            var oldFinish = track.getBestFinish(tPlayer);
+            var oldFinish = bestFinish;
             finish = newBestFinish(player, timeTrialTime, oldFinish.getTime());
             finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(oldFinish.getTime() - timeTrialTime), "%oldPos%", oldPos.toString(), "%pos%", track.getPlayerTopListPosition(tPlayer).toString());
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, oldFinish, finishMessage);
         } else {
             //Finish no improvement
-            finish = callTimeTrialFinishEvent(player, timeTrialTime, track.getBestFinish(tPlayer).getTime(), false);
-            finishMessage = Text.get(player, Info.TIME_TRIAL_FINISH, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(timeTrialTime - track.getBestFinish(tPlayer).getTime()));
+            finish = callTimeTrialFinishEvent(player, timeTrialTime, bestFinish.getTime(), false);
+            finishMessage = Text.get(player, Info.TIME_TRIAL_FINISH, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(timeTrialTime - bestFinish.getTime()));
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, track.getBestFinish(tPlayer), finishMessage);
 
         }
@@ -298,7 +306,7 @@ public class TimeTrial {
             finish.updateCheckpointTimes(checkpointTimes);
         }
 
-        TimeTrialFinishEvent eventTimeTrialFinish = new TimeTrialFinishEvent(player, finish, oldBestTime, newBestFinish);
+        TimeTrialFinishEvent eventTimeTrialFinish = new TimeTrialFinishEvent(player, this, finish, oldBestTime, newBestFinish);
         Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialFinish);
         return finish;
     }
@@ -321,6 +329,5 @@ public class TimeTrial {
         }
         return Component.empty();
     }
-
 
 }
