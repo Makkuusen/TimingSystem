@@ -1109,18 +1109,32 @@ public class CommandTrack extends BaseCommand {
                 }
             }
             if (remove) {
-                var checkpointRegions = track.getCheckpointRegions(regionIndex);
-                if (!checkpointRegions.isEmpty()) {
-                    for (TrackRegion region : checkpointRegions) {
-                        if (track.removeRegion(region)) {
+                if (regionType == TrackRegion.RegionType.CHECKPOINT) {
+                    var checkpointRegions = track.getCheckpointRegions(regionIndex);
+                    if (!checkpointRegions.isEmpty()) {
+                        for (TrackRegion region : checkpointRegions) {
+                            if (track.removeRegion(region)) {
+                                Text.send(player, Success.REMOVED);
+                            } else {
+                                Text.send(player, Error.FAILED_TO_REMOVE);
+                            }
+                        }
+                    } else {
+                        Text.send(player, Error.NOTHING_TO_REMOVE);
+                    }
+                } else {
+                    var maybeRegion = track.getRegion(regionType, regionIndex);
+                    if (maybeRegion.isPresent()) {
+                        if (track.removeRegion(maybeRegion.get())) {
                             Text.send(player, Success.REMOVED);
                         } else {
                             Text.send(player, Error.FAILED_TO_REMOVE);
                         }
+                    } else {
+                        Text.send(player, Error.NOTHING_TO_REMOVE);
                     }
-                } else {
-                    Text.send(player, Error.NOTHING_TO_REMOVE);
                 }
+
                 return;
             }
             if (createOrUpdateRegion(track, regionType, regionIndex, player, overload)) {

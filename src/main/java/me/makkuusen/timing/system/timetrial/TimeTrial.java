@@ -4,6 +4,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.TimeTrialAttemptEvent;
 import me.makkuusen.timing.system.api.events.TimeTrialFinishEvent;
 import me.makkuusen.timing.system.api.events.TimeTrialStartEvent;
@@ -264,12 +265,23 @@ public class TimeTrial {
             finishMessage = Text.get(player, Info.TIME_TRIAL_FIRST_FINISH,"%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%pos%", String.valueOf(track.getPlayerTopListPosition(tPlayer)));
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, finishMessage);
         } else if (timeTrialTime < bestFinish.getTime()) {
-            //New personal best
-            var oldPos = track.getCachedPlayerPosition(tPlayer);
-            var oldFinish = bestFinish;
-            finish = newBestFinish(player, timeTrialTime, oldFinish.getTime());
-            finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(oldFinish.getTime() - timeTrialTime), "%oldPos%", oldPos.toString(), "%pos%", track.getPlayerTopListPosition(tPlayer).toString());
-            finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, oldFinish, finishMessage);
+
+            // Temporary fix to make TimingSystemTrackMerge integrate a little better.
+            if (bestFinish.getTrack() != track.getId()) {
+                var recordTrack = TimingSystemAPI.getTrackById(bestFinish.getTrack()).get();
+                var oldPos = recordTrack.getCachedPlayerPosition(tPlayer);
+                var oldFinish = bestFinish;
+                finish = newBestFinish(player, timeTrialTime, oldFinish.getTime());
+                finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(oldFinish.getTime() - timeTrialTime), "%oldPos%", oldPos.toString(), "%pos%", recordTrack.getPlayerTopListPosition(tPlayer).toString());
+                finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, oldFinish, finishMessage);
+            } else {
+                //New personal best
+                var oldPos = track.getCachedPlayerPosition(tPlayer);
+                var oldFinish = bestFinish;
+                finish = newBestFinish(player, timeTrialTime, oldFinish.getTime());
+                finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(oldFinish.getTime() - timeTrialTime), "%oldPos%", oldPos.toString(), "%pos%", track.getPlayerTopListPosition(tPlayer).toString());
+                finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, oldFinish, finishMessage);
+            }
         } else {
             //Finish no improvement
             finish = callTimeTrialFinishEvent(player, timeTrialTime, bestFinish.getTime(), false);
