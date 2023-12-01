@@ -118,8 +118,8 @@ public class TPlayer implements Comparable<TPlayer> {
             initScoreboard();
         }
 
-        for(Component line : lines) {
-            scoreboard.line(lines.indexOf(line), line);
+        for (int i = 0; i < Math.min(lines.size(), scoreboard.maxLines()); i++) {
+            scoreboard.line(i, lines.get(i));
         }
     }
 
