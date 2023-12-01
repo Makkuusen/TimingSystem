@@ -8,9 +8,9 @@ import me.makkuusen.timing.system.TPlayer;
 
 import java.util.UUID;
 
+@Getter
 public abstract class Participant {
 
-    @Getter
     @Setter
     private TPlayer tPlayer;
 

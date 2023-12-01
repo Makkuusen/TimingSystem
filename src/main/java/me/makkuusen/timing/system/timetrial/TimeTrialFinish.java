@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.timetrial;
 
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
@@ -19,10 +20,13 @@ import java.util.UUID;
 
 public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
 
+    @Getter
     private final int id;
     private final int trackId;
     private final UUID uuid;
+    @Getter
     private final long date;
+    @Getter
     private final long time;
     private Map<Integer, Long> checkpointTimes = new HashMap<>();
 
@@ -65,20 +69,8 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
         return !checkpointTimes.isEmpty();
     }
 
-    public int getId() {
-        return id;
-    }
-
     public TPlayer getPlayer() {
         return Database.getPlayer(uuid);
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public long getDate() {
-        return date;
     }
 
     public int getTrack() {

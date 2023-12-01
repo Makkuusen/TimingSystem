@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import lombok.Getter;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Getter
 public class PlayerRegionData {
     private static final Map<UUID, PlayerRegionData> players = new HashMap<>();
     private final List<Integer> entered = new ArrayList<>();
@@ -32,14 +34,6 @@ public class PlayerRegionData {
 
     public void updatePlayer(Player player) {
         this.player = player;
-    }
-
-    public Player getPlayer() {
-        return this.player;
-    }
-
-    public List<Integer> getEntered() {
-        return this.entered;
     }
 
 }

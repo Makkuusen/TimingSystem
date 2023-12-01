@@ -77,7 +77,7 @@ public class Tasks {
                 long time = 0L;
                 long bestTime = 0L;
                 var topTime = track.getTopList(1);
-                if (topTime.size() != 0) {
+                if (!topTime.isEmpty()) {
                     bestTime = topTime.get(0).getTime();
 
                     for (List<TimeTrialFinish> l : track.getTimeTrialFinishes().values()) {
@@ -116,7 +116,7 @@ public class Tasks {
 
                 }
             } else if (driver.getHeat().getRound() instanceof QualificationRound) {
-                if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
+                if (!driver.getLaps().isEmpty() && driver.getCurrentLap() != null && driver.getState() == DriverState.RUNNING) {
                     long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                     long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                     String delta = QualifyHeat.getBestLapCheckpointDelta(driver, driver.getCurrentLap().getLatestCheckpoint());
@@ -144,7 +144,7 @@ public class Tasks {
     }
 
     private static void sendQualificationDriverActionBar(Player player, Driver driver) {
-        if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
+        if (!driver.getLaps().isEmpty() && driver.getCurrentLap() != null && driver.getState() == DriverState.RUNNING) {
             long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
             long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
             String delta = QualifyHeat.getBestLapCheckpointDelta(driver, driver.getCurrentLap().getLatestCheckpoint());

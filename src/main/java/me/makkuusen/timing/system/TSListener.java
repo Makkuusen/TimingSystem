@@ -22,7 +22,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -74,7 +73,7 @@ public class TSListener implements Listener {
             TPlayer TPlayer = Database.getPlayer(event.getUniqueId(), event.getName());
 
             if (TPlayer == null) {
-                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Your player profile could not be loaded. Notify the server owner!");
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("Your player profile could not be loaded. Notify the server owner!"));
             }
         }
     }
@@ -346,7 +345,7 @@ public class TSListener implements Listener {
             } else if (!player.isGliding() && track.hasOption('g')) {
                 Text.send(player, Error.STOPPED_FLYING);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
-            } else if (player.getActivePotionEffects().size() > 0 && track.hasOption('p')) {
+            } else if (!player.getActivePotionEffects().isEmpty() && track.hasOption('p')) {
                 Text.send(player, Error.NO_POTION_EFFECTS);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             } else if (player.isRiptiding() && track.hasOption('t')) {
@@ -391,7 +390,7 @@ public class TSListener implements Listener {
 
             var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
             if (maybeDriver.isPresent()) {
-                handleHeat(maybeDriver.get(), player, e.getFrom());
+                handleHeat(maybeDriver.get(), player);
                 return;
             }
 
@@ -497,7 +496,7 @@ public class TSListener implements Listener {
             }
         }
 
-        if (!timeTrial.isLagStart() && track.hasRegion(TrackRegion.RegionType.LAGSTART)) {
+        if (!timeTrial.isLagStart() && track.getRegion(TrackRegion.RegionType.LAGSTART).isPresent()) {
             if (track.getRegion(TrackRegion.RegionType.LAGSTART).get().contains(player.getLocation())) {
                 timeTrial.setLagStartTrue();
                 timeTrial.playerPassingLagStart();
@@ -512,7 +511,7 @@ public class TSListener implements Listener {
             }
         }
 
-        if (!timeTrial.isLagEnd() && track.hasRegion(TrackRegion.RegionType.LAGEND)) {
+        if (!timeTrial.isLagEnd() && track.getRegion(TrackRegion.RegionType.LAGEND).isPresent()) {
             if (track.getRegion(TrackRegion.RegionType.LAGEND).get().contains(player.getLocation())) {
                 timeTrial.setLagEnd(true);
                 timeTrial.playerPassingLagEnd();
@@ -544,7 +543,7 @@ public class TSListener implements Listener {
         }
     }
 
-    private static void handleHeat(Driver driver, Player player, Location from) {
+    private static void handleHeat(Driver driver, Player player) {
         Heat heat = driver.getHeat();
 
         if (!heat.getHeatState().equals(HeatState.RACING)) {
@@ -568,7 +567,7 @@ public class TSListener implements Listener {
                     heat.updatePositions();
                     ApiUtilities.msgConsole("Starting : " + player.getName() + " in " + heat.getName());
                     return;
-                } else if (driver.getCurrentLap().getLatestCheckpoint() != 0) {
+                } else if (driver.getCurrentLap() != null && driver.getCurrentLap().getLatestCheckpoint() != 0) {
                     if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
                         int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                         var maybeCheckpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
@@ -587,12 +586,10 @@ public class TSListener implements Listener {
         if (track.isStage()) {
             for (var r : track.getRegions(TrackRegion.RegionType.END)) {
                 if (r.contains(player.getLocation())) {
-                    if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
+                    if (!(driver.getCurrentLap() != null && driver.getCurrentLap().hasPassedAllCheckpoints())) {
                         int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                         var maybeCheckpoint = track.getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
-                        if (maybeCheckpoint.isPresent()) {
-                            ApiUtilities.teleportPlayerAndSpawnBoat(player, track, maybeCheckpoint.get().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                        }
+                        maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
                         Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
                         return;
                     }
@@ -606,6 +603,10 @@ public class TSListener implements Listener {
 
         if (driver.getState() == DriverState.RUNNING) {
             Lap lap = driver.getCurrentLap();
+
+            if (lap == null) {
+                return;
+            }
 
             if (driver.getHeat().getRound() instanceof FinalRound) {
                 // Check for pitstop
@@ -623,7 +624,9 @@ public class TSListener implements Listener {
             for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
                 if (r.contains(player.getLocation())) {
                     var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-                    TrackRegion region = maybeRegion.isEmpty() ? track.getStartRegion().get() : maybeRegion.get();
+
+                    TrackRegion region;
+                    region = maybeRegion.orElseGet(() -> track.getStartRegion().get());
                     ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                     return;
                 }
@@ -652,7 +655,7 @@ public class TSListener implements Listener {
                 heat.updatePositions();
             } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
                 var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-                TrackRegion region = maybeRegion.isEmpty() ? track.getStartRegion().get() : maybeRegion.get();
+                TrackRegion region = maybeRegion.orElseGet(() -> track.getStartRegion().get());
                 ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
             }

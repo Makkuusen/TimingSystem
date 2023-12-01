@@ -26,7 +26,7 @@ public class EventResults {
             newList.sort(Comparator.comparingInt(Driver::getPosition));
             results.addAll(newList);
         }
-        if (results.size() > 0) {
+        if (!results.isEmpty()) {
             if (results.get(0).getHeat().getRound() instanceof QualificationRound) {
                 results.sort(Driver::compareTo);
             }

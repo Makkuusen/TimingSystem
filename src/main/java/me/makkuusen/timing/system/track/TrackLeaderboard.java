@@ -56,9 +56,7 @@ public class TrackLeaderboard extends TrackLocation {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
-        Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
-            hologramManager.removeHologram();
-        });
+        Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> hologramManager.removeHologram());
     }
 
     private List<String> getHologramLines() {

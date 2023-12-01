@@ -62,7 +62,7 @@ public class ApiUtilities {
     }
 
     public static Location stringToLocation(String string) {
-        if (string == null || string.length() == 0) {
+        if (string == null || string.isEmpty()) {
             return null;
         }
 
@@ -174,7 +174,7 @@ public class ApiUtilities {
             if (character.toString().matches("[0-9]")) {
                 tmp += character;
             } else {
-                if (tmp.length() == 0) {
+                if (tmp.isEmpty()) {
                     return null;
                 }
 
@@ -195,7 +195,7 @@ public class ApiUtilities {
         }
 
         // default to milliseconds
-        if (tmp.length() != 0) {
+        if (!tmp.isEmpty()) {
             try {
                 duration += Integer.parseInt(tmp);
             } catch (Exception exception) {
@@ -522,9 +522,7 @@ public class ApiUtilities {
                 ApiUtilities.giveBoatUtilsIEffect(player);
                 ApiUtilities.giveBoatUtilsREffect(player);
             }
-            case BA -> {
-                ApiUtilities.giveBoatUtilsREffect(player);
-            }
+            case BA -> ApiUtilities.giveBoatUtilsREffect(player);
         }
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
 
@@ -549,9 +547,7 @@ public class ApiUtilities {
         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
         chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(3);
         if (track.isBoatTrack()) {
-            chain.sync(() -> {
-                ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, sameAsLastTrack);
-            }).execute();
+            chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, sameAsLastTrack)).execute();
         } else if (track.isElytraTrack()) {
             chain.sync(() -> {
                 ItemStack chest = player.getInventory().getChestplate();
@@ -605,32 +601,6 @@ public class ApiUtilities {
         }
         if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
             return !(BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) == BoatUtilsMode.VANILLA);
-        }
-        return false;
-    }
-
-    public static boolean hasBoatUtilsREffect(Player player) {
-        PotionEffect unluckEffect = player.getPotionEffect(PotionEffectType.UNLUCK);
-        if (unluckEffect != null) {
-            return unluckEffect.getAmplifier() == 99;
-        }
-
-        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
-            var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
-            return mode == BoatUtilsMode.RALLY || mode == BoatUtilsMode.BA;
-        }
-        return false;
-    }
-
-    public static boolean hasBoatUtilsIEffect(Player player) {
-        PotionEffect luckEffect = player.getPotionEffect(PotionEffectType.LUCK);
-        if (luckEffect != null) {
-            return luckEffect.getAmplifier() == 55;
-        }
-
-        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
-            var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
-            return mode == BoatUtilsMode.RALLY;
         }
         return false;
     }
@@ -700,10 +670,6 @@ public class ApiUtilities {
 
         // Convert the darkened RGB values back to hex
         return String.format("#%02X%02X%02X", r, g, b);
-    }
-
-    public static void leaveHeat() {
-
     }
 
     public static List<UUID> extractUUIDsFromString(String s) {
