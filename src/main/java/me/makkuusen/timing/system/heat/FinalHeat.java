@@ -1,7 +1,9 @@
 package me.makkuusen.timing.system.heat;
 
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
+import org.bukkit.Bukkit;
 
 
 public class FinalHeat {
@@ -29,9 +31,11 @@ public class FinalHeat {
         EventAnnouncements.sendFinishTitle(driver);
         EventAnnouncements.broadcastFinish(driver.getHeat(), driver, driver.getFinishTime());
 
-        driver.getHeat().getEvent().getTrack().getFinishTpLocation(driver.getPosition()).ifPresentOrElse(
-                loc -> driver.getTPlayer().getPlayer().teleport(loc),
-                () -> driver.getHeat().getEvent().getTrack().getFinishTpLocation().ifPresent(loc -> driver.getTPlayer().getPlayer().teleport(loc))
-        );
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> {
+            driver.getHeat().getEvent().getTrack().getFinishTpLocation(driver.getPosition()).ifPresentOrElse(
+                    loc -> driver.getTPlayer().getPlayer().teleport(loc),
+                    () -> driver.getHeat().getEvent().getTrack().getFinishTpLocation().ifPresent(loc -> driver.getTPlayer().getPlayer().teleport(loc))
+            );
+        });
     }
 }
