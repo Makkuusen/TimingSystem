@@ -121,6 +121,14 @@ public class TimeTrial {
         this.lagEnd = lagEnd;
     }
 
+    public boolean isLagEnd() {
+        return lagEnd;
+    }
+
+    public boolean isLagStart() {
+        return lagStart;
+    }
+
     public void playerPassingLagStart() {
         Player player = tPlayer.getPlayer();
         if (tPlayer.isVerbose() && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
