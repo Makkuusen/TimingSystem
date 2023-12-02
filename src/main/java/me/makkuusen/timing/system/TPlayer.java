@@ -222,6 +222,10 @@ public class TPlayer implements Comparable<TPlayer> {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `sendFinalLaps` = " + sendFinalLaps + " WHERE `uuid` = '" + uuid + "';");
     }
 
+    public boolean isCompactScoreboard() {
+        return compactScoreboard;
+    }
+
     public boolean hasBoatUtils() {
         if (boatUtilsVersion == null) {
             return false;
