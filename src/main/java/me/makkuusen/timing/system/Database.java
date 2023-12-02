@@ -1,9 +1,6 @@
 package me.makkuusen.timing.system;
 
-import co.aikar.idb.BukkitDB;
-import co.aikar.idb.DB;
-import co.aikar.idb.DbRow;
-import co.aikar.idb.PooledDatabaseOptions;
+import co.aikar.idb.*;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -20,15 +18,22 @@ public class Database {
 
     public static boolean initialize() {
         try {
-            String hostAndPort = TimingSystem.configuration.getSqlHost() + ":" + TimingSystem.configuration.getSqlPort();
+            if(TimingSystem.configuration.useSQLite()) {
+                DatabaseOptions options = DatabaseOptions.builder().poolName(plugin.getDescription().getName() + " DB").logger(plugin.getLogger()).sqlite(new File(plugin.getDataFolder(), "ts.db").getPath()).build();
+                PooledDatabaseOptions poolOptions = PooledDatabaseOptions.builder().options(options).build();
+                BukkitDB.createHikariDatabase(TimingSystem.getPlugin(), poolOptions);
+            } else {
+                String hostAndPort = TimingSystem.configuration.getSqlHost() + ":" + TimingSystem.configuration.getSqlPort();
 
-            PooledDatabaseOptions options = BukkitDB.getRecommendedOptions(TimingSystem.getPlugin(), TimingSystem.configuration.getSqlUsername(), TimingSystem.configuration.getSqlPassword(), TimingSystem.configuration.getSqlDatabase(), hostAndPort);
+                PooledDatabaseOptions options = BukkitDB.getRecommendedOptions(TimingSystem.getPlugin(), TimingSystem.configuration.getSqlUsername(), TimingSystem.configuration.getSqlPassword(), TimingSystem.configuration.getSqlDatabase(), hostAndPort);
 
-            if (options.getOptions().getDataSourceClassName().equalsIgnoreCase("org.mariadb.jdbc.MariaDbDataSource")) {
-                options.getOptions().setDsn("mariadb://" + hostAndPort + "/" + TimingSystem.configuration.getSqlDatabase());
+                if (options.getOptions().getDataSourceClassName().equalsIgnoreCase("org.mariadb.jdbc.MariaDbDataSource")) {
+                    options.getOptions().setDsn("mariadb://" + hostAndPort + "/" + TimingSystem.configuration.getSqlDatabase());
+                }
+
+                BukkitDB.createHikariDatabase(TimingSystem.getPlugin(), options);
             }
 
-            BukkitDB.createHikariDatabase(TimingSystem.getPlugin(), options);
             return createTables();
         } catch (Exception e) {
             e.printStackTrace();
@@ -155,8 +160,185 @@ public class Database {
 
     public static boolean createTables() {
         try {
+            if(TimingSystem.configuration.useSQLite()) {
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_players` (
+                        `uuid` TEXT NOT NULL DEFAULT '' PRIMARY KEY,
+                        `name` TEXT NOT NULL,
+                        `boat` TEXT DEFAULT NULL,
+                        `toggleSound` INTEGER DEFAULT 1 NOT NULL
+                        )
+                        """);
 
-            DB.executeUpdate("""
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_tracks` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `uuid` TEXT DEFAULT NULL,
+                          `name` TEXT NOT NULL,
+                          `dateCreated` INTEGER DEFAULT NULL,
+                          `guiItem` TEXT NOT NULL,
+                          `spawn` TEXT NOT NULL,
+                          `leaderboard` TEXT NOT NULL,
+                          `type` TEXT NOT NULL,
+                          `mode` TEXT NOT NULL,
+                          `toggleOpen` INTEGER NOT NULL,
+                          `options` TEXT DEFAULT NULL,
+                          `isRemoved` INTEGER NOT NULL
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_finishes` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `trackId` INT NOT NULL,
+                          `uuid` TEXT NOT NULL,
+                          `date` INTEGER NOT NULL,
+                          `time` INTEGER NOT NULL,
+                          `isRemoved` INT NOT NULL
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_finishes_checkpoints` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `finishId` INTEGER NOT NULL,
+                          `checkpointIndex` INTEGER DEFAULT NULL,
+                          `time` INTEGER NOT NULL,
+                          `isRemoved` INTEGER NOT NULL DEFAULT 0
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_attempts` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `trackId` INTEGER NOT NULL,
+                          `uuid` TEXT NOT NULL,
+                          `date` INTEGER NOT NULL,
+                          `time` INTEGER NOT NULL
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_regions` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `trackId` INTEGER NOT NULL,
+                          `regionIndex` INTEGER DEFAULT NULL,
+                          `regionType` TEXT DEFAULT NULL,
+                          `regionShape` TEXT NOT NULL,
+                          `minP` TEXT DEFAULT NULL,
+                          `maxP` TEXT DEFAULT NULL,
+                          `spawn` TEXT NOT NULL,
+                          `isRemoved` INTEGER NOT NULL
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_events` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `name` TEXT NOT NULL,
+                          `uuid` TEXT NOT NULL,
+                          `date` INTEGER DEFAULT NULL,
+                          `track` INTEGER DEFAULT NULL,
+                          `state` TEXT NOT NULL,
+                          `isRemoved` INTEGER NOT NULL DEFAULT '0'
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_heats` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `roundId` INTEGER NOT NULL,
+                          `heatNumber` INTEGER NOT NULL,
+                          `state` TEXT NOT NULL,
+                          `startTime` INTEGER DEFAULT NULL,
+                          `endTime` INTEGER DEFAULT NULL,
+                          `fastestLapUUID` TEXT NULL,
+                          `totalLaps` INTEGER DEFAULT NULL,
+                          `totalPitstops` INT DEFAULT NULL,
+                          `timeLimit` INTEGER DEFAULT NULL,
+                          `startDelay` INTEGER DEFAULT NULL,
+                          `maxDrivers` INTEGER DEFAULT NULL,
+                          `isRemoved` INTEGER NOT NULL DEFAULT '0'
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_drivers` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `uuid` TEXT NOT NULL,
+                          `heatId` INTEGER NOT NULL,
+                          `position` INTEGER NOT NULL,
+                          `startPosition` INTEGER NOT NULL,
+                          `startTime` INTEGER DEFAULT NULL,
+                          `endTime` INTEGER DEFAULT NULL,
+                          `pitstops` INTEGER DEFAULT NULL,
+                          `isRemoved` INTEGER NOT NULL DEFAULT '0'
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_events_signs`(
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `eventId` INTEGER NOT NULL,
+                          `uuid` TEXT NOT NULL,
+                          `type` TEXT NOT NULL
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_laps` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `uuid` TEXT NOT NULL,
+                          `heatId` INTEGER NOT NULL,
+                          `trackId` INTEGER NOT NULL,
+                          `lapStart` TEXT DEFAULT NULL,
+                          `lapEnd` INTEGER DEFAULT NULL,
+                          `pitted` INTEGER NOT NULL,
+                          `isRemoved` INTEGER NOT NULL DEFAULT '0'
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_locations` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `trackId` INTEGER NOT NULL,
+                          `type` TEXT NOT NULL,
+                          `index` INTEGER DEFAULT NULL,
+                          `location` TEXT NOT NULL
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_points` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `regionId` INTEGER NOT NULL,
+                          `x` INTEGER DEFAULT NULL,
+                          `z` INTEGER DEFAULT NULL
+                        );""");
+
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_rounds` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `eventId` INTEGER NOT NULL,
+                          `roundIndex` INTEGER NOT NULL DEFAULT 1,
+                          `type` TEXT DEFAULT NULL,
+                          `state` TEXT NOT NULL,
+                          `isRemoved` INTEGER NOT NULL DEFAULT 0
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_version` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `version` TEXT NOT NULL,
+                          `date` INTEGER NOT NULL
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_tags` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `tag` TEXT NOT NULL
+                        );""");
+
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_tracks_tags` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `trackId` INTEGER NOT NULL,
+                          `tag` TEXT NOT NULL
+                        );""");
+
+            } else {
+
+                DB.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `ts_players` (
                       `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
                       `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -165,192 +347,193 @@ public class Database {
                       PRIMARY KEY (`uuid`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_tracks` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-                      `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `dateCreated` bigint(30) DEFAULT NULL,
-                      `guiItem` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `leaderboard` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `mode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `toggleOpen` tinyint(1) NOT NULL,
-                      `options` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-                      `isRemoved` tinyint(1) NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_tracks` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                          `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `dateCreated` bigint(30) DEFAULT NULL,
+                          `guiItem` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `leaderboard` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `mode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `toggleOpen` tinyint(1) NOT NULL,
+                          `options` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                          `isRemoved` tinyint(1) NOT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_finishes` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `trackId` int(11) NOT NULL,
-                      `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `date` bigint(30) NOT NULL,
-                      `time` int(11) NOT NULL,
-                      `isRemoved` tinyint(1) NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_finishes` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `trackId` int(11) NOT NULL,
+                          `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `date` bigint(30) NOT NULL,
+                          `time` int(11) NOT NULL,
+                          `isRemoved` tinyint(1) NOT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_finishes_checkpoints` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `finishId` int(11) NOT NULL,
-                      `checkpointIndex` int(11) DEFAULT NULL,
-                      `time` int(11) NOT NULL,
-                      `isRemoved` tinyint(1) NOT NULL DEFAULT 0,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_finishes_checkpoints` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `finishId` int(11) NOT NULL,
+                          `checkpointIndex` int(11) DEFAULT NULL,
+                          `time` int(11) NOT NULL,
+                          `isRemoved` tinyint(1) NOT NULL DEFAULT 0,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_attempts` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `trackId` int(11) NOT NULL,
-                      `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `date` bigint(30) NOT NULL,
-                      `time` int(11) NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_attempts` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `trackId` int(11) NOT NULL,
+                          `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `date` bigint(30) NOT NULL,
+                          `time` int(11) NOT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_regions` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `trackId` int(11) NOT NULL,
-                      `regionIndex` int(11) DEFAULT NULL,
-                      `regionType` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-                      `regionShape` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `minP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-                      `maxP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-                      `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `isRemoved` tinyint(1) NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_regions` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `trackId` int(11) NOT NULL,
+                          `regionIndex` int(11) DEFAULT NULL,
+                          `regionType` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                          `regionShape` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `minP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                          `maxP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                          `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `isRemoved` tinyint(1) NOT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_events` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `date` bigint(30) DEFAULT NULL,
-                      `track` int(11) DEFAULT NULL,
-                      `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                    """);
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_events` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `date` bigint(30) DEFAULT NULL,
+                          `track` int(11) DEFAULT NULL,
+                          `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                        """);
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_heats` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `roundId` int(11) NOT NULL,
-                      `heatNumber` int(11) NOT NULL,
-                      `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `startTime` bigint(30) DEFAULT NULL,
-                      `endTime` bigint(30) DEFAULT NULL,
-                      `fastestLapUUID` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
-                      `totalLaps` int(11) DEFAULT NULL,
-                      `totalPitstops` int(11) DEFAULT NULL,
-                      `timeLimit` int(11) DEFAULT NULL,
-                      `startDelay` int(11) DEFAULT NULL,
-                      `maxDrivers` int(11) DEFAULT NULL,
-                      `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_heats` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `roundId` int(11) NOT NULL,
+                          `heatNumber` int(11) NOT NULL,
+                          `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `startTime` bigint(30) DEFAULT NULL,
+                          `endTime` bigint(30) DEFAULT NULL,
+                          `fastestLapUUID` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
+                          `totalLaps` int(11) DEFAULT NULL,
+                          `totalPitstops` int(11) DEFAULT NULL,
+                          `timeLimit` int(11) DEFAULT NULL,
+                          `startDelay` int(11) DEFAULT NULL,
+                          `maxDrivers` int(11) DEFAULT NULL,
+                          `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_drivers` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `heatId` int(11) NOT NULL,
-                      `position` int(11) NOT NULL,
-                      `startPosition` int(11) NOT NULL,
-                      `startTime` bigint(30) DEFAULT NULL,
-                      `endTime` bigint(30) DEFAULT NULL,
-                      `pitstops` int(11) DEFAULT NULL,
-                      `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_drivers` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `heatId` int(11) NOT NULL,
+                          `position` int(11) NOT NULL,
+                          `startPosition` int(11) NOT NULL,
+                          `startTime` bigint(30) DEFAULT NULL,
+                          `endTime` bigint(30) DEFAULT NULL,
+                          `pitstops` int(11) DEFAULT NULL,
+                          `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_events_signs`(
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `eventId` int(11) NOT NULL,
-                      `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_events_signs`(
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `eventId` int(11) NOT NULL,
+                          `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_laps` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `heatId` int(11) NOT NULL,
-                      `trackId` int(11) NOT NULL,
-                      `lapStart` bigint(30) DEFAULT NULL,
-                      `lapEnd` bigint(30) DEFAULT NULL,
-                      `pitted` tinyint(1) NOT NULL,
-                      `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_laps` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `heatId` int(11) NOT NULL,
+                          `trackId` int(11) NOT NULL,
+                          `lapStart` bigint(30) DEFAULT NULL,
+                          `lapEnd` bigint(30) DEFAULT NULL,
+                          `pitted` tinyint(1) NOT NULL,
+                          `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_locations` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `trackId` int(11) NOT NULL,
-                      `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `index` int(11) DEFAULT NULL,
-                      `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_locations` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `trackId` int(11) NOT NULL,
+                          `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `index` int(11) DEFAULT NULL,
+                          `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_points` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `regionId` int(11) NOT NULL,
-                      `x` int(11) DEFAULT NULL,
-                      `z` int(11) DEFAULT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_points` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `regionId` int(11) NOT NULL,
+                          `x` int(11) DEFAULT NULL,
+                          `z` int(11) DEFAULT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_rounds` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `eventId` int(11) NOT NULL,
-                      `roundIndex` int(11) NOT NULL DEFAULT 1,
-                      `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-                      `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `isRemoved` tinyint(1) NOT NULL DEFAULT 0,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                    """);
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_rounds` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `eventId` int(11) NOT NULL,
+                          `roundIndex` int(11) NOT NULL DEFAULT 1,
+                          `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                          `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `isRemoved` tinyint(1) NOT NULL DEFAULT 0,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                        """);
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_version` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `version` varchar(255) NOT NULL,
-                      `date` bigint(30) NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                    """);
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_version` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `version` varchar(255) NOT NULL,
+                          `date` bigint(30) NOT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                        """);
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_tags` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `tag` varchar(255) NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                    """);
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_tags` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `tag` varchar(255) NOT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                        """);
 
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_tracks_tags` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `trackId` int(11) NOT NULL,
-                      `tag` varchar(255) NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                    """);
+                DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_tracks_tags` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `trackId` int(11) NOT NULL,
+                          `tag` varchar(255) NOT NULL,
+                          PRIMARY KEY (`id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                        """);
+            }
 
             return true;
         } catch (SQLException exception) {
@@ -385,7 +568,11 @@ public class Database {
 
     private static void rc9Update() {
         try {
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `toggleSound` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
+            if(TimingSystem.configuration.useSQLite()) {
+                DB.executeUpdate("ALTER TABLE `ts_player` ADD `toggleSound` INTEGER NOT NULL DEFAULT '1';");
+            } else {
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `toggleSound` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
+            }
         } catch (Exception ignored) {
 
         }
@@ -393,11 +580,19 @@ public class Database {
 
     private static void v1_0Update() {
         try {
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `verbose` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `timetrial` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `override` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `chestBoat` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#9D9D97' AFTER `boat`;");
+            if(TimingSystem.configuration.useSQLite()) {
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `verbose` INTEGER NOT NULL DEFAULT '0';");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `timetrial` INTEGER NOT NULL DEFAULT '1';");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `override` INTEGER NOT NULL DEFAULT '0';");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `chestBoat` INTEGER NOT NULL DEFAULT '0';");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `color` TEXT NOT NULL DEFAULT '#9D9D97';");
+            } else {
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `verbose` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `timetrial` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `override` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `chestBoat` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#9D9D97' AFTER `boat`;");
+            }
         } catch (Exception ignored) {
 
         }
@@ -405,15 +600,20 @@ public class Database {
 
     private static void v1_2Update() {
         try {
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `dateCreated`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `compactScoreboard` tinyint(1) NOT NULL DEFAULT '0' AFTER `chestBoat`;");
+            if(TimingSystem.configuration.useSQLite()) {
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `weight` INTEGER NOT NULL DEFAULT '100';");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `compactScoreboard` INTEGER NOT NULL DEFAULT '0';");
+            } else {
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `dateCreated`;");
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `compactScoreboard` tinyint(1) NOT NULL DEFAULT '0' AFTER `chestBoat`;");
+            }
+
             var dbRows = DB.getResults("SELECT * FROM `ts_tracks`;");
             for (DbRow row : dbRows) {
                 var first = DB.getFirstRow("SELECT * FROM `ts_locations` WHERE `trackId` = " + row.getInt("id") + " AND `type` = 'LEADERBOARD' AND `index` = 1;");
                 if (first == null) {
                     DB.executeUpdate("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + row.getInt("id") + ", " + 1 + ", 'LEADERBOARD', '" + row.getString("leaderboard") + "');");
                 }
-
             }
 
         } catch (Exception exception) {
@@ -423,7 +623,11 @@ public class Database {
 
     private static void v1_3Update() {
         try {
-            DB.executeUpdate("ALTER TABLE `ts_events` ADD `open` tinyint(1) NOT NULL DEFAULT '1' AFTER `state`;");
+            if(TimingSystem.configuration.useSQLite()) {
+                DB.executeUpdate("ALTER TABLE `ts_events` ADD `open` INTEGER NOT NULL DEFAULT '1';");
+            } else {
+                DB.executeUpdate("ALTER TABLE `ts_events` ADD `open` tinyint(1) NOT NULL DEFAULT '1' AFTER `state`;");
+            }
             DB.executeUpdate("UPDATE `ts_regions` SET `regionIndex` = 1 WHERE `regionType` = 'START' OR `regionType` = 'END' OR `regionType` = 'PIT';");
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -432,10 +636,17 @@ public class Database {
 
     private static void v1_6Update() {
         try {
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `dateChanged` bigint(30) DEFAULT NULL AFTER `dateCreated`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff' AFTER `tag`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"' AFTER `color`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `item`;");
+            if(TimingSystem.configuration.useSQLite()) {
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `dateChanged` INTEGER DEFAULT NULL;");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` TEXT NOT NULL DEFAULT '#ffffff';");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` TEXT NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"';");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` INTEGER NOT NULL DEFAULT '100';");
+            } else {
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `dateChanged` bigint(30) DEFAULT NULL AFTER `dateCreated`;");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff' AFTER `tag`;");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"' AFTER `color`;");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `item`;");
+            }
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -444,32 +655,46 @@ public class Database {
     private static void v1_8Update() {
         // Because of an issue with servers not getting 1.6 update with a fresh installation, I make sure they are applied upon upgrade to 1.8.
         try {
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `dateChanged` bigint(30) DEFAULT NULL AFTER `dateCreated`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff' AFTER `tag`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"' AFTER `color`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `item`;");
+            if(TimingSystem.configuration.useSQLite()) {
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `dateChanged` INTEGER DEFAULT NULL;");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` TEXT NOT NULL DEFAULT '#ffffff';");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` TEXT NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"';");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` INTEGER NOT NULL DEFAULT '100';");
+            } else {
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `dateChanged` bigint(30) DEFAULT NULL AFTER `dateCreated`;");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff' AFTER `tag`;");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"' AFTER `color`;");
+                DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `item`;");
+            }
         } catch (Exception ignored) {}
 
         try {
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `boatUtilsMode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'VANILLA' AFTER `options`;");
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        try {
+            if(TimingSystem.configuration.useSQLite()) {
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `boatUtilsMode` TEXT NOT NULL DEFAULT 'VANILLA';");
+            } else {
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `boatUtilsMode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'VANILLA' AFTER `options`;");
+            }
             DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = 'BA' WHERE `options` LIKE '%r%';");
             DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = 'VANILLA' WHERE `options` LIKE '%i%';");
             DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = 'RALLY' WHERE `options` LIKE '%i%' AND `options` LIKE '%r%';");
             DB.executeUpdate("UPDATE `ts_tracks` SET options=REPLACE(options,'i','');");
             DB.executeUpdate("UPDATE `ts_tracks` SET options=REPLACE(options,'r','');");
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
     private static void v1_9Update() {
         try {
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0' AFTER `toggleSound`;");
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `contributors` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `uuid`;");
+            if(TimingSystem.configuration.useSQLite()) {
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `sendFinalLaps` INTEGER NOT NULL DEFAULT '0';");
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `contributors` TEXT DEFAULT NULL;");
+            } else {
+                DB.executeUpdate("ALTER TABLE `ts_players` ADD `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0' AFTER `toggleSound`;");
+                DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `contributors` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `uuid`;");
+            }
+
         } catch (Exception exception) {
             exception.printStackTrace();
         }
