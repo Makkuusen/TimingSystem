@@ -40,11 +40,11 @@ public class Event {
         id = data.getInt("id");
         displayName = data.getString("name");
         uuid = UUID.fromString(data.getString("uuid"));
-        date = data.getLong("date");
+        date = TimingSystem.configuration.useSQLite() ? data.getInt("date").longValue() : data.getLong("date"); // seems weird converting this int to a long maybe hmmmm
         Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : TrackDatabase.getTrackById(data.getInt("track"));
         track = maybeTrack.orElse(null);
         state = EventState.valueOf(data.getString("state"));
-        openSign = data.get("open");
+        openSign = data.get("open").equals(1);
         eventSchedule = new EventSchedule();
     }
 
