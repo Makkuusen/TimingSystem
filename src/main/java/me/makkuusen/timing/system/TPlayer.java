@@ -7,6 +7,7 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import lombok.Getter;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
 import me.makkuusen.timing.system.gui.TrackFilter;
@@ -28,21 +29,35 @@ public class TPlayer implements Comparable<TPlayer> {
     private final TimingSystem plugin;
     private final UUID uuid;
     private Sidebar scoreboard;
+    @Getter
     private Player player;
+    @Getter
     private String name;
+    @Getter
     private Boat.Type boat;
+    @Getter
     private boolean chestBoat;
     private boolean toggleSound;
+    @Getter
     private boolean verbose;
+    @Getter
     private boolean timeTrial;
+    @Getter
     private boolean override;
+    @Getter
     private boolean compactScoreboard;
+    @Getter
     private boolean sendFinalLaps;
     private String color;
+    @Getter
     private BaseGui openGui;
+    @Getter
     private Theme theme;
+    @Getter
     private TrackFilter filter;
+    @Getter
     private TrackSort trackSort;
+    @Getter
     private Track.TrackType trackType;
     private Integer page;
     private Integer boatUtilsVersion = null;
@@ -123,10 +138,6 @@ public class TPlayer implements Comparable<TPlayer> {
         }
     }
 
-    public BaseGui getOpenGui() {
-        return openGui;
-    }
-
     public void setOpenGui(BaseGui openGui) {
         this.openGui = openGui;
     }
@@ -137,10 +148,6 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public boolean getCompactScoreboard() {
         return compactScoreboard;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setName(String name) {
@@ -164,10 +171,6 @@ public class TPlayer implements Comparable<TPlayer> {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `color` = '" + hexColor + "' WHERE `uuid` = '" + uuid + "';");
     }
 
-    public String getColorCode() {
-        return String.valueOf(net.md_5.bungee.api.ChatColor.of(color));
-    }
-
     public org.bukkit.Color getBukkitColor() {
         var c = Color.decode(color);
         return org.bukkit.Color.fromRGB(c.getRed(), c.getGreen(), c.getBlue());
@@ -177,17 +180,9 @@ public class TPlayer implements Comparable<TPlayer> {
         return TextColor.fromHexString(color);
     }
 
-    public Boat.Type getBoat() {
-        return boat;
-    }
-
     public void setBoat(Boat.Type boat) {
         this.boat = boat;
         DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
-    }
-
-    public boolean isChestBoat() {
-        return chestBoat;
     }
 
     public void setChestBoat(boolean b) {
@@ -195,26 +190,6 @@ public class TPlayer implements Comparable<TPlayer> {
             chestBoat = b;
             DB.executeUpdateAsync("UPDATE `ts_players` SET `chestBoat` = " + chestBoat + " WHERE `uuid` = '" + uuid + "';");
         }
-    }
-
-    public boolean isVerbose() {
-        return verbose;
-    }
-
-    public boolean isOverride() {
-        return override;
-    }
-
-    public boolean isTimeTrial() {
-        return timeTrial;
-    }
-
-    public boolean isCompactScoreboard() {
-        return compactScoreboard;
-    }
-
-    public boolean isSendFinalLaps() {
-        return sendFinalLaps;
     }
 
     public void toggleOverride() {
@@ -266,28 +241,12 @@ public class TPlayer implements Comparable<TPlayer> {
         return toggleSound;
     }
 
-    public Theme getTheme() {
-        return theme;
-    }
-
-    public TrackSort getTrackSort() {
-        return trackSort;
-    }
-
     public void setTrackSort(TrackSort trackSort) {
         this.trackSort = trackSort;
     }
 
-    public TrackFilter getFilter() {
-        return filter;
-    }
-
     public void setFilter(TrackFilter filter) {
         this.filter = filter;
-    }
-
-    public Track.TrackType getTrackType() {
-        return trackType;
     }
 
     public void setTrackType(Track.TrackType trackType) {
@@ -300,10 +259,6 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public void setTrackPage(Integer page) {
         this.page = page;
-    }
-
-    public Player getPlayer() {
-        return player;
     }
 
     void setPlayer(Player player) {

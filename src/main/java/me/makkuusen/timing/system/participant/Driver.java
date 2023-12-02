@@ -217,13 +217,13 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public void removeUnfinishedLap() {
-        if (laps.size() > 0 && getCurrentLap().getLapEnd() == null) {
+        if (!laps.isEmpty() && getCurrentLap().getLapEnd() == null) {
             laps.remove(getCurrentLap());
         }
     }
 
     public Optional<Lap> getBestLap() {
-        if (getLaps().size() == 0) {
+        if (getLaps().isEmpty()) {
             return Optional.empty();
         }
         if (getLaps().get(0).getLapTime() == -1) {
@@ -273,7 +273,7 @@ public class Driver extends Participant implements Comparable<Driver> {
             return getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
         } else {
 
-            if (getLaps().size() < 1) {
+            if (getLaps().isEmpty()) {
                 return 0;
             }
 
@@ -283,7 +283,7 @@ public class Driver extends Participant implements Comparable<Driver> {
                     return Duration.between(getEndTime(), comparingDriver.getEndTime()).toMillis();
                 }
 
-                if (comparingDriver.getLaps().size() > 0 && comparingDriver.getCurrentLap() != null) {
+                if (!comparingDriver.getLaps().isEmpty() && comparingDriver.getCurrentLap() != null) {
                     Instant timeStamp = comparingDriver.getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
                     Instant fasterTimeStamp = getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
                     timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
@@ -356,7 +356,7 @@ public class Driver extends Participant implements Comparable<Driver> {
             return 1;
         }
 
-        if (getLaps().size() == 0) {
+        if (getLaps().isEmpty()) {
             return 0;
         }
 

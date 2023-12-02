@@ -87,7 +87,7 @@ public class Heat {
     }
 
     public boolean loadHeat() {
-        if (event.getEventSchedule().getCurrentRound() != round.getRoundIndex()) {
+        if (!event.getEventSchedule().getCurrentRound().equals(round.getRoundIndex())) {
             if (round.getRoundIndex() == 1) {
                 event.start();
             } else {
@@ -100,7 +100,7 @@ public class Heat {
         }
 
 
-        if (getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size() == 0) {
+        if (getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).isEmpty()) {
             return false;
         }
 
@@ -119,7 +119,7 @@ public class Heat {
         PlayerJoinHeatEvent event = new PlayerJoinHeatEvent(driver.getTPlayer(), this);
         Bukkit.getServer().getPluginManager().callEvent(event);
         var track = getEvent().getTrack();
-        boolean qualyGrid = round instanceof QualificationRound && track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0;
+        boolean qualyGrid = round instanceof QualificationRound && !track.getTrackLocations(TrackLocation.Type.QUALYGRID).isEmpty();
         Player player = driver.getTPlayer().getPlayer();
         if (player != null) {
             Location grid;
@@ -170,9 +170,7 @@ public class Heat {
             int finalI = i;
             chain.sync(() -> EventAnnouncements.broadcastCountdown(this, finalI)).delay(20);
         }
-        chain.execute((finished) -> {
-            startHeat();
-        });
+        chain.execute((finished) -> startHeat());
     }
 
     public void startHeat() {
@@ -233,7 +231,7 @@ public class Heat {
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
             if (driver.getEndTime() == null) {
                 driver.removeUnfinishedLap();
-                if (driver.getLaps().size() > 0) {
+                if (!driver.getLaps().isEmpty()) {
                     driver.setEndTime(driver.getCurrentLap().getLapEnd());
                 } else {
                     driver.setEndTime(TimingSystem.currentTime);
@@ -292,7 +290,7 @@ public class Heat {
         if (maxDrivers != null) {
             return maxDrivers;
         }
-        if (round instanceof QualificationRound && getEvent().getTrack().getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0) {
+        if (round instanceof QualificationRound && !getEvent().getTrack().getTrackLocations(TrackLocation.Type.QUALYGRID).isEmpty()) {
             return getEvent().getTrack().getTrackLocations(TrackLocation.Type.QUALYGRID).size();
         }
         return getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size();

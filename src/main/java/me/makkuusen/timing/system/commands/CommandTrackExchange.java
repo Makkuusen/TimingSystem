@@ -64,9 +64,7 @@ public class CommandTrackExchange extends BaseCommand {
                 e.printStackTrace();
                 Text.send(player, Error.TRACK_EXCHANGE_SAVE_FAILED, "%reason%", "File Creation Failed");
             }
-        }).execute(finished -> {
-            Text.send(player, Success.CREATED);
-        });
+        }).execute(finished -> Text.send(player, Success.CREATED));
     }
 
     @Subcommand("paste")
@@ -90,7 +88,7 @@ public class CommandTrackExchange extends BaseCommand {
                 return;
             }
 
-            if (!TrackDatabase.trackNameAvailable(newName)) {
+            if (TrackDatabase.trackNameNotAvailable(newName)) {
                 Text.send(player, Error.TRACK_EXISTS);
                 return;
             }

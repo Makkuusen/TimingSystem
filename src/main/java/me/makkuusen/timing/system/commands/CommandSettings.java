@@ -5,7 +5,6 @@ import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.gui.SettingsGui;
-import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;

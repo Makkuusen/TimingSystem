@@ -165,7 +165,7 @@ public class CommandEvent extends BaseCommand {
 
         for (Round round : event.eventSchedule.getRounds()) {
 
-            boolean currentRound = round.getRoundIndex() == event.getEventSchedule().getCurrentRound() && event.getState() != Event.EventState.FINISHED;
+            boolean currentRound = round.getRoundIndex().equals(event.getEventSchedule().getCurrentRound()) && event.getState() != Event.EventState.FINISHED;
             var roundMessage = (currentRound ? theme.arrow() : theme.tab()).append(Component.text(round.getDisplayName() + ":").color(theme.getPrimary()));
 
             if (sender.hasPermission("timingsystem.packs.eventadmin") && round.getState() != Round.RoundState.FINISHED) {
@@ -241,7 +241,7 @@ public class CommandEvent extends BaseCommand {
         if (maybeEvent.isPresent()) {
             event = maybeEvent.get();
         } else {
-            Text.send(player, Error.NO_EVENT_SELECTED);;
+            Text.send(player, Error.NO_EVENT_SELECTED);
             return;
         }
         event.setTrack(track);
@@ -257,7 +257,7 @@ public class CommandEvent extends BaseCommand {
         if (maybeEvent.isPresent()) {
             event = maybeEvent.get();
         } else {
-            Text.send(player, Error.NO_EVENT_SELECTED);;
+            Text.send(player, Error.NO_EVENT_SELECTED);
             return;
         }
 
@@ -350,7 +350,7 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                Text.send(player, Error.NO_EVENT_SELECTED);;
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -380,7 +380,7 @@ public class CommandEvent extends BaseCommand {
             }
         }
 
-        if (event.getReserves().values().size() == 0) {
+        if (event.getReserves().values().isEmpty()) {
             return;
         }
 
@@ -471,7 +471,7 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                Text.send(player, Error.NO_EVENT_SELECTED);;
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -501,7 +501,7 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                Text.send(player, Error.NO_EVENT_SELECTED);;
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }

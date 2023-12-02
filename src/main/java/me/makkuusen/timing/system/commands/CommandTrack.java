@@ -202,7 +202,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        if (!TrackDatabase.trackNameAvailable(name)) {
+        if (TrackDatabase.trackNameNotAvailable(name)) {
             Text.send(player, Error.TRACK_EXISTS);
             return;
         }
@@ -269,10 +269,10 @@ public class CommandTrack extends BaseCommand {
         Text.send(commandSender, Info.TRACK_MODE, "%mode%", track.getModeAsString());
         Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", track.getBoatUtilsMode().name());
         Text.send(commandSender, Info.TRACK_CHECKPOINTS, "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()));
-        if (track.getTrackLocations(TrackLocation.Type.GRID).size() != 0) {
+        if (!track.getTrackLocations(TrackLocation.Type.GRID).isEmpty()) {
             Text.send(commandSender, Info.TRACK_GRIDS, "%size%", String.valueOf(track.getTrackLocations(TrackLocation.Type.GRID).size()));
         }
-        if (track.getTrackLocations(TrackLocation.Type.QUALYGRID).size() != 0) {
+        if (!track.getTrackLocations(TrackLocation.Type.QUALYGRID).isEmpty()) {
             Text.send(commandSender, Info.TRACK_QUALIFICATION_GRIDS, "%size%", String.valueOf(track.getTrackLocations(TrackLocation.Type.QUALYGRID).size()));
         }
         Text.send(commandSender, Info.TRACK_RESET_REGIONS, "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.RESET).size()));
@@ -584,7 +584,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        if (newOptions.length() == 0) {
+        if (newOptions.isEmpty()) {
             Text.send(commandSender, Success.TRACK_OPTIONS_CLEARED);
         } else {
             Text.send(commandSender, Success.TRACK_OPTIONS_NEW, "%options%", ApiUtilities.formatPermissions(newOptions.toCharArray()));
@@ -786,7 +786,7 @@ public class CommandTrack extends BaseCommand {
                 return;
             }
 
-            if (!TrackDatabase.trackNameAvailable(name)) {
+            if (TrackDatabase.trackNameNotAvailable(name)) {
                 Text.send(commandSender, Error.TRACK_EXISTS);
                 return;
             }

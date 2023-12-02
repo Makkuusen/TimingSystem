@@ -185,7 +185,7 @@ public class TrackExchangeTrack implements Serializable {
             throw new RuntimeException(e);
         }
 
-        if(!TrackDatabase.trackNameAvailable(trackExchangeTrack.name)) {
+        if(TrackDatabase.trackNameNotAvailable(trackExchangeTrack.name)) {
             Text.send(player, Error.TRACK_EXISTS);
             trackDataFile.delete();
             trackSchematicFile.delete();

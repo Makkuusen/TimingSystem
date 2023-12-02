@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system.timetrial;
 
+import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TPlayer;
@@ -31,12 +32,16 @@ import java.util.Map;
 public class TimeTrial {
 
     private final TPlayer tPlayer;
+    @Getter
     private final Track track;
     private Instant startTime;
     private ArrayList<Instant> checkpoints;
+    @Getter
     private boolean lagStart = false;
     private Instant lagStartTime = null;
+    @Getter
     private boolean lagEnd = false;
+    @Getter
     private TimeTrialFinish bestFinish;
 
 
@@ -56,16 +61,11 @@ public class TimeTrial {
         return bestFinish.getTime();
     }
 
-    public TimeTrialFinish getBestFinish() {
-        return bestFinish;
-    }
 
+    @SuppressWarnings("unused")
+    //Used in third party plugin
     public void setBestFinish(TimeTrialFinish finish) {
         bestFinish = finish;
-    }
-
-    public Track getTrack() {
-        return track;
     }
 
     private boolean hasNotPassedAllCheckpoints() {
@@ -88,7 +88,7 @@ public class TimeTrial {
     }
 
     public long getCheckpointTime(int checkpoint) {
-        if (checkpoints.size() == 0 || checkpoint == 0) {
+        if (checkpoints.isEmpty() || checkpoint == 0) {
             return 0;
         }
         return getTimeSinceStart(checkpoints.get(checkpoint - 1));
@@ -108,10 +108,6 @@ public class TimeTrial {
         return Duration.between(startTime, time).toMillis();
     }
 
-    public boolean isLagStart() {
-        return lagStart;
-    }
-
     public void setLagStartTrue() {
         this.lagStart = true;
         lagStartTime = TimingSystem.currentTime;
@@ -119,10 +115,6 @@ public class TimeTrial {
 
     public Instant getLagStart() {
         return lagStartTime;
-    }
-
-    public boolean isLagEnd() {
-        return lagEnd;
     }
 
     public void setLagEnd(boolean lagEnd) {
