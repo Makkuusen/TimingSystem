@@ -68,13 +68,13 @@ public class TPlayer implements Comparable<TPlayer> {
         uuid = UUID.fromString(data.getString("uuid"));
         name = data.getString("name");
         boat = stringToType(data.getString("boat"));
-        chestBoat = data.get("chestBoat");
-        toggleSound = data.get("toggleSound");
-        verbose = data.get("verbose");
-        timeTrial = data.get("timetrial");
+        chestBoat = data.get("chestBoat").equals(1);
+        toggleSound = data.get("toggleSound").equals(1);
+        verbose = data.get("verbose").equals(1);
+        timeTrial = data.get("timetrial").equals(1);
         color = data.getString("color");
-        compactScoreboard = data.get("compactScoreboard");
-        sendFinalLaps = data.get("sendFinalLaps");
+        compactScoreboard = data.get("compactScoreboard").equals(1);
+        sendFinalLaps = data.get("sendFinalLaps").equals(1);
 
         theme = TimingSystem.defaultTheme;
     }

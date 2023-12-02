@@ -69,7 +69,7 @@ public class Track {
         guiItem = ApiUtilities.stringToItem(data.getString("guiItem"));
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         type = data.getString("type") == null ? TrackType.BOAT : TrackType.valueOf(data.getString("type"));
-        open = data.get("toggleOpen");
+        open = data.get("toggleOpen").equals(1);
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
         mode = data.get("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));
         weight = data.getInt("weight");
