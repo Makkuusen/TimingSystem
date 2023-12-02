@@ -139,7 +139,7 @@ public class CommandRace extends BaseCommand {
                 heat.setTotalLaps(3);
             }
 
-            if (pits != null) {
+            if (pits != null && laps != null) {
                 heat.setTotalPits(Math.min(laps, pits));
             } else {
                 heat.setTotalPits(0);

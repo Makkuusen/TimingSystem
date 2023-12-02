@@ -34,7 +34,7 @@ public class CommandTimeTrial extends BaseCommand {
     public static void onTimeTrial(CommandSender sender, @Optional Track track) {
         Player player = null;
         if (sender instanceof BlockCommandSender blockCommandSender) {
-            Location location = ((BlockCommandSender) sender).getBlock().getLocation();
+            Location location = blockCommandSender.getBlock().getLocation();
             double closest = -1;
 
             for (Player tmp : Bukkit.getOnlinePlayers()) {
@@ -120,7 +120,7 @@ public class CommandTimeTrial extends BaseCommand {
 
         if (trackTag != null) {
             tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.hasTag(trackTag)).collect(Collectors.toList());
-            if (tracks.size() < 1) {
+            if (tracks.isEmpty()) {
                 Text.send(player, Error.TRACKS_NOT_FOUND);
                 return;
             }
@@ -150,7 +150,7 @@ public class CommandTimeTrial extends BaseCommand {
         List<Track> tracks;
         if (trackTag != null) {
             tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.hasTag(trackTag)).collect(Collectors.toList());
-            if (tracks.size() < 1) {
+            if (tracks.isEmpty()) {
                 Text.send(player, Error.TRACKS_NOT_FOUND);
                 return;
             }
@@ -159,7 +159,7 @@ public class CommandTimeTrial extends BaseCommand {
         }
 
         tracks = tracks.stream().filter(track -> track.getPlayerTotalFinishes(Database.getPlayer(player.getUniqueId())) < 1).collect(Collectors.toList());
-        if (tracks.size() == 0) {
+        if (tracks.isEmpty()) {
             Text.send(player, Error.TRACKS_NOT_FOUND);
             return;
         }

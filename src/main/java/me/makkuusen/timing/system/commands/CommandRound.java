@@ -12,7 +12,6 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Subscriber;
-import me.makkuusen.timing.system.permissions.PermissionRound;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
@@ -108,7 +107,7 @@ public class CommandRound extends BaseCommand {
         var heatsMessage = Text.get(player, Info.ROUND_INFO_HEATS);
 
         if (player.hasPermission("timingsystem.packs.eventadmin")) {
-            heatsMessage.append(theme.tab()).append(theme.getAddButton(Text.get(player, TextButton.ADD_HEAT)).clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent(player)));
+            heatsMessage = heatsMessage.append(theme.tab()).append(theme.getAddButton(Text.get(player, TextButton.ADD_HEAT)).clickEvent(ClickEvent.runCommand("/heat create " + round.getName())).hoverEvent(theme.getClickToAddHoverEvent(player)));
         }
         player.sendMessage(heatsMessage);
 
@@ -159,7 +158,7 @@ public class CommandRound extends BaseCommand {
         }
         List<Driver> results = EventResults.generateRoundResults(round.getHeats());
 
-        if (results.size() != 0) {
+        if (!results.isEmpty()) {
             Theme theme = Database.getPlayer(player).getTheme();
             Text.send(player, Info.ROUND_RESULT_TITLE, "%round%", String.valueOf(round.getRoundIndex()));
             int pos = 1;
@@ -190,7 +189,7 @@ public class CommandRound extends BaseCommand {
             }
         }
         java.util.Optional<Round> maybeRound;
-        if (event.eventSchedule.getCurrentRound() == null && event.eventSchedule.getRounds().size() > 0) {
+        if (event.eventSchedule.getCurrentRound() == null && !event.eventSchedule.getRounds().isEmpty()) {
             maybeRound = event.eventSchedule.getRound(1);
         } else {
             maybeRound = event.eventSchedule.getRound();
@@ -235,7 +234,7 @@ public class CommandRound extends BaseCommand {
         }
 
         java.util.Optional<Round> maybeRound;
-        if (event.eventSchedule.getCurrentRound() == null && event.eventSchedule.getRounds().size() > 0) {
+        if (event.eventSchedule.getCurrentRound() == null && !event.eventSchedule.getRounds().isEmpty()) {
             maybeRound = event.eventSchedule.getRound(1);
         } else {
             maybeRound = event.eventSchedule.getRound();
@@ -255,7 +254,7 @@ public class CommandRound extends BaseCommand {
                 listOfSubscribers.addAll(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).toList());
                 int reserveSlots = numberOfSlots - numberOfDrivers;
                 var reserves = event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList());
-                if (reserveSlots > 0 && event.getReserves().values().size() > 0) {
+                if (reserveSlots > 0 && !event.getReserves().values().isEmpty()) {
                     List<TPlayer> list;
                     if (!random) {
                         list = getSortedList(reserves, event.getTrack());
@@ -286,7 +285,7 @@ public class CommandRound extends BaseCommand {
                 Text.send(player,Success.ADDING_DRIVERS, "%heat%", heat.getName());
                 int size = heat.getMaxDrivers() - heat.getDrivers().size();
                 for (int i = 0; i < size; i++) {
-                    if (tPlayerList.size() < 1) {
+                    if (tPlayerList.isEmpty()) {
                         break;
                     }
                     heatAddDriver(player, tPlayerList.pop(), heat, random);

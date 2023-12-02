@@ -59,9 +59,7 @@ public class SettingsGui extends BaseGui {
 
     public static GuiButton getBoatMenuButton(TPlayer tPlayer) {
         var button = new GuiButton(new ItemBuilder(tPlayer.getBoatMaterial()).setName(Text.get(tPlayer, Gui.CHANGE_BOAT_TYPE)).build());
-        button.setAction(() -> {
-            new BoatSettingsGui(tPlayer).show(tPlayer.getPlayer());
-        });
+        button.setAction(() -> new BoatSettingsGui(tPlayer).show(tPlayer.getPlayer()));
         return button;
     }
 
@@ -72,9 +70,7 @@ public class SettingsGui extends BaseGui {
             materialName = dyeColor.name() + "_DYE";
         }
         var button = new GuiButton(new ItemBuilder(Material.valueOf(materialName)).setName(Text.get(tPlayer, Gui.CHANGE_TEAM_COLOR)).build());
-        button.setAction(() -> {
-            new ColorSettingsGui(tPlayer).show(tPlayer.getPlayer());
-        });
+        button.setAction(() -> new ColorSettingsGui(tPlayer).show(tPlayer.getPlayer()));
         return button;
     }
 

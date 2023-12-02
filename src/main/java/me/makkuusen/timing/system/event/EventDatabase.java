@@ -34,6 +34,7 @@ import java.util.UUID;
 @Getter
 public class EventDatabase {
 
+    @Getter
     private static final Set<Event> events = new HashSet<>();
     private static final Set<Heat> heats = new HashSet<>();
     private static final HashMap<UUID, Event> playerSelectedEvent = new HashMap<>();
@@ -349,10 +350,6 @@ public class EventDatabase {
                 lap.isPitted() + ")");
     }
 
-
-    static public Set<Event> getEvents() {
-        return events;
-    }
 
     static public List<String> getEventsAsStrings() {
         List<String> eventStrings = new ArrayList<>();

@@ -14,6 +14,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
+import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.LeaderboardManager;
@@ -31,8 +32,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -45,6 +44,7 @@ import java.util.stream.Collectors;
 
 public class TrackDatabase {
 
+    @Getter
     private static List<Track> tracks = new ArrayList<>();
     private static List<TrackRegion> startRegions = new ArrayList<>();
 
@@ -76,9 +76,7 @@ public class TrackDatabase {
                 .async(TrackDatabase::loadAttempts)
                 .delay(20)
                 .async(TrackDatabase::loadCheckpointTimes)
-                .execute((finished) -> {
-                    TimingSystem.getPlugin().getLogger().warning("Loading of finishes completed");
-                });
+                .execute((finished) -> TimingSystem.getPlugin().getLogger().warning("Loading of finishes completed"));
     }
 
     private static void loadFinishes() {
@@ -111,7 +109,7 @@ public class TrackDatabase {
                     maybeTrack.ifPresent(track -> track.addTimeTrialAttempt(new TimeTrialAttempt(attempt)));
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException ignore) {
         }
         TimingSystem.getPlugin().getLogger().warning("Finish loading attempts");
     }
@@ -343,7 +341,7 @@ public class TrackDatabase {
         LeaderboardManager.removeLeaderboards(track);
         startRegions.removeIf(trackRegion -> trackRegion.getTrackId() == track.getId());
         tracks.remove(track);
-        var events = EventDatabase.getEvents().stream().filter(event -> event.getTrack() != null).filter(event -> event.getTrack().equals(track.getId())).toList();
+        var events = EventDatabase.getEvents().stream().filter(event -> event.getTrack() != null).filter(event -> event.getTrack().getId() == track.getId()).toList();
         for (Event event : events) {
             EventDatabase.removeEvent(event);
         }
@@ -368,10 +366,6 @@ public class TrackDatabase {
         return Optional.empty();
     }
 
-    static public List<Track> getTracks() {
-        return tracks;
-    }
-
     static public List<Track> getAvailableTracks(Player player) {
         if (!player.hasPermission("timingsystem.packs.trackadmin") && !player.isOp()) {
             return TrackDatabase.getTracks().stream().filter(Track::isOpen).toList();
@@ -388,14 +382,14 @@ public class TrackDatabase {
         return startRegions.stream().filter(r -> r.getRegionType().equals(TrackRegion.RegionType.START)).collect(Collectors.toList());
     }
 
-    public static boolean trackNameAvailable(String name) {
+    public static boolean trackNameNotAvailable(String name) {
 
         for (Track rTrack : tracks) {
             if (rTrack.getCommandName().equalsIgnoreCase(name.replaceAll(" ", ""))) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     static public void addTrackRegion(TrackRegion region) {

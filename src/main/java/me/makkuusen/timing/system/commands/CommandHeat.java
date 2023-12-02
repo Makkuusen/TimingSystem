@@ -375,7 +375,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat @players ")
     @CommandPermission("%permissionheat_add_driver")
     public static void onHeatAddDriver(Player sender, Heat heat, String playerName) {
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+        if (!heat.getRound().getRoundIndex().equals(heat.getEvent().getEventSchedule().getCurrentRound()) && heat.getRound().getRoundIndex() != 1) {
             Text.send(sender, Error.ADD_DRIVER_FUTURE_ROUND);
             return;
         }
@@ -504,7 +504,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     @CommandPermission("%permissionheat_add_all")
     public static void onHeatAddDrivers(Player sender, Heat heat) {
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+        if (!heat.getRound().getRoundIndex().equals(heat.getEvent().getEventSchedule().getCurrentRound()) && heat.getRound().getRoundIndex() != 1) {
             Text.send(sender, Error.ADD_DRIVER_FUTURE_ROUND);
             return;
         }
@@ -610,11 +610,11 @@ public class CommandHeat extends BaseCommand {
             Text.send(player, Error.HEAT_ALREADY_STARTED);
             return;
         }
-        if (heat.getStartPositions().size() == 0) {
+        if (heat.getStartPositions().isEmpty()) {
             Text.send(player, Error.NOT_NOW);
             return;
         }
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+        if (!Objects.equals(heat.getRound().getRoundIndex(), heat.getEvent().getEventSchedule().getCurrentRound()) && heat.getRound().getRoundIndex() != 1) {
             Text.send(player, Error.SORT_DRIVERS_FUTURE_ROUND);
             return;
         }
@@ -663,11 +663,11 @@ public class CommandHeat extends BaseCommand {
             Text.send(player, Error.HEAT_ALREADY_STARTED);
             return;
         }
-        if (heat.getStartPositions().size() == 0) {
+        if (heat.getStartPositions().isEmpty()) {
             Text.send(player, Error.NOT_NOW);
             return;
         }
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+        if (!Objects.equals(heat.getRound().getRoundIndex(), heat.getEvent().getEventSchedule().getCurrentRound()) && heat.getRound().getRoundIndex() != 1) {
             Text.send(player, Error.SORT_DRIVERS_FUTURE_ROUND);
             return;
         }

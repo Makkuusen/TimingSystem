@@ -82,7 +82,7 @@ public class SpectatorScoreboard {
     }
 
     private Component getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
-        if (driver.getLaps().size() < 1) {
+        if (driver.getLaps().isEmpty()) {
             return ScoreboardUtils.getDriverLineRace(driver, driver.getPosition(), compact, theme);
         }
         long timeDiff;

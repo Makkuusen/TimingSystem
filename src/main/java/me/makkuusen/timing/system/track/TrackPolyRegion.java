@@ -24,7 +24,7 @@ public class TrackPolyRegion extends TrackRegion {
         polygonal2DRegion = new Polygonal2DRegion(BukkitAdapter.adapt(getSpawnLocation().getWorld()), points, getMinP().getBlockY(), getMaxP().getBlockY());
     }
 
-    public boolean updateRegion(List<BlockVector2> points) {
+    public void updateRegion(List<BlockVector2> points) {
         try {
             DB.executeUpdate("DELETE FROM `ts_points` WHERE `regionId` = " + getId() + ";");
             for (BlockVector2 v : points) {
@@ -32,10 +32,9 @@ public class TrackPolyRegion extends TrackRegion {
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return false;
+            return;
         }
         polygonal2DRegion = new Polygonal2DRegion(BukkitAdapter.adapt(getSpawnLocation().getWorld()), points, getMinP().getBlockY(), getMaxP().getBlockY());
-        return true;
     }
 
     @Override

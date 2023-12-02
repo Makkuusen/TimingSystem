@@ -100,7 +100,7 @@ public class DriverScoreboard {
     }
 
     private Component getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
-        if (driver.getLaps().size() < 1) {
+        if (driver.getLaps().isEmpty()) {
             return ScoreboardUtils.getDriverLineRace(driver, driver.getPosition(), compact, theme);
         }
         long timeDiff;
@@ -121,7 +121,7 @@ public class DriverScoreboard {
                 return ScoreboardUtils.getDriverLineNegativeRaceGap(timeDiff, driver, driver.getPits(), driver.getPosition(), compact, theme);
             }
 
-            if (comparingDriver.getLaps().size() > 0 && comparingDriver.getCurrentLap() != null) {
+            if (!comparingDriver.getLaps().isEmpty() && comparingDriver.getCurrentLap() != null) {
                 Instant timeStamp = comparingDriver.getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
                 Instant fasterTimeStamp = driver.getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
                 timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
