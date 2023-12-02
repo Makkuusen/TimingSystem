@@ -87,7 +87,7 @@ public class Heat {
     }
 
     public boolean loadHeat() {
-        if (!event.getEventSchedule().getCurrentRound().equals(round.getRoundIndex())) {
+        if (event.getEventSchedule().getCurrentRound() != round.getRoundIndex()) {
             if (round.getRoundIndex() == 1) {
                 event.start();
             } else {
