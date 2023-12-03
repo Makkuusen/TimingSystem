@@ -37,8 +37,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.time.Instant;
 import java.util.*;
@@ -517,13 +515,6 @@ public class ApiUtilities {
         }
 
         var mode = track.getBoatUtilsMode();
-        switch (mode) {
-            case RALLY -> {
-                ApiUtilities.giveBoatUtilsIEffect(player);
-                ApiUtilities.giveBoatUtilsREffect(player);
-            }
-            case BA -> ApiUtilities.giveBoatUtilsREffect(player);
-        }
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
 
         var tPlayer = Database.getPlayer(player.getUniqueId());
@@ -589,16 +580,6 @@ public class ApiUtilities {
     }
 
     public static boolean hasBoatUtilsEffects(Player player) {
-        PotionEffect luckEffect = player.getPotionEffect(PotionEffectType.LUCK);
-        if (luckEffect != null) {
-            if (luckEffect.getAmplifier() == 55) {
-                return true;
-            }
-        }
-        PotionEffect unluckEffect = player.getPotionEffect(PotionEffectType.UNLUCK);
-        if (unluckEffect != null) {
-            return unluckEffect.getAmplifier() == 99;
-        }
         if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
             return !(BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) == BoatUtilsMode.VANILLA);
         }
@@ -606,19 +587,7 @@ public class ApiUtilities {
     }
 
     public static void removeBoatUtilsEffects(Player player) {
-        player.removePotionEffect(PotionEffectType.UNLUCK);
-        player.removePotionEffect(PotionEffectType.LUCK);
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, false);
-    }
-
-    public static void giveBoatUtilsREffect(Player player) {
-        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK, 999999, 99, false, false);
-        player.addPotionEffect(unluckEffect);
-    }
-
-    public static void giveBoatUtilsIEffect(Player player) {
-        var luckEffect = new PotionEffect(PotionEffectType.LUCK, 999999, 55, false, false);
-        player.addPotionEffect(luckEffect);
     }
 
     public static void resetPlayerTimeTrial(Player player) {
