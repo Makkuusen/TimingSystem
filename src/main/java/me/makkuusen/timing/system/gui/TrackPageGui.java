@@ -122,7 +122,7 @@ public abstract class TrackPageGui extends BaseGui {
     }
 
     private GuiButton getFilterButtons(TrackFilter filter) {
-        if (filter.getTags().size() == 0) {
+        if (filter.getTags().isEmpty()) {
             return getFilterButton(new ItemBuilder(Material.HOPPER).setName(Text.get(tPlayer, Gui.FILTER_BY_NONE)).build());
         }
         return getFilterButton(filter.getItem(tPlayer));
@@ -201,7 +201,7 @@ public abstract class TrackPageGui extends BaseGui {
         }
 
         maxPage = tempTracks.size() / TRACKS_PER_PAGE;
-        if (tempTracks.size() % TRACKS_PER_PAGE == 0 && tempTracks.size() != 0) {
+        if (tempTracks.size() % TRACKS_PER_PAGE == 0 && !tempTracks.isEmpty()) {
             maxPage = maxPage - 1;
         }
         if (maxPage < page) {

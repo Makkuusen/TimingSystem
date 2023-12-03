@@ -26,6 +26,7 @@ import static me.makkuusen.timing.system.commands.CommandRace.event;
 import static me.makkuusen.timing.system.commands.CommandRace.round;
 import static me.makkuusen.timing.system.commands.CommandRace.heat;
 
+@SuppressWarnings("unused")
 public class QuickRaceAPI {
     private QuickRaceAPI() {
     }

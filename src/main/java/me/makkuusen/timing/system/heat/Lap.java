@@ -10,7 +10,6 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
-import me.makkuusen.timing.system.track.TrackRegion;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -74,7 +73,7 @@ public class Lap implements Comparable<Lap> {
     }
 
     public Instant getCheckpointTime(int checkpoint) {
-        if (checkpoints.size() == 0 || checkpoint == 0) {
+        if (checkpoints.isEmpty() || checkpoint == 0) {
             return lapStart;
         }
         return checkpoints.get(checkpoint - 1);

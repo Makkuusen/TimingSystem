@@ -24,6 +24,7 @@ public abstract class Round {
 
     private final int id;
     private final Event event;
+    @Getter
     private final List<Heat> heats = new ArrayList<>();
     private final RoundType type;
     private Integer roundIndex;
@@ -52,10 +53,6 @@ public abstract class Round {
     public abstract String getName();
 
     public abstract String getDisplayName();
-
-    public List<Heat> getHeats() {
-        return heats;
-    }
 
     public void addHeat(Heat heat) {
         heats.add(heat);

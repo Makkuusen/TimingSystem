@@ -6,7 +6,6 @@ import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackLeaderboard;
 import me.makkuusen.timing.system.track.TrackLocation;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -34,9 +33,7 @@ public class LeaderboardManager {
 
         TaskChain<?> chain = TimingSystem.newChain();
         for (Track t : TrackDatabase.getTracks()) {
-            chain.sync(() -> {
-                updateFastestTimeLeaderboard(t);
-            }).delay(1);
+            chain.sync(() -> updateFastestTimeLeaderboard(t)).delay(1);
         }
         chain.execute();
     }
@@ -67,6 +64,6 @@ public class LeaderboardManager {
     }
 
     public static void startUpdateTask() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(TimingSystem.getPlugin(), (@NotNull Runnable) LeaderboardManager::updateAllFastestTimeLeaderboard, 30 * 20, TimingSystem.configuration.getLeaderboardsUpdateTick());
+        Bukkit.getScheduler().runTaskTimerAsynchronously(TimingSystem.getPlugin(), LeaderboardManager::updateAllFastestTimeLeaderboard, 30 * 20, TimingSystem.configuration.getLeaderboardsUpdateTick());
     }
 }

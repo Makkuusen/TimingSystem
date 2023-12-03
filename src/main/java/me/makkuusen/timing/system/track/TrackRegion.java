@@ -11,11 +11,16 @@ import org.bukkit.Location;
 @Setter
 public abstract class TrackRegion {
 
+    @Getter
     private final int id;
+    @Getter
     private final int trackId;
+    @Getter
     private final int regionIndex;
+    @Getter
     private final RegionType regionType;
     private RegionShape shape;
+    @Getter
     private Location spawnLocation;
     private Location minP;
     private Location maxP;
@@ -28,26 +33,6 @@ public abstract class TrackRegion {
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         minP = ApiUtilities.stringToLocation(data.getString("minP"));
         maxP = ApiUtilities.stringToLocation(data.getString("maxP"));
-    }
-
-    public Location getSpawnLocation() {
-        return spawnLocation;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getTrackId() {
-        return trackId;
-    }
-
-    public int getRegionIndex() {
-        return regionIndex;
-    }
-
-    public RegionType getRegionType() {
-        return regionType;
     }
 
     public abstract boolean contains(Location loc);

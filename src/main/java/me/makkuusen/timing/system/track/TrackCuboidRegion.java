@@ -15,7 +15,7 @@ public class TrackCuboidRegion extends TrackRegion {
     }
 
     public boolean contains(Location loc) {
-        if (loc == null || getMinP() == null || getMinP() == null) {
+        if (loc == null || getMinP() == null || getMaxP() == null) {
             return false;
         } else {
             return loc.getBlockX() >= getMinP().getBlockX() && loc.getBlockX() <= getMaxP().getBlockX() && loc.getBlockY() >= getMinP().getBlockY() && loc.getBlockY() <= getMaxP().getBlockY() && loc.getBlockZ() >= getMinP().getBlockZ() && loc.getBlockZ() <= getMaxP().getBlockZ();

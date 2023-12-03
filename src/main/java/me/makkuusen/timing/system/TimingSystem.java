@@ -6,6 +6,7 @@ import co.aikar.idb.DB;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import lombok.Getter;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.commands.*;
@@ -43,11 +44,13 @@ import java.util.logging.Logger;
 public class TimingSystem extends JavaPlugin {
 
     public Logger logger;
+    @Getter
     private static TimingSystem plugin;
     public static TimingSystemConfiguration configuration;
     public static boolean enableLeaderboards = true;
     public static HashMap<UUID, Track> playerEditingSession = new HashMap<>();
     public static Map<UUID, TPlayer> players = new HashMap<>();
+    @Getter
     private static LanguageManager languageManager;
     public static Instant currentTime = Instant.now();
     public static ScoreboardLibrary scoreboardLibrary;
@@ -295,14 +298,6 @@ public class TimingSystem extends JavaPlugin {
         Text.plugin = null;
         logger = null;
         plugin = null;
-    }
-
-    public static TimingSystem getPlugin() {
-        return plugin;
-    }
-
-    public static LanguageManager getLanguageManager() {
-        return languageManager;
     }
 
     public static <T> TaskChain<T> newChain() {

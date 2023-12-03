@@ -4,7 +4,6 @@ import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
-import com.destroystokyo.paper.ClientOption;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import me.makkuusen.timing.system.Database;
@@ -25,11 +24,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+@SuppressWarnings("UnstableApiUsage")
 public class BoatUtilsManager {
 
     public static Map<UUID, BoatUtilsMode> playerBoatUtilsMode = new HashMap<>();
 
-    public static void pluginMessageListener(@NotNull String channel, @NotNull Player player, @NotNull byte[] message) {
+    public static void pluginMessageListener(@NotNull String channel, @NotNull Player player, byte[] message) {
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         short packetID = in.readShort();
         if (packetID == 0) {

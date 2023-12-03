@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class TimingSystemAPI {
 
     public static Optional<Driver> getDriverFromRunningHeat(UUID uuid) {
