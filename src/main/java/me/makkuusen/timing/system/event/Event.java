@@ -2,18 +2,20 @@ package me.makkuusen.timing.system.event;
 
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.database.SQLiteDatabase;
 import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -26,8 +28,11 @@ public class Event {
 
     public static TimingSystem plugin;
     public EventSchedule eventSchedule;
+    @Getter(AccessLevel.PUBLIC)
     HashMap<UUID, Subscriber> subscribers = new HashMap<>(); // Signed drivers
+    @Getter(AccessLevel.PUBLIC)
     HashMap<UUID, Subscriber> reserves = new HashMap<>();
+    @Getter(AccessLevel.PUBLIC)
     HashMap<UUID, Spectator> spectators = new HashMap<>();
     Track track;
     private int id;
@@ -125,7 +130,7 @@ public class Event {
 
     public void removeSubscriber(UUID uuid) {
         if (subscribers.containsKey(uuid)) {
-            DB.executeUpdateAsync("DELETE FROM `ts_events_signs` WHERE `uuid` = '" + uuid.toString() + "' AND `eventId` = " + getId() + " AND `type` = '" + Subscriber.Type.SUBSCRIBER.name() + "';");
+            TimingSystem.getEventDatabase().removeSign(uuid, id, Subscriber.Type.SUBSCRIBER);
             subscribers.remove(uuid);
         }
     }
@@ -140,19 +145,19 @@ public class Event {
 
     public void removeReserve(UUID uuid) {
         if (reserves.containsKey(uuid)) {
-            DB.executeUpdateAsync("DELETE FROM `ts_events_signs` WHERE `uuid` = '" + uuid.toString() + "' AND `eventId` = " + getId() + " AND `type` = '" + Subscriber.Type.RESERVE.name() + "';");
+            TimingSystem.getEventDatabase().removeSign(uuid, id, Subscriber.Type.RESERVE);
             reserves.remove(uuid);
         }
     }
 
     public void setTrack(Track track) {
         this.track = track;
-        DB.executeUpdateAsync("UPDATE `ts_events` SET `track` = " + track.getId() + " WHERE `id` = " + id + ";");
+        TimingSystem.getEventDatabase().eventSet(id, "track", String.valueOf(track.getId()));
     }
 
     public void setState(EventState state) {
         this.state = state;
-        DB.executeUpdateAsync("UPDATE `ts_events` SET `state` = '" + state.name() + "' WHERE `id` = " + id + ";");
+        TimingSystem.getEventDatabase().eventSet(id, "state", state.name());
     }
 
     @Override

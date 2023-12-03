@@ -1,14 +1,14 @@
 package me.makkuusen.timing.system.timetrial;
 
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.theme.Theme;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import net.kyori.adventure.text.Component;
 
 import javax.annotation.Nullable;
@@ -44,17 +44,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
 
     public void insertCheckpoints(Map<Integer, Long> checkpointTimes) {
         this.checkpointTimes = checkpointTimes;
-        for (Integer key: checkpointTimes.keySet()) {
-            DB.executeUpdateAsync("INSERT INTO `ts_finishes_checkpoints`(" +
-                    "`finishId`, " +
-                    "`checkpointIndex`, " +
-                    "`time`) " +
-                    "VALUES (" +
-                    getId() + "," +
-                    key + "," +
-                    checkpointTimes.get(key) + ")"
-            );
-        }
+        checkpointTimes.keySet().forEach(key -> TimingSystem.getTrackDatabase().createCheckpointFinish(id, key, checkpointTimes.get(key)));
     }
 
     public @Nullable Long getCheckpointTime(int checkpoint) {

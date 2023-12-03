@@ -1,9 +1,9 @@
 package me.makkuusen.timing.system.track;
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Location;
 
 @Getter
@@ -29,7 +29,7 @@ public class TrackLocation {
 
     public void updateLocation(Location location) {
         this.location = location;
-        DB.executeUpdateAsync("UPDATE `ts_locations` SET `location` = '" + ApiUtilities.locationToString(location) + "' WHERE `trackId` = " + getTrackId() + " AND `index` = " + index + " AND `type` = '" + locationType + "';");
+        TimingSystem.getTrackDatabase().updateLocation(index, location, locationType, trackId);
     }
 
     public enum Type {

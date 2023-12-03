@@ -2,11 +2,11 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 

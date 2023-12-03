@@ -1,23 +1,41 @@
 package me.makkuusen.timing.system.database;
 
 import co.aikar.idb.*;
+import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.track.TrackDatabase;
+import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.event.Event;
+import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.heat.HeatState;
+import me.makkuusen.timing.system.heat.Lap;
+import me.makkuusen.timing.system.participant.Subscriber;
+import me.makkuusen.timing.system.round.FinalRound;
+import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.round.Round;
+import me.makkuusen.timing.system.round.RoundType;
+import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackLocation;
+import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.TrackTag;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 import static me.makkuusen.timing.system.TimingSystem.getPlugin;
 
-public class SQLiteDatabase implements TSDatabase {
+public class SQLiteDatabase implements TSDatabase, EventDatabase, TrackDatabase {
     @Override
     public boolean initialize() {
         DatabaseOptions options = DatabaseOptions.builder().poolName(getPlugin().getDescription().getName() + " DB").logger(getPlugin().getLogger()).sqlite(new File(getPlugin().getDataFolder(), "ts.db").getPath()).build();
@@ -260,6 +278,11 @@ public class SQLiteDatabase implements TSDatabase {
     }
 
     @Override
+    public List<DbRow> selectPlayers() throws SQLException {
+        return null;
+    }
+
+    @Override
     public TPlayer createPlayer(UUID uuid, String name) {
         try {
             DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES('" + uuid + "', " + TSDatabase.sqlStringOf(name) + ", '" + Boat.Type.BIRCH.name() + "');");
@@ -269,5 +292,373 @@ public class SQLiteDatabase implements TSDatabase {
             getPlugin().getLogger().warning("Failed to create new player: " + e.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public void playerUpdateValue(UUID uuid, String column, String value) {
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = " + TSDatabase.sqlStringOf(value) + " WHERE `uuid` = '" + uuid + "';");
+    }
+
+    // EVENT DATABASE
+    private boolean eventDatabaseFinishedLoading = false;
+
+    @Override
+    public Event createEvent(UUID uuid, String name) {
+        try {
+            var eventId = DB.executeInsert("INSERT INTO `ts_events`(`name`,`uuid`,`date`,`track`,`state`,`isRemoved`) " +
+                    "VALUES (" +
+                    "'" + name + "'," +
+                    "'" + uuid + "'," +
+                    ApiUtilities.getTimestamp() + "," +
+                    "NULL," +
+                    "'" + Event.EventState.SETUP.name() + "'," +
+                    "0)");
+            var dbRow = DB.getFirstRow("SELECT * FROM `ts_events` WHERE `id` = " + eventId + ";");
+            return new Event(dbRow);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Round createRound(Event event, RoundType roundType, int roundIndex) {
+        try {
+            var roundId = DB.executeInsert("INSERT INTO `ts_rounds`(`eventId`, `roundIndex`, `type`, `state`, `isRemoved`) " +
+                    "VALUES (" +
+                    event.getId() + ", " +
+                    roundIndex + ", " +
+                    "'" + roundType.name() + "'," +
+                    "'" + Round.RoundState.SETUP.name() + "'," +
+                    "0)");
+            var dbRow = DB.getFirstRow("SELECT * FROM `ts_rounds` WHERE `id` = " + roundId + ";");
+            if (roundType == RoundType.QUALIFICATION)
+                return new QualificationRound(dbRow);
+            return new FinalRound(dbRow);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Heat createHeat(Round round, int heatIndex) {
+        try {
+            var heatId = DB.executeInsert("INSERT INTO `ts_heats`(`roundId`, `heatNumber`, `state`, `startTime`, `endTime`, `fastestLapUUID`, `totalLaps`, `totalPitstops`, `timeLimit`, `startDelay`, `maxDrivers`, `isRemoved`) " +
+                    "VALUES (" +
+                    round.getId() + "," +
+                    heatIndex + "," +
+                    "'" + HeatState.SETUP.name() + "'," +
+                    "NULL," +
+                    "NULL," +
+                    "NULL," +
+                    "NULL," +
+                    "NULL," +
+                    "NULL," +
+                    "NULL," +
+                    "NULL," +
+                    "0)");
+            var dbRow = DB.getFirstRow("SELECT * FROM `ts_heats` WHERE `id` = " + heatId + ";");
+            return new Heat(dbRow, round);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public void createSign(TPlayer tPlayer, Event event, Subscriber.Type type) {
+        DB.executeUpdateAsync("INSERT INTO `ts_events_signs`(" +
+                "`eventId`, " +
+                "`uuid`, " +
+                "`type`) " +
+                "VALUES (" +
+                event.getId() + ", " +
+                "'" + tPlayer.getUniqueId() + "'," +
+                "'" + type.name() + "')");
+    }
+
+    @Override
+    public void removeSign(UUID uuid, int eventId, Subscriber.Type type) {
+        DB.executeUpdateAsync("DELETE FROM `ts_events_signs` WHERE `uuid` = '" + uuid.toString() + "' AND `eventId` = " + eventId + " AND `type` = '" + type.name() + "';");
+    }
+
+    @Override
+    public DbRow createDriver(UUID uuid, Heat heat, int startPosition) {
+        try {
+            var driverId = DB.executeInsert("INSERT INTO `ts_drivers`(" +
+                    "`uuid`, " +
+                    "`heatId`, " +
+                    "`position`, " +
+                    "`startPosition`, " +
+                    "`startTime`, " +
+                    "`endTime`, " +
+                    "`pitstops`) " +
+                    "VALUES (" +
+                    "'" + uuid + "'," +
+                    heat.getId() + "," +
+                    startPosition + "," +
+                    startPosition + "," +
+                    "NULL," +
+                    "NULL," +
+                    "0)");
+            return DB.getFirstRow("SELECT * FROM `ts_drivers` WHERE `id` = " + driverId + ";");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public void createLap(Lap lap) {
+        String lapEnd = lap.getLapEnd() == null ? "NULL" : String.valueOf(lap.getLapEnd().toEpochMilli());
+        DB.executeUpdateAsync("INSERT INTO `ts_laps`(`uuid`, `heatId`, `trackId`, `lapStart`, `lapEnd`, `pitted`) " +
+                "VALUES (" +
+                "'" + lap.getPlayer().getUniqueId() + "'," +
+                lap.getHeatId() + "," +
+                lap.getTrack().getId() + "," +
+                lap.getLapStart().toEpochMilli() + "," +
+                lapEnd + "," +
+                lap.isPitted() + ")"
+        );
+    }
+
+    @Override
+    public List<DbRow> selectEvents() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_events` WHERE `isRemoved` = 0;");
+    }
+
+    @Override
+    public List<DbRow> selectRounds(int eventId) throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_rounds` WHERE `eventId` = " + eventId + " AND `isRemoved` = 0;");
+    }
+
+    @Override
+    public List<DbRow> selectHeats(int roundId) throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_heats` WHERE `roundId` = " + roundId + " AND `isRemoved` = 0;");
+    }
+
+    @Override
+    public List<DbRow> selectSigns(int eventId) throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_events_signs` WHERE `eventId` = " + eventId + ";");
+    }
+
+    @Override
+    public List<DbRow> selectDrivers(int heatId) throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_drivers` WHERE `heatId` = " + heatId + " AND `isRemoved` = 0;");
+    }
+
+    @Override
+    public List<DbRow> selectLaps(int heatId, String uuid) throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_laps` WHERE `heatId` = " + heatId + " AND `uuid` = '" + uuid + "' AND `isRemoved` = 0;");
+    }
+
+    @Override
+    public <T> void remove(T thing) {
+        if (thing instanceof Event event)
+            DB.executeUpdateAsync("UPDATE `ts_events` SET `isRemoved` = 1 WHERE `id` = " + event.getId() + ";");
+        else if (thing instanceof Round round)
+            DB.executeUpdateAsync("UPDATE `ts_rounds` SET `isRemoved` = 1 WHERE `id` = " + round.getId() + ";");
+        else if (thing instanceof Heat heat)
+            DB.executeUpdateAsync("UPDATE `ts_heats` SET `isRemoved` = 1 WHERE `id` = " + heat.getId() + ";");
+    }
+
+    @Override
+    public void setHasFinishedLoading(boolean b) {
+        eventDatabaseFinishedLoading = b;
+    }
+
+    @Override
+    public boolean hasFinishedLoading() {
+        return eventDatabaseFinishedLoading;
+    }
+
+    @Override
+    public void eventSet(long eventId, String column, String value) {
+
+    }
+
+    @Override
+    public void roundSet(long roundId, String column, String value) {
+
+    }
+
+    @Override
+    public void heatSet(long heatId, String column, String value) {
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `" + column + "` = '" + value + "' WHERE `id` = " + heatId + ";");
+    }
+
+    @Override
+    public void driverSet(long driverId, String column, String value) {
+
+    }
+
+    // Track Database
+
+    @Override
+    public List<DbRow> selectTracks() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_tracks` WHERE `isRemoved` = 0;");
+    }
+
+    @Override
+    public DbRow selectTrack(long trackId) throws SQLException {
+        return DB.getFirstRow("SELECT * FROM `ts_tracks` WHERE `id` = " + trackId + ";");
+    }
+
+    @Override
+    public List<DbRow> selectFinishes() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_finishes` WHERE `isRemoved` = 0;");
+    }
+
+    @Override
+    public List<DbRow> selectAttempts() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_attempts`;");
+    }
+
+    @Override
+    public List<DbRow> selectTrackTags() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_tracks_tags`;");
+    }
+
+    @Override
+    public List<DbRow> selectTags() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_tags`");
+    }
+
+    @Override
+    public List<DbRow> selectCheckpointTimes() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_finishes_checkpoints` WHERE `isRemoved` = 0;");
+    }
+
+    @Override
+    public List<DbRow> selectTrackRegions() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_regions` WHERE `isRemoved` = 0;");
+    }
+
+    @Override
+    public DbRow selectTrackRegion(long regionId) throws SQLException {
+        return DB.getFirstRow("SELECT * FROM `ts_regions` WHERE `id` = " + regionId + ";");
+    }
+
+    @Override
+    public List<DbRow> selectRegionPoints(int regionId) throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_points` WHERE `regionId` = " + regionId + ";");
+    }
+
+    @Override
+    public List<DbRow> selectLocations() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_locations`");
+    }
+
+    @Override
+    public long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Location leaderboard, Track.TrackMode mode, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException {
+        return DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `boatUtilsMode`, `isRemoved`) " +
+                "VALUES('" + uuid + "', " + TSDatabase.sqlStringOf(name) + ", " + date + ", " + weight + ", " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " + TSDatabase.sqlStringOf(type == null ? null : type.toString()) + "," + TSDatabase.sqlStringOf(mode.toString()) + ", 0, NULL, " + boatUtilsMode.getId() + ", 0);");
+    }
+
+    @Override
+    public long createRegion(long trackId, int index, String minP, String maxP, TrackRegion.RegionType type, TrackRegion.RegionShape shape, Location location) throws SQLException {
+        return DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", " + index + ", " + TSDatabase.sqlStringOf(type.toString()) + ", " + TSDatabase.sqlStringOf(TrackRegion.RegionShape.POLY.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
+    }
+
+    @Override
+    public long createPoint(long regionId, BlockVector2 v) throws SQLException {
+        return DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(" + regionId + ", " + v.getBlockX() + ", " + v.getBlockZ() + ");");
+    }
+
+    @Override
+    public long createLocation(long trackId, int index, TrackLocation.Type type, Location location) throws SQLException {
+        return DB.executeInsert("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + trackId + ", " + index + ", '" + type.name() + "', '" + ApiUtilities.locationToString(location) + "');");
+    }
+
+    @Override
+    public void removeTrack(long trackId) {
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `trackId` = " + trackId + ";");
+        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + trackId + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = " + trackId + ";");
+    }
+
+    @Override
+    public void createTagAsync(TrackTag tag, TextColor color, ItemStack item) {
+        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`, `color`, `item`) VALUES('" + tag.getValue() + "', '" + color.asHexString() + "', " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(item)) + ");");
+    }
+
+    @Override
+    public void deleteTagAsync(TrackTag tag) {
+        DB.executeUpdateAsync("DELETE FROM `ts_tags` WHERE `tag` = '" + tag.getValue() + "';");
+        DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = '" + tag.getValue() + "';");
+    }
+
+    @Override
+    public void deletePoint(long regionId) {
+        DB.executeUpdateAsync("DELETE FROM `ts_points` WHERE `regionId` = " + regionId + ";");
+    }
+
+    @Override
+    public void deleteLocation(int trackId, int index, TrackLocation.Type type) {
+        DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = " + trackId + " AND `index` = " + index + " AND `type` = '" + type + "';");
+    }
+
+    @Override
+    public void updateLocation(int index, Location location, TrackLocation.Type type, long trackId) {
+        DB.executeUpdateAsync("UPDATE `ts_locations` SET `location` = '" + ApiUtilities.locationToString(location) + "' WHERE `trackId` = " + trackId + " AND `index` = " + index + " AND `type` = '" + type + "';");
+    }
+
+    @Override
+    public void addTagToTrack(int trackId, TrackTag tag) {
+        DB.executeUpdateAsync("INSERT INTO `ts_tracks_tags` (`trackId`, `tag`) VALUES(" + trackId + ", '" + tag.getValue() + "');");
+    }
+
+    @Override
+    public void tagSet(String tag, String column, String value) {
+        DB.executeUpdateAsync("UPDATE `ts_tags` SET `" + column + "` = " + TSDatabase.sqlStringOf(value) + " WHERE `tag` = '" + tag + "';");
+    }
+
+    @Override
+    public void removeFinish(int finishId) {
+        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `id` = " + finishId + ";");
+    }
+
+    @Override
+    public void removeAllFinishes(int trackId, UUID uuid) {
+        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + trackId + " AND `uuid` = '" + uuid + "';");
+    }
+
+    @Override
+    public void removeAllFinishes(int trackId) {
+        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + trackId + ";");
+    }
+
+    @Override
+    public void removeTagFromTrack(int trackId, TrackTag tag) {
+        DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = '" + tag.getValue() + "' AND `trackId` = " + trackId + ";");
+    }
+
+    @Override
+    public void trackSet(int trackId, String column, String value) {
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = '" + TSDatabase.sqlStringOf(value) + "' WHERE `id` = " + trackId + ";");
+    }
+
+    @Override
+    public void trackRegionSet(int trackId, String column, String value) {
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `" + column + "` = '" + TSDatabase.sqlStringOf(value) + "' WHERE `id` = " + trackId + ";");
+    }
+
+    @Override
+    public void createCheckpointFinish(long finishId, int checkpointIndex, long time) {
+        DB.executeUpdateAsync("INSERT INTO `ts_finishes_checkpoints`(" +
+                "`finishId`, " +
+                "`checkpointIndex`, " +
+                "`time`) " +
+                "VALUES (" +
+                finishId + "," +
+                checkpointIndex + "," +
+                time + ");"
+        );
+    }
+
+    @Override
+    public void createAttempt(int id, UUID uuid, long date, long time) {
+        DB.executeUpdateAsync("INSERT INTO `ts_attempts` (`trackId`, `uuid`, `date`, `time`) VALUES(" + id + ", '" + uuid + "', " + date + ", " + time + ");");
     }
 }

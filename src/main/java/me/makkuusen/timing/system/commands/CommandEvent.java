@@ -4,10 +4,10 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Subscriber;
@@ -59,7 +59,7 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("list")
     @CommandPermission("%permissionevent_list")
     public static void onListEvents(CommandSender commandSender) {
-        var list = EventDatabase.getEvents().stream().filter(Event::isActive).sorted(Comparator.comparingLong(Event::getDate)).toList();
+        var list = EventDatabase.events.stream().filter(Event::isActive).sorted(Comparator.comparingLong(Event::getDate)).toList();
         commandSender.sendMessage(Component.empty());
         Text.send(commandSender, Info.ACTIVE_EVENTS_TITLE);
         Theme theme = Theme.getTheme(commandSender);

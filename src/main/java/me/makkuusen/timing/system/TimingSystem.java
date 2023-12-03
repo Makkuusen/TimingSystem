@@ -10,12 +10,8 @@ import lombok.Getter;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.commands.*;
-import me.makkuusen.timing.system.database.MariaDBDatabase;
-import me.makkuusen.timing.system.database.MySQLDatabase;
-import me.makkuusen.timing.system.database.SQLiteDatabase;
-import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.*;
 import me.makkuusen.timing.system.event.Event;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.gui.GuiCommon;
 import me.makkuusen.timing.system.heat.Heat;
@@ -50,8 +46,14 @@ public class TimingSystem extends JavaPlugin {
     public Logger logger;
     @Getter
     private static TimingSystem plugin;
+
     @Getter
     private static TSDatabase database;
+    @Getter
+    private static EventDatabase eventDatabase;
+    @Getter
+    private static TrackDatabase trackDatabase;
+
     public static TimingSystemConfiguration configuration;
     public static boolean enableLeaderboards = true;
     public static HashMap<UUID, Track> playerEditingSession = new HashMap<>();
@@ -226,16 +228,15 @@ public class TimingSystem extends JavaPlugin {
         File dir = new File(TrackExchangeTrack.PATH);
         if(!dir.exists()) dir.mkdir(); // create trackexchange handling folder.
 
-        database = switch (configuration.getDatabaseType().toLowerCase()) {
-            case "sqlite" -> new SQLiteDatabase();
-            case "mariadb" -> new MariaDBDatabase();
-            default -> new MySQLDatabase();
-        };
+        database = configuration.getDatabaseType();
+        eventDatabase = configuration.getDatabaseType();
+        trackDatabase = configuration.getDatabaseType();
+
         if (!database.initialize()) return;
         database.update();
         database.synchronize();
         TrackDatabase.loadTrackFinishesAsync();
-        EventDatabase.initDatabaseSynchronizeAsync();
+        EventDatabase.initSynchronize();
 
         var tasks = new Tasks();
         tasks.startPlayerTimer(plugin);

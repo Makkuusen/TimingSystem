@@ -1,14 +1,15 @@
 package me.makkuusen.timing.system.database;
 
+import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.track.TrackDatabase;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
-
-import static me.makkuusen.timing.system.TimingSystem.getPlugin;
 
 // TODO: Convert other database classes to a similar system(?)
 public interface TSDatabase {
@@ -21,7 +22,41 @@ public interface TSDatabase {
 
     boolean createTables();
 
+    List<DbRow> selectPlayers() throws SQLException;
+
     TPlayer createPlayer(UUID uuid, String name);
+
+    void playerUpdateValue(UUID uuid, String column, String value);
+
+
+    static void initSynchronize() {
+        try {
+            // Load players;
+            var result = TimingSystem.getDatabase().selectPlayers();
+
+            for (DbRow row : result) {
+                TPlayer player = new TPlayer(TimingSystem.getPlugin(), row);
+                TimingSystem.players.put(player.getUniqueId(), player);
+            }
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                TPlayer TPlayer = TSDatabase.getPlayer(player.getUniqueId());
+
+                TPlayer.setPlayer(player);
+
+                if (!TPlayer.getName().equals(player.getName())) {
+                    // Update name
+                    TPlayer.setName(player.getName());
+                }
+            }
+
+            TrackDatabase.initDatabaseSynchronize();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            TimingSystem.getPlugin().getLogger().warning("Failed to synchronize database, disabling plugin.");
+            TimingSystem.getPlugin().getServer().getPluginManager().disablePlugin(TimingSystem.getPlugin());
+        }
+    }
 
     static String sqlStringOf(String s) {
         return s == null ? "NULL" : "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'";
@@ -65,8 +100,8 @@ public interface TSDatabase {
             TrackDatabase.loadTrackFinishesAsync();
         } catch (Exception exception) {
             exception.printStackTrace();
-            getPlugin().getLogger().warning("Failed to synchronize database, disabling plugin.");
-            getPlugin().getServer().getPluginManager().disablePlugin(getPlugin());
+            TimingSystem.getPlugin().getLogger().warning("Failed to synchronize database, disabling plugin.");
+            TimingSystem.getPlugin().getServer().getPluginManager().disablePlugin(TimingSystem.getPlugin());
         }
     }
 

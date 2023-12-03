@@ -1,8 +1,9 @@
 package me.makkuusen.timing.system;
 
 import com.sk89q.worldedit.math.BlockVector2;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.database.TSDatabase;
-import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
@@ -16,7 +17,6 @@ import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -74,7 +74,7 @@ public class Tasks {
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
 
-            for (Track track : TrackDatabase.getTracks()) {
+            for (Track track : TrackDatabase.tracks) {
                 long time = 0L;
                 long bestTime = 0L;
                 var topTime = track.getTopList(1);

@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system;
 
 import lombok.Getter;
-import lombok.experimental.Accessors;
+import me.makkuusen.timing.system.database.*;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class TimingSystemConfiguration {
     private final Integer timeLimit;
     private final Integer qualyStartDelayInMS;
     private final Integer finalStartDelayInMS;
-    private final String databaseType;
+    private final String databaseTypeRaw;
     private final String sqlHost;
     private final int sqlPort;
     private final String sqlDatabase;
@@ -23,6 +23,8 @@ public class TimingSystemConfiguration {
     private final String sqlPassword;
     private int scoreboardMaxRows;
     private Integer scoreboardInterval;
+
+    private final Object databaseType;
 
     TimingSystemConfiguration(TimingSystem plugin) {
         plugin.saveDefaultConfig();
@@ -38,7 +40,7 @@ public class TimingSystemConfiguration {
         qualyStartDelayInMS = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("qualifying.startDelay", "1s"));
         finalStartDelayInMS = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("finals.startDelay", "0"));
 
-        databaseType = plugin.getConfig().getString("sql.databaseType", "MySQL");
+        databaseTypeRaw = plugin.getConfig().getString("sql.databaseType", "MySQL");
         sqlHost = plugin.getConfig().getString("sql.host");
         sqlPort = plugin.getConfig().getInt("sql.port");
         sqlDatabase = plugin.getConfig().getString("sql.database");
@@ -47,6 +49,12 @@ public class TimingSystemConfiguration {
 
         scoreboardMaxRows = plugin.getConfig().getInt("scoreboard.maxRows", 15);
         scoreboardInterval = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("scoreboard.interval","1000"));
+
+        databaseType = switch (databaseTypeRaw.toLowerCase()) {
+            case "sqlite" -> new SQLiteDatabase();
+            case "mariadb" -> new MariaDBDatabase();
+            default -> new MySQLDatabase();
+        };
     }
 
 
@@ -56,5 +64,10 @@ public class TimingSystemConfiguration {
 
     public void setScoreboardInterval(String value) {
         scoreboardInterval =  ApiUtilities.parseDurationToMillis(value);
+    }
+
+    public <T extends TSDatabase & EventDatabase> T getDatabaseType() {
+        // This could maybe be improved but I have no idea :P
+        return (T) databaseType;
     }
 }

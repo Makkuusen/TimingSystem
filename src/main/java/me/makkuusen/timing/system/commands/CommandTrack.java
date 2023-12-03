@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.gui.TrackGui;
 import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.theme.Text;
@@ -25,7 +26,6 @@ import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialSession;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackPolyRegion;
 import me.makkuusen.timing.system.track.TrackRegion;
@@ -350,7 +350,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
         boolean inRegion = false;
-        for (Track track : TrackDatabase.getTracks()) {
+        for (Track track : TrackDatabase.tracks) {
             for (TrackRegion region : track.getRegions()) {
                 if (region.contains(player.getLocation())) {
                     inRegion = true;
