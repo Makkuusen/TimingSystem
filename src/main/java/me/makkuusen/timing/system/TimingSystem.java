@@ -198,8 +198,8 @@ public class TimingSystem extends JavaPlugin {
                 List<BoatUtilsMode> availableModes = BoatUtilsManager.getAvailableModes(tPlayer.getBoatUtilsVersion());
                 availableModes.forEach(mode -> res.add(mode.name().toLowerCase()));
             } else {
-                res.add(BoatUtilsMode.BA.name().toLowerCase());
-                res.add(BoatUtilsMode.RALLY.name().toLowerCase());
+                res.add(BoatUtilsMode.BROKEN_SLIME_BA_NOFD.name().toLowerCase());
+                res.add(BoatUtilsMode.BROKEN_SLIME_RALLY.name().toLowerCase());
             }
             return res;
         });

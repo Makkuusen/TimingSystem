@@ -74,7 +74,7 @@ public class Track {
         mode = data.get("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));
         weight = data.getInt("weight");
         dateChanged = data.get("dateChanged") == null ? 0 : data.getInt("dateChanged");
-        boatUtilsMode = data.get("boatUtilsMode") == null ? BoatUtilsMode.VANILLA : BoatUtilsMode.valueOf(data.getString("boatUtilsMode"));
+        boatUtilsMode = data.get("boatUtilsMode") == null ? BoatUtilsMode.VANILLA : BoatUtilsMode.getMode(data.getInt("boatUtilsMode"));
     }
 
     public static ContextResolver<TrackType, BukkitCommandExecutionContext> getTrackTypeContextResolver() {
@@ -389,14 +389,11 @@ public class Track {
     }
 
     public Optional<Location> getFinishTpLocation(int pos) {
-        List<TrackLocation> teleportLocs = trackLocations.stream().filter(l -> l.getLocationType() == TrackLocation.Type.FINISH_TP).toList();
-        if(teleportLocs.size() == 0) return Optional.empty();
-        HashMap<Integer, TrackLocation> posTeleport = new HashMap<>();
-        for(TrackLocation tl : teleportLocs) {
-            posTeleport.put(tl.getIndex(), tl);
+        for(TrackLocation finishTp : trackLocations.stream().filter(l -> l.getLocationType() == TrackLocation.Type.FINISH_TP).toList()) {
+            if(finishTp.getIndex() == pos)
+                return Optional.of(finishTp.getLocation());
         }
-
-        return Optional.of(posTeleport.get(pos).getLocation());
+        return Optional.empty();
     }
 
     public boolean hasTrackLocation(TrackLocation.Type locationType) {
