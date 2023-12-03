@@ -477,8 +477,12 @@ public class Database {
             DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '0' WHERE `boatUtilsMode` = 'RALLY'");
             DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '1' WHERE `boatUtilsMode` = 'RALLY_BLUE'");
             DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '2' WHERE `boatUtilsMode` = 'BA'");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '2' WHERE `boatUtilsMode` = 'BA_NOFD'");
             DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '3' WHERE `boatUtilsMode` = 'PARKOUR'");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '5' WHERE `boatUtilsMode` = 'PARKOUR_BLUE'");
             DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '4' WHERE `boatUtilsMode` = 'BA_BLUE'");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '4' WHERE `boatUtilsMode` = 'BA_BLUE_NOFD'");
+
             DB.executeUpdate("ALTER TABLE `ts_tracks` modify `boatUtilsMode` int(4) NOT NULL DEFAULT '-1'");
         } catch (Exception e) {
             e.printStackTrace();
