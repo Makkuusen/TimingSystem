@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
-import me.makkuusen.timing.system.Database;
+import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.gui.SettingsGui;
 import me.makkuusen.timing.system.theme.Text;

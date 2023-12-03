@@ -1,6 +1,10 @@
-package me.makkuusen.timing.system;
+package me.makkuusen.timing.system.database;
 
 import co.aikar.idb.*;
+import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.ItemBuilder;
+import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -113,7 +117,8 @@ public class Database {
         }
     }
 
-    static TPlayer getPlayer(UUID uuid, String name) {
+    // Made public so that this class can be moved, unsure if the protection is necessary here.
+    public static TPlayer getPlayer(UUID uuid, String name) {
         TPlayer TPlayer = TimingSystem.players.get(uuid);
 
         if (TPlayer == null) {

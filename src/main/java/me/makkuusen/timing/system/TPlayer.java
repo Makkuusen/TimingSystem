@@ -8,6 +8,7 @@ import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
+import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
 import me.makkuusen.timing.system.gui.TrackFilter;
@@ -265,7 +266,9 @@ public class TPlayer implements Comparable<TPlayer> {
         this.page = page;
     }
 
-    void setPlayer(Player player) {
+    // Not sure if this was protected for a reason.
+    // Made it public so that the database can be reworked and stored in a different package.
+    public void setPlayer(Player player) {
         this.player = player;
     }
 

@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system;
 
 import com.sk89q.worldedit.math.BlockVector2;
+import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
