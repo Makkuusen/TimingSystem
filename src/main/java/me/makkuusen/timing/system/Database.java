@@ -470,8 +470,18 @@ public class Database {
         try {
             DB.executeUpdate("ALTER TABLE `ts_players` ADD `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0' AFTER `toggleSound`;");
             DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `contributors` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `uuid`;");
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Exception ignored) {}
+
+        try {
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '-1' WHERE `boatUtilsMode` = 'VANILLA'");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '0' WHERE `boatUtilsMode` = 'RALLY'");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '1' WHERE `boatUtilsMode` = 'RALLY_BLUE'");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '2' WHERE `boatUtilsMode` = 'BA'");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '3' WHERE `boatUtilsMode` = 'PARKOUR'");
+            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '4' WHERE `boatUtilsMode` = 'BA_BLUE'");
+            DB.executeUpdate("ALTER TABLE `ts_tracks` modify `boatUtilsMode` int(4) NOT NULL DEFAULT '-1'");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

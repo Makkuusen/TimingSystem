@@ -43,7 +43,7 @@ public class BoatUtilsManager {
         TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
         if (mode != BoatUtilsMode.VANILLA) {
             if (!tPlayer.hasBoatUtils()) {
-                if (!(mode == BoatUtilsMode.RALLY || mode == BoatUtilsMode.BA)) {
+                if (!(mode == BoatUtilsMode.BROKEN_SLIME_RALLY || mode == BoatUtilsMode.BROKEN_SLIME_BA_NOFD)) {
                     var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
                             .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
                             .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));

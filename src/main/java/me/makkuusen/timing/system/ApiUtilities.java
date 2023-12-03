@@ -617,7 +617,7 @@ public class ApiUtilities {
 
         if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
             var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
-            return mode == BoatUtilsMode.RALLY || mode == BoatUtilsMode.BA;
+            return mode == BoatUtilsMode.BROKEN_SLIME_RALLY || mode == BoatUtilsMode.BROKEN_SLIME_BA_NOFD;
         }
         return false;
     }
@@ -630,7 +630,7 @@ public class ApiUtilities {
 
         if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
             var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
-            return mode == BoatUtilsMode.RALLY;
+            return mode == BoatUtilsMode.BROKEN_SLIME_RALLY;
         }
         return false;
     }

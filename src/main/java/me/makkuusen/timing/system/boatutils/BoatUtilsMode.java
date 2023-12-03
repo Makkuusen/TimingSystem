@@ -1,5 +1,7 @@
 package me.makkuusen.timing.system.boatutils;
 
+import java.util.Arrays;
+
 public enum BoatUtilsMode {
     VANILLA(-1, 0),
     BROKEN_SLIME_RALLY(0, 0),
@@ -33,5 +35,9 @@ public enum BoatUtilsMode {
 
     public short getRequiredVersion() {
         return version;
+    }
+
+    public static BoatUtilsMode getMode(int id) {
+        return Arrays.stream(BoatUtilsMode.values()).filter(boatUtilsMode -> boatUtilsMode.getId() == id).findFirst().orElse(VANILLA);
     }
 }
