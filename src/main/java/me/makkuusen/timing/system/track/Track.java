@@ -11,9 +11,9 @@ import com.sk89q.worldedit.regions.Region;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.gui.TrackFilter;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
@@ -60,7 +60,7 @@ public class Track {
 
     public Track(DbRow data) {
         id = data.getInt("id");
-        owner = data.getString("uuid") == null ? null : Database.getPlayer(UUID.fromString(data.getString("uuid")));
+        owner = data.getString("uuid") == null ? null : TSDatabase.getPlayer(UUID.fromString(data.getString("uuid")));
         contributors = data.getString("contributors") == null ? new ArrayList<>() : ApiUtilities.tPlayersFromUUIDList(ApiUtilities.extractUUIDsFromString(data.getString("contributors")));
         displayName = data.getString("name");
         commandName = displayName.replaceAll(" ", "");
@@ -116,7 +116,7 @@ public class Track {
         if (toReturn == null) {
             return null;
         }
-        TPlayer tPlayer = Database.getPlayer(uuid);
+        TPlayer tPlayer = TSDatabase.getPlayer(uuid);
 
         List<Component> loreToSet = new ArrayList<>();
 
@@ -232,12 +232,12 @@ public class Track {
 
     public void setMode(TrackMode mode) {
         this.mode = mode;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `mode` = " + Database.sqlString(mode.toString()) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `mode` = " + TSDatabase.sqlStringOf(mode.toString()) + " WHERE `id` = " + id + ";");
     }
 
     public void setBoatUtilsMode(BoatUtilsMode mode) {
         this.boatUtilsMode = mode;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `boatUtilsMode` = " + Database.sqlString(mode.toString()) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `boatUtilsMode` = " + TSDatabase.sqlStringOf(mode.toString()) + " WHERE `id` = " + id + ";");
     }
 
     public void setName(String name) {
@@ -248,7 +248,7 @@ public class Track {
 
     public void setGuiItem(ItemStack guiItem) {
         this.guiItem = guiItem;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `guiItem` = " + Database.sqlString(ApiUtilities.itemToString(guiItem)) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `guiItem` = " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(guiItem)) + " WHERE `id` = " + id + ";");
     }
 
     public void setSpawnLocation(Location spawn) {
@@ -615,7 +615,7 @@ public class Track {
 
     public void setTrackType(TrackType type) {
         this.type = type;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `type` = " + Database.sqlString(type.toString()) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `type` = " + TSDatabase.sqlStringOf(type.toString()) + " WHERE `id` = " + id + ";");
     }
 
     public void setOwner(TPlayer owner) {
@@ -625,20 +625,20 @@ public class Track {
 
     public void setOptions(String options) {
         this.options = options.toCharArray();
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `options` = " + Database.sqlString(options) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `options` = " + TSDatabase.sqlStringOf(options) + " WHERE `id` = " + id + ";");
 
     }
 
     public void addContributor(TPlayer tPlayer) {
         if(contributors.contains(tPlayer)) return;
         contributors.add(tPlayer);
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors))) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + TSDatabase.sqlStringOf(ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors))) + " WHERE `id` = " + id + ";");
     }
 
     public void removeContributor(TPlayer tPlayer) {
         contributors.remove(tPlayer);
         String uuids = ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors));
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(uuids.isEmpty() ? null : uuids) + " WHERE `id` = " + id + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + TSDatabase.sqlStringOf(uuids.isEmpty() ? null : uuids) + " WHERE `id` = " + id + ";");
     }
 
     public String getContributorsAsString() {

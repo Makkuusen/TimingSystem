@@ -4,7 +4,7 @@ import com.destroystokyo.paper.event.server.ServerTickStartEvent;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.commands.CommandRace;
-import me.makkuusen.timing.system.database.Database;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -71,7 +71,7 @@ public class TSListener implements Listener {
 
         if (event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
 
-            TPlayer TPlayer = Database.getPlayer(event.getUniqueId(), event.getName());
+            TPlayer TPlayer = TSDatabase.getPlayer(event.getUniqueId(), event.getName());
 
             if (TPlayer == null) {
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("Your player profile could not be loaded. Notify the server owner!"));
@@ -82,7 +82,7 @@ public class TSListener implements Listener {
     @EventHandler
     void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        TPlayer TPlayer = Database.getPlayer(player.getUniqueId());
+        TPlayer TPlayer = TSDatabase.getPlayer(player.getUniqueId());
         TPlayer.setPlayer(player);
 
         if (!TPlayer.getName().equals(player.getName())) {
@@ -429,7 +429,7 @@ public class TSListener implements Listener {
                     Track track_ = maybeTrack.get();
 
                     if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
-                        TimeTrial timeTrial = new TimeTrial(track_, Database.getPlayer(player.getUniqueId()));
+                        TimeTrial timeTrial = new TimeTrial(track_, TSDatabase.getPlayer(player.getUniqueId()));
                         timeTrial.playerStartingTimeTrial();
                         TimeTrialController.elytraProtection.remove(player.getUniqueId());
                         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track_);
@@ -442,7 +442,7 @@ public class TSListener implements Listener {
 
     @EventHandler
     void onPlayerQuit(PlayerQuitEvent event) {
-        TPlayer TPlayer = Database.getPlayer(event.getPlayer());
+        TPlayer TPlayer = TSDatabase.getPlayer(event.getPlayer());
         // Set to offline
         TPlayer.setPlayer(null);
         TPlayer.clearScoreboard();

@@ -3,8 +3,8 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
@@ -50,7 +50,7 @@ public class CommandRound extends BaseCommand {
                 return;
             }
         }
-        Theme theme = Database.getPlayer(player).getTheme();
+        Theme theme = TSDatabase.getPlayer(player).getTheme();
         Text.send(player, Info.ROUNDS_TITLE, "%event%", event.getDisplayName());
         event.eventSchedule.listRounds(theme).forEach(player::sendMessage);
     }
@@ -100,7 +100,7 @@ public class CommandRound extends BaseCommand {
     @CommandCompletion("@round")
     @CommandPermission("%permissionround_info")
     public static void onRoundInfo(Player player, Round round) {
-        Theme theme = Database.getPlayer(player).getTheme();
+        Theme theme = TSDatabase.getPlayer(player).getTheme();
         player.sendMessage(Component.space());
         player.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/round info " + round.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(round.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(round.getState().name())))).append(Component.space()).append(theme.getBrackets(Text.get(player, TextButton.VIEW_EVENT), theme.getButton()).clickEvent(ClickEvent.runCommand("/event info " + round.getEvent().getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent(player))));
 
@@ -159,7 +159,7 @@ public class CommandRound extends BaseCommand {
         List<Driver> results = EventResults.generateRoundResults(round.getHeats());
 
         if (!results.isEmpty()) {
-            Theme theme = Database.getPlayer(player).getTheme();
+            Theme theme = TSDatabase.getPlayer(player).getTheme();
             Text.send(player, Info.ROUND_RESULT_TITLE, "%round%", String.valueOf(round.getRoundIndex()));
             int pos = 1;
             if (round instanceof FinalRound) {
@@ -302,7 +302,7 @@ public class CommandRound extends BaseCommand {
                 while (!tPlayerList.isEmpty()) {
                     message.append(", ").append(tPlayerList.pop().getName());
                 }
-                Theme theme = Database.getPlayer(player).getTheme();
+                Theme theme = TSDatabase.getPlayer(player).getTheme();
                 player.sendMessage(theme.warning(message.toString()));
             }
         } else {
@@ -351,7 +351,7 @@ public class CommandRound extends BaseCommand {
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
             var bestTime = heat.getEvent().getTrack().getBestFinish(tPlayer);
-            Theme theme = Database.getPlayer(sender).getTheme();
+            Theme theme = TSDatabase.getPlayer(sender).getTheme();
             sender.sendMessage(theme.primary(heat.getDrivers().size() + ":").append(Component.space()).append(theme.highlight(tPlayer.getName())).append(theme.hyphen()).append(theme.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()))));
         }
 

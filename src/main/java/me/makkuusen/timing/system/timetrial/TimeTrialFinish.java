@@ -5,8 +5,8 @@ import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import net.kyori.adventure.text.Component;
@@ -70,7 +70,7 @@ public class TimeTrialFinish implements Comparator<TimeTrialFinish> {
     }
 
     public TPlayer getPlayer() {
-        return Database.getPlayer(uuid);
+        return TSDatabase.getPlayer(uuid);
     }
 
     public int getTrack() {

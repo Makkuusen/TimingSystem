@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system;
 
 import com.sk89q.worldedit.math.BlockVector2;
-import me.makkuusen.timing.system.database.Database;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
@@ -163,7 +163,7 @@ public class Tasks {
         TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
         long mapTime = timeTrial.getCurrentTime();
         Component timer = Component.text(ApiUtilities.formatAsTime(mapTime));
-        Theme theme = Database.getPlayer(player).getTheme();
+        Theme theme = TSDatabase.getPlayer(player).getTheme();
 
         int latestCheckpoint = timeTrial.getLatestCheckpoint();
         Component delta = timeTrial.getBestLapDelta(theme, latestCheckpoint);
@@ -180,7 +180,7 @@ public class Tasks {
     private static void elytraProtectionCountdown(Player player) {
         if (TimeTrialController.elytraProtection.get(player.getUniqueId()) != null && TimeTrialController.elytraProtection.get(player.getUniqueId()) >= TimingSystem.currentTime.getEpochSecond()) {
             String elytraCountdown = String.valueOf(TimeTrialController.elytraProtection.get(player.getUniqueId()) - TimingSystem.currentTime.getEpochSecond());
-            player.sendActionBar(Component.text(elytraCountdown).color(Database.getPlayer(player).getTheme().getWarning()));
+            player.sendActionBar(Component.text(elytraCountdown).color(TSDatabase.getPlayer(player).getTheme().getWarning()));
         }
     }
 

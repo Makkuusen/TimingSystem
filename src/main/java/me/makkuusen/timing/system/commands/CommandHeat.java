@@ -3,8 +3,8 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventDatabase;
@@ -58,7 +58,7 @@ public class CommandHeat extends BaseCommand {
             }
         }
         Text.send(player, Info.HEATS_TITLE, "%event%", event.getDisplayName());
-        var messages = event.eventSchedule.getHeatList(Database.getPlayer(player).getTheme());
+        var messages = event.eventSchedule.getHeatList(TSDatabase.getPlayer(player).getTheme());
         messages.forEach(player::sendMessage);
     }
 
@@ -66,7 +66,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     @CommandPermission("%permissionheat_info")
     public static void onHeatInfo(Player player, Heat heat) {
-        Theme theme = Database.getPlayer(player).getTheme();
+        Theme theme = TSDatabase.getPlayer(player).getTheme();
         player.sendMessage(Component.empty());
         player.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(heat.getName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(heat.getHeatState().name()).append(Component.space()).append(theme.getBrackets(Text.get(player, TextButton.VIEW_EVENT), theme.getButton()).clickEvent(ClickEvent.runCommand("/event info " + heat.getEvent().getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent(player)))))));
 
@@ -302,7 +302,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat @players <[+/-]pos>")
     @CommandPermission("%permissionheat_set_driverposition")
     public static void onHeatSetDriverPosition(Player sender, Heat heat, String playerName, String position) {
-        TPlayer tPlayer = Database.getPlayer(playerName);
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
         if (tPlayer == null) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
             return;
@@ -384,7 +384,7 @@ public class CommandHeat extends BaseCommand {
             Text.send(sender, Error.HEAT_FULL);
             return;
         }
-        TPlayer tPlayer = Database.getPlayer(playerName);
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
         if (tPlayer == null) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
             return;
@@ -413,7 +413,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat @players")
     @CommandPermission("%permissionheat_removedriver")
     public static void onHeatRemoveDriver(Player sender, Heat heat, String playerName) {
-        TPlayer tPlayer = Database.getPlayer(playerName);
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
         if (tPlayer == null) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
             return;
@@ -541,10 +541,10 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat @players")
     @CommandPermission("%permissionheat_results")
     public static void onHeatResults(Player sender, Heat heat, @Optional String name) {
-        Theme theme = Database.getPlayer(sender).getTheme();
+        Theme theme = TSDatabase.getPlayer(sender).getTheme();
 
         if (name != null) {
-            TPlayer tPlayer = Database.getPlayer(name);
+            TPlayer tPlayer = TSDatabase.getPlayer(name);
             if (tPlayer == null) {
                 Text.send(sender, Error.PLAYER_NOT_FOUND);
                 return;

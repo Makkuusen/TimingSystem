@@ -4,8 +4,8 @@ import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.ItemBuilder;
+import me.makkuusen.timing.system.database.TSDatabase;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -76,7 +76,7 @@ public class TrackTag {
 
     public void setItem(ItemStack item) {
         this.item = item;
-        DB.executeUpdateAsync("UPDATE `ts_tags` SET `item` = " + Database.sqlString(ApiUtilities.itemToString(item)) + " WHERE `tag` = '" + value + "';");
+        DB.executeUpdateAsync("UPDATE `ts_tags` SET `item` = " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(item)) + " WHERE `tag` = '" + value + "';");
     }
 
     public void setColor(TextColor color) {

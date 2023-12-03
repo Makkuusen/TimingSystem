@@ -8,7 +8,7 @@ import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
-import me.makkuusen.timing.system.database.Database;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
 import me.makkuusen.timing.system.gui.TrackFilter;
@@ -155,7 +155,7 @@ public class TPlayer implements Comparable<TPlayer> {
         plugin.getLogger().info("Updating name of " + uuid + " from " + this.name + " to " + name + ".");
 
         this.name = name;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `name` = " + TSDatabase.sqlStringOf(name) + " WHERE `uuid` = '" + uuid + "';");
     }
 
     public String getNameDisplay() {
@@ -183,7 +183,7 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public void setBoat(Boat.Type boat) {
         this.boat = boat;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + TSDatabase.sqlStringOf(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
     }
 
     public void setChestBoat(boolean b) {

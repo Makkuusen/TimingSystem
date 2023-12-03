@@ -6,9 +6,9 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Hover;
 import me.makkuusen.timing.system.theme.messages.Warning;
@@ -34,13 +34,13 @@ public class BoatUtilsManager {
         short packetID = in.readShort();
         if (packetID == 0) {
             int version = in.readInt();
-            TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+            TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
             tPlayer.setBoatUtilsVersion(version);
         }
     }
 
     public static void sendBoatUtilsModePluginMessage(Player player, BoatUtilsMode mode, Track track, boolean sameAsLastTrack){
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         if (mode != BoatUtilsMode.VANILLA) {
             if (!tPlayer.hasBoatUtils()) {
                 if (!(mode == BoatUtilsMode.RALLY || mode == BoatUtilsMode.BA)) {

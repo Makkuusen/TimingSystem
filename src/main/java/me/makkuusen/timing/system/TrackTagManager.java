@@ -5,7 +5,7 @@ import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
-import me.makkuusen.timing.system.database.Database;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
@@ -32,7 +32,7 @@ public class TrackTagManager {
             return false;
         }
 
-        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`, `color`, `item`) VALUES('" + tag.getValue() + "', '" + color.asHexString() + "', " + Database.sqlString(ApiUtilities.itemToString(item)) + ");");
+        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`, `color`, `item`) VALUES('" + tag.getValue() + "', '" + color.asHexString() + "', " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(item)) + ");");
         trackTags.put(tag.getValue(), tag);
         return true;
     }

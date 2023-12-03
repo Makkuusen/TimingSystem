@@ -15,8 +15,7 @@ public class TimingSystemConfiguration {
     private final Integer timeLimit;
     private final Integer qualyStartDelayInMS;
     private final Integer finalStartDelayInMS;
-    @Accessors(fluent = true)
-    private final boolean useSQLite;
+    private final String databaseType;
     private final String sqlHost;
     private final int sqlPort;
     private final String sqlDatabase;
@@ -39,7 +38,7 @@ public class TimingSystemConfiguration {
         qualyStartDelayInMS = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("qualifying.startDelay", "1s"));
         finalStartDelayInMS = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("finals.startDelay", "0"));
 
-        useSQLite = plugin.getConfig().getBoolean("sql.useSQLite", false);
+        databaseType = plugin.getConfig().getString("sql.databaseType", "MySQL");
         sqlHost = plugin.getConfig().getString("sql.host");
         sqlPort = plugin.getConfig().getInt("sql.port");
         sqlDatabase = plugin.getConfig().getString("sql.database");

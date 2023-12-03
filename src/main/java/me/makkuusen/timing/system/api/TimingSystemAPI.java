@@ -1,8 +1,8 @@
 package me.makkuusen.timing.system.api;
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
@@ -52,7 +52,7 @@ public class TimingSystemAPI {
         if (track.isEmpty()) {
             return Optional.empty();
         }
-        var tPlayer = Database.getPlayer(uuid);
+        var tPlayer = TSDatabase.getPlayer(uuid);
         var bestTime = track.get().getBestFinish(tPlayer);
         if (bestTime == null) {
             return Optional.empty();
@@ -61,7 +61,7 @@ public class TimingSystemAPI {
     }
 
     public static TPlayer getTPlayer(UUID uuid) {
-        return Database.getPlayer(uuid);
+        return TSDatabase.getPlayer(uuid);
     }
 
     public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location) {
@@ -142,7 +142,7 @@ public class TimingSystemAPI {
     }
 
     public static DriverDetails getDriverDetailsOfClosestPlayerFromHeat(Heat heat, UUID playerToCheckClosestTo) {
-        Player player = Database.getPlayer(playerToCheckClosestTo).getPlayer();
+        Player player = TSDatabase.getPlayer(playerToCheckClosestTo).getPlayer();
         if (player == null) {
             return new DriverDetails();
         }

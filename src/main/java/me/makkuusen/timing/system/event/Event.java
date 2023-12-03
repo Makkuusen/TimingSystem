@@ -4,9 +4,10 @@ import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.SQLiteDatabase;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.participant.Subscriber;
@@ -40,7 +41,7 @@ public class Event {
         id = data.getInt("id");
         displayName = data.getString("name");
         uuid = UUID.fromString(data.getString("uuid"));
-        date = TimingSystem.configuration.useSQLite() ? data.getInt("date").longValue() : data.getLong("date"); // seems weird converting this int to a long maybe hmmmm
+        date = TimingSystem.getDatabase() instanceof SQLiteDatabase ? data.getInt("date").longValue() : data.getLong("date"); // seems weird converting this int to a long maybe hmmmm
         Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : TrackDatabase.getTrackById(data.getInt("track"));
         track = maybeTrack.orElse(null);
         state = EventState.valueOf(data.getString("state"));
@@ -91,7 +92,7 @@ public class Event {
     }
 
     public void addSpectator(UUID uuid) {
-        spectators.put(uuid, new Spectator(Database.getPlayer(uuid)));
+        spectators.put(uuid, new Spectator(TSDatabase.getPlayer(uuid)));
         var maybeHeat = getRunningHeat();
 
         maybeHeat.ifPresent(Heat::updateScoreboard);
@@ -104,10 +105,10 @@ public class Event {
     public void removeSpectator(UUID uuid) {
         if (spectators.containsKey(uuid)) {
             spectators.remove(uuid);
-            if (Database.getPlayer(uuid).getPlayer() != null) {
+            if (TSDatabase.getPlayer(uuid).getPlayer() != null) {
                 var maybeHeat = getRunningHeat();
                 if (maybeHeat.isPresent()) {
-                    Database.getPlayer(uuid).clearScoreboard();
+                    TSDatabase.getPlayer(uuid).clearScoreboard();
                 }
             }
 

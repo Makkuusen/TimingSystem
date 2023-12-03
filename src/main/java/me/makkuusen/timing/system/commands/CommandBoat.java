@@ -3,9 +3,9 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -34,7 +34,7 @@ public class CommandBoat extends BaseCommand {
             Track track = TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId());
             ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, player.getLocation(), track, true);
             if (track.isBoatUtils()) {
-                PlaySound.boatUtilsEffect(Database.getPlayer(player.getUniqueId()));
+                PlaySound.boatUtilsEffect(TSDatabase.getPlayer(player.getUniqueId()));
             }
             return;
         }

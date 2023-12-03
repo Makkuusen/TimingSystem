@@ -5,12 +5,12 @@ import co.aikar.commands.annotation.*;
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
-import me.makkuusen.timing.system.database.Database;
 import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.gui.TrackGui;
 import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.theme.Text;
@@ -112,7 +112,7 @@ public class CommandTrack extends BaseCommand {
     @Default
     @CommandPermission("%permissiontrack_menu")
     public static void onTrack(Player player) {
-        new TrackGui(Database.getPlayer(player.getUniqueId())).show(player);
+        new TrackGui(TSDatabase.getPlayer(player.getUniqueId())).show(player);
     }
 
     @Subcommand("tp")
@@ -228,7 +228,7 @@ public class CommandTrack extends BaseCommand {
     @CommandPermission("%permissiontrack_info")
     public static void onInfo(CommandSender commandSender, Track track, @Optional String name) {
         TPlayer tPlayer;
-        tPlayer = Database.getPlayer(name);
+        tPlayer = TSDatabase.getPlayer(name);
         if (name != null && commandSender.hasPermission(PermissionTrack.VIEW_PLAYERSTATS.getNode())) {
             if (tPlayer == null) {
                 Text.send(commandSender, Error.PLAYER_NOT_FOUND);
@@ -390,7 +390,7 @@ public class CommandTrack extends BaseCommand {
             }
 
             if (track.getId() != ttSession.getTrack().getId()) {
-                var newSession = new TimeTrialSession(Database.getPlayer(player.getUniqueId()), track);
+                var newSession = new TimeTrialSession(TSDatabase.getPlayer(player.getUniqueId()), track);
                 newSession.updateScoreboard();
                 TimeTrialController.timeTrialSessions.put(player.getUniqueId(), newSession);
                 Text.send(player, Success.SESSION_STARTED, "%track%", track.getDisplayName());
@@ -411,7 +411,7 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        TimeTrialSession ttSession = new TimeTrialSession(Database.getPlayer(player.getUniqueId()), track);
+        TimeTrialSession ttSession = new TimeTrialSession(TSDatabase.getPlayer(player.getUniqueId()), track);
         ttSession.updateScoreboard();
         TimeTrialController.timeTrialSessions.put(player.getUniqueId(), ttSession);
         Text.send(player, Success.SESSION_STARTED, "%track%", track.getDisplayName());
@@ -466,7 +466,7 @@ public class CommandTrack extends BaseCommand {
             pageStart = 1;
         }
 
-        var tPlayer = Database.getPlayer(player.getUniqueId());
+        var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         Theme theme = tPlayer.getTheme();
         List<TimeTrialFinish> allTimes = new ArrayList<>();
         if (track.getTimeTrialFinishes().containsKey(tPlayer)) {
@@ -515,13 +515,13 @@ public class CommandTrack extends BaseCommand {
                 Text.send(player, Error.PERMISSION_DENIED);
                 return;
             }
-            tPlayer = Database.getPlayer(name);
+            tPlayer = TSDatabase.getPlayer(name);
             if (tPlayer == null) {
                 Text.send(player, Error.PLAYER_NOT_FOUND);
                 return;
             }
         } else {
-            tPlayer = Database.getPlayer(player.getUniqueId());
+            tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         }
 
         List<TimeTrialFinish> allTimes = new ArrayList<>();
@@ -533,7 +533,7 @@ public class CommandTrack extends BaseCommand {
         }
         allTimes.sort(new TimeTrialDateComparator());
 
-        Theme theme = Database.getPlayer(player).getTheme();
+        Theme theme = TSDatabase.getPlayer(player).getTheme();
         int itemsPerPage = TimingSystem.configuration.getTimesPageSize();
         int start = (pageStart * itemsPerPage) - itemsPerPage;
         int stop = pageStart * itemsPerPage;
@@ -596,7 +596,7 @@ public class CommandTrack extends BaseCommand {
     @CommandPermission("%permissiontrack_reload")
     public static void onReload(CommandSender commandSender, @Optional String confirmText) {
         if(confirmText != null && confirmText.equals("confirm")) {
-            Database.reload();
+            TSDatabase.reload();
             Text.send(commandSender, Success.SAVED);
             return;
         }
@@ -608,7 +608,7 @@ public class CommandTrack extends BaseCommand {
     @CommandCompletion("@track <playername>")
     @CommandPermission("%permissiontrack_delete_besttime")
     public static void onDeleteBestTime(CommandSender commandSender, Track track, String name) {
-        TPlayer TPlayer = Database.getPlayer(name);
+        TPlayer TPlayer = TSDatabase.getPlayer(name);
         if (TPlayer == null) {
             Text.send(commandSender, Error.PLAYER_NOT_FOUND);
             return;
@@ -629,7 +629,7 @@ public class CommandTrack extends BaseCommand {
     @CommandPermission("%permissiontrack_delete_alltimes")
     public static void onDeleteAllTimes(CommandSender commandSender, Track track, @Optional String playerName) {
         if (playerName != null) {
-            TPlayer tPlayer = Database.getPlayer(playerName);
+            TPlayer tPlayer = TSDatabase.getPlayer(playerName);
             if (tPlayer == null) {
                 Text.send(commandSender, Error.PLAYER_NOT_FOUND);
                 return;
@@ -813,7 +813,7 @@ public class CommandTrack extends BaseCommand {
         @CommandCompletion("@track <player>")
         @CommandPermission("%permissiontrack_set_owner")
         public static void onAddOwner(CommandSender commandSender, Track track, String name) {
-            TPlayer TPlayer = Database.getPlayer(name);
+            TPlayer TPlayer = TSDatabase.getPlayer(name);
             if (TPlayer == null) {
                 Text.send(commandSender, Error.PLAYER_NOT_FOUND);
                 return;
@@ -826,7 +826,7 @@ public class CommandTrack extends BaseCommand {
         @CommandCompletion("@track <player>")
         @CommandPermission("%permissiontrack_set_contributors")
         public static void onAddContributor(CommandSender sender, Track track, String name) {
-            TPlayer tPlayer = Database.getPlayer(name);
+            TPlayer tPlayer = TSDatabase.getPlayer(name);
             if(tPlayer == null) {
                 Text.send(sender, Error.PLAYER_NOT_FOUND);
                 return;
@@ -839,7 +839,7 @@ public class CommandTrack extends BaseCommand {
         @CommandCompletion("@track <player>")
         @CommandPermission("%permissiontrack_set_contributors")
         public static void onRemoveContributor(CommandSender sender, Track track, String name) {
-            TPlayer tPlayer = Database.getPlayer(name);
+            TPlayer tPlayer = TSDatabase.getPlayer(name);
             if(tPlayer == null) {
                 Text.send(sender, Error.PLAYER_NOT_FOUND);
                 return;
