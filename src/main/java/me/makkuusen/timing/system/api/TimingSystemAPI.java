@@ -1,16 +1,16 @@
 package me.makkuusen.timing.system.api;
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.EventDatabase;
+import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.event.Event;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -36,7 +36,7 @@ public class TimingSystemAPI {
     }
 
     public static List<Track> getTracks() {
-        return TrackDatabase.getTracks();
+        return TrackDatabase.tracks;
     }
 
     public static List<Track> getAvailableTracks(Player player) {
@@ -52,7 +52,7 @@ public class TimingSystemAPI {
         if (track.isEmpty()) {
             return Optional.empty();
         }
-        var tPlayer = Database.getPlayer(uuid);
+        var tPlayer = TSDatabase.getPlayer(uuid);
         var bestTime = track.get().getBestFinish(tPlayer);
         if (bestTime == null) {
             return Optional.empty();
@@ -61,7 +61,7 @@ public class TimingSystemAPI {
     }
 
     public static TPlayer getTPlayer(UUID uuid) {
-        return Database.getPlayer(uuid);
+        return TSDatabase.getPlayer(uuid);
     }
 
     public static void teleportPlayerAndSpawnBoat(Player player, Track track, Location location) {
@@ -142,7 +142,7 @@ public class TimingSystemAPI {
     }
 
     public static DriverDetails getDriverDetailsOfClosestPlayerFromHeat(Heat heat, UUID playerToCheckClosestTo) {
-        Player player = Database.getPlayer(playerToCheckClosestTo).getPlayer();
+        Player player = TSDatabase.getPlayer(playerToCheckClosestTo).getPlayer();
         if (player == null) {
             return new DriverDetails();
         }
@@ -157,11 +157,11 @@ public class TimingSystemAPI {
     }
 
     public static List<Event> getEvents() {
-        return EventDatabase.getEvents().stream().toList();
+        return EventDatabase.events.stream().toList();
     }
 
     public static List<Event> getActiveEvents() {
-        return EventDatabase.getEvents().stream().filter(Event::isActive).toList();
+        return EventDatabase.events.stream().filter(Event::isActive).toList();
     }
 
     public static Optional<Event> getEvent(String name) {
