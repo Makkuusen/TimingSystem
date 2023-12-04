@@ -1,8 +1,8 @@
 package me.makkuusen.timing.system;
 
 import co.aikar.taskchain.TaskChain;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackLeaderboard;
 import me.makkuusen.timing.system.track.TrackLocation;
 import org.bukkit.Bukkit;
@@ -32,7 +32,7 @@ public class LeaderboardManager {
         }
 
         TaskChain<?> chain = TimingSystem.newChain();
-        for (Track t : TrackDatabase.getTracks()) {
+        for (Track t : TrackDatabase.tracks) {
             chain.sync(() -> updateFastestTimeLeaderboard(t)).delay(1);
         }
         chain.execute();
@@ -42,7 +42,7 @@ public class LeaderboardManager {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
-        for (Track t : TrackDatabase.getTracks()) {
+        for (Track t : TrackDatabase.tracks) {
             removeLeaderboards(t);
         }
     }

@@ -10,8 +10,8 @@ import lombok.Getter;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.commands.*;
+import me.makkuusen.timing.system.database.*;
 import me.makkuusen.timing.system.event.Event;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.gui.GuiCommon;
 import me.makkuusen.timing.system.heat.Heat;
@@ -46,6 +46,14 @@ public class TimingSystem extends JavaPlugin {
     public Logger logger;
     @Getter
     private static TimingSystem plugin;
+
+    @Getter
+    private static TSDatabase database;
+    @Getter
+    private static EventDatabase eventDatabase;
+    @Getter
+    private static TrackDatabase trackDatabase;
+
     public static TimingSystemConfiguration configuration;
     public static boolean enableLeaderboards = true;
     public static HashMap<UUID, Track> playerEditingSession = new HashMap<>();
@@ -64,7 +72,6 @@ public class TimingSystem extends JavaPlugin {
         logger = getLogger();
         configuration = new TimingSystemConfiguration(this);
         TSListener.plugin = this;
-        Database.plugin = this;
         Text.plugin = this;
         languageManager = new LanguageManager(this, "en_us");
 
@@ -191,7 +198,7 @@ public class TimingSystem extends JavaPlugin {
             return res;
         });
         manager.getCommandCompletions().registerAsyncCompletion("boatUtilsMode", context -> {
-            TPlayer tPlayer = Database.getPlayer(context.getPlayer().getUniqueId());
+            TPlayer tPlayer = TSDatabase.getPlayer(context.getPlayer().getUniqueId());
             List<String> res = new ArrayList<>();
 
             if(tPlayer.hasBoatUtils()) {
@@ -221,11 +228,15 @@ public class TimingSystem extends JavaPlugin {
         File dir = new File(TrackExchangeTrack.PATH);
         if(!dir.exists()) dir.mkdir(); // create trackexchange handling folder.
 
-        if (!Database.initialize()) return;
-        Database.update();
-        Database.synchronize();
+        database = configuration.getDatabaseType();
+        eventDatabase = configuration.getDatabaseType();
+        trackDatabase = configuration.getDatabaseType();
+
+        if (!database.initialize()) return;
+        database.update();
+        TSDatabase.synchronize();
         TrackDatabase.loadTrackFinishesAsync();
-        EventDatabase.initDatabaseSynchronizeAsync();
+        EventDatabase.initSynchronize();
 
         var tasks = new Tasks();
         tasks.startPlayerTimer(plugin);
@@ -293,7 +304,6 @@ public class TimingSystem extends JavaPlugin {
         logger.info("Version " + getPluginMeta().getVersion() + " disabled.");
         scoreboardLibrary.close();
         DB.close();
-        Database.plugin = null;
         TSListener.plugin = null;
         Text.plugin = null;
         logger = null;

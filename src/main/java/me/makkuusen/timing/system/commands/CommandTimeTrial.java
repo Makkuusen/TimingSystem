@@ -3,16 +3,16 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
+import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.gui.TimeTrialGui;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -68,7 +68,7 @@ public class CommandTimeTrial extends BaseCommand {
         }
 
         if (track == null) {
-            var tPlayer = Database.getPlayer(player.getUniqueId());
+            var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
             new TimeTrialGui(tPlayer).show(player);
         } else {
             if (!track.getSpawnLocation().isWorldLoaded()) {
@@ -158,7 +158,7 @@ public class CommandTimeTrial extends BaseCommand {
             tracks = TrackDatabase.getOpenTracks();
         }
 
-        tracks = tracks.stream().filter(track -> track.getPlayerTotalFinishes(Database.getPlayer(player.getUniqueId())) < 1).collect(Collectors.toList());
+        tracks = tracks.stream().filter(track -> track.getPlayerTotalFinishes(TSDatabase.getPlayer(player.getUniqueId())) < 1).collect(Collectors.toList());
         if (tracks.isEmpty()) {
             Text.send(player, Error.TRACKS_NOT_FOUND);
             return;
@@ -174,7 +174,7 @@ public class CommandTimeTrial extends BaseCommand {
             Text.send(player, Error.WORLD_NOT_LOADED);
             return;
         }
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
 
         if (track.getCachedPlayerPosition(tPlayer) != -1) {
             Component message = Text.get(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());

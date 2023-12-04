@@ -8,6 +8,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import lombok.Getter;
 import lombok.Setter;
+import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Location;
 
 import java.sql.SQLException;
@@ -26,9 +27,9 @@ public class TrackPolyRegion extends TrackRegion {
 
     public void updateRegion(List<BlockVector2> points) {
         try {
-            DB.executeUpdate("DELETE FROM `ts_points` WHERE `regionId` = " + getId() + ";");
+            TimingSystem.getTrackDatabase().deletePoint(getId());
             for (BlockVector2 v : points) {
-                DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(" + getId() + ", " + v.getBlockX() + ", " + v.getBlockZ() + ");");
+                TimingSystem.getTrackDatabase().createPoint(getId(), v);
             }
         } catch (SQLException exception) {
             exception.printStackTrace();

@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
@@ -498,7 +499,7 @@ public class ApiUtilities {
 
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, true);
 
-        var tPlayer = Database.getPlayer(player.getUniqueId());
+        var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
         if (boat != null) {
             boat.addPassenger(player);
@@ -517,7 +518,7 @@ public class ApiUtilities {
         var mode = track.getBoatUtilsMode();
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
 
-        var tPlayer = Database.getPlayer(player.getUniqueId());
+        var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
 
         if (boatSpawnEvent.getBoat() != null) {
             return boatSpawnEvent.getBoat();
@@ -665,7 +666,7 @@ public class ApiUtilities {
     public static List<TPlayer> tPlayersFromUUIDList(List<UUID> uuids) {
         if(uuids.isEmpty()) return new ArrayList<>();
         List<TPlayer> result = new ArrayList<>();
-        uuids.forEach(uuid -> result.add(Database.getPlayer(uuid)));
+        uuids.forEach(uuid -> result.add(TSDatabase.getPlayer(uuid)));
         return result;
     }
 

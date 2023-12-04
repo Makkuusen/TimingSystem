@@ -7,8 +7,9 @@ import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
+import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.Event;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -139,12 +140,13 @@ public abstract class Round {
 
     public void setState(RoundState state) {
         this.state = state;
-        DB.executeUpdateAsync("UPDATE `ts_rounds` SET `state` = '" + state.name() + "' WHERE `id` = " + getId() + ";");
+        TimingSystem.getEventDatabase().roundSet(getId(), "state", state.name());
     }
 
     public void setRoundIndex(Integer index) {
         this.roundIndex = index;
-        DB.executeUpdateAsync("UPDATE `ts_rounds` SET `state` = '" + state.name() + "' WHERE `id` = " + getId() + ";");
+        // Curious as to why the state is being set here even though we are updating round index
+        TimingSystem.getEventDatabase().roundSet(getId(), "state", state.name());
     }
 
     public enum RoundState {

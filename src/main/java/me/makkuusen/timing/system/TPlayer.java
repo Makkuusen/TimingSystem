@@ -8,7 +8,8 @@ import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
-import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.database.EventDatabase;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
 import me.makkuusen.timing.system.gui.TrackFilter;
 import me.makkuusen.timing.system.gui.TrackSort;
@@ -68,13 +69,13 @@ public class TPlayer implements Comparable<TPlayer> {
         uuid = UUID.fromString(data.getString("uuid"));
         name = data.getString("name");
         boat = stringToType(data.getString("boat"));
-        chestBoat = data.get("chestBoat");
-        toggleSound = data.get("toggleSound");
-        verbose = data.get("verbose");
-        timeTrial = data.get("timetrial");
+        chestBoat = data.get("chestBoat").equals(1);
+        toggleSound = data.get("toggleSound").equals(1);
+        verbose = data.get("verbose").equals(1);
+        timeTrial = data.get("timetrial").equals(1);
         color = data.getString("color");
-        compactScoreboard = data.get("compactScoreboard");
-        sendFinalLaps = data.get("sendFinalLaps");
+        compactScoreboard = data.get("compactScoreboard").equals(1);
+        sendFinalLaps = data.get("sendFinalLaps").equals(1);
 
         theme = TimingSystem.defaultTheme;
     }
@@ -154,7 +155,7 @@ public class TPlayer implements Comparable<TPlayer> {
         plugin.getLogger().info("Updating name of " + uuid + " from " + this.name + " to " + name + ".");
 
         this.name = name;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `name` = " + Database.sqlString(name) + " WHERE `uuid` = '" + uuid + "';");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "name", name);
     }
 
     public String getNameDisplay() {
@@ -168,7 +169,7 @@ public class TPlayer implements Comparable<TPlayer> {
     public void setHexColor(String hexColor) {
         color = hexColor;
         EventDatabase.getDriverFromRunningHeat(uuid).ifPresent(driver -> driver.getHeat().updateScoreboard());
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `color` = '" + hexColor + "' WHERE `uuid` = '" + uuid + "';");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "color", hexColor);
     }
 
     public org.bukkit.Color getBukkitColor() {
@@ -182,44 +183,44 @@ public class TPlayer implements Comparable<TPlayer> {
 
     public void setBoat(Boat.Type boat) {
         this.boat = boat;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `boat` = " + Database.sqlString(boat.name()) + " WHERE `uuid` = '" + uuid + "';");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "boat", boat.name());
     }
 
     public void setChestBoat(boolean b) {
-        if (chestBoat != b) {
-            chestBoat = b;
-            DB.executeUpdateAsync("UPDATE `ts_players` SET `chestBoat` = " + chestBoat + " WHERE `uuid` = '" + uuid + "';");
-        }
+        if (chestBoat == b)
+            return;
+        chestBoat = b;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "chestBoat", b ? "1" : "0");
     }
 
     public void toggleOverride() {
         override = !override;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `override` = " + override + " WHERE `uuid` = '" + uuid + "';");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "override", override ? "1" : "0");
     }
 
     public void toggleVerbose() {
         verbose = !verbose;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `verbose` = " + verbose + " WHERE `uuid` = '" + uuid + "';");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "verbose", verbose ? "1" : "0");
     }
 
     public void toggleTimeTrial() {
         timeTrial = !timeTrial;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `timetrial` = " + timeTrial + " WHERE `uuid` = '" + uuid + "';");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "timetrial", timeTrial ? "1" : "0");
     }
 
     public void toggleSound() {
         toggleSound = !toggleSound;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `toggleSound` = " + toggleSound + " WHERE `uuid` = '" + uuid + "';");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "toggleSound", toggleSound ? "1" : "0");
     }
 
     public void toggleCompactScoreboard() {
         this.compactScoreboard = !compactScoreboard;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `compactScoreboard` = " + compactScoreboard + " WHERE `uuid` = '" + uuid + "';");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "compactScoreboard", compactScoreboard ? "1" : "0");
     }
 
     public void toggleSendFinalLaps() {
         sendFinalLaps = !sendFinalLaps;
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `sendFinalLaps` = " + sendFinalLaps + " WHERE `uuid` = '" + uuid + "';");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "sendFinalLaps", sendFinalLaps ? "1" : "0");
     }
 
     public boolean isCompactScoreboard() {
@@ -265,7 +266,9 @@ public class TPlayer implements Comparable<TPlayer> {
         this.page = page;
     }
 
-    void setPlayer(Player player) {
+    // Not sure if this was protected for a reason.
+    // Made it public so that the database can be reworked and stored in a different package.
+    public void setPlayer(Player player) {
         this.player = player;
     }
 
