@@ -18,8 +18,6 @@ public interface TSDatabase {
 
     boolean update();
 
-    void synchronize();
-
     boolean createTables();
 
     List<DbRow> selectPlayers() throws SQLException;
@@ -29,7 +27,7 @@ public interface TSDatabase {
     void playerUpdateValue(UUID uuid, String column, String value);
 
 
-    static void initSynchronize() {
+    static void synchronize() {
         try {
             // Load players;
             var result = TimingSystem.getDatabase().selectPlayers();

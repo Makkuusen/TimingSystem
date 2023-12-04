@@ -21,11 +21,9 @@ import me.makkuusen.timing.system.track.TrackLocation;
 import me.makkuusen.timing.system.track.TrackRegion;
 import me.makkuusen.timing.system.track.TrackTag;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
@@ -72,36 +70,6 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
             getPlugin().getLogger().warning("Failed to update database, disabling plugin.");
             getPlugin().getServer().getPluginManager().disablePlugin(getPlugin());
             return false;
-        }
-    }
-
-    @Override
-    public void synchronize() {
-        try {
-            // Load players;
-            var result = DB.getResults("SELECT * FROM `ts_players`;");
-
-            for (DbRow row : result) {
-                TPlayer player = new TPlayer(getPlugin(), row);
-                TimingSystem.players.put(player.getUniqueId(), player);
-            }
-
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                TPlayer TPlayer = TSDatabase.getPlayer(player.getUniqueId());
-
-                TPlayer.setPlayer(player);
-
-                if (!TPlayer.getName().equals(player.getName())) {
-                    // Update name
-                    TPlayer.setName(player.getName());
-                }
-            }
-
-            TrackDatabase.initDatabaseSynchronize();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            getPlugin().getLogger().warning("Failed to synchronize database, disabling plugin.");
-            getPlugin().getServer().getPluginManager().disablePlugin(getPlugin());
         }
     }
 

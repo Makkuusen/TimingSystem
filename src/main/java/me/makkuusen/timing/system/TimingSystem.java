@@ -234,7 +234,7 @@ public class TimingSystem extends JavaPlugin {
 
         if (!database.initialize()) return;
         database.update();
-        database.synchronize();
+        TSDatabase.synchronize();
         TrackDatabase.loadTrackFinishesAsync();
         EventDatabase.initSynchronize();
 
