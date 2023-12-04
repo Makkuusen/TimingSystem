@@ -9,9 +9,9 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.HeatFinishEvent;
 import me.makkuusen.timing.system.api.events.PlayerJoinHeatEvent;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
@@ -298,7 +298,7 @@ public class Heat {
 
     public void setMaxDrivers(int maxDrivers) {
         this.maxDrivers = maxDrivers;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `maxDrivers` = " + maxDrivers + " WHERE `id` = " + getId() + ";");
+        TimingSystem.getEventDatabase().heatSet(id, "maxDrivers", String.valueOf(maxDrivers));
     }
 
     public void addDriver(Driver driver) {
@@ -319,21 +319,17 @@ public class Heat {
         if (driver.getHeat().getHeatState() != HeatState.SETUP && driver.getHeat().getHeatState() != HeatState.LOADED) {
             return false;
         }
-        try {
-            DB.executeUpdate("UPDATE `ts_drivers` SET `isRemoved` = 1 WHERE `id` = " + driver.getId() + ";");
-            drivers.remove(driver.getTPlayer().getUniqueId());
-            startPositions.remove(driver);
-            int startPos = driver.getStartPosition();
-            for (Driver d : startPositions) {
-                if (d.getStartPosition() > startPos) {
-                    d.setStartPosition(d.getStartPosition() - 1);
-                    d.setPosition(d.getPosition() - 1);
-                }
+        TimingSystem.getEventDatabase().driverSet(driver.getId(), "isRemoved", "1");
+        drivers.remove(driver.getTPlayer().getUniqueId());
+        startPositions.remove(driver);
+        int startPos = driver.getStartPosition();
+        for (Driver d : startPositions) {
+            if (d.getStartPosition() > startPos) {
+                d.setStartPosition(d.getStartPosition() - 1);
+                d.setPosition(d.getPosition() - 1);
             }
-            return true;
-        } catch (SQLException e) {
-            return false;
         }
+        return true;
     }
 
     public boolean setDriverPosition(Driver driver, int newStartPosition) {
@@ -400,59 +396,47 @@ public class Heat {
 
     public void setHeatState(HeatState state) {
         this.heatState = state;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `state` = '" + state.name() + "' WHERE `id` = " + id + ";");
+        TimingSystem.getEventDatabase().heatSet(id, "state", state.name());
     }
 
     public void setStartTime(Instant startTime) {
         this.startTime = startTime;
-        if (startTime == null) {
-            DB.executeUpdateAsync("UPDATE `ts_heats` SET `startTime` = NULL WHERE `id` = " + id + ";");
-        } else {
-            DB.executeUpdateAsync("UPDATE `ts_heats` SET `startTime` = " + startTime.toEpochMilli() + " WHERE `id` = " + id + ";");
-        }
+        TimingSystem.getEventDatabase().heatSet(id, "startTime", startTime == null ? "NULL" : String.valueOf(startTime.toEpochMilli()));
     }
 
     public void setEndTime(Instant endTime) {
         this.endTime = endTime;
-        if (endTime == null) {
-            DB.executeUpdateAsync("UPDATE `ts_heats` SET `endTime` = NULL WHERE `id` = " + id + ";");
-        } else {
-            DB.executeUpdateAsync("UPDATE `ts_heats` SET `endTime` = " + endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
-        }
+        TimingSystem.getEventDatabase().heatSet(id, "endTime", endTime == null ? "NULL" : String.valueOf(endTime.toEpochMilli()));
     }
 
     public void setFastestLapUUID(UUID fastestLapUUID) {
         this.fastestLapUUID = fastestLapUUID;
-        if (fastestLapUUID == null) {
-            DB.executeUpdateAsync("UPDATE `ts_heats` SET `fastestLapUUID` = NULL WHERE `id` = " + id + ";");
-        } else {
-            DB.executeUpdateAsync("UPDATE `ts_heats` SET `fastestLapUUID` = '" + fastestLapUUID + "' WHERE `id` = " + id + ";");
-        }
+        TimingSystem.getEventDatabase().heatSet(id, "fastestLapUUID", fastestLapUUID == null ? "NULL" : fastestLapUUID.toString());
     }
 
     public void setTimeLimit(int timeLimit) {
         this.timeLimit = timeLimit;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `timeLimit` = " + timeLimit + " WHERE `id` = " + getId() + ";");
+        TimingSystem.getEventDatabase().heatSet(getId(), "timeLimit", String.valueOf(timeLimit));
     }
 
     public void setStartDelayInTicks(int startDelay) {
         this.startDelay = startDelay;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `startDelay` = " + startDelay + " WHERE `id` = " + getId() + ";");
+        TimingSystem.getEventDatabase().heatSet(getId(), "startDelay", String.valueOf(startDelay));
     }
 
     public void setTotalLaps(int totalLaps) {
         this.totalLaps = totalLaps;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalLaps` = " + totalLaps + " WHERE `id` = " + getId() + ";");
+        TimingSystem.getEventDatabase().heatSet(getId(), "totalLaps", String.valueOf(totalLaps));
     }
 
     public void setTotalPits(int totalPits) {
         this.totalPits = totalPits;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `totalPitstops` = " + totalPits + " WHERE `id` = " + getId() + ";");
+        TimingSystem.getEventDatabase().heatSet(getId(), "totalPitstops", String.valueOf(totalPits));
     }
 
     public void setHeatNumber(int heatNumber) {
         this.heatNumber = heatNumber;
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `heatNumber` = " + heatNumber + " WHERE `id` = " + getId() + ";");
+        TimingSystem.getEventDatabase().heatSet(getId(), "heatNumber", String.valueOf(heatNumber));
     }
 
     public boolean isActive() {

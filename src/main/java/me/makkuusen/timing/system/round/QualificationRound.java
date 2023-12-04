@@ -2,9 +2,9 @@ package me.makkuusen.timing.system.round;
 
 import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 
 import java.util.List;

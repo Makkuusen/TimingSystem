@@ -4,8 +4,9 @@ import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ItemBuilder;
+import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.TSDatabase;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -76,23 +77,17 @@ public class TrackTag {
 
     public void setItem(ItemStack item) {
         this.item = item;
-        DB.executeUpdateAsync("UPDATE `ts_tags` SET `item` = " + Database.sqlString(ApiUtilities.itemToString(item)) + " WHERE `tag` = '" + value + "';");
+        TimingSystem.getTrackDatabase().tagSet(value, "item", ApiUtilities.itemToString(item));
     }
 
     public void setColor(TextColor color) {
         this.color = color;
-        DB.executeUpdateAsync("UPDATE `ts_tags` SET `color` = '" + color.asHexString() + "' WHERE `tag` = '" + value + "';");
+        TimingSystem.getTrackDatabase().tagSet(value, "color", color.asHexString());
     }
 
     public void setWeight(Integer weight) {
         this.weight = weight;
-        DB.executeUpdateAsync("UPDATE `ts_tags` SET `weight` = " + weight + " WHERE `tag` = '" + value + "';");
+
+        TimingSystem.getTrackDatabase().tagSet(value, "weight", String.valueOf(weight));
     }
-
-    @Override
-    public int hashCode() {
-        return value.hashCode();
-    }
-
-
 }

@@ -3,8 +3,8 @@ package me.makkuusen.timing.system.theme;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.theme.messages.Hover;
 import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -40,7 +40,7 @@ public class Theme {
     }
 
     public static Theme getTheme(CommandSender sender) {
-        return sender instanceof Player ? Database.getPlayer(sender).getTheme() : TimingSystem.defaultTheme;
+        return sender instanceof Player ? TSDatabase.getPlayer(sender).getTheme() : TimingSystem.defaultTheme;
     }
 
     public Component getViewButton(CommandSender sender) {

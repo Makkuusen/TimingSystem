@@ -2,8 +2,8 @@ package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.gui.SettingsGui;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -20,13 +20,13 @@ public class CommandSettings extends BaseCommand {
     @Default
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onSettings(Player player) {
-        new SettingsGui(Database.getPlayer(player.getUniqueId())).show(player);
+        new SettingsGui(TSDatabase.getPlayer(player.getUniqueId())).show(player);
     }
 
     @Subcommand("verbose")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onVerbose(Player player) {
-        var tPlayer = Database.getPlayer(player);
+        var tPlayer = TSDatabase.getPlayer(player);
         tPlayer.toggleVerbose();
         Text.send(player, tPlayer.isVerbose() ? Success.CHECKPOINTS_ANNOUNCEMENTS_ON : Success.CHECKPOINTS_ANNOUNCEMENTS_OFF);
     }
@@ -35,7 +35,7 @@ public class CommandSettings extends BaseCommand {
     @CommandCompletion("@boat")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onBoat(Player player, Boat.Type type) {
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         tPlayer.setBoat(type);
         if (player.getVehicle() instanceof Boat boat) {
             boat.setBoatType(type);
@@ -46,7 +46,7 @@ public class CommandSettings extends BaseCommand {
     @Subcommand("sound")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onTTSound(Player player) {
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         tPlayer.toggleSound();
         Text.send(player, tPlayer.isSound() ? Success.SOUND_ON : Success.SOUND_OFF);
     }
@@ -54,7 +54,7 @@ public class CommandSettings extends BaseCommand {
     @Subcommand("compactScoreboard")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onCompactScoreboard(Player player) {
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         tPlayer.toggleCompactScoreboard();
         Text.send(player, tPlayer.isCompactScoreboard() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
     }
@@ -62,7 +62,7 @@ public class CommandSettings extends BaseCommand {
     @Subcommand("override")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onOverride(Player player) {
-        var tPlayer = Database.getPlayer(player);
+        var tPlayer = TSDatabase.getPlayer(player);
         tPlayer.toggleOverride();
         Text.send(player, tPlayer.isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
     }
@@ -76,7 +76,7 @@ public class CommandSettings extends BaseCommand {
             hex = "#" + hex;
         }
         if (isValidHexCode(hex)) {
-            var tPlayer = Database.getPlayer(player);
+            var tPlayer = TSDatabase.getPlayer(player);
             tPlayer.setHexColor(hex);
             player.sendMessage(Text.get(player, Success.COLOR_UPDATED).color(tPlayer.getTextColor()));
             return;

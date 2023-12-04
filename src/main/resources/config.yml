@@ -26,7 +26,7 @@ scoreboard:
    maxRows: 15
    interval: 1s
 sql:
-   useSQLite: true
+   databaseType: MySQL # Options: MySQL, MariaDB, SQLite
    host: '127.0.0.1'
    port: 3306
    database: ''

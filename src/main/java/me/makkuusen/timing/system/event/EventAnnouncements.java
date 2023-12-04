@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.event;
 
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.heat.QualifyHeat;

@@ -5,6 +5,7 @@ import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Location;
 
 @Getter
@@ -48,17 +49,17 @@ public abstract class TrackRegion {
 
     public void setMinP(Location minP) {
         this.minP = minP;
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "' WHERE `id` = " + getId() + ";");
+        TimingSystem.getTrackDatabase().trackRegionSet(id, "minP", ApiUtilities.locationToString(minP));
     }
 
     public void setMaxP(Location maxP) {
         this.maxP = maxP;
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + getId() + ";");
+        TimingSystem.getTrackDatabase().trackRegionSet(id, "maxP", ApiUtilities.locationToString(maxP));
     }
 
     public void setSpawn(Location spawn) {
         this.spawnLocation = spawn;
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + getId() + ";");
+        TimingSystem.getTrackDatabase().trackRegionSet(id, "spawn", ApiUtilities.locationToString(spawn));
     }
 
     abstract boolean hasEqualBounds(TrackRegion other);

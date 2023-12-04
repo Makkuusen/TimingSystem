@@ -4,12 +4,12 @@ import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -37,7 +37,7 @@ public class Lap implements Comparable<Lap> {
     }
 
     public Lap(DbRow data) {
-        player = Database.getPlayer(data.getString("uuid"));
+        player = TSDatabase.getPlayer(data.getString("uuid"));
         heatId = data.getInt("heatId");
         track = TrackDatabase.getTrackById(data.getInt("trackId")).orElse(null);
         lapStart = Instant.ofEpochMilli(data.getLong("lapStart"));

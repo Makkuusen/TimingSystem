@@ -10,10 +10,12 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.gui.TrackFilter;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
@@ -60,7 +62,7 @@ public class Track {
 
     public Track(DbRow data) {
         id = data.getInt("id");
-        owner = data.getString("uuid") == null ? null : Database.getPlayer(UUID.fromString(data.getString("uuid")));
+        owner = data.getString("uuid") == null ? null : TSDatabase.getPlayer(UUID.fromString(data.getString("uuid")));
         contributors = data.getString("contributors") == null ? new ArrayList<>() : ApiUtilities.tPlayersFromUUIDList(ApiUtilities.extractUUIDsFromString(data.getString("contributors")));
         displayName = data.getString("name");
         commandName = displayName.replaceAll(" ", "");
@@ -116,7 +118,7 @@ public class Track {
         if (toReturn == null) {
             return null;
         }
-        TPlayer tPlayer = Database.getPlayer(uuid);
+        TPlayer tPlayer = TSDatabase.getPlayer(uuid);
 
         List<Component> loreToSet = new ArrayList<>();
 
@@ -158,7 +160,7 @@ public class Track {
 
     public void setWeight(int weight) {
         this.weight = weight;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `weight` = " + weight + " WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "weight", String.valueOf(weight));
     }
 
     public boolean isWeightAboveZero() {
@@ -205,7 +207,7 @@ public class Track {
 
     public boolean createTag(TrackTag tag) {
         if (!tags.contains(tag)) {
-            DB.executeUpdateAsync("INSERT INTO `ts_tracks_tags` (`trackId`, `tag`) VALUES(" + getId() + ", '" + tag.getValue() + "');");
+            TimingSystem.getTrackDatabase().addTagToTrack(getId(), tag);
             tags.add(tag);
             return true;
         }
@@ -214,7 +216,7 @@ public class Track {
 
     public boolean removeTag(TrackTag tag) {
         if (tags.contains(tag)) {
-            DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = '" + tag.getValue() + "' AND `trackId` = " + getId() + ";");
+            TimingSystem.getTrackDatabase().removeTagFromTrack(getId(), tag);
             tags.remove(tag);
             return true;
         }
@@ -232,33 +234,33 @@ public class Track {
 
     public void setMode(TrackMode mode) {
         this.mode = mode;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `mode` = " + Database.sqlString(mode.toString()) + " WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "mode", mode.toString());
     }
 
     public void setBoatUtilsMode(BoatUtilsMode mode) {
         this.boatUtilsMode = mode;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `boatUtilsMode` = " + Database.sqlString(mode.toString()) + " WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "boatUtilsMode", mode.toString());
     }
 
     public void setName(String name) {
         this.displayName = name;
         this.commandName = name.replaceAll(" ", "");
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `name` = '" + name + "' WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "name", name);
     }
 
     public void setGuiItem(ItemStack guiItem) {
         this.guiItem = guiItem;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `guiItem` = " + Database.sqlString(ApiUtilities.itemToString(guiItem)) + " WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "guiItem", ApiUtilities.itemToString(guiItem));
     }
 
     public void setSpawnLocation(Location spawn) {
         this.spawnLocation = spawn;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "spawn", ApiUtilities.locationToString(spawn));
     }
 
     public void setOpen(boolean open) {
         this.open = open;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `toggleOpen` = " + open + " WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "toggleOpen", String.valueOf(open));
     }
 
     public void addRegion(TrackRegion trackRegion) {
@@ -351,7 +353,7 @@ public class Track {
 
     private void setDateChanged() {
         dateChanged = ApiUtilities.getTimestamp();
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `dateChanged` = " + dateChanged + " WHERE `id` = " + getId() + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "dateChanged", String.valueOf(dateChanged));
     }
 
     private boolean isTrackBoundaryChange(TrackRegion.RegionType regionType) {
@@ -367,9 +369,9 @@ public class Track {
             var regionId = region.getId();
             TrackDatabase.removeTrackRegion(region);
             regions.remove(region);
-            DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `id` = " + regionId + ";");
+            TimingSystem.getTrackDatabase().trackRegionSet(regionId, "isRemoved", "1");
             if (region instanceof TrackPolyRegion) {
-                DB.executeUpdateAsync("DELETE FROM `ts_points` WHERE `regionId` = " + regionId + ";");
+                TimingSystem.getTrackDatabase().deletePoint(regionId);
             }
             if (isTrackBoundaryChange(region.getRegionType())) {
                 setDateChanged();
@@ -449,7 +451,7 @@ public class Track {
                 trackLeaderboard.removeHologram();
             }
             trackLocations.remove(trackLocation);
-            DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = " + getId() + " AND `index` = " + trackLocation.getIndex() + " AND `type` = '" + trackLocation.getLocationType() + "';");
+            TimingSystem.getTrackDatabase().deleteLocation(id, trackLocation.getIndex(), trackLocation.locationType);
             return true;
         }
         return false;
@@ -495,7 +497,7 @@ public class Track {
 
     public TimeTrialAttempt newTimeTrialAttempt(long time, UUID uuid) {
         long date = ApiUtilities.getTimestamp();
-        DB.executeUpdateAsync("INSERT INTO `ts_attempts` (`trackId`, `uuid`, `date`, `time`) VALUES(" + id + ", '" + uuid + "', " + date + ", " + time + ");");
+        TimingSystem.getTrackDatabase().createAttempt(id, uuid, date, time);
         TimeTrialAttempt timeTrialAttempt = new TimeTrialAttempt(getId(), uuid, ApiUtilities.getTimestamp(), time);
         addTimeTrialAttempt(timeTrialAttempt);
         return timeTrialAttempt;
@@ -522,17 +524,17 @@ public class Track {
 
     public void deleteBestFinish(TPlayer player, TimeTrialFinish bestFinish) {
         timeTrialFinishes.get(player).remove(bestFinish);
-        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `id` = " + bestFinish.getId() + ";");
+        TimingSystem.getTrackDatabase().removeFinish(bestFinish.getId());
     }
 
     public void deleteAllFinishes(TPlayer player) {
         timeTrialFinishes.remove(player);
-        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + " AND `uuid` = '" + player.getUniqueId() + "';");
+        TimingSystem.getTrackDatabase().removeAllFinishes(id, player.getUniqueId());
     }
 
     public void deleteAllFinishes() {
         timeTrialFinishes = new HashMap<>();
-        DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + getId() + ";");
+        TimingSystem.getTrackDatabase().removeAllFinishes(id);
     }
 
     public Integer getPlayerTopListPosition(TPlayer TPlayer) {
@@ -615,30 +617,29 @@ public class Track {
 
     public void setTrackType(TrackType type) {
         this.type = type;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `type` = " + Database.sqlString(type.toString()) + " WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "type", type.toString());
     }
 
     public void setOwner(TPlayer owner) {
         this.owner = owner;
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `uuid` = '" + owner.getUniqueId() + "' WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "uuid", owner.getUniqueId().toString());
     }
 
     public void setOptions(String options) {
         this.options = options.toCharArray();
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `options` = " + Database.sqlString(options) + " WHERE `id` = " + id + ";");
-
+        TimingSystem.getTrackDatabase().trackSet(id, "options", options);
     }
 
     public void addContributor(TPlayer tPlayer) {
         if(contributors.contains(tPlayer)) return;
         contributors.add(tPlayer);
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors))) + " WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "contributors", ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors))); // wow
     }
 
     public void removeContributor(TPlayer tPlayer) {
         contributors.remove(tPlayer);
         String uuids = ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors));
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `contributors` = " + Database.sqlString(uuids.isEmpty() ? null : uuids) + " WHERE `id` = " + id + ";");
+        TimingSystem.getTrackDatabase().trackSet(id, "contributors", uuids.isEmpty() ? "NULL" : uuids);
     }
 
     public String getContributorsAsString() {

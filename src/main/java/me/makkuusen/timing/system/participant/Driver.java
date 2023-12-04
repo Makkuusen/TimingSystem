@@ -7,8 +7,8 @@ import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.driver.*;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.DriverScoreboard;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
@@ -177,35 +177,27 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public void setPosition(int position) {
         this.position = position;
-        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `position` = " + position + " WHERE `id` = " + id + ";");
+        TimingSystem.getEventDatabase().driverSet(id, "position", String.valueOf(position));
     }
 
     public void setStartPosition(int startPosition) {
         this.startPosition = startPosition;
-        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startPosition` = " + startPosition + " WHERE `id` = " + id + ";");
+        TimingSystem.getEventDatabase().driverSet(id, "startPosition", String.valueOf(startPosition));
     }
 
     public void setStartTime(Instant startTime) {
         this.startTime = startTime;
-        if (startTime == null) {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startTime` = NULL WHERE `id` = " + id + ";");
-        } else {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startTime` = " + startTime.toEpochMilli() + " WHERE `id` = " + id + ";");
-        }
+        TimingSystem.getEventDatabase().driverSet(id, "startTime", startTime == null ? "NULL" : String.valueOf(startTime.toEpochMilli()));
     }
 
     public void setEndTime(Instant endTime) {
         this.endTime = endTime;
-        if (endTime == null) {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = NULL WHERE `id` = " + id + ";");
-        } else {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = " + endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
-        }
+        TimingSystem.getEventDatabase().driverSet(id, "endTime", endTime == null ? "NULL" : String.valueOf(endTime.toEpochMilli()));
     }
 
     public void setPits(int pits) {
         this.pits = pits;
-        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `pitstops` = " + pits + " WHERE `id` = " + getId() + ";");
+        TimingSystem.getEventDatabase().driverSet(id, "pitstops", String.valueOf(pits));
     }
 
     public void setState(DriverState state) {

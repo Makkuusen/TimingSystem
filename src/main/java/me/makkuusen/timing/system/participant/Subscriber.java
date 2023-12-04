@@ -1,8 +1,8 @@
 package me.makkuusen.timing.system.participant;
 
 import co.aikar.idb.DbRow;
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
 
 import java.util.UUID;
 
@@ -13,7 +13,7 @@ public class Subscriber extends Participant {
     }
 
     public Subscriber(DbRow data) {
-        super(Database.getPlayer(UUID.fromString(data.getString("uuid"))));
+        super(TSDatabase.getPlayer(UUID.fromString(data.getString("uuid"))));
     }
 
     public boolean equals(Object o) {
