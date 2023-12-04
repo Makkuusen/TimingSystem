@@ -248,11 +248,14 @@ public class TrackDatabase {
         }
     }
 
-    public static Track trackNewFromTrackExchange(TrackExchangeTrack trackExchangeTrack, Location newSpawnLocation, Vector offset) {
+    public static Track trackNewFromTrackExchange(TrackExchangeTrack trackExchangeTrack, Location newSpawnLocation, Vector offset, Player player) {
         try {
             World world = newSpawnLocation.getWorld();
             String name = trackExchangeTrack.getName();
             UUID uuid = trackExchangeTrack.getOwnerUUID();
+            if (Database.getPlayer(uuid) == null) {
+                uuid = player.getUniqueId();
+            }
             long dateCreated = trackExchangeTrack.getDateCreated();
             Track.TrackType trackType = trackExchangeTrack.getTrackType();
             Track.TrackMode trackMode = trackExchangeTrack.getTrackMode();
@@ -261,7 +264,7 @@ public class TrackDatabase {
             BoatUtilsMode boatUtilsMode = trackExchangeTrack.getBoatUtilsMode();
 
             // Create track
-            var trackId = DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `boatUtilsMode`, `isRemoved`) " + "VALUES('" + uuid + "', " + Database.sqlString(name) + ", " + dateCreated + ", " + weight + ", " + Database.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(newSpawnLocation) + "', '" + ApiUtilities.locationToString(newSpawnLocation) + "', " + Database.sqlString(trackType.toString()) + "," + Database.sqlString(trackMode.toString()) + ", 0, NULL, " + Database.sqlString(boatUtilsMode.toString()) + " , 0);");
+            var trackId = DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `boatUtilsMode`, `isRemoved`) " + "VALUES('" + uuid + "', " + Database.sqlString(name) + ", " + dateCreated + ", " + weight + ", " + Database.sqlString(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(newSpawnLocation) + "', '" + ApiUtilities.locationToString(newSpawnLocation) + "', " + Database.sqlString(trackType.toString()) + "," + Database.sqlString(trackMode.toString()) + ", 0, NULL, " + boatUtilsMode.getId() + " , 0);");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_tracks` WHERE `id` = " + trackId + ";");
 
             Track rTrack = new Track(dbRow);
