@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.track;
 
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -117,6 +118,8 @@ public class TrackExchangeTrack implements Serializable {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(r);
             Operations.complete(new ForwardExtentCopy(BukkitAdapter.adapt(player.getWorld()), r, clipboard, r.getMinimumPoint()));
             return clipboard;
+        } catch (IncompleteRegionException e) {
+            return null;
         } catch (WorldEditException e) {
             Text.send(player, Error.GENERIC);
             return null;

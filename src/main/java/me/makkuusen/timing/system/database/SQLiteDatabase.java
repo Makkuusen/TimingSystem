@@ -42,7 +42,9 @@ public class SQLiteDatabase extends MySQLDatabase {
                         `compactScoreboard` INTEGER NOT NULL DEFAULT 0,
                         `override` INTEGER NOT NULL DEFAULT 0,
                         `verbose` INTEGER NOT NULL DEFAULT 0,
-                        `toggleSound` INTEGER DEFAULT 1 NOT NULL
+                        `timetrial` INTEGER NOT NULL DEFAULT 1,
+                        `toggleSound` INTEGER DEFAULT 1 NOT NULL,
+                        `sendFinalLaps` INTEGER DEFAULT 0 NOT NULL
                         )
                         """);
 
@@ -61,7 +63,7 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `mode` TEXT NOT NULL,
                           `toggleOpen` INTEGER NOT NULL,
                           `options` TEXT DEFAULT NULL,
-                          `boatUtilsMode` TEXT NOT NULL DEFAULT 'VANILLA',
+                          `boatUtilsMode` INTEGER NOT NULL DEFAULT 0,
                           `isRemoved` INTEGER NOT NULL
                         );""");
 
