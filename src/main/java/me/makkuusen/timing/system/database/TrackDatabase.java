@@ -295,11 +295,15 @@ public interface TrackDatabase {
         }
     }
 
-    static Track trackNewFromTrackExchange(TrackExchangeTrack trackExchangeTrack, Location newSpawnLocation, Vector offset) {
+
+    public static Track trackNewFromTrackExchange(TrackExchangeTrack trackExchangeTrack, Location newSpawnLocation, Vector offset, Player player) {
         try {
             World world = newSpawnLocation.getWorld();
             String name = trackExchangeTrack.getName();
             UUID uuid = trackExchangeTrack.getOwnerUUID();
+            if (TSDatabase.getPlayer(uuid) == null) {
+                uuid = player.getUniqueId();
+            }
             long dateCreated = trackExchangeTrack.getDateCreated();
             Track.TrackType trackType = trackExchangeTrack.getTrackType();
             Track.TrackMode trackMode = trackExchangeTrack.getTrackMode();
