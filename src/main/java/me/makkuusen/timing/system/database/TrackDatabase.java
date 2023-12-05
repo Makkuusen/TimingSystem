@@ -295,11 +295,15 @@ public interface TrackDatabase {
         }
     }
 
-    static Track trackNewFromTrackExchange(TrackExchangeTrack trackExchangeTrack, Location newSpawnLocation, Vector offset) {
+
+    public static Track trackNewFromTrackExchange(TrackExchangeTrack trackExchangeTrack, Location newSpawnLocation, Vector offset, Player player) {
         try {
             World world = newSpawnLocation.getWorld();
             String name = trackExchangeTrack.getName();
             UUID uuid = trackExchangeTrack.getOwnerUUID();
+            if (TSDatabase.getPlayer(uuid) == null) {
+                uuid = player.getUniqueId();
+            }
             long dateCreated = trackExchangeTrack.getDateCreated();
             Track.TrackType trackType = trackExchangeTrack.getTrackType();
             Track.TrackMode trackMode = trackExchangeTrack.getTrackMode();
@@ -341,10 +345,17 @@ public interface TrackDatabase {
             });
 
             // Create track locations
-            trackExchangeTrack.getTrackLocations().stream().map(serializableLocation -> serializableLocation.toTrackLocation(world)).forEach(location -> {
-                rTrack.addTrackLocation(location);
-                if(location instanceof TrackLeaderboard leaderboard)
-                    leaderboard.createOrUpdateHologram();
+            trackExchangeTrack.getTrackLocations().stream().forEach(serializableLocation -> {
+                Location newLocation = TrackExchangeTrack.getNewLocation(newSpawnLocation.getWorld(), serializableLocation.getLocation(newSpawnLocation.getWorld()), offset);
+                try {
+                    var trackLocation = TrackDatabase.trackLocationNew(rTrack.getId(), serializableLocation.getRegionIndex(), serializableLocation.getType(), newLocation);
+                    rTrack.addTrackLocation(trackLocation);
+                    if (trackLocation instanceof TrackLeaderboard trackLeaderboard) {
+                        trackLeaderboard.createOrUpdateHologram();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             });
 
             return rTrack;
@@ -355,21 +366,21 @@ public interface TrackDatabase {
 
     static TrackRegion trackRegionNew(Region selection, long trackId, int index, TrackRegion.RegionType type, Location location) throws SQLException {
         Long regionId;
-        String minP = ApiUtilities.locationToString(BukkitAdapter.adapt(location.getWorld(), selection.getMinimumPoint()));
-        String maxP = ApiUtilities.locationToString(BukkitAdapter.adapt(location.getWorld(), selection.getMaximumPoint()));
+        Location minPLoc = BukkitAdapter.adapt(location.getWorld(), selection.getMinimumPoint());
+        Location maxPLoc = BukkitAdapter.adapt(location.getWorld(), selection.getMaximumPoint());
+        String minP = ApiUtilities.locationToString(minPLoc);
+        String maxP = ApiUtilities.locationToString(maxPLoc);
 
         if (selection instanceof Polygonal2DRegion polySelection) {
             regionId = TimingSystem.getTrackDatabase().createRegion(trackId, index, minP, maxP, type, TrackRegion.RegionShape.POLY, location);
-            var dbRow = TimingSystem.getTrackDatabase().selectTrackRegion(trackId);
             for (BlockVector2 v : polySelection.getPoints()) {
                 TimingSystem.getTrackDatabase().createPoint(regionId, v);
             }
-            return new TrackPolyRegion(dbRow, polySelection.getPoints());
+            return new TrackPolyRegion(regionId, trackId, index, type, location, minPLoc, maxPLoc, polySelection.getPoints());
 
         } else {
             regionId = TimingSystem.getTrackDatabase().createRegion(trackId, index, minP, maxP, type, TrackRegion.RegionShape.CUBOID, location);
-            var dbRow = TimingSystem.getTrackDatabase().selectTrackRegion(regionId);
-            return new TrackCuboidRegion(dbRow);
+            return new TrackCuboidRegion(regionId, trackId, index, type, location, minPLoc, maxPLoc);
         }
     }
 

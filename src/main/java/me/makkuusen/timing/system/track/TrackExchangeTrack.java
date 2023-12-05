@@ -54,7 +54,7 @@ public class TrackExchangeTrack implements Serializable {
     private String spawnLocation;
     private String trackType;
     private String trackMode;
-    private String boatUtilsMode;
+    private Integer boatUtilsMode;
     private Integer weight;
     private String options;
     private Long totalTimeSpent;
@@ -77,7 +77,7 @@ public class TrackExchangeTrack implements Serializable {
         spawnLocation = ApiUtilities.locationToString(track.getSpawnLocation());
         trackType = track.getType().toString();
         trackMode = track.getMode().toString();
-        boatUtilsMode = track.getBoatUtilsMode().toString();
+        boatUtilsMode = (int) track.getBoatUtilsMode().getId();
         weight = track.getWeight();
         options = Arrays.toString(track.getOptions());
         totalTimeSpent = track.getTotalTimeSpent();
@@ -199,7 +199,7 @@ public class TrackExchangeTrack implements Serializable {
         Vector offset = getOffset(ApiUtilities.stringToLocation(trackExchangeTrack.origin).toBlockLocation(), player.getLocation().toBlockLocation());
         Location newSpawnLocation = getNewLocation(player.getWorld(), ApiUtilities.stringToLocation(trackExchangeTrack.spawnLocation), offset);
 
-        trackExchangeTrack.track = TrackDatabase.trackNewFromTrackExchange(trackExchangeTrack, newSpawnLocation, offset);
+        trackExchangeTrack.track = TrackDatabase.trackNewFromTrackExchange(trackExchangeTrack, newSpawnLocation, offset, player);
 
         try(ClipboardReader clipboardReader = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(new FileInputStream(trackSchematicFile))) {
             trackExchangeTrack.clipboard = clipboardReader.read();
@@ -235,7 +235,7 @@ public class TrackExchangeTrack implements Serializable {
     }
 
     public BoatUtilsMode getBoatUtilsMode() {
-        return BoatUtilsMode.valueOf(boatUtilsMode);
+        return BoatUtilsMode.getMode(boatUtilsMode);
     }
 
     public Vector getClipboardOffset() {
@@ -379,7 +379,7 @@ public class TrackExchangeTrack implements Serializable {
 
         public Location getLocation(World world) {
             var location = ApiUtilities.stringToLocation(this.location);
-            return new Location(world, location.x(), location.y(), location.z());
+            return new Location(world, location.x(), location.y(), location.z(), location.getYaw(), location.getPitch());
         }
 
         public TrackLocation.Type getType() {
