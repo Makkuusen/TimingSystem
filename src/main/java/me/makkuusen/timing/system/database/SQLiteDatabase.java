@@ -41,7 +41,6 @@ public class SQLiteDatabase extends MySQLDatabase {
                 return true;
             }
 
-            // Update database on new version.
             getPlugin().getLogger().warning("UPDATING DATABASE FROM " + previousVersion + " to " + databaseVersion);
             updateDatabase(previousVersion);
             DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(" + databaseVersion + ", " + ApiUtilities.getTimestamp() + ");");
@@ -54,7 +53,16 @@ public class SQLiteDatabase extends MySQLDatabase {
         }
     }
     private static void updateDatabase(int previousVersion) {
-        //Update logic here. Nothing for version 1 though.
+        /*
+        Update logic here.
+        if (previousVersion < 2) {
+            // Do update for database version 2.
+        }
+
+        if (previousVersion < 3) {
+            // Do update for database version 3.
+        */
+
     }
 
 
@@ -257,5 +265,10 @@ public class SQLiteDatabase extends MySQLDatabase {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public void trackSet(int trackId, String column, Boolean value) {
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = " + (value ? 1 : 0 ) + " WHERE `id` = " + trackId + ";");
     }
 }

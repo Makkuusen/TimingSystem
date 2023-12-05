@@ -71,7 +71,7 @@ public class Track {
         guiItem = ApiUtilities.stringToItem(data.getString("guiItem"));
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         type = data.getString("type") == null ? TrackType.BOAT : TrackType.valueOf(data.getString("type"));
-        open = data.get("toggleOpen").equals(1);
+        open = data.get("toggleOpen") instanceof Boolean ? data.get("toggleOpen") : data.get("toggleOpen").equals(1);
         options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
         mode = data.get("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));
         weight = data.getInt("weight");
@@ -160,7 +160,7 @@ public class Track {
 
     public void setWeight(int weight) {
         this.weight = weight;
-        TimingSystem.getTrackDatabase().trackSet(id, "weight", String.valueOf(weight));
+        TimingSystem.getTrackDatabase().trackSet(id, "weight", weight);
     }
 
     public boolean isWeightAboveZero() {
@@ -239,7 +239,7 @@ public class Track {
 
     public void setBoatUtilsMode(BoatUtilsMode mode) {
         this.boatUtilsMode = mode;
-        TimingSystem.getTrackDatabase().trackSet(id, "boatUtilsMode", mode.toString());
+        TimingSystem.getTrackDatabase().trackSet(id, "boatUtilsMode", (int) mode.getId());
     }
 
     public void setName(String name) {
@@ -260,7 +260,7 @@ public class Track {
 
     public void setOpen(boolean open) {
         this.open = open;
-        TimingSystem.getTrackDatabase().trackSet(id, "toggleOpen", String.valueOf(open));
+        TimingSystem.getTrackDatabase().trackSet(id, "toggleOpen", open);
     }
 
     public void addRegion(TrackRegion trackRegion) {

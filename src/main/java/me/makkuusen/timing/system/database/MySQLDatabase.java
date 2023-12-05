@@ -106,7 +106,6 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
             // Do update for database version 3.
         */
 
-
     }
 
 
@@ -709,7 +708,17 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
 
     @Override
     public void trackSet(int trackId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = '" + TSDatabase.sqlStringOf(value) + "' WHERE `id` = " + trackId + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = " + TSDatabase.sqlStringOf(value) + " WHERE `id` = " + trackId + ";");
+    }
+
+    @Override
+    public void trackSet(int trackId, String column, Integer value) {
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = " + value + " WHERE `id` = " + trackId + ";");
+    }
+
+    @Override
+    public void trackSet(int trackId, String column, Boolean value) {
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = " + value + " WHERE `id` = " + trackId + ";");
     }
 
     @Override

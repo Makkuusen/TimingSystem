@@ -91,6 +91,10 @@ public interface TrackDatabase {
 
     void trackSet(int trackId, String column, String value);
 
+    void trackSet(int trackId, String column, Integer value);
+
+    void trackSet(int trackId, String column, Boolean value);
+
     void trackRegionSet(int regionId, String column, String value);
 
     void createCheckpointFinish(long finishId, int checkpointIndex, long time);
