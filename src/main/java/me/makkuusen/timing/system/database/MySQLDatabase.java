@@ -59,14 +59,17 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
 
             var previousVersion = row.getString("version");
 
-            // Return if no update.
-            if (previousVersion.equalsIgnoreCase(Integer.toString(databaseVersion))) {
-                return true;
-            }
 
             // Migrate from old to new database versioning.
             if (previousVersion.equals("1.9")) {
+                getPlugin().getLogger().warning("UPDATING DATABASE FROM " + previousVersion + " to " + databaseVersion);
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + 1 + "', " + ApiUtilities.getTimestamp() + ");");
+                previousVersion = "1";
+            }
+
+            // Return if no update.
+            if (previousVersion.equalsIgnoreCase(Integer.toString(databaseVersion))) {
+                return true;
             }
 
             // Update database on new version.
