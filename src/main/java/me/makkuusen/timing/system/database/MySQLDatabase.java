@@ -76,7 +76,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                 int oldVersion = Integer.parseInt(previousVersion);
                 // Update database on new version.
                 getPlugin().getLogger().warning("UPDATING DATABASE FROM " + previousVersion + " to " + databaseVersion);
-                updateDatabase(oldVersion, currentVersion);
+                updateDatabase(oldVersion, databaseVersion);
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + databaseVersion + "', " + ApiUtilities.getTimestamp() + ");");
                 return true;
             } catch (NumberFormatException e) {
