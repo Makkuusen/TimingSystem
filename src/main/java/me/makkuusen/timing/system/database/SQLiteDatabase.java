@@ -25,9 +25,38 @@ public class SQLiteDatabase extends MySQLDatabase {
 
     @Override
     public boolean update() {
-        // There are no updates :(
-        return true;
+        try {
+            var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
+
+            int databaseVersion = 1;
+            if (row == null) { // First startup
+                DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(" + databaseVersion + ", " + ApiUtilities.getTimestamp() + ");");
+                return true;
+            }
+
+            var previousVersion = row.getInt("version");
+
+            // Return if no update.
+            if (previousVersion == databaseVersion) {
+                return true;
+            }
+
+            // Update database on new version.
+            getPlugin().getLogger().warning("UPDATING DATABASE FROM " + previousVersion + " to " + databaseVersion);
+            updateDatabase(previousVersion);
+            DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(" + databaseVersion + ", " + ApiUtilities.getTimestamp() + ");");
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            getPlugin().getLogger().warning("Failed to update database, disabling plugin.");
+            getPlugin().getServer().getPluginManager().disablePlugin(getPlugin());
+            return false;
+        }
     }
+    private static void updateDatabase(int previousVersion) {
+        //Update logic here. Nothing for version 1 though.
+    }
+
 
     @Override
     public boolean createTables() {
@@ -201,7 +230,7 @@ public class SQLiteDatabase extends MySQLDatabase {
             DB.executeUpdate("""
                         CREATE TABLE IF NOT EXISTS `ts_version` (
                           `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                          `version` TEXT NOT NULL,
+                          `version` INTEGER NOT NULL,
                           `date` INTEGER NOT NULL
                         );""");
 

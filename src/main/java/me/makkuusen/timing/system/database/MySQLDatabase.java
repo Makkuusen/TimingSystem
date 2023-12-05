@@ -33,6 +33,8 @@ import java.util.UUID;
 import static me.makkuusen.timing.system.TimingSystem.getPlugin;
 
 public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
+
+
     @Override
     public boolean initialize() {
         TimingSystemConfiguration config = TimingSystem.configuration;
@@ -48,22 +50,29 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
     public boolean update() {
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
-            if (row == null) {
-                DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + getPlugin().getPluginMeta().getVersion() + "', " + ApiUtilities.getTimestamp() + ");");
-                rc9Update();
-                v1_0Update();
-                v1_2Update();
-                v1_3Update();
-                v1_6Update();
-                v1_8Update();
-                v1_9Update();
-            } else {
-                if (TSDatabase.isNewerVersion(row.getString("version"), getPlugin().getPluginMeta().getVersion())) {
-                    updateDatabase(row.getString("version"));
-                    getPlugin().getLogger().warning("UPDATING DATABASE FROM " + row.getString("version") + " to " + getPlugin().getPluginMeta().getVersion());
-                    DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + getPlugin().getPluginMeta().getVersion() + "', " + ApiUtilities.getTimestamp() + ");");
-                }
+
+            int databaseVersion = 1;
+            if (row == null) { // First startup
+                DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + databaseVersion + "', " + ApiUtilities.getTimestamp() + ");");
+                return true;
             }
+
+            var previousVersion = row.getString("version");
+
+            // Return if no update.
+            if (previousVersion.equalsIgnoreCase(Integer.toString(databaseVersion))) {
+                return true;
+            }
+
+            // Migrate from old to new database versioning.
+            if (previousVersion.equals("1.9")) {
+                DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + 1 + "', " + ApiUtilities.getTimestamp() + ");");
+            }
+
+            // Update database on new version.
+            getPlugin().getLogger().warning("UPDATING DATABASE FROM " + previousVersion + " to " + databaseVersion);
+            updateDatabase(previousVersion);
+            DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + databaseVersion + "', " + ApiUtilities.getTimestamp() + ");");
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,7 +90,14 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                       `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
                       `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
                       `boat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                      `verbose` tinyint(1) NOT NULL DEFAULT '0',
+                      `timetrial` tinyint(1) NOT NULL DEFAULT '1',
+                      `override` tinyint(1) NOT NULL DEFAULT '0',
+                      `chestBoat` tinyint(1) NOT NULL DEFAULT '0',
+                      `compactScoreboard` tinyint(1) NOT NULL DEFAULT '0',
+                      `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#9D9D97',
                       `toggleSound` tinyint(1) DEFAULT 1 NOT NULL,
+                      `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0',
                       PRIMARY KEY (`uuid`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
@@ -89,8 +105,11 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                     CREATE TABLE IF NOT EXISTS `ts_tracks` (
                       `id` int(11) NOT NULL AUTO_INCREMENT,
                       `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                      `contributors` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                       `dateCreated` bigint(30) DEFAULT NULL,
+                      `dateChanged` bigint(30) DEFAULT NULL,
+                      `weight` int(11) NOT NULL DEFAULT '100',
                       `guiItem` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                       `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                       `leaderboard` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -98,6 +117,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                       `mode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
                       `toggleOpen` tinyint(1) NOT NULL,
                       `options` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                      `boatUtilsMode` int(4) NOT NULL DEFAULT '-1',
                       `isRemoved` tinyint(1) NOT NULL,
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
@@ -155,6 +175,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                       `date` bigint(30) DEFAULT NULL,
                       `track` int(11) DEFAULT NULL,
                       `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                      `open` tinyint(1) NOT NULL DEFAULT '1',
                       `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -254,14 +275,18 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """);
-
-            DB.executeUpdate("""
+            String anvilString = ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build());
+            String create_tags = """
                     CREATE TABLE IF NOT EXISTS `ts_tags` (
                       `id` int(11) NOT NULL AUTO_INCREMENT,
                       `tag` varchar(255) NOT NULL,
+                      `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff',
+                      `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '$anvil',
+                      `weight` int(11) NOT NULL DEFAULT '100',
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                    """);
+                    """;
+            DB.executeUpdate(create_tags.replace("$anvil", anvilString));
 
             DB.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `ts_tracks_tags` (
@@ -301,132 +326,11 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
     }
 
     private static void updateDatabase(String oldVersion) {
-        if (TSDatabase.isNewerVersion(oldVersion, "1.2")) {
-            v1_2Update();
-        }
+        int previousVersion = Integer.parseInt(oldVersion);
 
-        if (TSDatabase.isNewerVersion(oldVersion, "1.3")) {
-            v1_3Update();
-        }
-
-        if (TSDatabase.isNewerVersion(oldVersion, "1.6")) {
-            v1_6Update();
-        }
-
-        if (TSDatabase.isNewerVersion(oldVersion, "1.8")) {
-            v1_8Update();
-        }
-
-        if (TSDatabase.isNewerVersion(oldVersion, "1.9")) {
-            v1_9Update();
-        }
+        //Update logic here. Nothing for version 1 though.
     }
 
-    private static void rc9Update() {
-        try {
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `toggleSound` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
-        } catch (Exception ignored) {
-
-        }
-    }
-
-    private static void v1_0Update() {
-        try {
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `verbose` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `timetrial` tinyint(1) NOT NULL DEFAULT '1' AFTER `boat`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `override` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `chestBoat` tinyint(1) NOT NULL DEFAULT '0' AFTER `boat`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#9D9D97' AFTER `boat`;");
-        } catch (Exception ignored) {
-
-        }
-    }
-
-    private static void v1_2Update() {
-        try {
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `dateCreated`;");
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `compactScoreboard` tinyint(1) NOT NULL DEFAULT '0' AFTER `chestBoat`;");
-            var dbRows = DB.getResults("SELECT * FROM `ts_tracks`;");
-            for (DbRow row : dbRows) {
-                var first = DB.getFirstRow("SELECT * FROM `ts_locations` WHERE `trackId` = " + row.getInt("id") + " AND `type` = 'LEADERBOARD' AND `index` = 1;");
-                if (first == null) {
-                    DB.executeUpdate("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + row.getInt("id") + ", " + 1 + ", 'LEADERBOARD', '" + row.getString("leaderboard") + "');");
-                }
-
-            }
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    private static void v1_3Update() {
-        try {
-            DB.executeUpdate("ALTER TABLE `ts_events` ADD `open` tinyint(1) NOT NULL DEFAULT '1' AFTER `state`;");
-            DB.executeUpdate("UPDATE `ts_regions` SET `regionIndex` = 1 WHERE `regionType` = 'START' OR `regionType` = 'END' OR `regionType` = 'PIT';");
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    private static void v1_6Update() {
-        try {
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `dateChanged` bigint(30) DEFAULT NULL AFTER `dateCreated`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff' AFTER `tag`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"' AFTER `color`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `item`;");
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    private static void v1_8Update() {
-        // Because of an issue with servers not getting 1.6 update with a fresh installation, I make sure they are applied upon upgrade to 1.8.
-        try {
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `dateChanged` bigint(30) DEFAULT NULL AFTER `dateCreated`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff' AFTER `tag`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '" + ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build())+"' AFTER `color`;");
-            DB.executeUpdate("ALTER TABLE `ts_tags` ADD `weight` int(11) NOT NULL DEFAULT '100' AFTER `item`;");
-        } catch (Exception ignored) {}
-
-        try {
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `boatUtilsMode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'VANILLA' AFTER `options`;");
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        try {
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = 'BA' WHERE `options` LIKE '%r%';");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = 'VANILLA' WHERE `options` LIKE '%i%';");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = 'RALLY' WHERE `options` LIKE '%i%' AND `options` LIKE '%r%';");
-            DB.executeUpdate("UPDATE `ts_tracks` SET options=REPLACE(options,'i','');");
-            DB.executeUpdate("UPDATE `ts_tracks` SET options=REPLACE(options,'r','');");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void v1_9Update() {
-        try {
-            DB.executeUpdate("ALTER TABLE `ts_players` ADD `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0' AFTER `toggleSound`;");
-            DB.executeUpdate("ALTER TABLE `ts_tracks` ADD `contributors` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `uuid`;");
-        } catch (Exception ignored) {}
-
-        try {
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '-1' WHERE `boatUtilsMode` = 'VANILLA'");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '0' WHERE `boatUtilsMode` = 'RALLY'");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '1' WHERE `boatUtilsMode` = 'RALLY_BLUE'");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '2' WHERE `boatUtilsMode` = 'BA'");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '2' WHERE `boatUtilsMode` = 'BA_NOFD'");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '3' WHERE `boatUtilsMode` = 'PARKOUR'");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '5' WHERE `boatUtilsMode` = 'PARKOUR_BLUE'");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '4' WHERE `boatUtilsMode` = 'BA_BLUE'");
-            DB.executeUpdate("UPDATE `ts_tracks` SET `boatUtilsMode` = '4' WHERE `boatUtilsMode` = 'BA_BLUE_NOFD'");
-
-            DB.executeUpdate("ALTER TABLE `ts_tracks` modify `boatUtilsMode` int(4) NOT NULL DEFAULT '-1'");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     // EVENT DATABASE
     private boolean eventDatabaseFinishedLoading = false;
