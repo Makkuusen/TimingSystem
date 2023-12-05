@@ -69,13 +69,13 @@ public class TPlayer implements Comparable<TPlayer> {
         uuid = UUID.fromString(data.getString("uuid"));
         name = data.getString("name");
         boat = stringToType(data.getString("boat"));
-        chestBoat = data.get("chestBoat").equals(1);
-        toggleSound = data.get("toggleSound").equals(1);
-        verbose = data.get("verbose").equals(1);
-        timeTrial = data.get("timetrial").equals(1);
+        chestBoat = data.get("chestBoat") instanceof Boolean ? data.get("chestBoat") : data.get("chestBoat").equals(1);
+        toggleSound = data.get("toggleSound") instanceof Boolean ? data.get("toggleSound") : data.get("toggleSound").equals(1);
+        verbose = data.get("verbose") instanceof Boolean ? data.get("verbose") : data.get("verbose").equals(1);
+        timeTrial = data.get("timetrial") instanceof  Boolean ? data.get("timetrial") : data.get("timetrial").equals(1);
         color = data.getString("color");
-        compactScoreboard = data.get("compactScoreboard").equals(1);
-        sendFinalLaps = data.get("sendFinalLaps").equals(1);
+        compactScoreboard = data.get("compactScoreboard") instanceof Boolean ? data.get("compactScoreboard") : data.get("compactScoreboard").equals(1);
+        sendFinalLaps = data.get("sendFinalLaps") instanceof Boolean ? data.get("sendFinalLaps") : data.get("sendFinalLaps").equals(1);
 
         theme = TimingSystem.defaultTheme;
     }
@@ -190,37 +190,37 @@ public class TPlayer implements Comparable<TPlayer> {
         if (chestBoat == b)
             return;
         chestBoat = b;
-        TimingSystem.getDatabase().playerUpdateValue(uuid, "chestBoat", b ? "1" : "0");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "chestBoat", chestBoat);
     }
 
     public void toggleOverride() {
         override = !override;
-        TimingSystem.getDatabase().playerUpdateValue(uuid, "override", override ? "1" : "0");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "override", override);
     }
 
     public void toggleVerbose() {
         verbose = !verbose;
-        TimingSystem.getDatabase().playerUpdateValue(uuid, "verbose", verbose ? "1" : "0");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "verbose", verbose);
     }
 
     public void toggleTimeTrial() {
         timeTrial = !timeTrial;
-        TimingSystem.getDatabase().playerUpdateValue(uuid, "timetrial", timeTrial ? "1" : "0");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "timetrial", timeTrial);
     }
 
     public void toggleSound() {
         toggleSound = !toggleSound;
-        TimingSystem.getDatabase().playerUpdateValue(uuid, "toggleSound", toggleSound ? "1" : "0");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "toggleSound", toggleSound);
     }
 
     public void toggleCompactScoreboard() {
         this.compactScoreboard = !compactScoreboard;
-        TimingSystem.getDatabase().playerUpdateValue(uuid, "compactScoreboard", compactScoreboard ? "1" : "0");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "compactScoreboard", compactScoreboard);
     }
 
     public void toggleSendFinalLaps() {
         sendFinalLaps = !sendFinalLaps;
-        TimingSystem.getDatabase().playerUpdateValue(uuid, "sendFinalLaps", sendFinalLaps ? "1" : "0");
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "sendFinalLaps", sendFinalLaps);
     }
 
     public boolean isCompactScoreboard() {

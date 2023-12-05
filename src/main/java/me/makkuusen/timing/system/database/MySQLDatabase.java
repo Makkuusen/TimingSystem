@@ -352,6 +352,11 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = " + TSDatabase.sqlStringOf(value) + " WHERE `uuid` = '" + uuid + "';");
     }
 
+    @Override
+    public void playerUpdateValue(UUID uuid, String column, Boolean value) {
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = " + value + " WHERE `uuid` = '" + uuid + "';");
+    }
+
 
     // EVENT DATABASE
     private boolean eventDatabaseFinishedLoading = false;

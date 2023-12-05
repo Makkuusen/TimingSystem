@@ -11,6 +11,7 @@ import org.bukkit.Material;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import static me.makkuusen.timing.system.TimingSystem.getPlugin;
 
@@ -270,5 +271,10 @@ public class SQLiteDatabase extends MySQLDatabase {
     @Override
     public void trackSet(int trackId, String column, Boolean value) {
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = " + (value ? 1 : 0 ) + " WHERE `id` = " + trackId + ";");
+    }
+
+    @Override
+    public void playerUpdateValue(UUID uuid, String column, Boolean value) {
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = " + (value ? 1 : 0 ) + " WHERE `uuid` = '" + uuid + "';");
     }
 }

@@ -26,6 +26,8 @@ public interface TSDatabase {
 
     void playerUpdateValue(UUID uuid, String column, String value);
 
+    void playerUpdateValue(UUID uuid, String column, Boolean value);
+
 
     static void synchronize() {
         try {
