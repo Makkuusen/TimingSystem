@@ -72,11 +72,20 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                 return true;
             }
 
-            // Update database on new version.
-            getPlugin().getLogger().warning("UPDATING DATABASE FROM " + previousVersion + " to " + databaseVersion);
-            updateDatabase(previousVersion);
-            DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + databaseVersion + "', " + ApiUtilities.getTimestamp() + ");");
-            return true;
+            try {
+                int oldVersion = Integer.parseInt(previousVersion);
+                // Update database on new version.
+                getPlugin().getLogger().warning("UPDATING DATABASE FROM " + previousVersion + " to " + databaseVersion);
+                updateDatabase(oldVersion);
+                DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + databaseVersion + "', " + ApiUtilities.getTimestamp() + ");");
+                return true;
+            } catch (NumberFormatException e) {
+                getPlugin().getLogger().warning("Please upgrade to version 1.9 before trying to upgrade to this version, disabling plugin.");
+                getPlugin().getServer().getPluginManager().disablePlugin(getPlugin());
+                return false;
+            }
+
+
         } catch (Exception e) {
             e.printStackTrace();
             getPlugin().getLogger().warning("Failed to update database, disabling plugin.");
@@ -84,6 +93,12 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
             return false;
         }
     }
+
+
+    private static void updateDatabase(int previousVersion) {
+        //Update logic here. Nothing for version 1 though.
+    }
+
 
     @Override
     public boolean createTables() {
@@ -326,12 +341,6 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
     @Override
     public void playerUpdateValue(UUID uuid, String column, String value) {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = " + TSDatabase.sqlStringOf(value) + " WHERE `uuid` = '" + uuid + "';");
-    }
-
-    private static void updateDatabase(String oldVersion) {
-        int previousVersion = Integer.parseInt(oldVersion);
-
-        //Update logic here. Nothing for version 1 though.
     }
 
 
