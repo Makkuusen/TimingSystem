@@ -379,7 +379,7 @@ public class TrackExchangeTrack implements Serializable {
 
         public Location getLocation(World world) {
             var location = ApiUtilities.stringToLocation(this.location);
-            return new Location(world, location.x(), location.y(), location.z());
+            return new Location(world, location.x(), location.y(), location.z(), location.getYaw(), location.getPitch());
         }
 
         public TrackLocation.Type getType() {
