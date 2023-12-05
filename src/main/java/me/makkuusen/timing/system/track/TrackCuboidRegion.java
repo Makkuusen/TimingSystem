@@ -14,6 +14,11 @@ public class TrackCuboidRegion extends TrackRegion {
         setShape(RegionShape.CUBOID);
     }
 
+    public TrackCuboidRegion(long id, long trackId, int regionIndex, RegionType regionType, Location spawnLocation, Location minP, Location maxP) {
+        super(id,trackId,regionIndex,regionType,spawnLocation,minP,maxP);
+        setShape(RegionShape.CUBOID);
+    }
+
     public boolean contains(Location loc) {
         if (loc == null || getMinP() == null || getMaxP() == null) {
             return false;

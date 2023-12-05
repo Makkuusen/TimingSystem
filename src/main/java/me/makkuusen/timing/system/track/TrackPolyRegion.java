@@ -25,6 +25,12 @@ public class TrackPolyRegion extends TrackRegion {
         polygonal2DRegion = new Polygonal2DRegion(BukkitAdapter.adapt(getSpawnLocation().getWorld()), points, getMinP().getBlockY(), getMaxP().getBlockY());
     }
 
+    public TrackPolyRegion(long id, long trackId, int regionIndex, RegionType regionType, Location spawnLocation, Location minP, Location maxP, List<BlockVector2> points) {
+        super (id,trackId,regionIndex,regionType,spawnLocation,minP,maxP);
+        setShape(RegionShape.POLY);
+        polygonal2DRegion = new Polygonal2DRegion(BukkitAdapter.adapt(getSpawnLocation().getWorld()), points, getMinP().getBlockY(), getMaxP().getBlockY());
+    }
+
     public void updateRegion(List<BlockVector2> points) {
         try {
             TimingSystem.getTrackDatabase().deletePoint(getId());
