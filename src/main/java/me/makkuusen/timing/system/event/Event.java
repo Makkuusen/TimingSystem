@@ -152,7 +152,7 @@ public class Event {
 
     public void setTrack(Track track) {
         this.track = track;
-        TimingSystem.getEventDatabase().eventSet(id, "track", String.valueOf(track.getId()));
+        TimingSystem.getEventDatabase().eventSet(id, "track", track.getId());
     }
 
     public void setState(EventState state) {

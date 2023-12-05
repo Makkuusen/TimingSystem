@@ -65,6 +65,8 @@ public interface EventDatabase {
 
     void eventSet(long eventId, String column, String value);
 
+    void eventSet(long eventID, String column, Integer value);
+
     void roundSet(long roundId, String column, String value);
 
     void heatSet(long heatId, String column, String value);
