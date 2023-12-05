@@ -53,6 +53,7 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                           `uuid` TEXT DEFAULT NULL,
                           `name` TEXT NOT NULL,
+                          `contributors` TEXT DEFAULT NULL,
                           `dateCreated` INTEGER DEFAULT NULL,
                           `dateChanged` INTEGER DEFAULT NULL,
                           `weight` INTEGER NOT NULL DEFAULT 100,
@@ -63,7 +64,7 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `mode` TEXT NOT NULL,
                           `toggleOpen` INTEGER NOT NULL,
                           `options` TEXT DEFAULT NULL,
-                          `boatUtilsMode` INTEGER NOT NULL DEFAULT 0,
+                          `boatUtilsMode` INTEGER NOT NULL DEFAULT -1,
                           `isRemoved` INTEGER NOT NULL
                         );""");
 
