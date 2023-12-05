@@ -298,7 +298,7 @@ public class Heat {
 
     public void setMaxDrivers(int maxDrivers) {
         this.maxDrivers = maxDrivers;
-        TimingSystem.getEventDatabase().heatSet(id, "maxDrivers", String.valueOf(maxDrivers));
+        TimingSystem.getEventDatabase().heatSet(id, "maxDrivers", maxDrivers);
     }
 
     public void addDriver(Driver driver) {
@@ -401,42 +401,42 @@ public class Heat {
 
     public void setStartTime(Instant startTime) {
         this.startTime = startTime;
-        TimingSystem.getEventDatabase().heatSet(id, "startTime", startTime == null ? "NULL" : String.valueOf(startTime.toEpochMilli()));
+        TimingSystem.getEventDatabase().heatSet(id, "startTime", startTime == null ? null : startTime.toEpochMilli());
     }
 
     public void setEndTime(Instant endTime) {
         this.endTime = endTime;
-        TimingSystem.getEventDatabase().heatSet(id, "endTime", endTime == null ? "NULL" : String.valueOf(endTime.toEpochMilli()));
+        TimingSystem.getEventDatabase().heatSet(id, "endTime", endTime == null ? null : endTime.toEpochMilli());
     }
 
     public void setFastestLapUUID(UUID fastestLapUUID) {
         this.fastestLapUUID = fastestLapUUID;
-        TimingSystem.getEventDatabase().heatSet(id, "fastestLapUUID", fastestLapUUID == null ? "NULL" : fastestLapUUID.toString());
+        TimingSystem.getEventDatabase().heatSet(id, "fastestLapUUID", fastestLapUUID == null ? null : fastestLapUUID.toString());
     }
 
     public void setTimeLimit(int timeLimit) {
         this.timeLimit = timeLimit;
-        TimingSystem.getEventDatabase().heatSet(getId(), "timeLimit", String.valueOf(timeLimit));
+        TimingSystem.getEventDatabase().heatSet(getId(), "timeLimit", timeLimit);
     }
 
     public void setStartDelayInTicks(int startDelay) {
         this.startDelay = startDelay;
-        TimingSystem.getEventDatabase().heatSet(getId(), "startDelay", String.valueOf(startDelay));
+        TimingSystem.getEventDatabase().heatSet(getId(), "startDelay", startDelay);
     }
 
     public void setTotalLaps(int totalLaps) {
         this.totalLaps = totalLaps;
-        TimingSystem.getEventDatabase().heatSet(getId(), "totalLaps", String.valueOf(totalLaps));
+        TimingSystem.getEventDatabase().heatSet(getId(), "totalLaps", totalLaps);
     }
 
     public void setTotalPits(int totalPits) {
         this.totalPits = totalPits;
-        TimingSystem.getEventDatabase().heatSet(getId(), "totalPitstops", String.valueOf(totalPits));
+        TimingSystem.getEventDatabase().heatSet(getId(), "totalPitstops", totalPits);
     }
 
     public void setHeatNumber(int heatNumber) {
         this.heatNumber = heatNumber;
-        TimingSystem.getEventDatabase().heatSet(getId(), "heatNumber", String.valueOf(heatNumber));
+        TimingSystem.getEventDatabase().heatSet(getId(), "heatNumber", heatNumber);
     }
 
     public boolean isActive() {

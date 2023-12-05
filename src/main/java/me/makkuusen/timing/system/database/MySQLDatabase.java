@@ -552,17 +552,27 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
 
     @Override
     public void eventSet(long heatId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_events` SET `" + column + "` = '" + TSDatabase.sqlStringOf(value) + "' WHERE `id` = " + heatId + ";");
+        DB.executeUpdateAsync("UPDATE `ts_events` SET `" + column + "` = " + TSDatabase.sqlStringOf(value) + " WHERE `id` = " + heatId + ";");
     }
 
     @Override
     public void roundSet(long heatId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_rounds` SET `" + column + "` = '" + TSDatabase.sqlStringOf(value) + "' WHERE `id` = " + heatId + ";");
+        DB.executeUpdateAsync("UPDATE `ts_rounds` SET `" + column + "` = " + TSDatabase.sqlStringOf(value) + " WHERE `id` = " + heatId + ";");
     }
 
     @Override
     public void heatSet(long heatId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_heats` SET `" + column + "` = '" + TSDatabase.sqlStringOf(value) + "' WHERE `id` = " + heatId + ";");
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `" + column + "` = " + TSDatabase.sqlStringOf(value) + " WHERE `id` = " + heatId + ";");
+    }
+
+    @Override
+    public void heatSet(long heatId, String column, Integer value) {
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `" + column + "` = " + value + " WHERE `id` = " + heatId + ";");
+    }
+
+    @Override
+    public void heatSet(long heatId, String column, Long value) {
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `" + column + "` = " + value + " WHERE `id` = " + heatId + ";");
     }
 
     @Override
