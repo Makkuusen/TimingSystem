@@ -297,10 +297,17 @@ public class TrackDatabase {
             });
 
             // Create track locations
-            trackExchangeTrack.getTrackLocations().stream().map(serializableLocation -> serializableLocation.toTrackLocation(world)).forEach(location -> {
-                rTrack.addTrackLocation(location);
-                if(location instanceof TrackLeaderboard leaderboard)
-                    leaderboard.createOrUpdateHologram();
+            trackExchangeTrack.getTrackLocations().stream().forEach(serializableLocation -> {
+                Location newLocation = TrackExchangeTrack.getNewLocation(newSpawnLocation.getWorld(), serializableLocation.getLocation(newSpawnLocation.getWorld()), offset);
+                try {
+                    var trackLocation = TrackDatabase.trackLocationNew(rTrack.getId(), serializableLocation.getRegionIndex(), serializableLocation.getType(), newLocation);
+                    rTrack.addTrackLocation(trackLocation);
+                    if (trackLocation instanceof TrackLeaderboard trackLeaderboard) {
+                        trackLeaderboard.createOrUpdateHologram();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             });
 
             return rTrack;
