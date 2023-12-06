@@ -35,7 +35,6 @@ import org.bukkit.entity.Boat;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
@@ -102,7 +101,6 @@ public class TimingSystem extends JavaPlugin {
         PermissionEvent.init(cr);
         PermissionRound.init(cr);
         PermissionHeat.init(cr);
-        PermissionTrackExchange.init(cr);
 
         manager.getCommandContexts().registerContext(
                 Event.class, EventDatabase.getEventContextResolver());
@@ -222,11 +220,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandBoat());
         manager.registerCommand(new CommandRace());
         manager.registerCommand(new CommandReset());
-        manager.registerCommand(new CommandTrackExchange());
         taskChainFactory = BukkitTaskChainFactory.create(this);
-
-        File dir = new File(TrackExchangeTrack.PATH);
-        if(!dir.exists()) dir.mkdir(); // create trackexchange handling folder.
 
         database = configuration.getDatabaseType();
         eventDatabase = configuration.getDatabaseType();
