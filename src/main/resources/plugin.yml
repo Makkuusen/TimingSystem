@@ -1,7 +1,7 @@
 name: TimingSystem
 main: me.makkuusen.timing.system.TimingSystem
 version: 1.9
-authors: [Makkuusen, GitHub Repository Contributors]
+authors: [Makkuusen, Pigalala, GitHub Repository Contributors]
 depend: [WorldEdit]
 softdepend: [HolographicDisplays, DecentHolograms, Multiverse-Core, PlaceholderAPI]
 api-version: '1.20'
