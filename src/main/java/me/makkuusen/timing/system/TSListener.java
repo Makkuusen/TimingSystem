@@ -18,6 +18,7 @@ import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.TrackOption;
 import me.makkuusen.timing.system.track.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -196,7 +197,7 @@ public class TSListener implements Listener {
 
             if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
                 Track track = TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack();
-                if (track.hasOption('b')) {
+                if (track.hasTrackOption(TrackOption.FORCE_BOAT)) {
                     TimeTrialController.playerLeavingMap(player.getUniqueId());
                     if (ApiUtilities.hasBoatUtilsEffects(player)) {
                         ApiUtilities.removeBoatUtilsEffects(player);
@@ -340,19 +341,22 @@ public class TSListener implements Listener {
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
             Track track = timeTrial.getTrack();
-            if (player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType().equals(Material.ELYTRA) && track.hasOption('e')) {
+            if (player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType().equals(Material.ELYTRA) && track.hasTrackOption(TrackOption.NO_ELYTRA)) {
                 Text.send(player, Error.NO_ELYTRA);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
-            } else if (!player.isGliding() && track.hasOption('g')) {
+            } else if (player.getGameMode().equals(GameMode.CREATIVE) && track.hasTrackOption(TrackOption.NO_CREATIVE)) {
+                Text.send(player, Error.NO_CREATIVE);
+                TimeTrialController.playerLeavingMap(player.getUniqueId());
+            } else if (!player.isGliding() && track.hasTrackOption(TrackOption.FORCE_ELYTRA)) {
                 Text.send(player, Error.STOPPED_FLYING);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
-            } else if (!player.getActivePotionEffects().isEmpty() && track.hasOption('p')) {
+            } else if (!player.getActivePotionEffects().isEmpty() && track.hasTrackOption(TrackOption.NO_POTION_EFFECTS)) {
                 Text.send(player, Error.NO_POTION_EFFECTS);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
-            } else if (player.isRiptiding() && track.hasOption('t')) {
+            } else if (player.isRiptiding() && track.hasTrackOption(TrackOption.NO_RIPTIDE)) {
                 Text.send(player, Error.NO_RIPTIDE);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
-            } else if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.SOUL_SPEED) && track.hasOption('s')) {
+            } else if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.SOUL_SPEED) && track.hasTrackOption(TrackOption.NO_SOUL_SPEED)) {
                 Text.send(player, Error.NO_SOUL_SPEED);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             } else if (mode != null && mode != track.getBoatUtilsMode()) {
@@ -483,7 +487,7 @@ public class TSListener implements Listener {
 
         for (TrackRegion r : track.getRegions(TrackRegion.RegionType.RESET)) {
             if (r.contains(player.getLocation())) {
-                if (!track.hasOption('c')) {
+                if (!track.hasTrackOption(TrackOption.RESET_TO_LATEST_CHECKPOINT)) {
                     timeTrial.playerResetMap();
                 } else {
                     var maybeRegion = track.getRegion(TrackRegion.RegionType.CHECKPOINT, timeTrial.getLatestCheckpoint());

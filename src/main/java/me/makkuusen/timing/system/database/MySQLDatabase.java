@@ -7,6 +7,7 @@ import co.aikar.idb.PooledDatabaseOptions;
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.database.updates.Version2;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -16,10 +17,7 @@ import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
-import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackLocation;
-import me.makkuusen.timing.system.track.TrackRegion;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.*;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -51,7 +49,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 1;
+            int databaseVersion = 2;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + databaseVersion + "', " + ApiUtilities.getTimestamp() + ");");
                 return true;
@@ -95,17 +93,11 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
     }
 
 
-    private static void updateDatabase(int previousVersion) {
-        /*
-        Update logic here.
+    private static void updateDatabase(int previousVersion) throws SQLException {
+        //Update logic here.
         if (previousVersion < 2) {
-            // Do update for database version 2.
+            Version2.update();
         }
-
-        if (previousVersion < 3) {
-            // Do update for database version 3.
-        */
-
     }
 
 
@@ -139,11 +131,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                       `weight` int(11) NOT NULL DEFAULT '100',
                       `guiItem` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                       `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `leaderboard` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                       `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
                       `mode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
                       `toggleOpen` tinyint(1) NOT NULL,
-                      `options` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `boatUtilsMode` int(4) NOT NULL DEFAULT '-1',
                       `isRemoved` tinyint(1) NOT NULL,
                       PRIMARY KEY (`id`)
@@ -320,6 +310,15 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                       `id` int(11) NOT NULL AUTO_INCREMENT,
                       `trackId` int(11) NOT NULL,
                       `tag` varchar(255) NOT NULL,
+                      PRIMARY KEY (`id`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                    """);
+
+            DB.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS `ts_tracks_options` (
+                      `id` int(11) NOT NULL AUTO_INCREMENT,
+                      `trackId` int(11) NOT NULL,
+                      `option` int(11) NOT NULL,
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """);
@@ -639,13 +638,18 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
 
     @Override
     public List<DbRow> selectLocations() throws SQLException {
-        return DB.getResults("SELECT * FROM `ts_locations`");
+        return DB.getResults("SELECT * FROM `ts_locations`;");
     }
 
     @Override
-    public long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Location leaderboard, Track.TrackMode mode, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException {
-        return DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `leaderboard`, `type`, `mode`, `toggleOpen`, `options`, `boatUtilsMode`, `isRemoved`) " +
-                "VALUES('" + uuid + "', " + TSDatabase.sqlStringOf(name) + ", " + date + ", " + weight + ", " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', '" + ApiUtilities.locationToString(leaderboard) + "', " + TSDatabase.sqlStringOf(type == null ? null : type.toString()) + "," + TSDatabase.sqlStringOf(mode.toString()) + ", 0, NULL, " + boatUtilsMode.getId() + ", 0);");
+    public List<DbRow> selectOptions() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_tracks_options`;");
+    }
+
+    @Override
+    public long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Track.TrackMode mode, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException {
+        return DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `type`, `mode`, `toggleOpen`, `boatUtilsMode`, `isRemoved`) " +
+                "VALUES('" + uuid + "', " + TSDatabase.sqlStringOf(name) + ", " + date + ", " + weight + ", " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', " + TSDatabase.sqlStringOf(type == null ? null : type.toString()) + "," + TSDatabase.sqlStringOf(mode.toString()) + ", 0, " + boatUtilsMode.getId() + ", 0);");
     }
 
     @Override
@@ -668,6 +672,15 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
         DB.executeUpdateAsync("UPDATE `ts_regions` SET `isRemoved` = 1 WHERE `trackId` = " + trackId + ";");
         DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = " + trackId + ";");
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = " + trackId + ";");
+    }
+
+    @Override
+    public void createTrackOptionAsync(int trackId, TrackOption trackOption) {
+        DB.executeUpdateAsync("INSERT INTO `ts_tracks_options` (`trackId`, `option`) VALUES(" + trackId + ", " + trackOption.getId() + ");");
+    }
+
+    public void deleteTrackOptionAsync(int trackId, TrackOption trackOption) {
+        DB.executeUpdateAsync("DELETE FROM `ts_tracks_options` WHERE `option` = "+ trackOption.getId() + ";");
     }
 
     @Override

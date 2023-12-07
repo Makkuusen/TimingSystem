@@ -10,6 +10,7 @@ public enum Success implements Message {
     CREATED_HEAT,
     CREATED_EVENT,
     ADDED_TAG,
+    ADDED_OPTION,
     ADDING_DRIVERS,
     ADDED_DRIVER,
     ADDED_ALL_DRIVERS,

@@ -59,7 +59,7 @@ public class TrackTagManager {
     }
 
     public static boolean hasTag(TrackTag tag) {
-        return trackTags.containsKey(tag);
+        return trackTags.containsKey(tag.getValue());
     }
 
     public static Map<String, TrackTag> getTrackTags() {

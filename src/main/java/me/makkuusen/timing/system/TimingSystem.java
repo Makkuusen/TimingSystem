@@ -144,6 +144,15 @@ public class TimingSystem extends JavaPlugin {
             return res;
         });
         manager.getCommandContexts().registerContext(
+                TrackOption.class, TrackOption.getTrackTagContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("trackOption", context -> {
+            List<String> res = new ArrayList<>();
+            for (TrackOption option : TrackOption.values()) {
+                res.add(option.toString().toLowerCase());
+            }
+            return res;
+        });
+        manager.getCommandContexts().registerContext(
                 RoundType.class, Round.getRoundTypeContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("roundType", context -> {
             List<String> res = new ArrayList<>();

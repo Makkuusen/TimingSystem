@@ -7,6 +7,7 @@ import co.aikar.idb.PooledDatabaseOptions;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.updates.Version2;
 import org.bukkit.Material;
 
 import java.io.File;
@@ -29,7 +30,7 @@ public class SQLiteDatabase extends MySQLDatabase {
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 1;
+            int databaseVersion = 2;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(" + databaseVersion + ", " + ApiUtilities.getTimestamp() + ");");
                 return true;
@@ -53,16 +54,12 @@ public class SQLiteDatabase extends MySQLDatabase {
             return false;
         }
     }
-    private static void updateDatabase(int previousVersion) {
-        /*
-        Update logic here.
-        if (previousVersion < 2) {
-            // Do update for database version 2.
-        }
+    private static void updateDatabase(int previousVersion) throws SQLException{
 
-        if (previousVersion < 3) {
-            // Do update for database version 3.
-        */
+        //Update logic here.
+        if (previousVersion < 2) {
+            Version2.update();
+        }
 
     }
 
@@ -97,11 +94,9 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `weight` INTEGER NOT NULL DEFAULT 100,
                           `guiItem` TEXT NOT NULL,
                           `spawn` TEXT NOT NULL,
-                          `leaderboard` TEXT NOT NULL,
                           `type` TEXT NOT NULL,
                           `mode` TEXT NOT NULL,
                           `toggleOpen` INTEGER NOT NULL,
-                          `options` TEXT DEFAULT NULL,
                           `boatUtilsMode` INTEGER NOT NULL DEFAULT -1,
                           `isRemoved` INTEGER NOT NULL
                         );""");
@@ -259,6 +254,13 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                           `trackId` INTEGER NOT NULL,
                           `tag` TEXT NOT NULL
+                        );""");
+
+            DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_tracks_options` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `trackId` INTEGER NOT NULL,
+                          `option` INTEGER NOT NULL
                         );""");
 
             return true;

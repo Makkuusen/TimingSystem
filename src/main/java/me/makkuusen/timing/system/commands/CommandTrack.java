@@ -25,11 +25,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialSession;
-import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackLocation;
-import me.makkuusen.timing.system.track.TrackPolyRegion;
-import me.makkuusen.timing.system.track.TrackRegion;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
@@ -217,7 +213,9 @@ public class CommandTrack extends BaseCommand {
             Text.send(player, Error.GENERIC);
             return;
         }
-        track.setOptions("b");
+        if (trackType.equals(Track.TrackType.BOAT)) {
+            track.createTrackOption(TrackOption.FORCE_BOAT);
+        }
 
         Text.send(player, Success.CREATED_TRACK, "%track%", name);
         LeaderboardManager.updateFastestTimeLeaderboard(track);
@@ -265,7 +263,7 @@ public class CommandTrack extends BaseCommand {
         }
         Text.send(commandSender, Info.TRACK_TYPE, "%type%", track.getTypeAsString());
         Text.send(commandSender, Info.TRACK_DATE_CREATED, "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
-        Text.send(commandSender, Info.TRACK_OPTIONS, "%options%", ApiUtilities.formatPermissions(track.getOptions()));
+        Text.send(commandSender, Info.TRACK_OPTIONS, "%options%", ApiUtilities.listOfOptions(track.getTrackOptions()));
         Text.send(commandSender, Info.TRACK_MODE, "%mode%", track.getModeAsString());
         Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", track.getBoatUtilsMode().name());
         Text.send(commandSender, Info.TRACK_CHECKPOINTS, "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()));
@@ -574,24 +572,6 @@ public class CommandTrack extends BaseCommand {
         Text.send(player, Success.SAVED);
     }
 
-    @Subcommand("options")
-    @CommandCompletion("@track options")
-    @CommandPermission("%permissiontrack_view_options")
-    public static void onOptions(CommandSender commandSender, Track track, String options) {
-        String newOptions = ApiUtilities.parseFlagChange(track.getOptions(), options);
-        if (newOptions == null) {
-            Text.send(commandSender, Error.GENERIC);
-            return;
-        }
-
-        if (newOptions.isEmpty()) {
-            Text.send(commandSender, Success.TRACK_OPTIONS_CLEARED);
-        } else {
-            Text.send(commandSender, Success.TRACK_OPTIONS_NEW, "%options%", ApiUtilities.formatPermissions(newOptions.toCharArray()));
-        }
-        track.setOptions(newOptions);
-    }
-
     @Subcommand("reload")
     @CommandPermission("%permissiontrack_reload")
     public static void onReload(CommandSender commandSender, @Optional String confirmText) {
@@ -718,6 +698,27 @@ public class CommandTrack extends BaseCommand {
             }
 
             Text.send(sender, Error.FAILED_TO_ADD_TAG);
+        }
+
+        @Subcommand("option")
+        @CommandCompletion("@track +/- @trackOption")
+        @CommandPermission("%permissiontrack_set_option")
+        public static void onOption(CommandSender sender, Track track, String plusOrMinus, TrackOption option) {
+            if (plusOrMinus.equalsIgnoreCase("-")) {
+                if (track.removeTrackOption(option)) {
+                    Text.send(sender, Success.REMOVED);
+                    return;
+                }
+                Text.send(sender, Error.FAILED_TO_REMOVE_OPTION);
+                return;
+            }
+
+            if (track.createTrackOption(option)) {
+                Text.send(sender, Success.ADDED_OPTION, "%option%", option.toString());
+                return;
+            }
+
+            Text.send(sender, Error.FAILED_TO_ADD_OPTION);
         }
 
         @Subcommand("type")

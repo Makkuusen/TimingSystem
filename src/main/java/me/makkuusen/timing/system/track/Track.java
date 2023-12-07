@@ -40,6 +40,7 @@ public class Track {
 
     private final Set<TrackRegion> regions = new HashSet<>();
     private final Set<TrackLocation> trackLocations = new HashSet<>();
+    private final List<TrackOption> trackOptions = new ArrayList<>();
     private final Set<TrackTag> tags = new HashSet<>();
     private final Map<TPlayer, List<TimeTrialAttempt>> timeTrialAttempts = new HashMap<>();
     private Map<TPlayer, List<TimeTrialFinish>> timeTrialFinishes = new HashMap<>();
@@ -54,7 +55,6 @@ public class Track {
     private TrackMode mode;
     private BoatUtilsMode boatUtilsMode;
     private int weight;
-    private char[] options;
     private boolean open;
     private long dateChanged;
     private long totalTimeSpent = 0;
@@ -72,7 +72,6 @@ public class Track {
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         type = data.getString("type") == null ? TrackType.BOAT : TrackType.valueOf(data.getString("type"));
         open = data.get("toggleOpen") instanceof Boolean ? data.get("toggleOpen") : data.get("toggleOpen").equals(1);
-        options = data.getString("options") == null ? new char[0] : data.getString("options").toCharArray();
         mode = data.get("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));
         weight = data.getInt("weight");
         dateChanged = data.get("dateChanged") == null ? 0 : data.getInt("dateChanged");
@@ -381,9 +380,9 @@ public class Track {
         return false;
     }
 
-    public void addTrackLocation(TrackLocation trackLocation) {
-        trackLocations.add(trackLocation);
-    }
+
+
+
 
     public Optional<Location> getFinishTpLocation() {
         if(trackLocations.stream().noneMatch(l -> l.getLocationType() == TrackLocation.Type.FINISH_TP_ALL)) return Optional.empty();
@@ -396,6 +395,10 @@ public class Track {
                 return Optional.of(finishTp.getLocation());
         }
         return Optional.empty();
+    }
+
+    public void addTrackLocation(TrackLocation trackLocation) {
+        trackLocations.add(trackLocation);
     }
 
     public boolean hasTrackLocation(TrackLocation.Type locationType) {
@@ -455,6 +458,32 @@ public class Track {
             return true;
         }
         return false;
+    }
+
+    public void addTrackOption(TrackOption trackOption) {
+        trackOptions.add(trackOption);
+    }
+
+    public boolean createTrackOption(TrackOption trackOption) {
+        if (!trackOptions.contains(trackOption)) {
+            TrackDatabase.trackOptionNew(getId(), trackOption);
+            trackOptions.add(trackOption);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeTrackOption(TrackOption trackOption) {
+        if (hasTrackOption(trackOption)) {
+            TimingSystem.getTrackDatabase().deleteTrackOptionAsync(getId(), trackOption);
+            trackOptions.remove(trackOption);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean hasTrackOption(TrackOption trackOption) {
+        return trackOptions.contains(trackOption);
     }
 
     public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish) {
@@ -625,11 +654,6 @@ public class Track {
         TimingSystem.getTrackDatabase().trackSet(id, "uuid", owner.getUniqueId().toString());
     }
 
-    public void setOptions(String options) {
-        this.options = options.toCharArray();
-        TimingSystem.getTrackDatabase().trackSet(id, "options", options);
-    }
-
     public void addContributor(TPlayer tPlayer) {
         if(contributors.contains(tPlayer)) return;
         contributors.add(tPlayer);
@@ -648,19 +672,6 @@ public class Track {
         List<TPlayer> rest = List.copyOf(contributors).subList(1, contributors.size());
         rest.forEach(tp -> sb.append(", ").append(tp.getName()));
         return sb.toString();
-    }
-
-    public boolean hasOption(char needle) {
-        if (this.options == null) {
-            return false;
-        }
-
-        for (char option : this.options) {
-            if (option == needle) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public int getPlayerTotalFinishes(TPlayer tPlayer) {

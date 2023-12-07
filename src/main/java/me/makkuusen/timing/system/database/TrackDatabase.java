@@ -9,8 +9,6 @@ import co.aikar.idb.DbRow;
 import co.aikar.taskchain.TaskChain;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector2;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.*;
@@ -22,10 +20,8 @@ import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.*;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -57,7 +53,9 @@ public interface TrackDatabase {
 
     List<DbRow> selectLocations() throws SQLException;
 
-    long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Location leaderboard, Track.TrackMode mode, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException;
+    List<DbRow> selectOptions() throws SQLException;
+
+    long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Track.TrackMode mode, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException;
 
     long createRegion(long trackId, int index, String minP, String maxP, TrackRegion.RegionType type, TrackRegion.RegionShape shape, Location location) throws SQLException;
 
@@ -66,6 +64,10 @@ public interface TrackDatabase {
     long createLocation(long trackId, int index, TrackLocation.Type type, Location location) throws SQLException;
 
     void removeTrack(long trackId);
+
+    void createTrackOptionAsync(int trackId, TrackOption trackOption);
+
+    void deleteTrackOptionAsync(int trackId, TrackOption trackOption);
 
     void createTagAsync(TrackTag tag, TextColor color, ItemStack item);
 
@@ -107,6 +109,7 @@ public interface TrackDatabase {
         loadTracksAndTimeTrials();
         loadTrackRegions();
         loadTrackLocations();
+        loadTrackOptions();
     }
 
     private static void loadTracksAndTimeTrials() throws SQLException {
@@ -271,6 +274,21 @@ public interface TrackDatabase {
         }
     }
 
+    private static void loadTrackOptions() throws SQLException {
+        var options = TimingSystem.getTrackDatabase().selectOptions();
+        for (DbRow dbRow : options) {
+            Optional<Track> maybeTrack = getTrackById(dbRow.getInt("trackId"));
+            if (maybeTrack.isEmpty()) {
+                continue;
+            }
+            TrackOption trackOption;
+            try {
+                trackOption = TrackOption.fromID(dbRow.getInt("option"));
+                maybeTrack.get().addTrackOption(trackOption);
+            } catch (NoSuchElementException ignore) {}
+        }
+    }
+
     private static void loadTags() throws SQLException {
         var trackTags = TimingSystem.getTrackDatabase().selectTags();
         for (DbRow dbRow : trackTags) {
@@ -285,7 +303,7 @@ public interface TrackDatabase {
             Location leaderboard = location.clone();
             leaderboard.setY(leaderboard.getY() + 3);
             // Save the track
-            var trackId = TimingSystem.getTrackDatabase().createTrack(uuid.toString(), name, date, 100, gui, location, leaderboard, Track.TrackMode.TIMETRIAL, type, BoatUtilsMode.VANILLA);
+            var trackId = TimingSystem.getTrackDatabase().createTrack(uuid.toString(), name, date, 100, gui, location, Track.TrackMode.TIMETRIAL, type, BoatUtilsMode.VANILLA);
 
             var dbRow = TimingSystem.getTrackDatabase().selectTrack(trackId);
 
@@ -328,6 +346,12 @@ public interface TrackDatabase {
         }
 
     }
+
+    static void trackOptionNew(int trackId, TrackOption trackOption) {
+        TimingSystem.getTrackDatabase().createTrackOptionAsync(trackId, trackOption);
+    }
+
+
 
     static void removeTrack(Track track) {
         TimingSystem.getTrackDatabase().removeTrack(track.getId());
@@ -454,4 +478,6 @@ public interface TrackDatabase {
         tracks.clear();
         startRegions.clear();
     }
+
+
 }
