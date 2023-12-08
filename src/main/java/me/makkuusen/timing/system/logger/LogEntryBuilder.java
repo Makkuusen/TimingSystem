@@ -2,6 +2,8 @@ package me.makkuusen.timing.system.logger;
 
 import org.json.simple.JSONObject;
 
+import java.util.UUID;
+
 public class LogEntryBuilder {
 
     private final long date;
@@ -12,6 +14,7 @@ public class LogEntryBuilder {
     private String oldValue;
     private String newValue;
     private Long objectId;
+    private UUID uuid;
     private Long count;
 
     public LogEntryBuilder(long date, LogType logType) {
@@ -49,6 +52,11 @@ public class LogEntryBuilder {
         return this;
     }
 
+    public LogEntryBuilder setUUID(UUID uuid) {
+        this.uuid = uuid;
+        return this;
+    }
+
     public LogEntry build() {
         JSONObject body = new JSONObject();
         body.put("type", logType.getId());
@@ -58,6 +66,7 @@ public class LogEntryBuilder {
         putIfPresent(body, "oldValue", oldValue);
         putIfPresent(body, "newValue", newValue);
         putIfPresent(body, "count", count);
+        putIfPresent(body, "uuid", uuid == null ? null : uuid.toString());
 
         return new LogEntry(date, body);
     }

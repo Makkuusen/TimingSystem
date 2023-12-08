@@ -312,7 +312,7 @@ public interface TrackDatabase {
             Track rTrack = new Track(dbRow);
             tracks.add(rTrack);
 
-            LogEntryBuilder.start(date, LogType.TRACK).setAction("create_track").setObjectId(trackId).build();
+            LogEntryBuilder.start(date, LogType.TRACK).setAction("create_track").setUUID(uuid).setObjectId(trackId).build();
 
             return rTrack;
         } catch (SQLException exception) {
