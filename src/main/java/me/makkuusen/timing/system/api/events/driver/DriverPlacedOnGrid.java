@@ -1,24 +1,21 @@
-package me.makkuusen.timing.system.api.events;
+package me.makkuusen.timing.system.api.events.driver;
 
 import lombok.Getter;
-import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.heat.Heat;
-import org.bukkit.entity.Player;
+import me.makkuusen.timing.system.participant.Driver;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class PlayerJoinHeatEvent extends Event {
+public class DriverPlacedOnGrid extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    private final Player player;
-    private final TPlayer tPlayer;
+    private final Driver driver;
     private final Heat heat;
 
-    public PlayerJoinHeatEvent(TPlayer tPlayer, Heat heat) {
-        this.player = tPlayer.getPlayer();
-        this.tPlayer = tPlayer;
+    public DriverPlacedOnGrid(Driver driver, Heat heat) {
+        this.driver = driver;
         this.heat = heat;
     }
 
