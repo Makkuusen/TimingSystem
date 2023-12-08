@@ -14,6 +14,8 @@ import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.event.Event;
+import me.makkuusen.timing.system.logger.LogEntryBuilder;
+import me.makkuusen.timing.system.logger.LogType;
 import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -309,6 +311,8 @@ public interface TrackDatabase {
 
             Track rTrack = new Track(dbRow);
             tracks.add(rTrack);
+
+            LogEntryBuilder.start(date, LogType.TRACK).setAction("create_track").setObjectId(trackId).build();
 
             return rTrack;
         } catch (SQLException exception) {

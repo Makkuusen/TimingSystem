@@ -52,6 +52,8 @@ public class TimingSystem extends JavaPlugin {
     private static EventDatabase eventDatabase;
     @Getter
     private static TrackDatabase trackDatabase;
+    @Getter
+    private static LogDatabase logDatabase;
 
     public static TimingSystemConfiguration configuration;
     public static boolean enableLeaderboards = true;
@@ -234,12 +236,14 @@ public class TimingSystem extends JavaPlugin {
         database = configuration.getDatabaseType();
         eventDatabase = configuration.getDatabaseType();
         trackDatabase = configuration.getDatabaseType();
+        logDatabase = configuration.getDatabaseType();
 
         if (!database.initialize()) return;
         database.update();
         TSDatabase.synchronize();
         TrackDatabase.loadTrackFinishesAsync();
         EventDatabase.initSynchronize();
+        LogDatabase.synchronize();
 
         var tasks = new Tasks();
         tasks.startPlayerTimer(plugin);
