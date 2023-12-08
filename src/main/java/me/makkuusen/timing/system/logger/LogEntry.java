@@ -16,7 +16,7 @@ public class LogEntry {
     private final JSONObject body;
 
     public LogEntry(DbRow data) throws ParseException {
-        date = data.getLong("date");
+        date = data.getInt("date");
         body = (JSONObject) new JSONParser().parse(data.getString("body"));
     }
 
