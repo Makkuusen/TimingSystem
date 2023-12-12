@@ -7,7 +7,7 @@ import java.util.UUID;
 public class LogEntryBuilder {
 
     private final long date;
-    private final LogType logType;
+    private final String context;
 
     private String action;
     private String valueChanged;
@@ -17,9 +17,9 @@ public class LogEntryBuilder {
     private UUID uuid;
     private Long count;
 
-    public LogEntryBuilder(long date, LogType logType) {
+    public LogEntryBuilder(long date, String context) {
         this.date = date;
-        this.logType = logType;
+        this.context = context;
     }
 
     public LogEntryBuilder setAction(String action) {
@@ -59,7 +59,7 @@ public class LogEntryBuilder {
 
     public LogEntry build() {
         JSONObject body = new JSONObject();
-        body.put("type", logType.getId());
+        body.put("context", context);
         putIfPresent(body, "objectId", objectId);
         putIfPresent(body, "action", action);
         putIfPresent(body, "valueChanged", valueChanged);
@@ -76,7 +76,7 @@ public class LogEntryBuilder {
             body.put(key ,value);
     }
 
-    public static LogEntryBuilder start(long date, LogType logType) {
-        return new LogEntryBuilder(date, logType);
+    public static LogEntryBuilder start(long date, String context) {
+        return new LogEntryBuilder(date, context);
     }
 }

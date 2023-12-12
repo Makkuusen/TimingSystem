@@ -31,8 +31,8 @@ public class LogEntry {
         }
     }
 
-    public LogType getLogType() {
-        return LogType.of(getInt("type"));
+    public String getContext() {
+        return getString("context");
     }
 
     public String getString(String key) {
