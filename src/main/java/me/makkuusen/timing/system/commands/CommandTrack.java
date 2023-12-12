@@ -3,12 +3,8 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import com.sk89q.worldedit.math.BlockVector2;
-import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
-import me.makkuusen.timing.system.LeaderboardManager;
-import me.makkuusen.timing.system.TPlayer;
-import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
@@ -30,9 +26,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -203,18 +201,27 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
+        ItemStack item;
         if (player.getInventory().getItemInMainHand().getItemMeta() == null) {
-            Text.send(player, Error.ITEM_NOT_FOUND);
-            return;
+            switch (trackType) {
+                case ELYTRA -> item = new ItemBuilder(Material.FEATHER).build();
+                case PARKOUR -> item = new ItemBuilder(Material.RED_CONCRETE).build();
+                default -> item = new ItemBuilder(Material.PACKED_ICE).build();
+            }
+        } else {
+            item = player.getInventory().getItemInMainHand();
         }
 
-        Track track = TrackDatabase.trackNew(name, player.getUniqueId(), player.getLocation(), trackType, player.getInventory().getItemInMainHand());
+        Track track = TrackDatabase.trackNew(name, player.getUniqueId(), player.getLocation(), trackType, item);
         if (track == null) {
             Text.send(player, Error.GENERIC);
             return;
         }
         if (trackType.equals(Track.TrackType.BOAT)) {
             track.createTrackOption(TrackOption.FORCE_BOAT);
+        } else if (trackType.equals(Track.TrackType.PARKOUR)) {
+            track.createTrackOption(TrackOption.NO_ELYTRA);
+            track.createTrackOption(TrackOption.NO_CREATIVE);
         }
 
         Text.send(player, Success.CREATED_TRACK, "%track%", name);
