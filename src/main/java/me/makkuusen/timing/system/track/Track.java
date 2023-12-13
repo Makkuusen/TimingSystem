@@ -42,7 +42,6 @@ public class Track {
     private TrackType type;
     private TrackMode mode;
     private BoatUtilsMode boatUtilsMode;
-    @Getter
     private int weight;
     private boolean open;
     private long dateChanged;

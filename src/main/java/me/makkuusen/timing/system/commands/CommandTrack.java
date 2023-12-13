@@ -9,6 +9,7 @@ import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.gui.TrackGui;
+import me.makkuusen.timing.system.logger.LogEntryBuilder;
 import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
@@ -88,6 +89,7 @@ public class CommandTrack extends BaseCommand {
 
         Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), LeaderboardManager::updateAllFastestTimeLeaderboard);
         Text.send(player, Success.TRACK_MOVED, "to", ApiUtilities.niceLocation(moveTo), "from", ApiUtilities.niceLocation(moveFrom));
+        LogEntryBuilder.start(ApiUtilities.getTimestamp(), "track").setAction("move").setUUID(player.getUniqueId()).setObjectId(track.getId()).setOldValue(ApiUtilities.locationToString(moveFrom)).setNewValue(ApiUtilities.locationToString(moveTo)).build();
     }
 
     public static Vector getOffset(Location moveFrom, Location moveTo) {
@@ -436,6 +438,7 @@ public class CommandTrack extends BaseCommand {
     @CommandPermission("%permissiontrack_delete_track")
     public static void onDelete(Player player, Track track) {
         TrackDatabase.removeTrack(track);
+        LogEntryBuilder.start(ApiUtilities.getTimestamp(), "track").setAction("remove").setUUID(player.getUniqueId()).setObjectId(track.getId()).build();
         Text.send(player, Success.REMOVED_TRACK, "%track%", track.getDisplayName());
     }
 

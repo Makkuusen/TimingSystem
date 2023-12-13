@@ -365,6 +365,7 @@ public interface TrackDatabase {
         LeaderboardManager.removeLeaderboards(track);
         startRegions.removeIf(trackRegion -> trackRegion.getTrackId() == track.getId());
         tracks.remove(track);
+
         var events = EventDatabase.events.stream().filter(event -> event.getTrack() != null).filter(event -> event.getTrack().getId() == track.getId()).toList();
         for (Event event : events) {
             EventDatabase.removeEvent(event);
