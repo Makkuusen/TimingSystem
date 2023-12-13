@@ -41,6 +41,7 @@ permissions:
          timingsystem.track.view.mytimes: true
          timingsystem.track.session.timetrial: true
          timingsystem.track.view.times: true
+         timingsystem.track.info: true
          timingsystem.settings: true
          timingsystem.boat: true
          timingsystem.reset: true
@@ -71,7 +72,6 @@ permissions:
          timingsystem.packs.default: true
          timingsystem.track.session.edit: true
          timingsystem.track.create: true
-         timingsystem.track.info: true
          timingsystem.track.view.regions: true
          timingsystem.track.view.locations: true
          timingsystem.track.view.options: true
