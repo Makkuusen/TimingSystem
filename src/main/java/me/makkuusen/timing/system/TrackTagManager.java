@@ -1,9 +1,5 @@
 package me.makkuusen.timing.system;
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.tags.TrackTag;
@@ -66,17 +62,6 @@ public class TrackTagManager {
 
     public static TrackTag getTrackTag(String value) {
         return trackTags.get(value);
-    }
-
-    public static ContextResolver<TrackTag, BukkitCommandExecutionContext> getTrackTagContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return TrackTagManager.getTrackTag(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
     }
 
     public static List<TrackTag> getSortedTrackTags(boolean includeZeroWeight) {

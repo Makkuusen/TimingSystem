@@ -1,9 +1,5 @@
 package me.makkuusen.timing.system.boatutils;
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import me.makkuusen.timing.system.TPlayer;
@@ -44,7 +40,7 @@ public class BoatUtilsManager {
         if (mode != BoatUtilsMode.VANILLA) {
             if (!tPlayer.hasBoatUtils()) {
                 if (track != null) {
-                    if (track.isBoatUtils() && !track.getTimeTrials().hasPlayedTrack(tPlayer) && !sameAsLastTrack) {
+                    if (track.isBoatUtils() && !track.getTimeTrials().hasPlayed(tPlayer) && !sameAsLastTrack) {
                         var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
                                 .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
                                 .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));
@@ -82,17 +78,6 @@ public class BoatUtilsManager {
         playerBoatUtilsMode.put(player.getUniqueId(), mode);
     }
 
-    public static ContextResolver<BoatUtilsMode, BukkitCommandExecutionContext> getBoatUtilsModeContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return BoatUtilsMode.valueOf(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                //no matching boat types
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
     public static List<BoatUtilsMode> getAvailableModes(int version) {
         return Arrays.stream(BoatUtilsMode.values()).filter(mode -> mode.getRequiredVersion() <= version).toList();
     }

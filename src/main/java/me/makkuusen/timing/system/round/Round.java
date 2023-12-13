@@ -1,9 +1,5 @@
 package me.makkuusen.timing.system.round;
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.TimingSystem;
@@ -37,17 +33,6 @@ public abstract class Round {
         roundIndex = data.getInt("roundIndex");
         type = RoundType.valueOf(data.getString("type"));
         state = RoundState.valueOf(data.getString("state"));
-    }
-
-    public static ContextResolver<RoundType, BukkitCommandExecutionContext> getRoundTypeContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return RoundType.valueOf(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
     }
 
     public abstract String getName();

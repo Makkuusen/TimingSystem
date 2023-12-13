@@ -1,10 +1,6 @@
 package me.makkuusen.timing.system.database;
 
 import co.aikar.commands.BukkitCommandCompletionContext;
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DbRow;
 import co.aikar.taskchain.TaskChain;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -152,7 +148,7 @@ public interface TrackDatabase {
                 var uuid = finish.getString("uuid") == null ? null : UUID.fromString(finish.getString("uuid"));
                 if (TSDatabase.getPlayer(uuid) != null) {
                     var maybeTrack = getTrackById(finish.getInt("trackId"));
-                    maybeTrack.ifPresent(track -> track.getTimeTrials().addTimeTrialFinish(new TimeTrialFinish(finish)));
+                    maybeTrack.ifPresent(track -> track.getTimeTrials().addFinish(new TimeTrialFinish(finish)));
                 }
             }
         } catch (SQLException e) {
@@ -170,7 +166,7 @@ public interface TrackDatabase {
                 var uuid = attempt.getString("uuid") == null ? null : UUID.fromString(attempt.getString("uuid"));
                 if (TSDatabase.getPlayer(uuid) != null) {
                     var maybeTrack = getTrackById(attempt.getInt("trackId"));
-                    maybeTrack.ifPresent(track -> track.getTimeTrials().addTimeTrialAttempt(new TimeTrialAttempt(attempt)));
+                    maybeTrack.ifPresent(track -> track.getTimeTrials().addAttempt(new TimeTrialAttempt(attempt)));
                 }
             }
         } catch (SQLException ignore) {
@@ -449,45 +445,10 @@ public interface TrackDatabase {
         return regions;
     }
 
-    static ContextResolver<Track, BukkitCommandExecutionContext> getTrackContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            var maybeTrack = getTrack(name);
-            if (maybeTrack.isPresent()) {
-                return maybeTrack.get();
-            } else {
-                // User didn't type an Event, show error!
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
-
-    static ContextResolver<TrackRegion, BukkitCommandExecutionContext> getRegionContextResolver() {
-        return (c) -> {
-            String region = c.popFirstArg();
-            var maybeTrack = TimingSystem.playerEditingSession.get(c.getPlayer().getUniqueId());
-            if (maybeTrack != null) {
-                try {
-                    String[] regionName = region.split("-");
-                    int index = Integer.parseInt(regionName[1]);
-                    String regionType = regionName[0];
-                    var maybeRegion = maybeTrack.getTrackRegions().getRegion(TrackRegion.RegionType.valueOf(regionType.toUpperCase()), index);
-                    if (maybeRegion.isPresent()) {
-                        return maybeRegion.get();
-                    }
-                } catch (Exception ignored) {
-
-                }
-            }
-            throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-        };
-    }
-
     static void unload() {
         LeaderboardManager.removeAllLeaderboards();
         tracks.clear();
         startRegions.clear();
     }
-
 
 }

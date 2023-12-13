@@ -26,7 +26,7 @@ public class TimeTrials {
         this.trackId = trackId;
     }
 
-    public void addTimeTrialFinish(TimeTrialFinish timeTrialFinish) {
+    public void addFinish(TimeTrialFinish timeTrialFinish) {
         if (timeTrialFinishes.get(timeTrialFinish.getPlayer()) == null) {
             List<TimeTrialFinish> list = new ArrayList<>();
             list.add(timeTrialFinish);
@@ -39,14 +39,14 @@ public class TimeTrials {
         timeTrialFinishes.get(timeTrialFinish.getPlayer()).add(timeTrialFinish);
     }
 
-    public TimeTrialFinish newTimeTrialFinish(long time, UUID uuid) {
+    public TimeTrialFinish newFinish(long time, UUID uuid) {
         try {
             long date = ApiUtilities.getTimestamp();
             var finishId = DB.executeInsert("INSERT INTO `ts_finishes` (`trackId`, `uuid`, `date`, `time`, `isRemoved`) VALUES(" + trackId + ", '" + uuid + "', " + date + ", " + time + ", 0);");
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_finishes` WHERE `id` = " + finishId + ";");
             TimeTrialFinish timeTrialFinish = new TimeTrialFinish(dbRow);
 
-            addTimeTrialFinish(timeTrialFinish);
+            addFinish(timeTrialFinish);
             return timeTrialFinish;
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -54,7 +54,7 @@ public class TimeTrials {
         }
     }
 
-    public void addTimeTrialAttempt(TimeTrialAttempt timeTrialAttempt) {
+    public void addAttempt(TimeTrialAttempt timeTrialAttempt) {
         if (timeTrialAttempts.get(timeTrialAttempt.getPlayer()) == null) {
             List<TimeTrialAttempt> list = new ArrayList<>();
             list.add(timeTrialAttempt);
@@ -64,11 +64,11 @@ public class TimeTrials {
         timeTrialAttempts.get(timeTrialAttempt.getPlayer()).add(timeTrialAttempt);
     }
 
-    public TimeTrialAttempt newTimeTrialAttempt(long time, UUID uuid) {
+    public TimeTrialAttempt newAttempt(long time, UUID uuid) {
         long date = ApiUtilities.getTimestamp();
         TimingSystem.getTrackDatabase().createAttempt(trackId, uuid, date, time);
         TimeTrialAttempt timeTrialAttempt = new TimeTrialAttempt(trackId, uuid, ApiUtilities.getTimestamp(), time);
-        addTimeTrialAttempt(timeTrialAttempt);
+        addAttempt(timeTrialAttempt);
         return timeTrialAttempt;
     }
 
@@ -87,7 +87,7 @@ public class TimeTrials {
         return ttTimes.get(0);
     }
 
-    public boolean hasPlayedTrack(TPlayer tPlayer) {
+    public boolean hasPlayed(TPlayer tPlayer) {
         return timeTrialFinishes.containsKey(tPlayer) || timeTrialAttempts.containsKey(tPlayer);
     }
 

@@ -1,9 +1,5 @@
 package me.makkuusen.timing.system.track;
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
@@ -73,28 +69,6 @@ public class Track {
         trackOptions = new TrackOptions(id);
         trackLocations = new TrackLocations(id);
         trackTags = new TrackTags(id);
-    }
-
-    public static ContextResolver<TrackType, BukkitCommandExecutionContext> getTrackTypeContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return TrackType.valueOf(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
-
-    public static ContextResolver<TrackMode, BukkitCommandExecutionContext> getTrackModeContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return TrackMode.valueOf(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
     }
 
     public ItemStack getGuiItem(UUID uuid) {

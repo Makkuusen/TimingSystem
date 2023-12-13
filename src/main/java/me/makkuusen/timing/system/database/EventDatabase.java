@@ -1,9 +1,5 @@
 package me.makkuusen.timing.system.database;
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
 import co.aikar.idb.DbRow;
 import co.aikar.taskchain.TaskChain;
 import me.makkuusen.timing.system.TPlayer;
@@ -289,51 +285,6 @@ public interface EventDatabase {
         maybeEvent.get().eventSchedule.getRounds().forEach(round -> roundList.addAll(round.getRawHeats()));
         return roundList;
 
-    }
-
-    static ContextResolver<Event, BukkitCommandExecutionContext> getEventContextResolver() {
-        return (c) -> {
-            String first = c.popFirstArg();
-            var maybeEvent = getEvent(first);
-            if (maybeEvent.isPresent()) {
-                return maybeEvent.get();
-            } else {
-                // User didn't type an Event, show error!
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
-
-    static ContextResolver<Round, BukkitCommandExecutionContext> getRoundContextResolver() {
-        return (c) -> {
-            String roundName = c.popFirstArg();
-            var maybeEvent = getPlayerSelectedEvent(c.getPlayer().getUniqueId());
-            if (maybeEvent.isPresent()) {
-                Event event = maybeEvent.get();
-                var maybeRound = event.getEventSchedule().getRound(roundName);
-                if (maybeRound.isPresent()) {
-                    return maybeRound.get();
-                }
-            }
-            // User didn't type a heat, show error!
-            throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-        };
-    }
-
-    static ContextResolver<Heat, BukkitCommandExecutionContext> getHeatContextResolver() {
-        return (c) -> {
-            String heatName = c.popFirstArg();
-            var maybeEvent = getPlayerSelectedEvent(c.getPlayer().getUniqueId());
-            if (maybeEvent.isPresent()) {
-                Event event = maybeEvent.get();
-                var maybeHeat = event.getEventSchedule().getHeat(heatName);
-                if (maybeHeat.isPresent()) {
-                    return maybeHeat.get();
-                }
-            }
-            // User didn't type a heat, show error!
-            throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-        };
     }
 
     static void addPlayerToRunningHeat(Driver driver) {

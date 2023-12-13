@@ -159,7 +159,7 @@ public class TimeTrial {
             return;
         }
         var time = ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime));
-        var attempt = getTrack().getTimeTrials().newTimeTrialAttempt(time, tPlayer.getUniqueId());
+        var attempt = getTrack().getTimeTrials().newAttempt(time, tPlayer.getUniqueId());
         var eventTimeTrialAttempt = new TimeTrialAttemptEvent(tPlayer.getPlayer(), attempt);
         Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialAttempt);
         TimeTrialController.timeTrials.remove(tPlayer.getUniqueId());
@@ -306,7 +306,7 @@ public class TimeTrial {
 
 
     private TimeTrialFinish callTimeTrialFinishEvent(Player player, long time, long oldBestTime, boolean newBestFinish) {
-        var finish = track.getTimeTrials().newTimeTrialFinish(time, player.getUniqueId());
+        var finish = track.getTimeTrials().newFinish(time, player.getUniqueId());
         Map<Integer, Long> checkpointTimes = new HashMap<>();
         for(int i = 1; i <= checkpoints.size(); i++) {
             checkpointTimes.put(i, getCheckpointTime(i));

@@ -1,15 +1,9 @@
 package me.makkuusen.timing.system;
 
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.database.EventDatabase;
-import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
 import me.makkuusen.timing.system.gui.TrackFilter;
 import me.makkuusen.timing.system.gui.TrackSort;
@@ -78,18 +72,6 @@ public class TPlayer implements Comparable<TPlayer> {
         sendFinalLaps = data.get("sendFinalLaps") instanceof Boolean ? data.get("sendFinalLaps") : data.get("sendFinalLaps").equals(1);
 
         theme = TimingSystem.defaultTheme;
-    }
-
-    public static ContextResolver<Boat.Type, BukkitCommandExecutionContext> getBoatContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return Boat.Type.valueOf(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                //no matching boat types
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
     }
 
     @Override

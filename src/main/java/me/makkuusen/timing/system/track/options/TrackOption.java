@@ -1,9 +1,5 @@
 package me.makkuusen.timing.system.track.options;
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -30,14 +26,4 @@ public enum TrackOption {
         return Arrays.stream(TrackOption.values()).filter(option -> option.getId() == id).findFirst().orElseThrow();
     }
 
-    public static ContextResolver<TrackOption, BukkitCommandExecutionContext> getTrackTagContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return TrackOption.valueOf(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
 }

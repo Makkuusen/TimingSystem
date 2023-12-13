@@ -107,121 +107,7 @@ public class TimingSystem extends JavaPlugin {
         PermissionRound.init(cr);
         PermissionHeat.init(cr);
 
-        manager.getCommandContexts().registerContext(
-                Event.class, EventDatabase.getEventContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("event", context ->
-                EventDatabase.getEventsAsStrings()
-        );
-        manager.getCommandContexts().registerContext(
-                Round.class, EventDatabase.getRoundContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("round", context ->
-                EventDatabase.getRoundsAsStrings(context.getPlayer().getUniqueId())
-        );
-        manager.getCommandContexts().registerContext(
-                Heat.class, EventDatabase.getHeatContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("heat", context ->
-                EventDatabase.getHeatsAsStrings(context.getPlayer().getUniqueId())
-        );
-        manager.getCommandContexts().registerContext(
-                Track.class, TrackDatabase.getTrackContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("track", (context -> TrackDatabase.getTracksAsStrings(context.getPlayer())));
-
-        manager.getCommandContexts().registerContext(
-                TrackRegion.class, TrackDatabase.getRegionContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("region", TrackDatabase::getRegionsAsStrings
-        );
-        manager.getCommandContexts().registerContext(
-                Track.TrackType.class, Track.getTrackTypeContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("trackType", context -> {
-            List<String> res = new ArrayList<>();
-            for (Track.TrackType type : Track.TrackType.values()) {
-                res.add(type.name().toLowerCase());
-            }
-            return res;
-        });
-        manager.getCommandContexts().registerContext(
-                TrackTag.class, TrackTagManager.getTrackTagContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("trackTag", context -> {
-            List<String> res = new ArrayList<>();
-            for (String tag : TrackTagManager.getTrackTags().keySet()) {
-                res.add(tag.toLowerCase());
-            }
-            return res;
-        });
-        manager.getCommandContexts().registerContext(
-                TrackOption.class, TrackOption.getTrackTagContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("trackOption", context -> {
-            List<String> res = new ArrayList<>();
-            for (TrackOption option : TrackOption.values()) {
-                res.add(option.toString().toLowerCase());
-            }
-            return res;
-        });
-        manager.getCommandContexts().registerContext(
-                RoundType.class, Round.getRoundTypeContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("roundType", context -> {
-            List<String> res = new ArrayList<>();
-            for (RoundType type : RoundType.values()) {
-                res.add(type.name().toLowerCase());
-            }
-            return res;
-        });
-        manager.getCommandContexts().registerContext(
-                Track.TrackMode.class, Track.getTrackModeContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("trackMode", context -> {
-            List<String> res = new ArrayList<>();
-            for (Track.TrackMode mode : Track.TrackMode.values()) {
-                res.add(mode.name().toLowerCase());
-            }
-            return res;
-        });
-        manager.getCommandContexts().registerContext(
-                Boat.Type.class, TPlayer.getBoatContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("boat", context -> {
-            List<String> res = new ArrayList<>();
-            for (Boat.Type tree : Boat.Type.values()) {
-                res.add(tree.name().toLowerCase());
-            }
-            return res;
-        });
-        manager.getCommandContexts().registerContext(
-                TSColor.class, TSColor.getTSColorContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("tsColor", context -> {
-            List<String> res = new ArrayList<>();
-            for (TSColor color : TSColor.values()) {
-                res.add(color.name().toLowerCase());
-            }
-            return res;
-        });
-        manager.getCommandContexts().registerContext(
-                NamedTextColor.class, TSColor.getNamedColorContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("namedColor", context -> {
-            List<String> res = new ArrayList<>();
-            for (NamedTextColor color : NamedTextColor.NAMES.values()) {
-                res.add(color.toString());
-            }
-            return res;
-        });
-
-        manager.getCommandContexts().registerContext(BoatUtilsMode.class, BoatUtilsManager.getBoatUtilsModeContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("allBoatUtilsMode", context -> {
-            List<String> res = new ArrayList<>();
-            Arrays.stream(BoatUtilsMode.values()).forEach(mode -> res.add(mode.name().toLowerCase()));
-            return res;
-        });
-        manager.getCommandCompletions().registerAsyncCompletion("boatUtilsMode", context -> {
-            TPlayer tPlayer = TSDatabase.getPlayer(context.getPlayer().getUniqueId());
-            List<String> res = new ArrayList<>();
-
-            if(tPlayer.hasBoatUtils()) {
-                List<BoatUtilsMode> availableModes = BoatUtilsManager.getAvailableModes(tPlayer.getBoatUtilsVersion());
-                availableModes.forEach(mode -> res.add(mode.name().toLowerCase()));
-            } else {
-                res.add(BoatUtilsMode.BROKEN_SLIME_BA_NOFD.name().toLowerCase());
-                res.add(BoatUtilsMode.BROKEN_SLIME_RALLY.name().toLowerCase());
-            }
-            return res;
-        });
+        ContextResolvers.loadCommandContextsAndCompletions(manager);
 
 
         manager.registerCommand(new CommandEvent());
@@ -254,7 +140,7 @@ public class TimingSystem extends JavaPlugin {
         tasks.generateTotalTime(plugin);
 
 
-            // Small check to make sure that PlaceholderAPI is installed
+        // Small check to make sure that PlaceholderAPI is installed
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new TimingSystemPlaceholder(this).register();
             ApiUtilities.msgConsole("PlaceholderAPI registered.");
