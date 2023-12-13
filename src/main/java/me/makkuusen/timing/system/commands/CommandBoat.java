@@ -18,9 +18,9 @@ import org.bukkit.entity.Player;
 @CommandAlias("boat|b")
 public class CommandBoat extends BaseCommand {
 
-        @Default
-        @CommandPermission("%permissiontimingsystem_boat")
-        public static void onBoat(Player player) {
+    @Default
+    @CommandPermission("%permissiontimingsystem_boat")
+    public static void onBoat(Player player) {
         if (isPlayerInBoat(player)) {
             return;
         }

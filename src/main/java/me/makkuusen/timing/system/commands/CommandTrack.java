@@ -312,10 +312,10 @@ public class CommandTrack extends BaseCommand {
         commandSender.sendMessage(Text.get(commandSender, Info.TRACK_TAGS).append(tags));
 
         Component contributors = Component.empty();
-        if(!track.getContributors().isEmpty()) {
+        if (!track.getContributors().isEmpty()) {
             contributors = contributors.append(Component.text(track.getContributors().get(0).getName()));
 
-            for(TPlayer tp : track.getContributors().subList(1, track.getContributors().size())) {
+            for (TPlayer tp : track.getContributors().subList(1, track.getContributors().size())) {
                 contributors = contributors.append(Component.text(", ", Theme.getTheme(commandSender).getSecondary())).append(Component.text(tp.getName(), Theme.getTheme(commandSender).getSecondary()));
             }
         }
