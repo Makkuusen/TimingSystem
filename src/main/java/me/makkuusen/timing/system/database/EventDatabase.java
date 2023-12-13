@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.database;
 
 import co.aikar.idb.DbRow;
 import co.aikar.taskchain.TaskChain;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventSchedule;

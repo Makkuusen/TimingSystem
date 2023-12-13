@@ -1,11 +1,10 @@
 package me.makkuusen.timing.system.event;
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.database.SQLiteDatabase;

@@ -18,8 +18,8 @@ import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.*;
-import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackCuboidRegion;
 import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
@@ -501,7 +501,7 @@ public class ApiUtilities {
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, true);
 
         var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
-        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
+        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getSettings().getBoat(), tPlayer.getSettings().isChestBoat());
         if (boat != null) {
             boat.addPassenger(player);
         }
@@ -525,7 +525,7 @@ public class ApiUtilities {
             return boatSpawnEvent.getBoat();
         }
 
-        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
+        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getSettings().getBoat(), tPlayer.getSettings().isChestBoat());
         if (boat != null) {
             boat.addPassenger(player);
         }

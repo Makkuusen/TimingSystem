@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import lombok.Getter;
 import me.makkuusen.timing.system.ItemBuilder;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;

@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system.timetrial;
 
 import lombok.Getter;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 
 import java.util.ArrayList;

@@ -15,6 +15,7 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.TSColor;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;

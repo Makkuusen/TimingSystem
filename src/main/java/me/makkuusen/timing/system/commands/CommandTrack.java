@@ -21,6 +21,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialDateComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialSession;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.*;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
 import me.makkuusen.timing.system.track.options.TrackOption;

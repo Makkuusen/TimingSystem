@@ -141,7 +141,7 @@ public class ScoreboardUtils {
     }
 
     private static Component getTeamIcon(Driver driver) {
-        return Component.text("§l§o||§r ").color(driver.getTPlayer().getTextColor());
+        return Component.text("§l§o||§r ").color(driver.getTPlayer().getSettings().getTextColor());
     }
 
     private static Component getPits(boolean compact, Theme theme) {

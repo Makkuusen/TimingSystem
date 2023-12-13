@@ -1,6 +1,6 @@
 package me.makkuusen.timing.system.heat;
 
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Spectator;
@@ -40,7 +40,7 @@ public class SpectatorScoreboard {
 
     public void setTitle(TPlayer tPlayer) {
         String eventName;
-        if (tPlayer.getCompactScoreboard() && heat.getEvent().getDisplayName().length() > 8) {
+        if (tPlayer.getSettings().getCompactScoreboard() && heat.getEvent().getDisplayName().length() > 8) {
             eventName = heat.getEvent().getDisplayName().substring(0, 8);
         } else {
             eventName = heat.getEvent().getDisplayName();
@@ -67,14 +67,14 @@ public class SpectatorScoreboard {
                 break;
             }
             if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualification(driver, prevDriver, tPlayer.getCompactScoreboard(), tPlayer.getTheme()));
+                lines.add(getDriverRowQualification(driver, prevDriver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
                 if (compareToFirst) {
                     prevDriver = driver;
                     compareToFirst = false;
                 }
 
             } else {
-                lines.add(getDriverRowFinal(driver, prevDriver, tPlayer.getCompactScoreboard(), tPlayer.getTheme()));
+                lines.add(getDriverRowFinal(driver, prevDriver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
                 prevDriver = driver;
             }
         }

@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system.timetrial;
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.ScoreBoard;
 import net.kyori.adventure.text.Component;

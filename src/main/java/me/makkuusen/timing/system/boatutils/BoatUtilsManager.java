@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.boatutils;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.theme.Text;
@@ -72,7 +72,7 @@ public class BoatUtilsManager {
             e.printStackTrace();
         }
         player.sendPluginMessage(TimingSystem.getPlugin(), "openboatutils:settings", b.toByteArray());
-        if (tPlayer.isVerbose() && !(playerBoatUtilsMode.get(player.getUniqueId()) != null && playerBoatUtilsMode.get(player.getUniqueId()) == mode)) {
+        if (tPlayer.getSettings().isVerbose() && !(playerBoatUtilsMode.get(player.getUniqueId()) != null && playerBoatUtilsMode.get(player.getUniqueId()) == mode)) {
             player.sendMessage(Component.text("BU Mode: " + mode.name(), tPlayer.getTheme().getPrimary()));
         }
         playerBoatUtilsMode.put(player.getUniqueId(), mode);

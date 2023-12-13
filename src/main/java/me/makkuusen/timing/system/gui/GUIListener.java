@@ -1,6 +1,6 @@
 package me.makkuusen.timing.system.gui;
 
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.database.TSDatabase;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

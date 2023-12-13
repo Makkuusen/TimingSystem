@@ -89,7 +89,7 @@ public class EventAnnouncements {
     public static void broadcastLapTime(Heat heat, Driver driver, long time) {
         if (driver.getTPlayer().getPlayer() == null) return;
         Text.send(driver.getTPlayer().getPlayer(), Broadcast.EVENT_PLAYER_FINISHED_LAP, "%time%", ApiUtilities.formatAsTime(time));
-        for(Participant p : heat.getParticipants().stream().filter(participant -> participant.getTPlayer().getPlayer() != null && participant.getTPlayer() != driver.getTPlayer() && participant.getTPlayer().isSendFinalLaps()).toList()) {
+        for(Participant p : heat.getParticipants().stream().filter(participant -> participant.getTPlayer().getPlayer() != null && participant.getTPlayer() != driver.getTPlayer() && participant.getTPlayer().getSettings().isSendFinalLaps()).toList()) {
             Text.send(p.getTPlayer().getPlayer(), Broadcast.EVENT_PLAYER_FINISHED_LAP_ANNOUNCE, "%player%", driver.getTPlayer().getName(), "%lap%", String.valueOf(driver.getLaps().size()), "%time%", ApiUtilities.formatAsTime(time));
         }
     }
@@ -197,7 +197,7 @@ public class EventAnnouncements {
             return;
         }
         Player player = raceDriver.getTPlayer().getPlayer();
-        if (raceDriver.getTPlayer().isSound()) {
+        if (raceDriver.getTPlayer().getSettings().isSound()) {
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1, 1);
         }
     }

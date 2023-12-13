@@ -3,7 +3,7 @@ package me.makkuusen.timing.system.participant;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.database.TSDatabase;
 
 import java.util.UUID;

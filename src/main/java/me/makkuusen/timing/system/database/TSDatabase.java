@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system.database;
 
 import co.aikar.idb.DbRow;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;

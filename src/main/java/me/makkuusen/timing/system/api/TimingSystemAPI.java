@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system.api;
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
@@ -119,7 +119,7 @@ public class TimingSystemAPI {
 
         driverDetails.setName(driver.getTPlayer().getName());
         driverDetails.setUuid(driverUuid.toString());
-        driverDetails.setTeamColor(driver.getTPlayer().getHexColor());
+        driverDetails.setTeamColor(driver.getTPlayer().getSettings().getHexColor());
         driverDetails.setOffline(driver.getTPlayer().getPlayer() == null);
         if (!driverDetails.isOffline()) {
             driverDetails.setInpit(driver.isInPit(driver.getTPlayer().getPlayer().getLocation()));

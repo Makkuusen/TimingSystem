@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.logger.LogEntryBuilder;
 import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.*;
 import me.makkuusen.timing.system.track.locations.TrackLeaderboard;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
