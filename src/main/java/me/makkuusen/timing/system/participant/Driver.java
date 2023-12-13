@@ -1,6 +1,5 @@
 package me.makkuusen.timing.system.participant;
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +12,7 @@ import me.makkuusen.timing.system.heat.DriverScoreboard;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.round.QualificationRound;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -155,7 +154,7 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public boolean isInPit(Location playerLoc) {
-        var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
+        var inPitRegions = heat.getEvent().getTrack().getTrackRegions().getRegions(TrackRegion.RegionType.INPIT);
         for (TrackRegion trackRegion : inPitRegions) {
             if (trackRegion.contains(playerLoc)) {
                 return true;

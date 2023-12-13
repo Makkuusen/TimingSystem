@@ -15,8 +15,8 @@ import me.makkuusen.timing.system.theme.messages.Broadcast;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackLocation;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
@@ -82,12 +82,12 @@ public class CommandRace extends BaseCommand {
             return;
         }
 
-        if (!track.hasRegion(TrackRegion.RegionType.START)) {
+        if (!track.getTrackRegions().hasRegion(TrackRegion.RegionType.START)) {
             Text.send(player, Error.GENERIC);
             return;
         }
 
-        if (!track.hasTrackLocation(TrackLocation.Type.GRID)) {
+        if (!track.getTrackLocations().hasLocation(TrackLocation.Type.GRID)) {
             Text.send(player, Error.GENERIC);
             return;
         }

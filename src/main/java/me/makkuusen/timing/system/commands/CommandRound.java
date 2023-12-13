@@ -312,7 +312,7 @@ public class CommandRound extends BaseCommand {
 
     public static List<TPlayer> getSortedList(List<TPlayer> players, Track track) {
         List<TPlayer> tPlayerList = new ArrayList<>();
-        List<TimeTrialFinish> driversWithBestTimes = track.getTopList().stream().filter(tt -> players.contains(tt.getPlayer())).toList();
+        List<TimeTrialFinish> driversWithBestTimes = track.getTimeTrials().getTopList().stream().filter(tt -> players.contains(tt.getPlayer())).toList();
         for (var finish : driversWithBestTimes) {
             tPlayerList.add(finish.getPlayer());
         }
@@ -350,7 +350,7 @@ public class CommandRound extends BaseCommand {
         }
 
         if (EventDatabase.heatDriverNew(tPlayer.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
-            var bestTime = heat.getEvent().getTrack().getBestFinish(tPlayer);
+            var bestTime = heat.getEvent().getTrack().getTimeTrials().getBestFinish(tPlayer);
             Theme theme = TSDatabase.getPlayer(sender).getTheme();
             sender.sendMessage(theme.primary(heat.getDrivers().size() + ":").append(Component.space()).append(theme.highlight(tPlayer.getName())).append(theme.hyphen()).append(theme.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()))));
         }

@@ -18,7 +18,7 @@ import me.makkuusen.timing.system.participant.Participant;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
-import me.makkuusen.timing.system.track.TrackLocation;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
 import org.bukkit.Bukkit;
 
 import java.time.Duration;
@@ -92,7 +92,7 @@ public class Heat {
             return false;
         }
 
-        if (getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).isEmpty()) {
+        if (getEvent().getTrack().getTrackLocations().getLocations(TrackLocation.Type.GRID).isEmpty()) {
             return false;
         }
 
@@ -247,10 +247,10 @@ public class Heat {
         if (maxDrivers != null) {
             return maxDrivers;
         }
-        if (round instanceof QualificationRound && !getEvent().getTrack().getTrackLocations(TrackLocation.Type.QUALYGRID).isEmpty()) {
-            return getEvent().getTrack().getTrackLocations(TrackLocation.Type.QUALYGRID).size();
+        if (round instanceof QualificationRound && !getEvent().getTrack().getTrackLocations().getLocations(TrackLocation.Type.QUALYGRID).isEmpty()) {
+            return getEvent().getTrack().getTrackLocations().getLocations(TrackLocation.Type.QUALYGRID).size();
         }
-        return getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size();
+        return getEvent().getTrack().getTrackLocations().getLocations(TrackLocation.Type.GRID).size();
     }
 
     public void setMaxDrivers(int maxDrivers) {

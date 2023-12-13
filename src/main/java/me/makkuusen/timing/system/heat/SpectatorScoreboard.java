@@ -6,7 +6,7 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Theme;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
@@ -92,7 +92,7 @@ public class SpectatorScoreboard {
         }
         Location playerLoc = driver.getTPlayer().getPlayer().getLocation();
 
-        var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
+        var inPitRegions = heat.getEvent().getTrack().getTrackRegions().getRegions(TrackRegion.RegionType.INPIT);
         for (TrackRegion trackRegion : inPitRegions) {
             if (trackRegion.contains(playerLoc)) {
                 return ScoreboardUtils.getDriverLineRaceInPit(driver, driver.getPits(), driver.getPosition(), compact, theme);

@@ -23,7 +23,7 @@ public class TimeTrialController {
         }
         var timeTrial = TimeTrialController.timeTrials.get(uuid);
         var time = ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime));
-        var attempt = timeTrial.getTrack().newTimeTrialAttempt(time, uuid);
+        var attempt = timeTrial.getTrack().getTimeTrials().newTimeTrialAttempt(time, uuid);
         var eventTimeTrialAttempt = new TimeTrialAttemptEvent(Bukkit.getPlayer(uuid), attempt);
         Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialAttempt);
         TimeTrialController.timeTrials.remove(uuid);
@@ -35,7 +35,7 @@ public class TimeTrialController {
         }
         var timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
         var time = ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime));
-        var attempt = timeTrial.getTrack().newTimeTrialAttempt(time, player.getUniqueId());
+        var attempt = timeTrial.getTrack().getTimeTrials().newTimeTrialAttempt(time, player.getUniqueId());
         var eventTimeTrialAttempt = new TimeTrialAttemptEvent(player, attempt);
         Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialAttempt);
         ApiUtilities.msgConsole(player.getName() + " has cancelled run on " + TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack().getDisplayName());

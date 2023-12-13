@@ -19,6 +19,13 @@ import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.*;
+import me.makkuusen.timing.system.track.locations.TrackLeaderboard;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
+import me.makkuusen.timing.system.track.options.TrackOption;
+import me.makkuusen.timing.system.track.regions.TrackCuboidRegion;
+import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
+import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -145,7 +152,7 @@ public interface TrackDatabase {
                 var uuid = finish.getString("uuid") == null ? null : UUID.fromString(finish.getString("uuid"));
                 if (TSDatabase.getPlayer(uuid) != null) {
                     var maybeTrack = getTrackById(finish.getInt("trackId"));
-                    maybeTrack.ifPresent(track -> track.addTimeTrialFinish(new TimeTrialFinish(finish)));
+                    maybeTrack.ifPresent(track -> track.getTimeTrials().addTimeTrialFinish(new TimeTrialFinish(finish)));
                 }
             }
         } catch (SQLException e) {
@@ -163,7 +170,7 @@ public interface TrackDatabase {
                 var uuid = attempt.getString("uuid") == null ? null : UUID.fromString(attempt.getString("uuid"));
                 if (TSDatabase.getPlayer(uuid) != null) {
                     var maybeTrack = getTrackById(attempt.getInt("trackId"));
-                    maybeTrack.ifPresent(track -> track.addTimeTrialAttempt(new TimeTrialAttempt(attempt)));
+                    maybeTrack.ifPresent(track -> track.getTimeTrials().addTimeTrialAttempt(new TimeTrialAttempt(attempt)));
                 }
             }
         } catch (SQLException ignore) {
@@ -177,7 +184,7 @@ public interface TrackDatabase {
             var trackTag = TrackTagManager.getTrackTag(tag.getString("tag"));
             if (trackTag != null) {
                 var maybeTrack = getTrackById(tag.getInt("trackId"));
-                maybeTrack.ifPresent(track -> track.addTag(trackTag));
+                maybeTrack.ifPresent(track -> track.getTrackTags().add(trackTag));
             }
         }
     }
@@ -200,9 +207,9 @@ public interface TrackDatabase {
 
             // Sort checkpoints into track
             for (Track rTrack : tracks) {
-                var players = rTrack.getTimeTrialFinishes().keySet();
+                var players = rTrack.getTimeTrials().getTimeTrialFinishes().keySet();
                 for (TPlayer tPlayer : players) {
-                    for (TimeTrialFinish finish : rTrack.getTimeTrialFinishes().get(tPlayer)) {
+                    for (TimeTrialFinish finish : rTrack.getTimeTrials().getTimeTrialFinishes().get(tPlayer)) {
                         if (checkpoints.containsKey(finish.getId())) {
                             finish.updateCheckpointTimes(checkpoints.get(finish.getId()));
                         }
@@ -246,7 +253,7 @@ public interface TrackDatabase {
                 if (trackRegion.getRegionType().equals(TrackRegion.RegionType.START)) {
                     addTrackRegion(trackRegion);
                 }
-                rTrack.addRegion(trackRegion);
+                rTrack.getTrackRegions().add(trackRegion);
             }
         }
     }
@@ -271,7 +278,7 @@ public interface TrackDatabase {
             } else {
                 trackLocation = new TrackLocation(dbRow);
             }
-            maybeTrack.get().addTrackLocation(trackLocation);
+            maybeTrack.get().getTrackLocations().add(trackLocation);
         }
     }
 
@@ -285,7 +292,7 @@ public interface TrackDatabase {
             TrackOption trackOption;
             try {
                 trackOption = TrackOption.fromID(dbRow.getInt("option"));
-                maybeTrack.get().addTrackOption(trackOption);
+                maybeTrack.get().getTrackOptions().add(trackOption);
             } catch (NoSuchElementException ignore) {}
         }
     }
@@ -437,7 +444,7 @@ public interface TrackDatabase {
         if (maybeTrack == null) {
             return regions;
         }
-        maybeTrack.getRegions().forEach(region -> regions.add(region.getRegionType().name().toLowerCase() + "-" + region.getRegionIndex()));
+        maybeTrack.getTrackRegions().getRegions().forEach(region -> regions.add(region.getRegionType().name().toLowerCase() + "-" + region.getRegionIndex()));
 
         return regions;
     }
@@ -464,7 +471,7 @@ public interface TrackDatabase {
                     String[] regionName = region.split("-");
                     int index = Integer.parseInt(regionName[1]);
                     String regionType = regionName[0];
-                    var maybeRegion = maybeTrack.getRegion(TrackRegion.RegionType.valueOf(regionType.toUpperCase()), index);
+                    var maybeRegion = maybeTrack.getTrackRegions().getRegion(TrackRegion.RegionType.valueOf(regionType.toUpperCase()), index);
                     if (maybeRegion.isPresent()) {
                         return maybeRegion.get();
                     }

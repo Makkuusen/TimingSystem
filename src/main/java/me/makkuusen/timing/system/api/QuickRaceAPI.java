@@ -10,8 +10,8 @@ import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Broadcast;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackLocation;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
@@ -42,7 +42,7 @@ public class QuickRaceAPI {
     public static boolean create(UUID playerHost, Track track, int laps, int pits) {
         if(getQuickRaceHeat().isPresent() && heat.isFinished()) deleteEvent();
 
-        if(!track.isOpen() || !track.hasTrackLocation(TrackLocation.Type.GRID) || !track.hasRegion(TrackRegion.RegionType.START)) return false;
+        if(!track.isOpen() || !track.getTrackLocations().hasLocation(TrackLocation.Type.GRID) || !track.getTrackRegions().hasRegion(TrackRegion.RegionType.START)) return false;
 
         final String name = "QuickRace";
         Optional<Event> maybeEvent = EventDatabase.eventNew(playerHost, name);

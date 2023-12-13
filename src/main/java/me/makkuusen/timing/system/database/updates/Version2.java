@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.database.updates;
 
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
-import me.makkuusen.timing.system.track.TrackOption;
+import me.makkuusen.timing.system.track.options.TrackOption;
 
 import java.sql.SQLException;
 

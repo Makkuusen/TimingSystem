@@ -7,7 +7,7 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackLocation;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Boat;
@@ -28,14 +28,14 @@ public class GridManager {
     }
 
     public void putDriverOnGrid(Driver driver, Track track) {
-        boolean qualyGrid = qualy && !track.getTrackLocations(TrackLocation.Type.QUALYGRID).isEmpty();
+        boolean qualyGrid = qualy && !track.getTrackLocations().getLocations(TrackLocation.Type.QUALYGRID).isEmpty();
         Player player = driver.getTPlayer().getPlayer();
         if (player != null) {
             Location grid;
             if (qualyGrid) {
-                grid = track.getTrackLocation(TrackLocation.Type.QUALYGRID, driver.getStartPosition()).get().getLocation();
+                grid = track.getTrackLocations().getLocation(TrackLocation.Type.QUALYGRID, driver.getStartPosition()).get().getLocation();
             } else {
-                grid = track.getTrackLocation(TrackLocation.Type.GRID, driver.getStartPosition()).get().getLocation();
+                grid = track.getTrackLocations().getLocation(TrackLocation.Type.GRID, driver.getStartPosition()).get().getLocation();
             }
             if (grid != null) {
                 teleportPlayerToGrid(player, grid, track);

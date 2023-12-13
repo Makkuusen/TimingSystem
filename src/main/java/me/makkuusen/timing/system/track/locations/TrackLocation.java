@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system.track;
+package me.makkuusen.timing.system.track.locations;
 
 import co.aikar.idb.DbRow;
 import lombok.Getter;
@@ -11,6 +11,7 @@ public class TrackLocation {
     int trackId;
     int index;
     Location location;
+    @Getter
     TrackLocation.Type locationType;
 
     public TrackLocation(int trackId, int index, Location location, TrackLocation.Type locationType) {

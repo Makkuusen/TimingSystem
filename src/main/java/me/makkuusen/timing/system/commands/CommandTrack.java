@@ -22,6 +22,11 @@ import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinishComparator;
 import me.makkuusen.timing.system.timetrial.TimeTrialSession;
 import me.makkuusen.timing.system.track.*;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
+import me.makkuusen.timing.system.track.options.TrackOption;
+import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
+import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
@@ -49,14 +54,14 @@ public class CommandTrack extends BaseCommand {
         track.setSpawnLocation(moveTo);
         var offset = getOffset(moveFrom, moveTo);
 
-        var trackLocations = track.getTrackLocations();
+        var trackLocations = track.getTrackLocations().getLocations();
         for (TrackLocation tl : trackLocations) {
             Location loc = tl.getLocation();
             var newLoc = getNewLocation(newWorld, loc, offset);
-            track.updateTrackLocation(tl, newLoc);
+            track.getTrackLocations().update(tl, newLoc);
         }
 
-        var regions = track.getRegions();
+        var regions = track.getTrackRegions().getRegions();
         for (TrackRegion region : regions) {
             if (region.getSpawnLocation() != null) {
                 region.setSpawn(getNewLocation(newWorld, region.getSpawnLocation(), offset));
@@ -154,7 +159,7 @@ public class CommandTrack extends BaseCommand {
             var regionType = TrackRegion.RegionType.valueOf(name);
             var regionIndex = Integer.parseInt(index);
 
-            var trackRegion = track.getRegion(regionType, regionIndex);
+            var trackRegion = track.getTrackRegions().getRegion(regionType, regionIndex);
             return trackRegion.orElse(null);
 
         } catch (IllegalArgumentException e) {
@@ -167,7 +172,7 @@ public class CommandTrack extends BaseCommand {
             var locationType = TrackLocation.Type.valueOf(name);
             var regionIndex = Integer.parseInt(index);
 
-            var trackLocation = track.getTrackLocation(locationType, regionIndex);
+            var trackLocation = track.getTrackLocations().getLocation(locationType, regionIndex);
             return trackLocation.orElse(null);
 
         } catch (IllegalArgumentException e) {
@@ -218,10 +223,10 @@ public class CommandTrack extends BaseCommand {
             return;
         }
         if (trackType.equals(Track.TrackType.BOAT)) {
-            track.createTrackOption(TrackOption.FORCE_BOAT);
+            track.getTrackOptions().create(TrackOption.FORCE_BOAT);
         } else if (trackType.equals(Track.TrackType.PARKOUR)) {
-            track.createTrackOption(TrackOption.NO_ELYTRA);
-            track.createTrackOption(TrackOption.NO_CREATIVE);
+            track.getTrackOptions().create(TrackOption.NO_ELYTRA);
+            track.getTrackOptions().create(TrackOption.NO_CREATIVE);
         }
 
         Text.send(player, Success.CREATED_TRACK, "%track%", name);
@@ -247,17 +252,18 @@ public class CommandTrack extends BaseCommand {
     }
 
     private static void sendPlayerStatsInfo(CommandSender commandSender, TPlayer tPlayer, Track track) {
+        var timeTrials = track.getTimeTrials();
         commandSender.sendMessage(Component.empty());
         Text.send(commandSender, Info.PLAYER_STATS_TITLE, "%player%", tPlayer.getName(), "%track%", track.getDisplayName());
-        Text.send(commandSender, Info.PLAYER_STATS_POSITION, "%pos%", (track.getCachedPlayerPosition(tPlayer) == -1 ? "(-)" : String.valueOf(track.getCachedPlayerPosition(tPlayer))));
-        if (track.getBestFinish(tPlayer) == null) {
+        Text.send(commandSender, Info.PLAYER_STATS_POSITION, "%pos%", (timeTrials.getCachedPlayerPosition(tPlayer) == -1 ? "(-)" : String.valueOf(timeTrials.getCachedPlayerPosition(tPlayer))));
+        if (timeTrials.getBestFinish(tPlayer) == null) {
             Text.send(commandSender, Info.PLAYER_STATS_BEST_LAP, "%time%", "(-)");
         } else {
-            Text.send(commandSender, Info.PLAYER_STATS_BEST_LAP, "%time%", ApiUtilities.formatAsTime(track.getBestFinish(tPlayer).getTime()));
+            Text.send(commandSender, Info.PLAYER_STATS_BEST_LAP, "%time%", ApiUtilities.formatAsTime(timeTrials.getBestFinish(tPlayer).getTime()));
         }
-        Text.send(commandSender, Info.PLAYER_STATS_FINISHES, "%size%", String.valueOf(track.getPlayerTotalFinishes(tPlayer)));
-        Text.send(commandSender, Info.PLAYER_STATS_ATTEMPTS, "%size%", String.valueOf(track.getPlayerTotalFinishes(tPlayer) + track.getPlayerTotalAttempts(tPlayer)));
-        Text.send(commandSender, Info.PLAYER_STATS_TIME_SPENT, "%size%", ApiUtilities.formatAsTimeSpent(track.getPlayerTotalTimeSpent(tPlayer)));
+        Text.send(commandSender, Info.PLAYER_STATS_FINISHES, "%size%", String.valueOf(timeTrials.getPlayerTotalFinishes(tPlayer)));
+        Text.send(commandSender, Info.PLAYER_STATS_ATTEMPTS, "%size%", String.valueOf(timeTrials.getPlayerTotalFinishes(tPlayer) + timeTrials.getPlayerTotalAttempts(tPlayer)));
+        Text.send(commandSender, Info.PLAYER_STATS_TIME_SPENT, "%size%", ApiUtilities.formatAsTimeSpent(timeTrials.getPlayerTotalTimeSpent(tPlayer)));
     }
 
     private static void sendTrackInfo(CommandSender commandSender, Track track) {
@@ -270,17 +276,17 @@ public class CommandTrack extends BaseCommand {
         }
         Text.send(commandSender, Info.TRACK_TYPE, "%type%", track.getTypeAsString());
         Text.send(commandSender, Info.TRACK_DATE_CREATED, "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
-        Text.send(commandSender, Info.TRACK_OPTIONS, "%options%", ApiUtilities.listOfOptions(track.getTrackOptions()));
+        Text.send(commandSender, Info.TRACK_OPTIONS, "%options%", track.getTrackOptions().listOfOptions());
         Text.send(commandSender, Info.TRACK_MODE, "%mode%", track.getModeAsString());
         Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", track.getBoatUtilsMode().name());
-        Text.send(commandSender, Info.TRACK_CHECKPOINTS, "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.CHECKPOINT).size()));
-        if (!track.getTrackLocations(TrackLocation.Type.GRID).isEmpty()) {
-            Text.send(commandSender, Info.TRACK_GRIDS, "%size%", String.valueOf(track.getTrackLocations(TrackLocation.Type.GRID).size()));
+        Text.send(commandSender, Info.TRACK_CHECKPOINTS, "%size%", String.valueOf(track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).size()));
+        if (!track.getTrackLocations().getLocations(TrackLocation.Type.GRID).isEmpty()) {
+            Text.send(commandSender, Info.TRACK_GRIDS, "%size%", String.valueOf(track.getTrackLocations().getLocations(TrackLocation.Type.GRID).size()));
         }
-        if (!track.getTrackLocations(TrackLocation.Type.QUALYGRID).isEmpty()) {
-            Text.send(commandSender, Info.TRACK_QUALIFICATION_GRIDS, "%size%", String.valueOf(track.getTrackLocations(TrackLocation.Type.QUALYGRID).size()));
+        if (!track.getTrackLocations().getLocations(TrackLocation.Type.QUALYGRID).isEmpty()) {
+            Text.send(commandSender, Info.TRACK_QUALIFICATION_GRIDS, "%size%", String.valueOf(track.getTrackLocations().getLocations(TrackLocation.Type.QUALYGRID).size()));
         }
-        Text.send(commandSender, Info.TRACK_RESET_REGIONS, "%size%", String.valueOf(track.getRegions(TrackRegion.RegionType.RESET).size()));
+        Text.send(commandSender, Info.TRACK_RESET_REGIONS, "%size%", String.valueOf(track.getTrackRegions().getRegions(TrackRegion.RegionType.RESET).size()));
         Text.send(commandSender, Info.TRACK_SPAWN_LOCATION, "%location%", ApiUtilities.niceLocation(track.getSpawnLocation()));
 
         Text.send(commandSender, Info.TRACK_WEIGHT, "%size%", String.valueOf(track.getWeight()));
@@ -289,9 +295,9 @@ public class CommandTrack extends BaseCommand {
 
         List<TrackTag> trackTags;
         if (commandSender.hasPermission("timingsystem.packs.trackadmin")) {
-            trackTags = track.getTags();
+            trackTags = track.getTrackTags().get();
         } else {
-            trackTags = track.getDisplayTags();
+            trackTags = track.getTrackTags().getDisplayTags();
         }
         for (TrackTag tag : trackTags) {
             if (notFirst) {
@@ -323,7 +329,7 @@ public class CommandTrack extends BaseCommand {
         Theme theme = Theme.getTheme(sender);
 
         for (var regionType : TrackRegion.RegionType.values()) {
-            for (TrackRegion trackRegion : track.getRegions(regionType)) {
+            for (TrackRegion trackRegion : track.getTrackRegions().getRegions(regionType)) {
 
                 String regionText = trackRegion.getRegionType().name() + "-" + trackRegion.getRegionIndex();
                 sender.sendMessage(theme.arrow().append(Component.text(regionText).clickEvent(ClickEvent.runCommand("/t tp " + track.getCommandName() + " " + regionText))));
@@ -340,7 +346,7 @@ public class CommandTrack extends BaseCommand {
         Theme theme = Theme.getTheme(sender);
 
         for (var locationType : TrackLocation.Type.values()) {
-            for (TrackLocation trackLocation : track.getTrackLocations(locationType)) {
+            for (TrackLocation trackLocation : track.getTrackLocations().getLocations(locationType)) {
                 String locationText = trackLocation.getLocationType().name() + "-" + trackLocation.getIndex();
                 sender.sendMessage(theme.arrow().append(Component.text(locationText).clickEvent(ClickEvent.runCommand("/t tp " + track.getCommandName() + " " + locationText))));
             }
@@ -356,7 +362,7 @@ public class CommandTrack extends BaseCommand {
         }
         boolean inRegion = false;
         for (Track track : TrackDatabase.tracks) {
-            for (TrackRegion region : track.getRegions()) {
+            for (TrackRegion region : track.getTrackRegions().getRegions()) {
                 if (region.contains(player.getLocation())) {
                     inRegion = true;
                     player.sendMessage(Component.text(track.getDisplayName() + " - " + region.getRegionType() + " : " + region.getRegionIndex()).color(Theme.getTheme(player).getSecondary()));
@@ -445,21 +451,21 @@ public class CommandTrack extends BaseCommand {
         int start = (pageStart * itemsPerPage) - itemsPerPage;
         int stop = pageStart * itemsPerPage;
 
-        if (start >= track.getTopList().size()) {
+        if (start >= track.getTimeTrials().getTopList().size()) {
             Text.send(commandSender, Error.PAGE_NOT_FOUND);
             return;
         }
 
         Text.send(commandSender, Info.TRACK_TIMES_TITLE, "%track%", track.getDisplayName());
         for (int i = start; i < stop; i++) {
-            if (i == track.getTopList().size()) {
+            if (i == track.getTimeTrials().getTopList().size()) {
                 break;
             }
-            TimeTrialFinish finish = track.getTopList().get(i);
+            TimeTrialFinish finish = track.getTimeTrials().getTopList().get(i);
             commandSender.sendMessage(theme.getTimesRow(String.valueOf(i + 1), finish.getPlayer().getName(), ApiUtilities.formatAsTime(finish.getTime())));
         }
 
-        int pageEnd = (int) Math.ceil(((double) track.getTopList().size()) / ((double) itemsPerPage));
+        int pageEnd = (int) Math.ceil(((double) track.getTimeTrials().getTopList().size()) / ((double) itemsPerPage));
         commandSender.sendMessage(theme.getPageSelector(commandSender, pageStart, pageEnd, "/t times " + track.getCommandName()));
     }
 
@@ -474,8 +480,8 @@ public class CommandTrack extends BaseCommand {
         var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         Theme theme = tPlayer.getTheme();
         List<TimeTrialFinish> allTimes = new ArrayList<>();
-        if (track.getTimeTrialFinishes().containsKey(tPlayer)) {
-            allTimes.addAll(track.getTimeTrialFinishes().get(tPlayer));
+        if (track.getTimeTrials().getTimeTrialFinishes().containsKey(tPlayer)) {
+            allTimes.addAll(track.getTimeTrials().getTimeTrialFinishes().get(tPlayer));
             allTimes.sort(new TimeTrialFinishComparator());
         }
 
@@ -497,7 +503,7 @@ public class CommandTrack extends BaseCommand {
             TimeTrialFinish finish = allTimes.get(i);
             Component row = theme.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), ApiUtilities.niceDate(finish.getDate()));
             if (finish.hasCheckpointTimes()) {
-                row = theme.getCheckpointHovers(finish, track.getBestFinish(tPlayer), row);
+                row = theme.getCheckpointHovers(finish, track.getTimeTrials().getBestFinish(tPlayer), row);
             }
             player.sendMessage(row);
         }
@@ -532,8 +538,8 @@ public class CommandTrack extends BaseCommand {
         List<TimeTrialFinish> allTimes = new ArrayList<>();
         var tracks = TrackDatabase.getOpenTracks();
         for (Track t : tracks) {
-            if (t.getTimeTrialFinishes().containsKey(tPlayer)) {
-                allTimes.addAll(t.getTimeTrialFinishes().get(tPlayer));
+            if (t.getTimeTrials().getTimeTrialFinishes().containsKey(tPlayer)) {
+                allTimes.addAll(t.getTimeTrials().getTimeTrialFinishes().get(tPlayer));
             }
         }
         allTimes.sort(new TimeTrialDateComparator());
@@ -558,7 +564,7 @@ public class CommandTrack extends BaseCommand {
             Track track = TrackDatabase.getTrackById(finish.getTrack()).get();
             Component row = theme.getTimesRow(String.valueOf(i + 1), ApiUtilities.formatAsTime(finish.getTime()), track.getDisplayName(), ApiUtilities.niceDate(finish.getDate()));
             if (finish.hasCheckpointTimes()) {
-                row = theme.getCheckpointHovers(finish, track.getBestFinish(tPlayer), row);
+                row = theme.getCheckpointHovers(finish, track.getTimeTrials().getBestFinish(tPlayer), row);
             }
             player.sendMessage(row);
         }
@@ -601,12 +607,12 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
-        TimeTrialFinish bestFinish = track.getBestFinish(TPlayer);
+        TimeTrialFinish bestFinish = track.getTimeTrials().getBestFinish(TPlayer);
         if (bestFinish == null) {
             Text.send(commandSender, Error.NOTHING_TO_REMOVE);
             return;
         }
-        track.deleteBestFinish(TPlayer, bestFinish);
+        track.getTimeTrials().deleteBestFinish(TPlayer, bestFinish);
         Text.send(commandSender, Success.REMOVED_BEST_FINISH, "%player%", TPlayer.getName(), "%track%", track.getDisplayName());
         LeaderboardManager.updateFastestTimeLeaderboard(track);
     }
@@ -623,11 +629,11 @@ public class CommandTrack extends BaseCommand {
             }
             var message = Text.get(commandSender, Success.REMOVED_ALL_FINISHES).append(tPlayer.getTheme().success(" -> " + tPlayer.getNameDisplay()));
             commandSender.sendMessage(message);
-            track.deleteAllFinishes(tPlayer);
+            track.getTimeTrials().deleteAllFinishes(tPlayer);
             LeaderboardManager.updateFastestTimeLeaderboard(track);
             return;
         }
-        track.deleteAllFinishes();
+        track.getTimeTrials().deleteAllFinishes();
         Text.send(commandSender, Success.REMOVED_ALL_FINISHES);
         LeaderboardManager.updateFastestTimeLeaderboard(track);
 
@@ -691,7 +697,7 @@ public class CommandTrack extends BaseCommand {
                 return;
             }
             if (plusOrMinus.equalsIgnoreCase("-")) {
-                if (track.removeTag(tag)) {
+                if (track.getTrackTags().remove(tag)) {
                     Text.send(sender, Success.REMOVED);
                     return;
                 }
@@ -699,7 +705,7 @@ public class CommandTrack extends BaseCommand {
                 return;
             }
 
-            if (track.createTag(tag)) {
+            if (track.getTrackTags().create(tag)) {
                 Text.send(sender, Success.ADDED_TAG, "%tag%", tag.getValue());
                 return;
             }
@@ -712,7 +718,7 @@ public class CommandTrack extends BaseCommand {
         @CommandPermission("%permissiontrack_set_option")
         public static void onOption(CommandSender sender, Track track, String plusOrMinus, TrackOption option) {
             if (plusOrMinus.equalsIgnoreCase("-")) {
-                if (track.removeTrackOption(option)) {
+                if (track.getTrackOptions().remove(option)) {
                     Text.send(sender, Success.REMOVED);
                     return;
                 }
@@ -720,7 +726,7 @@ public class CommandTrack extends BaseCommand {
                 return;
             }
 
-            if (track.createTrackOption(option)) {
+            if (track.getTrackOptions().create(option)) {
                 Text.send(sender, Success.ADDED_OPTION, "%option%", option.toString());
                 return;
             }
@@ -901,9 +907,9 @@ public class CommandTrack extends BaseCommand {
             }
 
             if (toRemove) {
-                var maybeRegion = track.getRegion(TrackRegion.RegionType.LAGSTART);
+                var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.LAGSTART);
                 if (maybeRegion.isPresent()) {
-                    if (track.removeRegion(maybeRegion.get())) {
+                    if (track.getTrackRegions().remove(maybeRegion.get())) {
                         Text.send(player, Success.REMOVED);
                     } else {
                         Text.send(player, Error.NOTHING_TO_REMOVE);
@@ -928,9 +934,9 @@ public class CommandTrack extends BaseCommand {
             }
 
             if (toRemove) {
-                var maybeRegion = track.getRegion(TrackRegion.RegionType.LAGEND);
+                var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.LAGEND);
                 if (maybeRegion.isPresent()) {
-                    if (track.removeRegion(maybeRegion.get())) {
+                    if (track.getTrackRegions().remove(maybeRegion.get())) {
                         Text.send(player, Success.REMOVED);
                     } else {
                         Text.send(player, Error.NOTHING_TO_REMOVE);
@@ -981,10 +987,10 @@ public class CommandTrack extends BaseCommand {
             }
             var selection = maybeSelection.get();
 
-            if (track.hasRegion(regionType)) {
-                return track.updateRegion(regionType, selection, player.getLocation());
+            if (track.getTrackRegions().hasRegion(regionType)) {
+                return track.getTrackRegions().update(regionType, selection, player.getLocation());
             } else {
-                return track.createRegion(regionType, selection, player.getLocation());
+                return track.getTrackRegions().create(regionType, selection, player.getLocation());
             }
         }
 
@@ -997,19 +1003,19 @@ public class CommandTrack extends BaseCommand {
             var selection = maybeSelection.get();
 
             if (overload) {
-                return track.createRegion(regionType, index, selection, player.getLocation());
-            } else if (track.hasRegion(regionType, index)) {
-                return track.updateRegion(track.getRegion(regionType, index).get(), selection, player.getLocation());
+                return track.getTrackRegions().create(regionType, index, selection, player.getLocation());
+            } else if (track.getTrackRegions().hasRegion(regionType, index)) {
+                return track.getTrackRegions().update(track.getTrackRegions().getRegion(regionType, index).get(), selection, player.getLocation());
             } else {
-                return track.createRegion(regionType, index, selection, player.getLocation());
+                return track.getTrackRegions().create(regionType, index, selection, player.getLocation());
             }
         }
 
         private static void createOrUpdateTrackLocation(Track track, TrackLocation.Type type, int index, Location location) {
-            if (track.hasTrackLocation(type, index)) {
-                track.updateTrackLocation(track.getTrackLocation(type, index).get(), location);
+            if (track.getTrackLocations().hasLocation(type, index)) {
+                track.getTrackLocations().update(track.getTrackLocations().getLocation(type, index).get(), location);
             } else {
-                track.createTrackLocation(type, index, location);
+                track.getTrackLocations().create(type, index, location);
             }
         }
 
@@ -1019,9 +1025,9 @@ public class CommandTrack extends BaseCommand {
             if (index != null) {
 
                 if (index.equalsIgnoreCase("-all")) {
-                    var trackLocations = track.getTrackLocations(type);
+                    var trackLocations = track.getTrackLocations().getLocations(type);
                     restoreLocations = trackLocations;
-                    trackLocations.forEach(track::removeTrackLocation);
+                    trackLocations.forEach(track.getTrackLocations()::remove);
                     restoreTrack = track;
                     Text.send(player, Success.REMOVED_LOCATIONS, "%type%", type.name());
                     return;
@@ -1039,11 +1045,11 @@ public class CommandTrack extends BaseCommand {
                     }
 
                     for (TrackLocation restoreLocation : restoreLocations) {
-                        var maybeLocation = track.getTrackLocation(restoreLocation.getLocationType(), restoreLocation.getIndex());
+                        var maybeLocation = track.getTrackLocations().getLocation(restoreLocation.getLocationType(), restoreLocation.getIndex());
                         if (maybeLocation.isPresent()) {
                             continue;
                         }
-                        track.createTrackLocation(restoreLocation.getLocationType(), restoreLocation.getIndex(), restoreLocation.getLocation());
+                        track.getTrackLocations().create(restoreLocation.getLocationType(), restoreLocation.getIndex(), restoreLocation.getLocation());
                     }
                     Text.send(player, Success.RESTORED_LOCATIONS);
                     return;
@@ -1062,15 +1068,15 @@ public class CommandTrack extends BaseCommand {
                 }
             } else {
                 if (type == TrackLocation.Type.GRID || type == TrackLocation.Type.QUALYGRID) {
-                    locationIndex = track.getTrackLocations(type).size() + 1;
+                    locationIndex = track.getTrackLocations().getLocations(type).size() + 1;
                 } else {
                     locationIndex = 1;
                 }
             }
             if (remove) {
-                var maybeLocation = track.getTrackLocation(type, locationIndex);
+                var maybeLocation = track.getTrackLocations().getLocation(type, locationIndex);
                 if (maybeLocation.isPresent()) {
-                    if (track.removeTrackLocation(maybeLocation.get())) {
+                    if (track.getTrackLocations().remove(maybeLocation.get())) {
                         Text.send(player, Success.REMOVED);
                     } else {
                         Text.send(player, Error.FAILED_TO_REMOVE);
@@ -1090,8 +1096,8 @@ public class CommandTrack extends BaseCommand {
             boolean remove = false;
             if (index != null) {
                 if (index.equalsIgnoreCase("-all")) {
-                    var regions = track.getRegions(regionType);
-                    regions.forEach(track::removeRegion);
+                    var regions = track.getTrackRegions().getRegions(regionType);
+                    regions.forEach(track.getTrackRegions()::remove);
                     Text.send(player, Success.REMOVED_REGIONS, "%type%", regionType.name());
                     return;
                 }
@@ -1113,15 +1119,15 @@ public class CommandTrack extends BaseCommand {
                 } else if (regionType == TrackRegion.RegionType.CHECKPOINT) {
                     regionIndex = track.getNumberOfCheckpoints() + 1;
                 } else {
-                    regionIndex = track.getRegions(regionType).size() + 1;
+                    regionIndex = track.getTrackRegions().getRegions(regionType).size() + 1;
                 }
             }
             if (remove) {
                 if (regionType == TrackRegion.RegionType.CHECKPOINT) {
-                    var checkpointRegions = track.getCheckpointRegions(regionIndex);
+                    var checkpointRegions = track.getTrackRegions().getCheckpoints(regionIndex);
                     if (!checkpointRegions.isEmpty()) {
                         for (TrackRegion region : checkpointRegions) {
-                            if (track.removeRegion(region)) {
+                            if (track.getTrackRegions().remove(region)) {
                                 Text.send(player, Success.REMOVED);
                             } else {
                                 Text.send(player, Error.FAILED_TO_REMOVE);
@@ -1131,9 +1137,9 @@ public class CommandTrack extends BaseCommand {
                         Text.send(player, Error.NOTHING_TO_REMOVE);
                     }
                 } else {
-                    var maybeRegion = track.getRegion(regionType, regionIndex);
+                    var maybeRegion = track.getTrackRegions().getRegion(regionType, regionIndex);
                     if (maybeRegion.isPresent()) {
-                        if (track.removeRegion(maybeRegion.get())) {
+                        if (track.getTrackRegions().remove(maybeRegion.get())) {
                             Text.send(player, Success.REMOVED);
                         } else {
                             Text.send(player, Error.FAILED_TO_REMOVE);

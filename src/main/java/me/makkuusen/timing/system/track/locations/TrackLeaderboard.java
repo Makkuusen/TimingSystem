@@ -1,8 +1,9 @@
-package me.makkuusen.timing.system.track;
+package me.makkuusen.timing.system.track.locations;
 
 import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.database.TrackDatabase;
+import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.holograms.HologramDH;
 import me.makkuusen.timing.system.track.holograms.HologramHD;
 import me.makkuusen.timing.system.track.holograms.HologramManager;
@@ -61,7 +62,7 @@ public class TrackLeaderboard extends TrackLocation {
     }
 
     private List<String> getHologramLines() {
-        var topTen = track.getTopList(10);
+        var topTen = track.getTimeTrials().getTopList(10);
         List<String> textLines = new ArrayList<>();
 
         for (String line : TimingSystem.configuration.getLeaderboardsFastestTimeLines()) {

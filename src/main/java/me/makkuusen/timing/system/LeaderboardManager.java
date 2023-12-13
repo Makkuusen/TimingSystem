@@ -3,8 +3,8 @@ package me.makkuusen.timing.system;
 import co.aikar.taskchain.TaskChain;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackLeaderboard;
-import me.makkuusen.timing.system.track.TrackLocation;
+import me.makkuusen.timing.system.track.locations.TrackLeaderboard;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
 import org.bukkit.Bukkit;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class LeaderboardManager {
             return;
         }
 
-        List<TrackLocation> trackLeaderboards = track.getTrackLocations(TrackLocation.Type.LEADERBOARD);
+        List<TrackLocation> trackLeaderboards = track.getTrackLocations().getLocations(TrackLocation.Type.LEADERBOARD);
 
         for (TrackLocation tl : trackLeaderboards) {
             if (tl instanceof TrackLeaderboard trackLeaderboard) {
@@ -53,7 +53,7 @@ public class LeaderboardManager {
         }
         Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
 
-            List<TrackLocation> trackLeaderboards = track.getTrackLocations(TrackLocation.Type.LEADERBOARD);
+            List<TrackLocation> trackLeaderboards = track.getTrackLocations().getLocations(TrackLocation.Type.LEADERBOARD);
 
             for (TrackLocation tl : trackLeaderboards) {
                 if (tl instanceof TrackLeaderboard trackLeaderboard) {

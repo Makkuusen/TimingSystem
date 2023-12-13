@@ -32,9 +32,9 @@ public class FinalHeat {
         EventAnnouncements.broadcastFinish(driver.getHeat(), driver, driver.getFinishTime());
 
         Bukkit.getServer().getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> {
-            driver.getHeat().getEvent().getTrack().getFinishTpLocation(driver.getPosition()).ifPresentOrElse(
+            driver.getHeat().getEvent().getTrack().getTrackLocations().getFinishTp(driver.getPosition()).ifPresentOrElse(
                     loc -> driver.getTPlayer().getPlayer().teleport(loc),
-                    () -> driver.getHeat().getEvent().getTrack().getFinishTpLocation().ifPresent(loc -> driver.getTPlayer().getPlayer().teleport(loc))
+                    () -> driver.getHeat().getEvent().getTrack().getTrackLocations().getFinishTp().ifPresent(loc -> driver.getTPlayer().getPlayer().teleport(loc))
             );
         });
     }

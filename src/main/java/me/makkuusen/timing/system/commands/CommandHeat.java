@@ -619,7 +619,7 @@ public class CommandHeat extends BaseCommand {
             return;
         }
 
-        List<TimeTrialFinish> driversWithBestTimes = heat.getEvent().getTrack().getTopList().stream().filter(tt -> heat.getDrivers().containsKey(tt.getPlayer().getUniqueId())).toList();
+        List<TimeTrialFinish> driversWithBestTimes = heat.getEvent().getTrack().getTimeTrials().getTopList().stream().filter(tt -> heat.getDrivers().containsKey(tt.getPlayer().getUniqueId())).toList();
         List<Driver> allDrivers = new ArrayList<>(heat.getStartPositions());
         List<Driver> noTT = new ArrayList<>();
 

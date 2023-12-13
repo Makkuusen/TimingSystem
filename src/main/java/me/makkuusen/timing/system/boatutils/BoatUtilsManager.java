@@ -44,7 +44,7 @@ public class BoatUtilsManager {
         if (mode != BoatUtilsMode.VANILLA) {
             if (!tPlayer.hasBoatUtils()) {
                 if (track != null) {
-                    if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer) && !sameAsLastTrack) {
+                    if (track.isBoatUtils() && !track.getTimeTrials().hasPlayedTrack(tPlayer) && !sameAsLastTrack) {
                         var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
                                 .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
                                 .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));

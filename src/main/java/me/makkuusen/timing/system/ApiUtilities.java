@@ -19,6 +19,10 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.*;
+import me.makkuusen.timing.system.track.options.TrackOption;
+import me.makkuusen.timing.system.track.regions.TrackCuboidRegion;
+import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -217,13 +221,6 @@ public class ApiUtilities {
         }
 
         return output.toString();
-    }
-
-    public static String listOfOptions(List<TrackOption> options) {
-        if (options.isEmpty()) {
-            return "None";
-        }
-        return String.join(", ", options.stream().map(TrackOption::toString).toList());
     }
 
     public static ItemStack stringToItem(String string) {

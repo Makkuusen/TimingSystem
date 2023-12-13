@@ -1,12 +1,10 @@
-package me.makkuusen.timing.system.track;
+package me.makkuusen.timing.system.track.tags;
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.database.TSDatabase;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;

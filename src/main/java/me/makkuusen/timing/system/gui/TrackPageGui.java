@@ -32,12 +32,12 @@ public abstract class TrackPageGui extends BaseGui {
     public TrackFilter filter;
 
     public Comparator<Track> compareTrackPosition = (k1, k2) -> {
-        if (k1.getCachedPlayerPosition(tPlayer) == -1 && k2.getCachedPlayerPosition(tPlayer) > 0) {
+        if (k1.getTimeTrials().getCachedPlayerPosition(tPlayer) == -1 && k2.getTimeTrials().getCachedPlayerPosition(tPlayer) > 0) {
             return 1;
-        } else if (k2.getCachedPlayerPosition(tPlayer) == -1 && k1.getCachedPlayerPosition(tPlayer) > 0) {
+        } else if (k2.getTimeTrials().getCachedPlayerPosition(tPlayer) == -1 && k1.getTimeTrials().getCachedPlayerPosition(tPlayer) > 0) {
             return -1;
         }
-        return k1.getCachedPlayerPosition(tPlayer).compareTo(k2.getCachedPlayerPosition(tPlayer));
+        return k1.getTimeTrials().getCachedPlayerPosition(tPlayer).compareTo(k2.getTimeTrials().getCachedPlayerPosition(tPlayer));
     };
 
     public TrackPageGui(TPlayer tPlayer, Component title) {
@@ -195,9 +195,9 @@ public abstract class TrackPageGui extends BaseGui {
 
         //Filter Tags
         if (filter.isAnyMatch()) {
-            tempTracks = trackStream.filter(track -> track.hasAnyTag(filter)).collect(Collectors.toList());
+            tempTracks = trackStream.filter(track -> track.getTrackTags().hasAnyTag(filter)).collect(Collectors.toList());
         } else {
-            tempTracks = trackStream.filter(track -> track.hasAllTags(filter)).collect(Collectors.toList());
+            tempTracks = trackStream.filter(track -> track.getTrackTags().hasAllTags(filter)).collect(Collectors.toList());
         }
 
         maxPage = tempTracks.size() / TRACKS_PER_PAGE;

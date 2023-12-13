@@ -6,7 +6,7 @@ import me.makkuusen.timing.system.TPlayer;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;

@@ -7,7 +7,7 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -48,8 +48,8 @@ public class TrackGui extends TrackPageGui {
 
     private ItemStack setTrackLore(Player player, Track track, ItemStack toReturn) {
         List<Component> loreToSet = new ArrayList<>();
-        loreToSet.add(Text.get(player, Gui.TOTAL_FINISHES, "%total%", String.valueOf(track.getTotalFinishes())));
-        loreToSet.add(Text.get(player, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(track.getTotalFinishes() + track.getTotalAttempts())));
+        loreToSet.add(Text.get(player, Gui.TOTAL_FINISHES, "%total%", String.valueOf(track.getTimeTrials().getTotalFinishes())));
+        loreToSet.add(Text.get(player, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(track.getTimeTrials().getTotalFinishes() + track.getTimeTrials().getTotalAttempts())));
         loreToSet.add(Text.get(player, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
         loreToSet.add(Text.get(player, Gui.CREATED_BY, "%player%", track.getOwner().getName()));
         if(!track.getContributorsAsString().isBlank()) loreToSet.add(Text.get(player, Gui.CONTRIBUTORS, "%contributors%", track.getContributorsAsString()));
@@ -58,7 +58,7 @@ public class TrackGui extends TrackPageGui {
 
         Component tags = Component.empty();
         boolean notFirst = false;
-        for (TrackTag tag : track.getTags()) {
+        for (TrackTag tag : track.getTrackTags().get()) {
             if (notFirst) {
                 tags = tags.append(Component.text(", ").color(tPlayer.getTheme().getSecondary()));
             }

@@ -1,11 +1,10 @@
-package me.makkuusen.timing.system.track;
+package me.makkuusen.timing.system.track.options;
 
 import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
 import lombok.Getter;
-import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;

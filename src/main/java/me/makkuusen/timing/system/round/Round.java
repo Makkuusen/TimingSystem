@@ -4,7 +4,6 @@ import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.TimingSystem;
@@ -14,7 +13,7 @@ import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Driver;
-import me.makkuusen.timing.system.track.TrackLocation;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +83,7 @@ public abstract class Round {
 
     public void initRound(List<Driver> drivers) {
         if (getHeats().isEmpty()) {
-            int maxDrivers = getEvent().getTrack().getTrackLocations(TrackLocation.Type.GRID).size();
+            int maxDrivers = getEvent().getTrack().getTrackLocations().getLocations(TrackLocation.Type.GRID).size();
             int heats = drivers.size() / maxDrivers;
             if (drivers.size() % maxDrivers != 0) {
                 heats++;

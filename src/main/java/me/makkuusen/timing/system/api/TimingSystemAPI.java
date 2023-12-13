@@ -53,7 +53,7 @@ public class TimingSystemAPI {
             return Optional.empty();
         }
         var tPlayer = TSDatabase.getPlayer(uuid);
-        var bestTime = track.get().getBestFinish(tPlayer);
+        var bestTime = track.get().getTimeTrials().getBestFinish(tPlayer);
         if (bestTime == null) {
             return Optional.empty();
         }

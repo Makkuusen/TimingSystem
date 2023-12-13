@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system.track;
+package me.makkuusen.timing.system.track.regions;
 
 import co.aikar.idb.DbRow;
 import lombok.Getter;

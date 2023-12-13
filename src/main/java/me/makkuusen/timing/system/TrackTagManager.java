@@ -4,11 +4,9 @@ import co.aikar.commands.BukkitCommandExecutionContext;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.contexts.ContextResolver;
-import co.aikar.idb.DB;
-import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
@@ -47,8 +45,8 @@ public class TrackTagManager {
     public static boolean deleteTag(TrackTag tag) {
         if (trackTags.containsKey(tag)) {
             for (Track t : TrackDatabase.tracks) {
-                if (t.hasTag(tag)) {
-                    t.removeTag(tag);
+                if (t.getTrackTags().hasTag(tag)) {
+                    t.getTrackTags().remove(tag);
                 }
             }
             trackTags.remove(tag);

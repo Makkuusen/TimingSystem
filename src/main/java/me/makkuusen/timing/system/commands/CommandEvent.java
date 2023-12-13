@@ -371,7 +371,7 @@ public class CommandEvent extends BaseCommand {
         if (event.getTrack() != null) {
             var sortedList = CommandRound.getSortedList(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
             for (TPlayer tPlayer : sortedList) {
-                var bestTime = event.getTrack().getBestFinish(tPlayer);
+                var bestTime = event.getTrack().getTimeTrials().getBestFinish(tPlayer);
                 player.sendMessage(theme.primary(count++ + ":").append(Component.space()).append(theme.highlight(tPlayer.getName())).append(theme.hyphen()).append(theme.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()))));
             }
         } else {
@@ -396,7 +396,7 @@ public class CommandEvent extends BaseCommand {
         if (event.getTrack() != null) {
             var sortedList = CommandRound.getSortedList(event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
             for (TPlayer tPlayer : sortedList) {
-                var bestTime = event.getTrack().getBestFinish(tPlayer);
+                var bestTime = event.getTrack().getTimeTrials().getBestFinish(tPlayer);
                 player.sendMessage(theme.primary(count++ + ":").append(Component.space()).append(theme.highlight(tPlayer.getName())).append(theme.hyphen()).append(theme.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime())))
 
                 );

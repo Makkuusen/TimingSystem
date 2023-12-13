@@ -13,7 +13,7 @@ import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -119,7 +119,7 @@ public class CommandTimeTrial extends BaseCommand {
         List<Track> tracks;
 
         if (trackTag != null) {
-            tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.hasTag(trackTag)).collect(Collectors.toList());
+            tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.getTrackTags().hasTag(trackTag)).collect(Collectors.toList());
             if (tracks.isEmpty()) {
                 Text.send(player, Error.TRACKS_NOT_FOUND);
                 return;
@@ -149,7 +149,7 @@ public class CommandTimeTrial extends BaseCommand {
 
         List<Track> tracks;
         if (trackTag != null) {
-            tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.hasTag(trackTag)).collect(Collectors.toList());
+            tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.getTrackTags().hasTag(trackTag)).collect(Collectors.toList());
             if (tracks.isEmpty()) {
                 Text.send(player, Error.TRACKS_NOT_FOUND);
                 return;
@@ -158,7 +158,7 @@ public class CommandTimeTrial extends BaseCommand {
             tracks = TrackDatabase.getOpenTracks();
         }
 
-        tracks = tracks.stream().filter(track -> track.getPlayerTotalFinishes(TSDatabase.getPlayer(player.getUniqueId())) < 1).collect(Collectors.toList());
+        tracks = tracks.stream().filter(track -> track.getTimeTrials().getPlayerTotalFinishes(TSDatabase.getPlayer(player.getUniqueId())) < 1).collect(Collectors.toList());
         if (tracks.isEmpty()) {
             Text.send(player, Error.TRACKS_NOT_FOUND);
             return;
@@ -176,9 +176,9 @@ public class CommandTimeTrial extends BaseCommand {
         }
         TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
 
-        if (track.getCachedPlayerPosition(tPlayer) != -1) {
+        if (track.getTimeTrials().getCachedPlayerPosition(tPlayer) != -1) {
             Component message = Text.get(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
-            var leaderboardPosition = track.getCachedPlayerPosition(tPlayer);
+            var leaderboardPosition = track.getTimeTrials().getCachedPlayerPosition(tPlayer);
             Component positionComponent = tPlayer.getTheme().getParenthesized(String.valueOf(leaderboardPosition));
             if (message != null) {
                 player.sendMessage(message.append(Component.space()).append(positionComponent));
