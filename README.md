@@ -1,7 +1,7 @@
 # Timing System
 
 
-## What is Timing System?
+## What does it do?
 TimingSystem is a plugin that aims to do a few things.
 * Creation and time-trials of 3 various track types. [Boats, Elytra and Parkour]
 * Displaying leaderboards. In-game holograms and/or command-based ones.
