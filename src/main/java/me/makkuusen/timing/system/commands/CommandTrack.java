@@ -159,10 +159,10 @@ public class CommandTrack extends BaseCommand {
         } else {
             Text.send(commandSender, Info.TRACK_CLOSED);
         }
+        Text.send(commandSender, Info.TRACK_TIMETRIAL, "%timetrial%", track.isTimeTrial() ? "Enabled" : "Disabled");
         Text.send(commandSender, Info.TRACK_TYPE, "%type%", track.getTypeAsString());
         Text.send(commandSender, Info.TRACK_DATE_CREATED, "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
         Text.send(commandSender, Info.TRACK_OPTIONS, "%options%", track.getTrackOptions().listOfOptions());
-        Text.send(commandSender, Info.TRACK_MODE, "%mode%", track.getModeAsString());
         Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", track.getBoatUtilsMode().name());
         Text.send(commandSender, Info.TRACK_CHECKPOINTS, "%size%", String.valueOf(track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).size()));
         if (!track.getTrackLocations().getLocations(TrackLocation.Type.GRID).isEmpty()) {
@@ -507,18 +507,5 @@ public class CommandTrack extends BaseCommand {
     public static void onUpdateLeaderboards(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), LeaderboardManager::updateAllFastestTimeLeaderboard);
         Text.send(player, Info.UPDATING_LEADERBOARDS);
-    }
-
-    @Subcommand("set")
-    public class Set extends BaseCommand {
-
-        @Subcommand("mode")
-        @CommandCompletion("@trackMode @track")
-        @CommandPermission("%permissiontrack_set_mode")
-        public static void onMode(Player player, Track.TrackMode mode, Track track) {
-            track.setMode(mode);
-            Text.send(player, Success.SAVED);
-        }
-
     }
 }

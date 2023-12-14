@@ -61,7 +61,7 @@ public interface TrackDatabase {
 
     List<DbRow> selectOptions() throws SQLException;
 
-    long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Track.TrackMode mode, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException;
+    long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException;
 
     long createRegion(long trackId, int index, String minP, String maxP, TrackRegion.RegionType type, TrackRegion.RegionShape shape, Location location) throws SQLException;
 
@@ -311,7 +311,7 @@ public interface TrackDatabase {
             Location leaderboard = location.clone();
             leaderboard.setY(leaderboard.getY() + 3);
             // Save the track
-            var trackId = TimingSystem.getTrackDatabase().createTrack(uuid.toString(), name, date, 100, gui, location, Track.TrackMode.TIMETRIAL, type, BoatUtilsMode.VANILLA);
+            var trackId = TimingSystem.getTrackDatabase().createTrack(uuid.toString(), name, date, 100, gui, location, type, BoatUtilsMode.VANILLA);
 
             var dbRow = TimingSystem.getTrackDatabase().selectTrack(trackId);
 

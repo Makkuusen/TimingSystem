@@ -11,27 +11,22 @@ import org.bukkit.entity.Boat;
 import java.awt.*;
 import java.util.UUID;
 
+@Getter
 public class Settings {
 
     private final UUID uuid;
-    @Getter
     private Boat.Type boat;
-    @Getter
     private boolean chestBoat;
     private boolean toggleSound;
     private String color;
-    @Getter
     private boolean verbose;
-    @Getter
     private boolean timeTrial;
-    @Getter
     private boolean override;
-    @Getter
     private boolean compactScoreboard;
-    @Getter
     private boolean sendFinalLaps;
-    public Settings(UUID uuid, DbRow data) {
-        this.uuid = uuid;
+    private String shortName;
+    public Settings(TPlayer tPlayer, DbRow data) {
+        this.uuid = tPlayer.getUniqueId();
         boat = stringToType(data.getString("boat"));
         chestBoat = data.get("chestBoat") instanceof Boolean ? data.get("chestBoat") : data.get("chestBoat").equals(1);
         toggleSound = data.get("toggleSound") instanceof Boolean ? data.get("toggleSound") : data.get("toggleSound").equals(1);
@@ -40,6 +35,15 @@ public class Settings {
         color = data.getString("color");
         compactScoreboard = data.get("compactScoreboard") instanceof Boolean ? data.get("compactScoreboard") : data.get("compactScoreboard").equals(1);
         sendFinalLaps = data.get("sendFinalLaps") instanceof Boolean ? data.get("sendFinalLaps") : data.get("sendFinalLaps").equals(1);
+        shortName = data.get("shortName") == null ? extractShortName(tPlayer.getName()) : data.get("shortName");
+    }
+
+    private String extractShortName(String name) {
+        if (name.length() < 5) {
+            return name;
+        } else {
+            return name.substring(0, 4);
+        }
     }
 
     public String getHexColor() {
@@ -59,6 +63,11 @@ public class Settings {
 
     public TextColor getTextColor() {
         return TextColor.fromHexString(color);
+    }
+
+    public void setShortName(String name) {
+        this.shortName = name;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "shortName", name);
     }
 
     public void setBoat(Boat.Type boat) {

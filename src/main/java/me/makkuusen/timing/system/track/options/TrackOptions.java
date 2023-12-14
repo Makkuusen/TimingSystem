@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system.track.options;
 
+import lombok.Getter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.TrackDatabase;
 
@@ -8,6 +9,7 @@ import java.util.List;
 
 public class TrackOptions {
 
+    @Getter
     private final List<TrackOption> trackOptions = new ArrayList<>();
     private final int trackId;
     public TrackOptions (int trackId) {

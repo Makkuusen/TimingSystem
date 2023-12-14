@@ -111,15 +111,6 @@ public class ContextResolvers {
             return res;
         });
         manager.getCommandContexts().registerContext(
-                Track.TrackMode.class, ContextResolvers.getTrackModeContextResolver());
-        manager.getCommandCompletions().registerAsyncCompletion("trackMode", context -> {
-            List<String> res = new ArrayList<>();
-            for (Track.TrackMode mode : Track.TrackMode.values()) {
-                res.add(mode.name().toLowerCase());
-            }
-            return res;
-        });
-        manager.getCommandContexts().registerContext(
                 Boat.Type.class, ContextResolvers.getBoatContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("boat", context -> {
             List<String> res = new ArrayList<>();
@@ -172,17 +163,6 @@ public class ContextResolvers {
             String name = c.popFirstArg();
             try {
                 return Track.TrackType.valueOf(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
-
-    public static ContextResolver<Track.TrackMode, BukkitCommandExecutionContext> getTrackModeContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return Track.TrackMode.valueOf(name.toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
             }

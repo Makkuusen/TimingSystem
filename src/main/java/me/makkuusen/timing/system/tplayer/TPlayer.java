@@ -49,7 +49,7 @@ public class TPlayer implements Comparable<TPlayer> {
         this.plugin = plugin;
         uuid = UUID.fromString(data.getString("uuid"));
         name = data.getString("name");
-        settings = new Settings(uuid, data);
+        settings = new Settings(this, data);
         theme = TimingSystem.defaultTheme;
     }
 

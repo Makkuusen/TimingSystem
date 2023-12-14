@@ -108,6 +108,14 @@ public class CommandTrackEdit extends BaseCommand {
         Text.send(player, response);
     }
 
+    @Subcommand("timetrial")
+    @CommandCompletion("enable|disable @track")
+    @CommandPermission("%permissiontrackedit_timetrial")
+    public static void onMode(Player player, String timeTrial, @Optional Track track) {
+        Message response = TrackEditor.setTimeTrial(player, timeTrial.equalsIgnoreCase("enable"), track);
+        Text.send(player, response);
+    }
+
     @Subcommand("weight")
     @CommandCompletion("<value> @track")
     @CommandPermission("%permissiontrackedit_weight")

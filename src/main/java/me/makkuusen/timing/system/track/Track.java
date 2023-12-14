@@ -40,10 +40,10 @@ public class Track {
     private ItemStack item;
     private Location spawnLocation;
     private TrackType type;
-    private TrackMode mode;
     private BoatUtilsMode boatUtilsMode;
     private int weight;
     private boolean open;
+    private boolean timeTrial;
     private long dateChanged;
 
 
@@ -59,7 +59,7 @@ public class Track {
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         type = data.getString("type") == null ? TrackType.BOAT : TrackType.valueOf(data.getString("type"));
         open = data.get("toggleOpen") instanceof Boolean ? data.get("toggleOpen") : data.get("toggleOpen").equals(1);
-        mode = data.get("mode") == null ? TrackMode.TIMETRIAL : TrackMode.valueOf(data.getString("mode"));
+        timeTrial = data.get("timeTrial") instanceof Boolean ? data.get("timeTrial") : data.get("timeTrial").equals(1);
         weight = data.getInt("weight");
         dateChanged = data.get("dateChanged") == null ? 0 : data.getInt("dateChanged");
         boatUtilsMode = data.get("boatUtilsMode") == null ? BoatUtilsMode.VANILLA : BoatUtilsMode.getMode(data.getInt("boatUtilsMode"));
@@ -137,11 +137,6 @@ public class Track {
         TimingSystem.getTrackDatabase().trackSet(getId(), "dateChanged", String.valueOf(dateChanged));
     }
 
-    public void setMode(TrackMode mode) {
-        this.mode = mode;
-        TimingSystem.getTrackDatabase().trackSet(id, "mode", mode.toString());
-    }
-
     public void setBoatUtilsMode(BoatUtilsMode mode) {
         this.boatUtilsMode = mode;
         TimingSystem.getTrackDatabase().trackSet(id, "boatUtilsMode", (int) mode.getId());
@@ -166,6 +161,11 @@ public class Track {
     public void setOpen(boolean open) {
         this.open = open;
         TimingSystem.getTrackDatabase().trackSet(id, "toggleOpen", open);
+    }
+
+    public void setTimeTrial(boolean enable) {
+        this.timeTrial = enable;
+        TimingSystem.getTrackDatabase().trackSet(id, "timeTrial", timeTrial);
     }
 
     public int getNumberOfCheckpoints() {
@@ -213,15 +213,6 @@ public class Track {
         return "Unknown";
     }
 
-    public String getModeAsString() {
-        if (mode.equals(TrackMode.RACE)) {
-            return "Race";
-        } else if (mode.equals(TrackMode.TIMETRIAL)) {
-            return "Timetrial";
-        }
-        return "Unknown";
-    }
-
     public void setTrackType(TrackType type) {
         this.type = type;
         TimingSystem.getTrackDatabase().trackSet(id, "type", type.toString());
@@ -262,9 +253,5 @@ public class Track {
 
     public enum TrackType {
         BOAT, ELYTRA, PARKOUR
-    }
-
-    public enum TrackMode {
-        TIMETRIAL, RACE
     }
 }

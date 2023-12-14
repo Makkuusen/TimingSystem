@@ -72,6 +72,7 @@ public enum Error implements Message {
     INVALID_TRACK_NAME,
     INVALID_TRACK_MODE,
     INVALID_NAME,
+    INVALID_SHORTNAME,
     NO_EVENT_SELECTED,
     LEFT_BOAT,
     RACE_IN_PROGRESS,

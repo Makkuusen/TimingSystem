@@ -11,6 +11,7 @@ public enum PermissionTrackEdit implements Permissions{
     DELETE_TRACK,
     OPEN,
     CLOSE,
+    TIMETRIAL,
     ITEM,
     NAME,
     WEIGHT,

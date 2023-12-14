@@ -372,7 +372,7 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("add")
-    @CommandCompletion("@heat @players ")
+    @CommandCompletion("@heat @players")
     @CommandPermission("%permissionheat_add_driver")
     public static void onHeatAddDriver(Player sender, Heat heat, String playerName) {
         if (!heat.getRound().getRoundIndex().equals(heat.getEvent().getEventSchedule().getCurrentRound()) && heat.getRound().getRoundIndex() != 1) {

@@ -8,6 +8,7 @@ import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.updates.Version2;
+import me.makkuusen.timing.system.database.updates.Version3;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -55,7 +56,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 2;
+            int databaseVersion = 3;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + databaseVersion + "', " + ApiUtilities.getTimestamp() + ");");
                 return true;
@@ -104,6 +105,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         if (previousVersion < 2) {
             Version2.update();
         }
+        if (previousVersion < 3) {
+            Version3.updateMySQL();
+        }
     }
 
 
@@ -114,6 +118,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                     CREATE TABLE IF NOT EXISTS `ts_players` (
                       `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
                       `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                      `shortName` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `boat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `verbose` tinyint(1) NOT NULL DEFAULT '0',
                       `timetrial` tinyint(1) NOT NULL DEFAULT '1',
@@ -138,8 +143,8 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `guiItem` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                       `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                       `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `mode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                      `toggleOpen` tinyint(1) NOT NULL,
+                      `timeTrial` tinyint(1) NOT NULL DEFAULT 1,
+                      `toggleOpen` tinyint(1) NOT NULL DEFAULT 0,
                       `boatUtilsMode` int(4) NOT NULL DEFAULT '-1',
                       `isRemoved` tinyint(1) NOT NULL,
                       PRIMARY KEY (`id`)
@@ -662,9 +667,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     }
 
     @Override
-    public long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Track.TrackMode mode, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException {
-        return DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `type`, `mode`, `toggleOpen`, `boatUtilsMode`, `isRemoved`) " +
-                "VALUES('" + uuid + "', " + TSDatabase.sqlStringOf(name) + ", " + date + ", " + weight + ", " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', " + TSDatabase.sqlStringOf(type == null ? null : type.toString()) + "," + TSDatabase.sqlStringOf(mode.toString()) + ", 0, " + boatUtilsMode.getId() + ", 0);");
+    public long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException {
+        return DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `type`, `toggleOpen`, `boatUtilsMode`, `isRemoved`) " +
+                "VALUES('" + uuid + "', " + TSDatabase.sqlStringOf(name) + ", " + date + ", " + weight + ", " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', " + TSDatabase.sqlStringOf(type == null ? null : type.toString()) + ", 0, " + boatUtilsMode.getId() + ", 0);");
     }
 
     @Override
