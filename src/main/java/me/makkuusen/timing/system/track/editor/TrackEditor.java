@@ -183,35 +183,6 @@ public class TrackEditor {
         return Text.get(player, Success.UPDATED_TOGGLEABLE_VALUES, "%value%", "TrackOptions").append(resultsText);
     }
 
-    /*public static Component removeOption(Player player, TrackOption option, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
-            }
-        }
-        if (track.getTrackOptions().remove(option)) {
-            return Text.get(player, Success.REMOVED);
-        }
-        return Text.get(player, Error.FAILED_TO_REMOVE_OPTION);
-    }
-
-    public static Component addOption(Player player, TrackOption option, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
-            }
-        }
-        if (track.getTrackOptions().create(option)) {
-            return Text.get(player, Success.ADDED_OPTION, "%option%", option.toString());
-        }
-        return Text.get(player, Error.FAILED_TO_ADD_OPTION);
-    }
-     */
-
     public static Message setTrackType(Player player, Track.TrackType type, Track track) {
         if (track == null) {
             if (hasTrackSelected(player.getUniqueId())) {
