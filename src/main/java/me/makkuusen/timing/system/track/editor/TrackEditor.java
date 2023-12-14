@@ -8,6 +8,7 @@ import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.logger.LogEntryBuilder;
 import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Message;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -18,6 +19,8 @@ import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -246,36 +249,43 @@ public class TrackEditor {
         return Success.SAVED;
     }
 
-    public static Message addContributor(Player player, String name, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Error.TRACK_NOT_FOUND_FOR_EDIT;
-            }
-        }
-        TPlayer tPlayer = TSDatabase.getPlayer(name);
-        if (tPlayer == null) {
-            return Error.PLAYER_NOT_FOUND;
-        }
-        track.addContributor(tPlayer);
-        return Success.SAVED;
-    }
+    public static Component handleContributor(Player player, String names) {
+        Theme theme = Theme.getTheme(player);
 
-    public static Message removeContributor(Player player, String name, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Error.TRACK_NOT_FOUND_FOR_EDIT;
+        Track track;
+        if (hasTrackSelected(player.getUniqueId()))
+            track = getPlayerTrackSelection(player.getUniqueId());
+        else
+            return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+
+        String[] playerNames = names.split(" ");
+        List<TPlayer> tPlayers = Arrays.stream(playerNames).map(TSDatabase::getPlayer).toList();
+        List<Component> results = new ArrayList<>();
+
+        int tPlayerIndex = -1;
+        for(TPlayer tPlayer : tPlayers) {
+            tPlayerIndex++;
+            if(tPlayer == null) {
+                results.add(Component.text(playerNames[tPlayerIndex], theme.getWarning(), TextDecoration.STRIKETHROUGH));
+                continue;
             }
+
+            if(track.getContributors().contains(tPlayer)) {
+                track.removeContributor(tPlayer);
+                results.add(Component.text(tPlayer.getName(), theme.getError()));
+                continue;
+            }
+
+            track.addContributor(tPlayer);
+            results.add(Component.text(tPlayer.getName(), theme.getSuccess()));
         }
-        TPlayer tPlayer = TSDatabase.getPlayer(name);
-        if (tPlayer == null) {
-            return Error.PLAYER_NOT_FOUND;
+
+        Component resultsText = results.get(0);
+        for(Component result : results.subList(1, results.size())) {
+            resultsText = resultsText.append(Component.text(", ", theme.getPrimary(), new HashSet<>())).append(result);
         }
-        track.removeContributor(tPlayer);
-        return Success.SAVED;
+
+        return Text.get(player, Success.UPDATED_CONTRIBUTORS).append(resultsText);
     }
 
     public static Message setItem(Player player, Track track) {

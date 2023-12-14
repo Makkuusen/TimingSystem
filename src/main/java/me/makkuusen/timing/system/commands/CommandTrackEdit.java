@@ -195,7 +195,7 @@ public class CommandTrackEdit extends BaseCommand {
     }
 
     @Subcommand("region|rg")
-    @CommandCompletion("@regionType <index> overload")
+    @CommandCompletion("@regionType <index>")
     @CommandPermission("%permissiontrackedit_region")
     public static void onRegion(Player player, TrackRegion.RegionType regionType, @Optional String index) {
         var response = TrackEditor.createOrUpdateRegion(player, regionType, index, false);
@@ -226,7 +226,7 @@ public class CommandTrackEdit extends BaseCommand {
         Text.send(player, response);
     }
 
-    @Subcommand("contributors add")
+    /*@Subcommand("contributors add")
     @CommandCompletion("<player> @track")
     @CommandPermission("%permissiontrackedit_contributors")
     public static void onAddContributor(Player player, String name, @Optional Track track) {
@@ -240,5 +240,14 @@ public class CommandTrackEdit extends BaseCommand {
     public static void onRemoveContributor(Player player, String name, @Optional Track track) {
         var response = TrackEditor.removeContributor(player, name, track);
         Text.send(player, response);
+    }
+     */
+
+    @Subcommand("contributors")
+    @CommandCompletion("<player>")
+    @CommandPermission("%permissiontrackedit_contributors")
+    public static void onContributor(Player player, String players) {
+        var response = TrackEditor.handleContributor(player, players);
+        player.sendMessage(response);
     }
 }

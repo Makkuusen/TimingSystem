@@ -14,6 +14,7 @@ public enum Success implements Message {
     ADDING_DRIVERS,
     ADDED_DRIVER,
     ADDED_ALL_DRIVERS,
+    UPDATED_CONTRIBUTORS,
     REMOVED,
     REMOVED_TAG,
     REMOVED_LOCATIONS,

@@ -127,6 +127,7 @@ success:
   adding_drivers: "&sAdding drivers to %heat%."
   added_driver: "&sAdded driver."
   added_all_drivers: "&sAll online players has been added."
+  updated_contributors: "&1Contributors have been updated: "
   removed: "&sYour thing has been removed."
   removed_best_finish: "&sRemoved best finish for %player% on %track%."
   removed_all_finishes: "&sAll finishes has been removed."

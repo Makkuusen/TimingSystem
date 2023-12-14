@@ -232,7 +232,7 @@ public class Track {
     public void removeContributor(TPlayer tPlayer) {
         contributors.remove(tPlayer);
         String uuids = ApiUtilities.uuidListToString(ApiUtilities.uuidListFromTPlayersList(contributors));
-        TimingSystem.getTrackDatabase().trackSet(id, "contributors", uuids.isEmpty() ? "NULL" : uuids);
+        TimingSystem.getTrackDatabase().trackSet(id, "contributors", uuids.isEmpty() ? null : uuids);
     }
 
     public String getContributorsAsString() {
