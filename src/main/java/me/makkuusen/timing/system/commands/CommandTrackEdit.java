@@ -142,15 +142,10 @@ public class CommandTrackEdit extends BaseCommand {
     }
 
     @Subcommand("option")
-    @CommandCompletion("+/- @trackOption @track")
+    @CommandCompletion("@trackOption")
     @CommandPermission("%permissiontrackedit_option")
-    public static void onOption(Player player, String plusOrMinus, TrackOption option, @Optional Track track) {
-        Component response;
-        if (plusOrMinus.equalsIgnoreCase("-")) {
-            response = TrackEditor.removeOption(player, option, track);
-        } else {
-            response = TrackEditor.addOption(player, option, track);
-        }
+    public static void onOption(Player player, String options) {
+        Component response = TrackEditor.handleOption(player, options);
         player.sendMessage(response);
     }
 

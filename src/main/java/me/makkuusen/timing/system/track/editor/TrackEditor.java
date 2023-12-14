@@ -139,7 +139,51 @@ public class TrackEditor {
         return Text.get(player, Error.FAILED_TO_ADD_TAG);
     }
 
-    public static Component removeOption(Player player, TrackOption option, Track track) {
+    public static Component handleOption(Player player, String options) {
+        Theme theme = Theme.getTheme(player);
+
+        Track track;
+        if (hasTrackSelected(player.getUniqueId()))
+            track = getPlayerTrackSelection(player.getUniqueId());
+        else
+            return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+
+        String[] separatedOptions = options.split(" ");
+        List<TrackOption> trackOptions = Arrays.stream(separatedOptions).map((option) -> {
+            try {
+                return TrackOption.valueOf(option.toUpperCase());
+            } catch (IllegalArgumentException ignored) {}
+            return null;
+        }).toList();
+        List<Component> results = new ArrayList<>();
+
+        int optionIndex = -1;
+        for(TrackOption op : trackOptions) {
+            optionIndex++;
+            if(op == null) {
+                results.add(Component.text(separatedOptions[optionIndex], theme.getWarning(), TextDecoration.STRIKETHROUGH));
+                continue;
+            }
+
+            if(track.getTrackOptions().getTrackOptions().contains(op)) {
+                track.getTrackOptions().remove(op);
+                results.add(Component.text(op.name().toLowerCase(), theme.getError()));
+                continue;
+            }
+
+            track.getTrackOptions().add(op);
+            results.add(Component.text(op.name().toLowerCase(), theme.getSuccess()));
+        }
+
+        Component resultsText = results.get(0);
+        for(Component result : results.subList(1, results.size())) {
+            resultsText = resultsText.append(Component.text(", ", theme.getPrimary(), new HashSet<>())).append(result);
+        }
+
+        return Text.get(player, Success.UPDATED_TOGGLEABLE_VALUES, "%value%", "TrackOptions").append(resultsText);
+    }
+
+    /*public static Component removeOption(Player player, TrackOption option, Track track) {
         if (track == null) {
             if (hasTrackSelected(player.getUniqueId())) {
                 track = getPlayerTrackSelection(player.getUniqueId());
@@ -166,6 +210,7 @@ public class TrackEditor {
         }
         return Text.get(player, Error.FAILED_TO_ADD_OPTION);
     }
+     */
 
     public static Message setTrackType(Player player, Track.TrackType type, Track track) {
         if (track == null) {
@@ -285,7 +330,7 @@ public class TrackEditor {
             resultsText = resultsText.append(Component.text(", ", theme.getPrimary(), new HashSet<>())).append(result);
         }
 
-        return Text.get(player, Success.UPDATED_CONTRIBUTORS).append(resultsText);
+        return Text.get(player, Success.UPDATED_TOGGLEABLE_VALUES, "%value%", "Contributors").append(resultsText);
     }
 
     public static Message setItem(Player player, Track track) {
