@@ -105,6 +105,8 @@ public interface TrackDatabase {
 
     void trackRegionSet(int regionId, String column, String value);
 
+    void trackRegionSet(int regionId, String column, Integer value);
+
     void createCheckpointFinish(long finishId, int checkpointIndex, long time);
 
     void createAttempt(int id, UUID uuid, long date, long time);

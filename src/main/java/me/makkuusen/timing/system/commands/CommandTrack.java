@@ -151,7 +151,7 @@ public class CommandTrack extends BaseCommand {
         Text.send(commandSender, Info.PLAYER_STATS_TIME_SPENT, "%size%", ApiUtilities.formatAsTimeSpent(timeTrials.getPlayerTotalTimeSpent(tPlayer)));
     }
 
-    private static void sendTrackInfo(CommandSender commandSender, Track track) {
+    public static void sendTrackInfo(CommandSender commandSender, Track track) {
         commandSender.sendMessage(Component.empty());
         Text.send(commandSender, Info.TRACK_TITLE, "%name%", track.getDisplayName(), "%id%", String.valueOf(track.getId()));
         if (track.isOpen()) {

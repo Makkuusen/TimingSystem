@@ -35,13 +35,23 @@ public class TrackEditor {
         return playerTrackSelection.get(uuid);
     }
 
-    public static Component toggleVisualisation(Player player) {
+    public static Component setVisualisation(Player player, boolean add, Track track) {
+        if (add) {
+            playerTrackVisualisation.add(player.getUniqueId());
+            return Text.get(player, Success.VIEWING_STARTED, "%track%", track.getDisplayName());
+        } else {
+            playerTrackVisualisation.remove(player.getUniqueId());
+            return Text.get(player, Success.VIEWING_ENDED);
+        }
+    }
+
+    public static Component toggleVisualisation(Player player, Track track) {
         if (playerTrackVisualisation.contains(player.getUniqueId())) {
             playerTrackVisualisation.remove(player.getUniqueId());
-            return Text.get(player, Success.SESSION_ENDED);
+            return Text.get(player, Success.VIEWING_ENDED);
         } else {
             playerTrackVisualisation.add(player.getUniqueId());
-            return Text.get(player, Success.SESSION_STARTED);
+            return Text.get(player, Success.VIEWING_STARTED, "%track%", track.getDisplayName());
         }
     }
 
@@ -98,60 +108,60 @@ public class TrackEditor {
         return Success.SAVED;
     }
 
-    public static Message removeTag(Player player, TrackTag tag, Track track) {
+    public static Component removeTag(Player player, TrackTag tag, Track track) {
         if (track == null) {
             if (hasTrackSelected(player.getUniqueId())) {
                 track = getPlayerTrackSelection(player.getUniqueId());
             } else {
-                return Error.TRACK_NOT_FOUND_FOR_EDIT;
+                return Text.get(player,Error.TRACK_NOT_FOUND_FOR_EDIT);
             }
         }
         if (track.getTrackTags().remove(tag)) {
-            return Success.REMOVED;
+            return Text.get(player, Success.REMOVED);
         }
-        return Error.FAILED_TO_REMOVE_TAG;
+        return Text.get(player, Error.FAILED_TO_REMOVE_TAG);
     }
 
-    public static Message addTag(Player player, TrackTag tag, Track track) {
+    public static Component addTag(Player player, TrackTag tag, Track track) {
         if (track == null) {
             if (hasTrackSelected(player.getUniqueId())) {
                 track = getPlayerTrackSelection(player.getUniqueId());
             } else {
-                return Error.TRACK_NOT_FOUND_FOR_EDIT;
+                return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
             }
         }
         if (track.getTrackTags().create(tag)) {
-            return Success.ADDED_TAG;
+            return Text.get(player, Success.ADDED_TAG, "%tag%", tag.toString());
         }
-        return Error.FAILED_TO_ADD_TAG;
+        return Text.get(player, Error.FAILED_TO_ADD_TAG);
     }
 
-    public static Message removeOption(Player player, TrackOption option, Track track) {
+    public static Component removeOption(Player player, TrackOption option, Track track) {
         if (track == null) {
             if (hasTrackSelected(player.getUniqueId())) {
                 track = getPlayerTrackSelection(player.getUniqueId());
             } else {
-                return Error.TRACK_NOT_FOUND_FOR_EDIT;
+                return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
             }
         }
         if (track.getTrackOptions().remove(option)) {
-            return Success.REMOVED;
+            return Text.get(player, Success.REMOVED);
         }
-        return Error.FAILED_TO_REMOVE_OPTION;
+        return Text.get(player, Error.FAILED_TO_REMOVE_OPTION);
     }
 
-    public static Message addOption(Player player, TrackOption option, Track track) {
+    public static Component addOption(Player player, TrackOption option, Track track) {
         if (track == null) {
             if (hasTrackSelected(player.getUniqueId())) {
                 track = getPlayerTrackSelection(player.getUniqueId());
             } else {
-                return Error.TRACK_NOT_FOUND_FOR_EDIT;
+                return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
             }
         }
         if (track.getTrackOptions().create(option)) {
-            return Success.ADDED_OPTION;
+            return Text.get(player, Success.ADDED_OPTION, "%option%", option.toString());
         }
-        return Error.FAILED_TO_ADD_OPTION;
+        return Text.get(player, Error.FAILED_TO_ADD_OPTION);
     }
 
     public static Message setTrackType(Player player, Track.TrackType type, Track track) {
@@ -368,9 +378,10 @@ public class TrackEditor {
                 return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
             }
         }
-        if (!hasTrackSelected(player.getUniqueId())) {
+        if (track != getPlayerTrackSelection(player.getUniqueId())) {
             setPlayerTrackSelection(player.getUniqueId(), track);
+            return TrackEditor.setVisualisation(player, true, track);
         }
-        return TrackEditor.toggleVisualisation(player);
+        return TrackEditor.toggleVisualisation(player, track);
     }
 }

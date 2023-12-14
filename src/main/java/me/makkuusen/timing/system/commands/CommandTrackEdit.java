@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.theme.messages.Message;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -14,13 +15,27 @@ import me.makkuusen.timing.system.track.locations.TrackLocation;
 import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.track.tags.TrackTag;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+
 
 @CommandAlias("trackedit|te")
 
 public class CommandTrackEdit extends BaseCommand {
 
+
+    @Default
+    public static void onTrackEdit(Player player) {
+        var track = TrackEditor.getPlayerTrackSelection(player.getUniqueId());
+        if (track == null) {
+            Text.send(player, Success.NO_TRACK_SELECTED);
+        } else {
+            CommandTrack.sendTrackInfo(player, track);
+        }
+    }
+
     @Subcommand("select|sel")
+    @CommandCompletion("@track")
     @CommandPermission("%permissiontrackedit_select")
     public static void onSelectTrack(Player player, @Optional Track track)  {
         if (track == null) {
@@ -33,7 +48,7 @@ public class CommandTrackEdit extends BaseCommand {
             }
         }
         TrackEditor.setPlayerTrackSelection(player.getUniqueId(), track);
-        Text.send(player, Success.SAVED);
+        Text.send(player, Success.TRACK_SELECTED, "%track%", track.getDisplayName());
     }
 
     @Subcommand("view")
@@ -109,26 +124,26 @@ public class CommandTrackEdit extends BaseCommand {
             Text.send(player, Error.TAG_NOT_FOUND);
             return;
         }
-        Message response;
+        Component response;
         if (plusOrMinus.equalsIgnoreCase("-")) {
             response = TrackEditor.removeTag(player, tag, track);
         } else {
             response = TrackEditor.addTag(player,tag, track);
         }
-        Text.send(player, response);
+        player.sendMessage(response);
     }
 
     @Subcommand("option")
     @CommandCompletion("+/- @trackOption @track")
     @CommandPermission("%permissiontrackedit_option")
     public static void onOption(Player player, String plusOrMinus, TrackOption option, @Optional Track track) {
-        Message response;
+        Component response;
         if (plusOrMinus.equalsIgnoreCase("-")) {
             response = TrackEditor.removeOption(player, option, track);
         } else {
             response = TrackEditor.addOption(player, option, track);
         }
-        Text.send(player, response);
+        player.sendMessage(response);
     }
 
     @Subcommand("type")
@@ -158,12 +173,12 @@ public class CommandTrackEdit extends BaseCommand {
     @Subcommand("spawn")
     @CommandCompletion("@track")
     @CommandPermission("%permissiontrackedit_spawn")
-    public static void onRegionSpawn(Player player, @Optional Track track) {
+    public static void onSpawn(Player player, @Optional Track track) {
         Message response = TrackEditor.setSpawn(player, track);
         Text.send(player, response);
     }
 
-    @Subcommand("location | loc")
+    @Subcommand("location|loc")
     @CommandCompletion("@locationType <index>")
     @CommandPermission("%permissiontrackedit_location")
     public static void onLocation(Player player, TrackLocation.Type locationType, @Optional String index) {
@@ -171,7 +186,7 @@ public class CommandTrackEdit extends BaseCommand {
         player.sendMessage(response);
     }
 
-    @Subcommand("region | rg")
+    @Subcommand("region|rg")
     @CommandCompletion("@regionType <index> overload")
     @CommandPermission("%permissiontrackedit_region")
     public static void onRegion(Player player, TrackRegion.RegionType regionType, @Optional String index) {
@@ -190,7 +205,7 @@ public class CommandTrackEdit extends BaseCommand {
     @Subcommand("item")
     @CommandCompletion("@track")
     @CommandPermission("%permissiontrackedit_item")
-    public static void onItem(Player player, Track track) {
+    public static void onItem(Player player, @Optional Track track) {
         var response = TrackEditor.setItem(player, track);
         Text.send(player, response);
     }
