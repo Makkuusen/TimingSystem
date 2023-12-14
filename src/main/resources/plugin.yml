@@ -102,6 +102,7 @@ permissions:
          timingsystem.trackedit.delete.track: true
          timingsystem.trackedit.move: true
          timingsystem.trackedit.open: true
+         timingsystem.trackedit.timetrial: true
          timingsystem.trackedit.weight: true
          timingsystem.trackedit.tag: true
          timingsystem.trackedit.type: true
@@ -149,6 +150,7 @@ permissions:
          timingsystem.heat.set.reversegrid: true
          timingsystem.heat.sort.tt: true
          timingsystem.heat.sort.random: true
+         timingsystem.timingsystem.shortname.others: true
 
    timingsystem.packs.eventadmin:
       description: Player has access to all event related commands

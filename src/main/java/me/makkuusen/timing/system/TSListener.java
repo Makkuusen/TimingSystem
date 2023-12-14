@@ -437,7 +437,7 @@ public class TSListener implements Listener {
                 if (maybeTrack.isPresent()) {
                     Track track_ = maybeTrack.get();
 
-                    if (track_.getMode().equals(Track.TrackMode.TIMETRIAL)) {
+                    if (track_.isTimeTrial()) {
                         TimeTrial timeTrial = new TimeTrial(track_, TSDatabase.getPlayer(player.getUniqueId()));
                         timeTrial.playerStartingTimeTrial();
                         TimeTrialController.elytraProtection.remove(player.getUniqueId());

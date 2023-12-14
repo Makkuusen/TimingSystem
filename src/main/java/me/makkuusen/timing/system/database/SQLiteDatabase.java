@@ -8,6 +8,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.updates.Version2;
+import me.makkuusen.timing.system.database.updates.Version3;
 import org.bukkit.Material;
 
 import java.io.File;
@@ -30,7 +31,7 @@ public class SQLiteDatabase extends MySQLDatabase {
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 2;
+            int databaseVersion = 3;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(" + databaseVersion + ", " + ApiUtilities.getTimestamp() + ");");
                 return true;
@@ -54,11 +55,14 @@ public class SQLiteDatabase extends MySQLDatabase {
             return false;
         }
     }
-    private static void updateDatabase(int previousVersion) throws SQLException{
+    private static void updateDatabase(int previousVersion) throws SQLException {
 
         //Update logic here.
         if (previousVersion < 2) {
             Version2.update();
+        }
+        if (previousVersion < 3) {
+            Version3.updateSQLite();
         }
 
     }
@@ -71,6 +75,7 @@ public class SQLiteDatabase extends MySQLDatabase {
                         CREATE TABLE IF NOT EXISTS `ts_players` (
                         `uuid` TEXT PRIMARY KEY NOT NULL DEFAULT '',
                         `name` TEXT NOT NULL,
+                        `shortName` TEXT DEFAULT NULL,
                         `boat` TEXT DEFAULT NULL,
                         `color` TEXT NOT NULL DEFAULT '#9D9D97',
                         `chestBoat` INTEGER NOT NULL DEFAULT 0,
@@ -95,7 +100,7 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `guiItem` TEXT NOT NULL,
                           `spawn` TEXT NOT NULL,
                           `type` TEXT NOT NULL,
-                          `mode` TEXT NOT NULL,
+                          `timeTrial` INTEGER NOT NULL DEFAULT 1,
                           `toggleOpen` INTEGER NOT NULL,
                           `boatUtilsMode` INTEGER NOT NULL DEFAULT -1,
                           `isRemoved` INTEGER NOT NULL

@@ -23,6 +23,28 @@ public class CommandSettings extends BaseCommand {
         new SettingsGui(TSDatabase.getPlayer(player.getUniqueId())).show(player);
     }
 
+    @Subcommand("shortname")
+    @CommandCompletion("<shortname>")
+    @CommandPermission("%permissiontimingsystem_settings_shortname")
+    public static void onShortName(Player player, @Single String shortName) {
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+        int maxLength = 4;
+        int minLength = 3;
+
+        if (shortName.length() < minLength || shortName.length() > maxLength) {
+            Text.send(player, Error.INVALID_NAME);
+            return;
+        }
+
+        if (!shortName.matches("[A-Za-z0-9]+")) {
+            Text.send(player, Error.INVALID_NAME);
+            return;
+        }
+
+        tPlayer.getSettings().setShortName(shortName);
+        Text.send(player, Success.SAVED);
+    }
+
     @Subcommand("verbose")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onVerbose(Player player) {

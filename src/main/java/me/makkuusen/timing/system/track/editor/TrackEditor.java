@@ -384,4 +384,20 @@ public class TrackEditor {
         }
         return TrackEditor.toggleVisualisation(player, track);
     }
+
+    public static Message setTimeTrial(Player player, boolean enable, Track track) {
+        if (track == null) {
+            if (hasTrackSelected(player.getUniqueId())) {
+                track = getPlayerTrackSelection(player.getUniqueId());
+            } else {
+                return Error.TRACK_NOT_FOUND_FOR_EDIT;
+            }
+        }
+        track.setTimeTrial(enable);
+        if (track.isTimeTrial()) {
+            return Success.TRACK_TIMETRIAL_ENABLED;
+        } else {
+            return Success.TRACK_TIMETRIAL_DISABLED;
+        }
+    }
 }
