@@ -19,7 +19,6 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
 import me.makkuusen.timing.system.tplayer.TPlayer;
-import me.makkuusen.timing.system.track.*;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
@@ -52,7 +51,6 @@ public class TimingSystem extends JavaPlugin {
 
     public static TimingSystemConfiguration configuration;
     public static boolean enableLeaderboards = true;
-    public static HashMap<UUID, Track> playerEditingSession = new HashMap<>();
     public static Map<UUID, TPlayer> players = new HashMap<>();
     @Getter
     private static LanguageManager languageManager;
@@ -93,6 +91,7 @@ public class TimingSystem extends JavaPlugin {
         CommandReplacements cr = manager.getCommandReplacements();
         PermissionTimingSystem.init(cr);
         PermissionTrack.init(cr);
+        PermissionTrackEdit.init(cr);
         PermissionTimeTrial.init(cr);
         PermissionRace.init(cr);
         PermissionEvent.init(cr);
@@ -105,6 +104,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandEvent());
         manager.registerCommand(new CommandRound());
         manager.registerCommand(new CommandTrack());
+        manager.registerCommand(new CommandTrackEdit());
         manager.registerCommand(new CommandHeat());
         manager.registerCommand(new CommandTimeTrial());
         manager.registerCommand(new CommandSettings());

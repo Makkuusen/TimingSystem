@@ -40,6 +40,7 @@ error:
   heat_not_found: "&eHeat not found."
   event_not_found: "&eEvent not found."
   track_not_found_for_event: "&eTrack not found for this event. /event set track <name>"
+  track_not_found_for_edit: "&eNo track selected. /trackedit select <name>"
   race_not_found: "&eRace not found. Create one with /race create"
   track_is_closed: "&eTrack is closed."
   track_exists: "&eTrack already exists."

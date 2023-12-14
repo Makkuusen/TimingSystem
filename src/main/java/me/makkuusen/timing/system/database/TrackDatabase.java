@@ -16,6 +16,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.*;
+import me.makkuusen.timing.system.track.editor.TrackEditor;
 import me.makkuusen.timing.system.track.locations.TrackLeaderboard;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
 import me.makkuusen.timing.system.track.options.TrackOption;
@@ -438,7 +439,7 @@ public interface TrackDatabase {
 
     static List<String> getRegionsAsStrings(BukkitCommandCompletionContext c) {
         List<String> regions = new ArrayList<>();
-        var maybeTrack = TimingSystem.playerEditingSession.get(c.getPlayer().getUniqueId());
+        var maybeTrack = TrackEditor.getPlayerTrackSelection(c.getPlayer().getUniqueId());
         if (maybeTrack == null) {
             return regions;
         }

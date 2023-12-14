@@ -17,6 +17,8 @@ import me.makkuusen.timing.system.round.RoundType;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.editor.TrackEditor;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
 import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.track.tags.TrackTag;
@@ -59,6 +61,24 @@ public class ContextResolvers {
         manager.getCommandCompletions().registerAsyncCompletion("trackType", context -> {
             List<String> res = new ArrayList<>();
             for (Track.TrackType type : Track.TrackType.values()) {
+                res.add(type.name().toLowerCase());
+            }
+            return res;
+        });
+        manager.getCommandContexts().registerContext(
+                TrackLocation.Type.class, ContextResolvers.getTrackLocationTypeContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("locationType", context -> {
+            List<String> res = new ArrayList<>();
+            for (TrackLocation.Type type : TrackLocation.Type.values()) {
+                res.add(type.name().toLowerCase());
+            }
+            return res;
+        });
+        manager.getCommandContexts().registerContext(
+                TrackRegion.RegionType.class, ContextResolvers.getTrackRegionTypeContextResolver());
+        manager.getCommandCompletions().registerAsyncCompletion("regionType", context -> {
+            List<String> res = new ArrayList<>();
+            for (TrackRegion.RegionType type : TrackRegion.RegionType.values()) {
                 res.add(type.name().toLowerCase());
             }
             return res;
@@ -169,6 +189,28 @@ public class ContextResolvers {
         };
     }
 
+    public static ContextResolver<TrackLocation.Type, BukkitCommandExecutionContext> getTrackLocationTypeContextResolver() {
+        return (c) -> {
+            String name = c.popFirstArg();
+            try {
+                return TrackLocation.Type.valueOf(name.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
+            }
+        };
+    }
+
+    public static ContextResolver<TrackRegion.RegionType, BukkitCommandExecutionContext> getTrackRegionTypeContextResolver() {
+        return (c) -> {
+            String name = c.popFirstArg();
+            try {
+                return TrackRegion.RegionType.valueOf(name.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
+            }
+        };
+    }
+
     public static ContextResolver<Track, BukkitCommandExecutionContext> getTrackContextResolver() {
         return (c) -> {
             String name = c.popFirstArg();
@@ -185,7 +227,7 @@ public class ContextResolvers {
     public static ContextResolver<TrackRegion, BukkitCommandExecutionContext> getRegionContextResolver() {
         return (c) -> {
             String region = c.popFirstArg();
-            var maybeTrack = TimingSystem.playerEditingSession.get(c.getPlayer().getUniqueId());
+            var maybeTrack = TrackEditor.getPlayerTrackSelection(c.getPlayer().getUniqueId());
             if (maybeTrack != null) {
                 try {
                     String[] regionName = region.split("-");

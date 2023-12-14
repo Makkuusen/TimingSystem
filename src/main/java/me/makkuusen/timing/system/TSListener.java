@@ -19,6 +19,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.editor.TrackEditor;
 import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
@@ -372,7 +373,10 @@ public class TSListener implements Listener {
     @EventHandler
     public void onRegionEnter(PlayerMoveEvent e) {
         Player player = e.getPlayer();
-        var track = TimingSystem.playerEditingSession.get(player.getUniqueId());
+        if (!TrackEditor.playerTrackVisualisation.contains(player.getUniqueId())) {
+            return;
+        }
+        var track = TrackEditor.getPlayerTrackSelection(player.getUniqueId());
         if (track == null) {
             return;
         }
@@ -502,37 +506,41 @@ public class TSListener implements Listener {
             }
         }
 
-        if (!timeTrial.isLagStart() && track.getTrackRegions().getRegion(TrackRegion.RegionType.LAGSTART).isPresent()) {
-            if (track.getTrackRegions().getRegion(TrackRegion.RegionType.LAGSTART).get().contains(player.getLocation())) {
-                timeTrial.setLagStartTrue();
-                timeTrial.playerPassingLagStart();
-                if (ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime)) == 0) {
-                    Text.send(player, Error.LAG_DETECTED);
-                    plugin.getLogger().warning(player.getName() + " failed lagstart on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
-                    timeTrial.playerResetMap();
-                    return;
-                } else {
-                    ApiUtilities.msgConsole(player.getName() + " passed lagstart on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+        if (!timeTrial.isLagStart() && !track.getTrackRegions().getRegions(TrackRegion.RegionType.LAGSTART).isEmpty()) {
+            for (TrackRegion region : track.getTrackRegions().getRegions(TrackRegion.RegionType.LAGSTART)) {
+                if (region.contains(player.getLocation())) {
+                    timeTrial.setLagStartTrue();
+                    timeTrial.playerPassingLagStart();
+                    if (ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime)) == 0) {
+                        Text.send(player, Error.LAG_DETECTED);
+                        plugin.getLogger().warning(player.getName() + " failed lagstart on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                        timeTrial.playerResetMap();
+                        return;
+                    } else {
+                        ApiUtilities.msgConsole(player.getName() + " passed lagstart on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                    }
                 }
             }
         }
 
-        if (!timeTrial.isLagEnd() && track.getTrackRegions().getRegion(TrackRegion.RegionType.LAGEND).isPresent()) {
-            if (track.getTrackRegions().getRegion(TrackRegion.RegionType.LAGEND).get().contains(player.getLocation())) {
-                timeTrial.setLagEnd(true);
-                timeTrial.playerPassingLagEnd();
-                if (!timeTrial.isLagStart()) {
-                    Text.send(player, Error.LAG_DETECTED);
-                    plugin.getLogger().warning(player.getName() + " failed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
-                    timeTrial.playerResetMap();
-                    return;
-                } else if (TimingSystem.currentTime.toEpochMilli() == timeTrial.getLagStart().toEpochMilli()) {
-                    Text.send(player, Error.LAG_DETECTED);
-                    plugin.getLogger().warning(player.getName() + " failed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
-                    timeTrial.playerResetMap();
-                    return;
-                } else {
-                    ApiUtilities.msgConsole(player.getName() + " passed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+        if (!timeTrial.isLagEnd() && !track.getTrackRegions().getRegions(TrackRegion.RegionType.LAGEND).isEmpty()) {
+            for (TrackRegion region : track.getTrackRegions().getRegions(TrackRegion.RegionType.LAGEND)) {
+                if (region.contains(player.getLocation())) {
+                    timeTrial.setLagEnd(true);
+                    timeTrial.playerPassingLagEnd();
+                    if (!timeTrial.isLagStart()) {
+                        Text.send(player, Error.LAG_DETECTED);
+                        plugin.getLogger().warning(player.getName() + " failed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                        timeTrial.playerResetMap();
+                        return;
+                    } else if (TimingSystem.currentTime.toEpochMilli() == timeTrial.getLagStart().toEpochMilli()) {
+                        Text.send(player, Error.LAG_DETECTED);
+                        plugin.getLogger().warning(player.getName() + " failed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                        timeTrial.playerResetMap();
+                        return;
+                    } else {
+                        ApiUtilities.msgConsole(player.getName() + " passed lagend on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrial.getTimeSinceStart(TimingSystem.currentTime)));
+                    }
                 }
             }
         }

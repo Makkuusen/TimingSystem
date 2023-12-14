@@ -28,7 +28,7 @@ public class TimeTrialGui extends TrackPageGui {
 
     @Override
     public GuiButton getTrackButton(Player player, Track track) {
-        var button = new GuiButton(track.getGuiItem(player.getUniqueId()));
+        var button = new GuiButton(track.getItem(player.getUniqueId()));
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {
                 Text.send(player, Error.WORLD_NOT_LOADED);

@@ -15,6 +15,7 @@ import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
@@ -394,6 +395,30 @@ public class ApiUtilities {
 
     public static Location getLocationFromBlockVector3(World world, BlockVector3 v) {
         return new Location(world, v.getBlockX(), v.getBlockY(), v.getBlockZ());
+    }
+
+    public static Optional<Track> findClosestTrack(Player player) {
+
+        var playerLocation = player.getLocation();
+        double minDistance = -1;
+        Optional<Track> minDistanceTrack = Optional.empty();
+
+        for (Track track : TrackDatabase.tracks) {
+
+            if (!playerLocation.getWorld().equals(track.getSpawnLocation().getWorld())) {
+                continue;
+            }
+
+            var distance = playerLocation.distance(track.getSpawnLocation());
+            if (minDistanceTrack.isEmpty()) {
+                minDistanceTrack = Optional.of(track);
+                minDistance = distance;
+            } else if (distance < minDistance) {
+                minDistance = distance;
+                minDistanceTrack = Optional.of(track);
+            }
+        }
+        return minDistanceTrack;
     }
 
     public static long getRoundedToTick(long mapTime) {
