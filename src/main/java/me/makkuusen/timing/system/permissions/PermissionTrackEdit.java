@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.permissions;
 import co.aikar.commands.CommandReplacements;
 
 public enum PermissionTrackEdit implements Permissions{
+    INFO,
     SELECT,
     CREATE,
     MOVE,

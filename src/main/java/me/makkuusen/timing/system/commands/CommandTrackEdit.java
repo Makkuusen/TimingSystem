@@ -5,7 +5,6 @@ import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.theme.Text;
-import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.theme.messages.Message;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -25,6 +24,7 @@ public class CommandTrackEdit extends BaseCommand {
 
 
     @Default
+    @CommandPermission("%permissiontrackedit_info")
     public static void onTrackEdit(Player player) {
         var track = TrackEditor.getPlayerTrackSelection(player.getUniqueId());
         if (track == null) {
