@@ -55,7 +55,7 @@ public class SQLiteDatabase extends MySQLDatabase {
             return false;
         }
     }
-    private static void updateDatabase(int previousVersion) throws SQLException{
+    private static void updateDatabase(int previousVersion) throws SQLException {
 
         //Update logic here.
         if (previousVersion < 2) {
