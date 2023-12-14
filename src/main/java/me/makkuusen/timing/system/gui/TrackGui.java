@@ -33,7 +33,7 @@ public class TrackGui extends TrackPageGui {
 
     @Override
     public GuiButton getTrackButton(Player player, Track track) {
-        var item = setTrackLore(player, track, track.getGuiItem(player.getUniqueId()));
+        var item = setTrackLore(player, track, track.getItem(player.getUniqueId()));
         var button = new GuiButton(item);
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {

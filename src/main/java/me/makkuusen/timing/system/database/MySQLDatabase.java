@@ -669,7 +669,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public long createRegion(long trackId, int index, String minP, String maxP, TrackRegion.RegionType type, TrackRegion.RegionShape shape, Location location) throws SQLException {
-        return DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", " + index + ", " + TSDatabase.sqlStringOf(type.toString()) + ", " + TSDatabase.sqlStringOf(TrackRegion.RegionShape.POLY.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
+        return DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", " + index + ", " + TSDatabase.sqlStringOf(type.toString()) + ", " + TSDatabase.sqlStringOf(shape.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
     }
 
     @Override
@@ -771,7 +771,11 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void trackRegionSet(int trackId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `" + column + "` = '" + TSDatabase.sqlStringOf(value) + "' WHERE `id` = " + trackId + ";");
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `" + column + "` = " + TSDatabase.sqlStringOf(value) + " WHERE `id` = " + trackId + ";");
+    }
+    @Override
+    public void trackRegionSet(int trackId, String column, Integer value) {
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `" + column + "` = " + value + " WHERE `id` = " + trackId + ";");
     }
 
     // Log Database

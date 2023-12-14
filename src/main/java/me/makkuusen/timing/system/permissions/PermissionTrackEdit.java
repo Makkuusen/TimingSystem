@@ -2,24 +2,29 @@ package me.makkuusen.timing.system.permissions;
 
 import co.aikar.commands.CommandReplacements;
 
-public enum PermissionTrack implements Permissions {
-    MENU,
-    TP,
+public enum PermissionTrackEdit implements Permissions{
     INFO,
-    VIEW_REGIONS,
-    VIEW_LOCATIONS,
-    VIEW_HERE,
-    VIEW_OPTIONS,
-    VIEW_MYTIMES,
-    VIEW_TIMES,
-    VIEW_ALLTIMES,
-    VIEW_PLAYERSTATS,
-    SESSION_TIMETRIAL,
-    RELOAD,
-    DELETE_BESTTIME,
-    DELETE_ALLTIMES,
-    UPDATELEADERBOARDS,
-    SET_MODE;
+    SELECT,
+    CREATE,
+    MOVE,
+    VIEW,
+    DELETE_TRACK,
+    OPEN,
+    CLOSE,
+    ITEM,
+    NAME,
+    WEIGHT,
+    OWNER,
+    SPAWN,
+    REGIONSPAWN,
+    CONTRIBUTORS,
+    BOATUTILSMODE,
+    TYPE,
+    OPTION,
+    TAG,
+    OVERLOAD,
+    REGION,
+    LOCATION;
 
     @Override
     public String getNode() {
@@ -27,7 +32,7 @@ public enum PermissionTrack implements Permissions {
     }
 
     public static void init(CommandReplacements replacements) {
-        for(PermissionTrack perm : values()) {
+        for(PermissionTrackEdit perm : values()) {
             Permissions.register(perm, replacements);
         }
     }

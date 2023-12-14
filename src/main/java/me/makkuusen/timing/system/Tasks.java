@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.editor.TrackEditor;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
 import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
@@ -37,10 +38,10 @@ public class Tasks {
 
     public void startParticleSpawner(TimingSystem plugin) {
         Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            for (UUID uuid : TimingSystem.playerEditingSession.keySet()) {
+            for (UUID uuid : TrackEditor.playerTrackVisualisation) {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player == null) continue;
-                Track track = TimingSystem.playerEditingSession.get(uuid);
+                Track track = TrackEditor.getPlayerTrackSelection(uuid);
 
                 track.getTrackRegions().getRegions().forEach(trackRegion -> setParticles(player, trackRegion));
                 track.getTrackLocations().getLocations(TrackLocation.Type.GRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_OFF));

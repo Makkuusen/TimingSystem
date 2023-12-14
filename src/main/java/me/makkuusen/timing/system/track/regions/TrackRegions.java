@@ -106,7 +106,7 @@ public class TrackRegions {
             var regionId = region.getId();
             TrackDatabase.removeTrackRegion(region);
             regions.remove(region);
-            TimingSystem.getTrackDatabase().trackRegionSet(regionId, "isRemoved", "1");
+            TimingSystem.getTrackDatabase().trackRegionSet(regionId, "isRemoved", 1);
             if (region instanceof TrackPolyRegion) {
                 TimingSystem.getTrackDatabase().deletePoint(regionId);
             }

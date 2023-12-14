@@ -7,8 +7,11 @@ softdepend: [HolographicDisplays, DecentHolograms, Multiverse-Core, PlaceholderA
 api-version: '1.20'
 commands:
    track:
-      description: Command for managing tracks.
+      description: Command for information about tracks.
       aliases: [t]
+   trackedit:
+      description: Command for editing tracks.
+      aliases: [te]
    timetrial:
       description: Command for running tracks.
       aliases: [tt]
@@ -70,28 +73,17 @@ permissions:
       default: false
       children:
          timingsystem.packs.default: true
-         timingsystem.track.session.edit: true
-         timingsystem.track.create: true
          timingsystem.track.view.regions: true
          timingsystem.track.view.locations: true
-         timingsystem.track.view.options: true
-         timingsystem.track.set.finishtp: true
-         timingsystem.track.set.mode: true
-         timingsystem.track.set.boatutilsmode: true
-         timingsystem.track.set.name: true
-         timingsystem.track.set.item: true
-         timingsystem.track.set.region.start: true
-         timingsystem.track.set.region.end: true
-         timingsystem.track.set.region.pit: true
-         timingsystem.track.set.region.inpit: true
-         timingsystem.track.set.region.reset: true
-         timingsystem.track.set.region.lagstart: true
-         timingsystem.track.set.region.lagend: true
-         timingsystem.track.set.region.checkpoint: true
-         timingsystem.track.set.location.spawn: true
-         timingsystem.track.set.location.leaderboard: true
-         timingsystem.track.set.location.grid: true
-         timingsystem.track.set.location.qualigrid: true
+         timingsystem.trackedit.info: true
+         timingsystem.trackedit.create: true
+         timingsystem.trackedit.view: true
+         timingsystem.trackedit.options: true
+         timingsystem.trackedit.boatutilsmode: true
+         timingsystem.trackedit.name: true
+         timingsystem.trackedit.item: true
+         timingsystem.trackedit.region: true
+         timingsystem.trackedit.location: true
 
    timingsystem.packs.trackadmin:
       description: Player has all track commands
@@ -100,21 +92,21 @@ permissions:
          timingsystem.packs.trackbuilder: true
          timingsystem.track.here: true
          timingsystem.track.menu: true
-         timingsystem.track.move: true
          timingsystem.track.tp: true
          timingsystem.track.view.here: true
          timingsystem.track.view.alltimes: true
          timingsystem.track.reload: true
-         timingsystem.track.delete.track: true
          timingsystem.track.delete.besttime: true
          timingsystem.track.delete.alltimes: true
          timingsystem.track.updateleaderboards: true
-         timingsystem.track.set.open: true
-         timingsystem.track.set.weight: true
-         timingsystem.track.set.tag: true
-         timingsystem.track.set.type: true
-         timingsystem.track.set.owner: true
-         timingsystem.track.set.contributors: true
+         timingsystem.trackedit.delete.track: true
+         timingsystem.trackedit.move: true
+         timingsystem.trackedit.open: true
+         timingsystem.trackedit.weight: true
+         timingsystem.trackedit.tag: true
+         timingsystem.trackedit.type: true
+         timingsystem.trackedit.owner: true
+         timingsystem.trackedit.contributors: true
 
    timingsystem.packs.racehoster:
       description: Player has the tools to host quick races

@@ -37,7 +37,7 @@ public class Track {
     private List<TPlayer> contributors;
     private String displayName;
     private String commandName;
-    private ItemStack guiItem;
+    private ItemStack item;
     private Location spawnLocation;
     private TrackType type;
     private TrackMode mode;
@@ -55,7 +55,7 @@ public class Track {
         commandName = displayName.replaceAll(" ", "");
         dateCreated = data.getInt("dateCreated");
         weight = data.getInt("weight");
-        guiItem = ApiUtilities.stringToItem(data.getString("guiItem"));
+        item = ApiUtilities.stringToItem(data.getString("guiItem"));
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         type = data.getString("type") == null ? TrackType.BOAT : TrackType.valueOf(data.getString("type"));
         open = data.get("toggleOpen") instanceof Boolean ? data.get("toggleOpen") : data.get("toggleOpen").equals(1);
@@ -70,9 +70,9 @@ public class Track {
         trackTags = new TrackTags(id);
     }
 
-    public ItemStack getGuiItem(UUID uuid) {
+    public ItemStack getItem(UUID uuid) {
         ItemStack toReturn;
-        if (guiItem == null) {
+        if (item == null) {
             if (isBoatTrack()) {
                 toReturn = new ItemBuilder(Material.PACKED_ICE).setName(getDisplayName()).build();
             } else if (isElytraTrack()) {
@@ -81,7 +81,7 @@ public class Track {
                 toReturn = new ItemBuilder(Material.BIG_DRIPLEAF).setName(getDisplayName()).build();
             }
         } else {
-            toReturn = guiItem.clone();
+            toReturn = item.clone();
         }
 
         if (toReturn == null) {
@@ -153,9 +153,9 @@ public class Track {
         TimingSystem.getTrackDatabase().trackSet(id, "name", name);
     }
 
-    public void setGuiItem(ItemStack guiItem) {
-        this.guiItem = guiItem;
-        TimingSystem.getTrackDatabase().trackSet(id, "guiItem", ApiUtilities.itemToString(guiItem));
+    public void setItem(ItemStack item) {
+        this.item = item;
+        TimingSystem.getTrackDatabase().trackSet(id, "guiItem", ApiUtilities.itemToString(item));
     }
 
     public void setSpawnLocation(Location spawn) {
