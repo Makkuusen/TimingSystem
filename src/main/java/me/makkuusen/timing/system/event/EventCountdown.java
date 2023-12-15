@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system.event;
 
+import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Spectator;
@@ -19,7 +20,8 @@ public class EventCountdown {
     private BukkitTask countdownTask;
 
     private String label;
-    private boolean isActive = false;
+    @Getter
+    private boolean active = false;
 
     Event event;
 
@@ -40,7 +42,7 @@ public class EventCountdown {
                 stopCountdown();
             }
         }, 0, 20);
-        isActive = true;
+        active = true;
     }
 
     public void stopCountdown() {
@@ -51,7 +53,7 @@ public class EventCountdown {
                 player.hideBossBar(bossBar);
             }
         });
-        isActive = false;
+        active = false;
     }
 
     private long timeLeft() {
@@ -106,12 +108,8 @@ public class EventCountdown {
         });
     }
 
-    public boolean isActive() {
-        return isActive;
-    }
-
     public void addSpectator(TPlayer tPlayer) {
-        if (isActive) {
+        if (active) {
             Player player = tPlayer.getPlayer();
             if (player != null) {
                 player.showBossBar(bossBar);
@@ -120,7 +118,7 @@ public class EventCountdown {
     }
 
     public void removeSpectator(TPlayer tPlayer) {
-        if (isActive) {
+        if (active) {
             Player player = tPlayer.getPlayer();
             if (player != null) {
                 player.hideBossBar(bossBar);
