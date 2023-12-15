@@ -125,19 +125,10 @@ public class CommandTrackEdit extends BaseCommand {
     }
 
     @Subcommand("tag")
-    @CommandCompletion("+/- @trackTag @track")
+    @CommandCompletion("@trackTag")
     @CommandPermission("%permissiontrackedit_tag")
-    public static void onTag(Player player, String plusOrMinus, TrackTag tag, @Optional Track track) {
-        if (!TrackTagManager.hasTag(tag)) {
-            Text.send(player, Error.TAG_NOT_FOUND);
-            return;
-        }
-        Component response;
-        if (plusOrMinus.equalsIgnoreCase("-")) {
-            response = TrackEditor.removeTag(player, tag, track);
-        } else {
-            response = TrackEditor.addTag(player,tag, track);
-        }
+    public static void onTag(Player player, String tags) {
+        Component response = TrackEditor.handleTag(player, tags);
         player.sendMessage(response);
     }
 

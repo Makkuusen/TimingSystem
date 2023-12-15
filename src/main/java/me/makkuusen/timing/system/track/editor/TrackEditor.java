@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.track.editor;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.LeaderboardManager;
+import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
@@ -137,6 +138,45 @@ public class TrackEditor {
             return Text.get(player, Success.ADDED_TAG, "%tag%", tag.toString());
         }
         return Text.get(player, Error.FAILED_TO_ADD_TAG);
+    }
+
+    public static Component handleTag(Player player, String tags) {
+        Theme theme = Theme.getTheme(player);
+
+        Track track;
+        if (hasTrackSelected(player.getUniqueId()))
+            track = getPlayerTrackSelection(player.getUniqueId());
+        else
+            return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+
+        String[] separatedTags = tags.split(" ");
+        List<TrackTag> trackTags = Arrays.stream(separatedTags).map((tag) -> TrackTagManager.getTrackTag(tag.toUpperCase())).toList();
+        List<Component> results = new ArrayList<>();
+
+        int tagIndex = -1;
+        for(TrackTag tag : trackTags) {
+            tagIndex++;
+            if(tag == null) {
+                results.add(Component.text(separatedTags[tagIndex], theme.getWarning(), TextDecoration.STRIKETHROUGH));
+                continue;
+            }
+
+            if(track.getTrackTags().hasTag(tag)) {
+                track.getTrackTags().remove(tag);
+                results.add(Component.text(tag.getValue().toLowerCase(), theme.getError()));
+                continue;
+            }
+
+            track.getTrackTags().add(tag);
+            results.add(Component.text(tag.getValue().toLowerCase(), theme.getSuccess()));
+        }
+
+        Component resultsText = results.get(0);
+        for(Component result : results.subList(1, results.size())) {
+            resultsText = resultsText.append(Component.text(", ", theme.getPrimary(), new HashSet<>())).append(result);
+        }
+
+        return Text.get(player, Success.UPDATED_TOGGLEABLE_VALUES, "%value%", "Track tags").append(resultsText);
     }
 
     public static Component handleOption(Player player, String options) {
