@@ -3,11 +3,13 @@ package me.makkuusen.timing.system.track.editor;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.LeaderboardManager;
+import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.logger.LogEntryBuilder;
 import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Message;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -18,6 +20,8 @@ import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -136,32 +140,87 @@ public class TrackEditor {
         return Text.get(player, Error.FAILED_TO_ADD_TAG);
     }
 
-    public static Component removeOption(Player player, TrackOption option, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+    public static Component handleTag(Player player, String tags) {
+        Theme theme = Theme.getTheme(player);
+
+        Track track;
+        if (hasTrackSelected(player.getUniqueId()))
+            track = getPlayerTrackSelection(player.getUniqueId());
+        else
+            return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+
+        String[] separatedTags = tags.split(" ");
+        List<TrackTag> trackTags = Arrays.stream(separatedTags).map((tag) -> TrackTagManager.getTrackTag(tag.toUpperCase())).toList();
+        List<Component> results = new ArrayList<>();
+
+        int tagIndex = -1;
+        for(TrackTag tag : trackTags) {
+            tagIndex++;
+            if(tag == null) {
+                results.add(Component.text(separatedTags[tagIndex], theme.getWarning(), TextDecoration.STRIKETHROUGH));
+                continue;
             }
+
+            if(track.getTrackTags().hasTag(tag)) {
+                track.getTrackTags().remove(tag);
+                results.add(Component.text(tag.getValue().toLowerCase(), theme.getError()));
+                continue;
+            }
+
+            track.getTrackTags().add(tag);
+            results.add(Component.text(tag.getValue().toLowerCase(), theme.getSuccess()));
         }
-        if (track.getTrackOptions().remove(option)) {
-            return Text.get(player, Success.REMOVED);
+
+        Component resultsText = results.get(0);
+        for(Component result : results.subList(1, results.size())) {
+            resultsText = resultsText.append(Component.text(", ", theme.getPrimary(), new HashSet<>())).append(result);
         }
-        return Text.get(player, Error.FAILED_TO_REMOVE_OPTION);
+
+        return Text.get(player, Success.UPDATED_TOGGLEABLE_VALUES, "%value%", "Track tags").append(resultsText);
     }
 
-    public static Component addOption(Player player, TrackOption option, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+    public static Component handleOption(Player player, String options) {
+        Theme theme = Theme.getTheme(player);
+
+        Track track;
+        if (hasTrackSelected(player.getUniqueId()))
+            track = getPlayerTrackSelection(player.getUniqueId());
+        else
+            return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+
+        String[] separatedOptions = options.split(" ");
+        List<TrackOption> trackOptions = Arrays.stream(separatedOptions).map((option) -> {
+            try {
+                return TrackOption.valueOf(option.toUpperCase());
+            } catch (IllegalArgumentException ignored) {}
+            return null;
+        }).toList();
+        List<Component> results = new ArrayList<>();
+
+        int optionIndex = -1;
+        for(TrackOption op : trackOptions) {
+            optionIndex++;
+            if(op == null) {
+                results.add(Component.text(separatedOptions[optionIndex], theme.getWarning(), TextDecoration.STRIKETHROUGH));
+                continue;
             }
+
+            if(track.getTrackOptions().getTrackOptions().contains(op)) {
+                track.getTrackOptions().remove(op);
+                results.add(Component.text(op.name().toLowerCase(), theme.getError()));
+                continue;
+            }
+
+            track.getTrackOptions().add(op);
+            results.add(Component.text(op.name().toLowerCase(), theme.getSuccess()));
         }
-        if (track.getTrackOptions().create(option)) {
-            return Text.get(player, Success.ADDED_OPTION, "%option%", option.toString());
+
+        Component resultsText = results.get(0);
+        for(Component result : results.subList(1, results.size())) {
+            resultsText = resultsText.append(Component.text(", ", theme.getPrimary(), new HashSet<>())).append(result);
         }
-        return Text.get(player, Error.FAILED_TO_ADD_OPTION);
+
+        return Text.get(player, Success.UPDATED_TOGGLEABLE_VALUES, "%value%", "TrackOptions").append(resultsText);
     }
 
     public static Message setTrackType(Player player, Track.TrackType type, Track track) {
@@ -246,36 +305,43 @@ public class TrackEditor {
         return Success.SAVED;
     }
 
-    public static Message addContributor(Player player, String name, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Error.TRACK_NOT_FOUND_FOR_EDIT;
-            }
-        }
-        TPlayer tPlayer = TSDatabase.getPlayer(name);
-        if (tPlayer == null) {
-            return Error.PLAYER_NOT_FOUND;
-        }
-        track.addContributor(tPlayer);
-        return Success.SAVED;
-    }
+    public static Component handleContributor(Player player, String names) {
+        Theme theme = Theme.getTheme(player);
 
-    public static Message removeContributor(Player player, String name, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Error.TRACK_NOT_FOUND_FOR_EDIT;
+        Track track;
+        if (hasTrackSelected(player.getUniqueId()))
+            track = getPlayerTrackSelection(player.getUniqueId());
+        else
+            return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+
+        String[] playerNames = names.split(" ");
+        List<TPlayer> tPlayers = Arrays.stream(playerNames).map(TSDatabase::getPlayer).toList();
+        List<Component> results = new ArrayList<>();
+
+        int tPlayerIndex = -1;
+        for(TPlayer tPlayer : tPlayers) {
+            tPlayerIndex++;
+            if(tPlayer == null) {
+                results.add(Component.text(playerNames[tPlayerIndex], theme.getWarning(), TextDecoration.STRIKETHROUGH));
+                continue;
             }
+
+            if(track.getContributors().contains(tPlayer)) {
+                track.removeContributor(tPlayer);
+                results.add(Component.text(tPlayer.getName(), theme.getError()));
+                continue;
+            }
+
+            track.addContributor(tPlayer);
+            results.add(Component.text(tPlayer.getName(), theme.getSuccess()));
         }
-        TPlayer tPlayer = TSDatabase.getPlayer(name);
-        if (tPlayer == null) {
-            return Error.PLAYER_NOT_FOUND;
+
+        Component resultsText = results.get(0);
+        for(Component result : results.subList(1, results.size())) {
+            resultsText = resultsText.append(Component.text(", ", theme.getPrimary(), new HashSet<>())).append(result);
         }
-        track.removeContributor(tPlayer);
-        return Success.SAVED;
+
+        return Text.get(player, Success.UPDATED_TOGGLEABLE_VALUES, "%value%", "Contributors").append(resultsText);
     }
 
     public static Message setItem(Player player, Track track) {
