@@ -30,6 +30,9 @@ public class EventCountdown {
     }
 
     public void startCountdown(int length, String label) {
+        if (isActive()) {
+            stopCountdown();
+        }
         this.label = label;
         this.countdownInSeconds = length;
         countdownStarted = TimingSystem.currentTime.getEpochSecond();
@@ -74,7 +77,6 @@ public class EventCountdown {
     }
 
     private void updateBossBar() {
-
         String displayText;
         if (label == null) {
             displayText = "Time left: ";
@@ -93,7 +95,7 @@ public class EventCountdown {
             }
         } else {
             for (Spectator spectator : event.getSpectators().values()) {
-                if (timeLeft() < 1) {
+                if (timeLeft() == 0) {
                     PlaySound.countDownPling(spectator.getTPlayer());
                 }
             }
