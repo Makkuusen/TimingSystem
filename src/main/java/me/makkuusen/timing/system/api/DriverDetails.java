@@ -13,6 +13,7 @@ import lombok.Setter;
 public class DriverDetails {
 
     String name;
+    String shortName;
     String uuid;
     String teamColor;
     boolean offline;
