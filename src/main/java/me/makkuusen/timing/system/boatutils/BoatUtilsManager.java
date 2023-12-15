@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.boatutils;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
+import me.makkuusen.timing.system.api.events.BoatUtilsAppliedEvent;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.TSDatabase;
@@ -37,6 +38,13 @@ public class BoatUtilsManager {
 
     public static void sendBoatUtilsModePluginMessage(Player player, BoatUtilsMode mode, Track track, boolean sameAsLastTrack){
         TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+
+        BoatUtilsAppliedEvent event = new BoatUtilsAppliedEvent(player, mode, track);
+        event.callEvent();
+        if(event.isCancelled()) {
+            return;
+        }
+
         if (mode != BoatUtilsMode.VANILLA) {
             if (!tPlayer.hasBoatUtils()) {
                 if (track != null) {
