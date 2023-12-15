@@ -27,6 +27,7 @@ public class Event {
 
     public static TimingSystem plugin;
     public EventSchedule eventSchedule;
+    public EventCountdown eventCountdown;
     @Getter(AccessLevel.PUBLIC)
     HashMap<UUID, Subscriber> subscribers = new HashMap<>(); // Signed drivers
     @Getter(AccessLevel.PUBLIC)
@@ -51,6 +52,7 @@ public class Event {
         state = EventState.valueOf(data.getString("state"));
         openSign = data.get("open").equals(1);
         eventSchedule = new EventSchedule();
+        eventCountdown = new EventCountdown(this);
     }
 
     public boolean start() {
@@ -98,8 +100,8 @@ public class Event {
     public void addSpectator(UUID uuid) {
         spectators.put(uuid, new Spectator(TSDatabase.getPlayer(uuid)));
         var maybeHeat = getRunningHeat();
-
         maybeHeat.ifPresent(Heat::updateScoreboard);
+        eventCountdown.addSpectator(TSDatabase.getPlayer(uuid));
     }
 
     public boolean isSpectating(UUID uuid) {
@@ -110,12 +112,13 @@ public class Event {
         if (spectators.containsKey(uuid)) {
             spectators.remove(uuid);
             if (TSDatabase.getPlayer(uuid).getPlayer() != null) {
+                TPlayer tPlayer = TSDatabase.getPlayer(uuid);
+                eventCountdown.removeSpectator(tPlayer);
                 var maybeHeat = getRunningHeat();
                 if (maybeHeat.isPresent()) {
-                    TSDatabase.getPlayer(uuid).clearScoreboard();
+                    tPlayer.clearScoreboard();
                 }
             }
-
         }
     }
 

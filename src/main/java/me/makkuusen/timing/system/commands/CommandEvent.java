@@ -463,6 +463,44 @@ public class CommandEvent extends BaseCommand {
         }
     }
 
+    @Subcommand("countdown start")
+    @CommandCompletion("<h/m/s> <label>")
+    public static void onCountdown(Player player, String time, @Optional String label) {
+        Event event;
+        var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+        if (maybeEvent.isPresent()) {
+            event = maybeEvent.get();
+        } else {
+            Text.send(player, Error.NO_EVENT_SELECTED);
+            return;
+        }
+        Integer timeLimit = ApiUtilities.parseDurationToMillis(time);
+        if (timeLimit == null) {
+            Text.send(player, Error.TIME_FORMAT);
+            return;
+        }
+
+
+        event.eventCountdown.startCountdown(timeLimit/1000, label);
+
+    }
+    @Subcommand("countdown stop")
+    @CommandCompletion("@event")
+    public static void onCountdown(Player player, @Optional Event event) {
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                Text.send(player, Error.NO_EVENT_SELECTED);
+                return;
+            }
+        }
+        if (event.eventCountdown.isActive()) {
+            event.eventCountdown.stopCountdown();
+        }
+    }
+
     @Subcommand("broadcast clicktosign")
     @CommandPermission("%permissionevent_broadcast_clicktosign")
     public static void onSendSignUp(Player player, @Optional Event event) {
