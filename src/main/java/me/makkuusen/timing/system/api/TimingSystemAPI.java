@@ -118,6 +118,7 @@ public class TimingSystemAPI {
         var driverDetails = new DriverDetails();
 
         driverDetails.setName(driver.getTPlayer().getName());
+        driverDetails.setShortName(driver.getTPlayer().getSettings().getShortName());
         driverDetails.setUuid(driverUuid.toString());
         driverDetails.setTeamColor(driver.getTPlayer().getSettings().getHexColor());
         driverDetails.setOffline(driver.getTPlayer().getPlayer() == null);
