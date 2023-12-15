@@ -44,7 +44,7 @@ public class EventCountdown {
     }
 
     public void stopCountdown() {
-        countdownTask.cancel();
+        Bukkit.getScheduler().cancelTask(countdownTask.getTaskId());
         event.getSpectators().values().forEach(spectator -> {
             Player player = spectator.getTPlayer().getPlayer();
             if (player != null) {
