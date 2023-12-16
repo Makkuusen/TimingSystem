@@ -276,7 +276,7 @@ public class Heat {
         if (driver.getHeat().getHeatState() != HeatState.SETUP && driver.getHeat().getHeatState() != HeatState.LOADED) {
             return false;
         }
-        TimingSystem.getEventDatabase().driverSet(driver.getId(), "isRemoved", "1");
+        TimingSystem.getEventDatabase().driverSet(driver.getId(), "isRemoved", 1);
         drivers.remove(driver.getTPlayer().getUniqueId());
         startPositions.remove(driver);
         int startPos = driver.getStartPosition();

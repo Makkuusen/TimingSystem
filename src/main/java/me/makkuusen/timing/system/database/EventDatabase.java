@@ -71,7 +71,9 @@ public interface EventDatabase {
 
     void heatSet(long heatId, String column, Long value);
 
-    void driverSet(long driverId, String column, String value);
+    void driverSet(long driverId, String column, Integer value);
+
+    void driverSet(long driverId, String column, Long value);
 
 
     static void initSynchronize() {

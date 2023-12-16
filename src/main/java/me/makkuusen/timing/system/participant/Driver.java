@@ -176,27 +176,27 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public void setPosition(int position) {
         this.position = position;
-        TimingSystem.getEventDatabase().driverSet(id, "position", String.valueOf(position));
+        TimingSystem.getEventDatabase().driverSet(id, "position", position);
     }
 
     public void setStartPosition(int startPosition) {
         this.startPosition = startPosition;
-        TimingSystem.getEventDatabase().driverSet(id, "startPosition", String.valueOf(startPosition));
+        TimingSystem.getEventDatabase().driverSet(id, "startPosition", startPosition);
     }
 
     public void setStartTime(Instant startTime) {
         this.startTime = startTime;
-        TimingSystem.getEventDatabase().driverSet(id, "startTime", startTime == null ? "NULL" : String.valueOf(startTime.toEpochMilli()));
+        TimingSystem.getEventDatabase().driverSet(id, "startTime", startTime == null ? null : startTime.toEpochMilli());
     }
 
     public void setEndTime(Instant endTime) {
         this.endTime = endTime;
-        TimingSystem.getEventDatabase().driverSet(id, "endTime", endTime == null ? "NULL" : String.valueOf(endTime.toEpochMilli()));
+        TimingSystem.getEventDatabase().driverSet(id, "endTime", endTime == null ? null : endTime.toEpochMilli());
     }
 
     public void setPits(int pits) {
         this.pits = pits;
-        TimingSystem.getEventDatabase().driverSet(id, "pitstops", String.valueOf(pits));
+        TimingSystem.getEventDatabase().driverSet(id, "pitstops", pits);
     }
 
     public void setState(DriverState state) {

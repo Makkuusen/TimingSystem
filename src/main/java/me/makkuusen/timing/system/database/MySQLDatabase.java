@@ -600,8 +600,13 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     }
 
     @Override
-    public void driverSet(long driverId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `" + column + "` = '" + TSDatabase.sqlStringOf(value) + "' WHERE `id` = " + driverId + ";");
+    public void driverSet(long driverId, String column, Integer value) {
+        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `" + column + "` = '" + value + "' WHERE `id` = " + driverId + ";");
+    }
+
+    @Override
+    public void driverSet(long driverId, String column, Long value) {
+        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `" + column + "` = '" + value + "' WHERE `id` = " + driverId + ";");
     }
 
     // Track Database
