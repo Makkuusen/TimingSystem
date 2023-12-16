@@ -369,7 +369,7 @@ public class TrackEditor {
             }
         }
         TrackDatabase.removeTrack(track);
-        LogEntryBuilder.start(ApiUtilities.getTimestamp(), "track").setAction("remove").setUUID(player.getUniqueId()).setObjectId(track.getId()).build();
+        //LogEntryBuilder.start(ApiUtilities.getTimestamp(), "track").setAction("remove").setUUID(player.getUniqueId()).setObjectId(track.getId()).build();
         return Text.get(player, Success.REMOVED_TRACK, "%track%", track.getDisplayName());
     }
 

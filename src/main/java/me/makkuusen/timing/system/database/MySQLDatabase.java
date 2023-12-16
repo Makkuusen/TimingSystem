@@ -333,15 +333,6 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """);
-
-            DB.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS `ts_track_events` (
-                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                      `date` bigint(30) NOT NULL,
-                      `body` varchar(255) NOT NULL,
-                      PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                """);
             return true;
         } catch (SQLException e) {
             e.printStackTrace();

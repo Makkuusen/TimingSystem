@@ -4,12 +4,11 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.*;
-import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.gui.TrackGui;
-import me.makkuusen.timing.system.logger.LogEntryBuilder;
 import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;

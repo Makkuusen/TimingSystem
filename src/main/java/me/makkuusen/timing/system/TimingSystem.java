@@ -126,7 +126,7 @@ public class TimingSystem extends JavaPlugin {
         TSDatabase.synchronize();
         TrackDatabase.loadTrackFinishesAsync();
         EventDatabase.initSynchronize();
-        LogDatabase.synchronize();
+        //LogDatabase.synchronize();
 
         var tasks = new Tasks();
         tasks.startPlayerTimer(plugin);
