@@ -33,8 +33,8 @@ public class FinalHeat {
 
         Bukkit.getServer().getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> {
             driver.getHeat().getEvent().getTrack().getTrackLocations().getFinishTp(driver.getPosition()).ifPresentOrElse(
-                    loc -> driver.getTPlayer().getPlayer().teleport(loc),
-                    () -> driver.getHeat().getEvent().getTrack().getTrackLocations().getFinishTp().ifPresent(loc -> driver.getTPlayer().getPlayer().teleport(loc))
+                    loc -> driver.getTPlayer().getPlayer().teleportAsync(loc),
+                    () -> driver.getHeat().getEvent().getTrack().getTrackLocations().getFinishTp().ifPresent(loc -> driver.getTPlayer().getPlayer().teleportAsync(loc))
             );
         });
     }
