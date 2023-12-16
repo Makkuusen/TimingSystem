@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Getter
-@Setter
 public class Event {
 
     public static TimingSystem plugin;
@@ -46,7 +45,7 @@ public class Event {
         id = data.getInt("id");
         displayName = data.getString("name");
         uuid = UUID.fromString(data.getString("uuid"));
-        date = TimingSystem.getDatabase() instanceof SQLiteDatabase ? data.getInt("date").longValue() : data.getLong("date"); // seems weird converting this int to a long maybe hmmmm
+        date = data.getInt("date");
         Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : TrackDatabase.getTrackById(data.getInt("track"));
         track = maybeTrack.orElse(null);
         state = EventState.valueOf(data.getString("state"));
@@ -165,6 +164,11 @@ public class Event {
         TimingSystem.getEventDatabase().eventSet(id, "state", state.name());
     }
 
+    public void setOpenSign(boolean open) {
+        this.openSign = open;
+        TimingSystem.getEventDatabase().eventSet(id, "open", open);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -185,6 +189,10 @@ public class Event {
 
     public boolean isActive() {
         return state != EventState.FINISHED;
+    }
+
+    public void setEventSchedule(EventSchedule es) {
+        this.eventSchedule = es;
     }
 
     public enum EventState {

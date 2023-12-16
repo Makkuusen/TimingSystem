@@ -566,6 +566,11 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     }
 
     @Override
+    public void eventSet(long heatId, String column, Boolean value) {
+        DB.executeUpdateAsync("UPDATE `ts_events` SET `" + column + "` = " + value + " WHERE `id` = " + heatId + ";");
+    }
+
+    @Override
     public void eventSet(long heatId, String column, Integer value) {
         DB.executeUpdateAsync("UPDATE `ts_events` SET `" + column + "` = " + value + " WHERE `id` = " + heatId + ";");
     }
