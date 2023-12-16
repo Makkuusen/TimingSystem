@@ -203,7 +203,7 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `uuid` TEXT NOT NULL,
                           `heatId` INTEGER NOT NULL,
                           `trackId` INTEGER NOT NULL,
-                          `lapStart` TEXT DEFAULT NULL,
+                          `lapStart` INTEGER DEFAULT NULL,
                           `lapEnd` INTEGER DEFAULT NULL,
                           `pitted` INTEGER NOT NULL,
                           `isRemoved` INTEGER NOT NULL DEFAULT '0'

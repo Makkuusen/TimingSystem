@@ -245,7 +245,7 @@ public class CommandEvent extends BaseCommand {
             return;
         }
         event.setTrack(track);
-        Text.send(player, Success.TRACK_SELECTED);
+        Text.send(player, Success.TRACK_SELECTED, "%track%", track.getDisplayName());
     }
 
     @Subcommand("set signs")
