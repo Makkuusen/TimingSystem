@@ -402,6 +402,7 @@ public class TrackEditor {
         }
 
         LeaderboardManager.updateFastestTimeLeaderboard(track);
+        setPlayerTrackSelection(player.getUniqueId(), track);
         return Text.get(player, Success.CREATED_TRACK, "%track%", name);
     }
 
