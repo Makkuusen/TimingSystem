@@ -167,7 +167,7 @@ public class TrackEditor {
                 continue;
             }
 
-            track.getTrackTags().add(tag);
+            track.getTrackTags().create(tag);
             results.add(Component.text(tag.getValue().toLowerCase(), theme.getSuccess()));
         }
 
