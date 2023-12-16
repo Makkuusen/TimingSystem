@@ -50,7 +50,7 @@ public class Event {
         Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : TrackDatabase.getTrackById(data.getInt("track"));
         track = maybeTrack.orElse(null);
         state = EventState.valueOf(data.getString("state"));
-        openSign = data.get("open").equals(1);
+        openSign = data.get("open") instanceof Boolean ? data.get("open") : data.get("open").equals(1);
         eventSchedule = new EventSchedule();
         eventCountdown = new EventCountdown(this);
     }

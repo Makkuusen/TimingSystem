@@ -42,7 +42,8 @@ public class Lap implements Comparable<Lap> {
         track = TrackDatabase.getTrackById(data.getInt("trackId")).orElse(null);
         lapStart = Instant.ofEpochMilli(data.getLong("lapStart"));
         lapEnd = data.getLong("lapEnd") == null ? null : Instant.ofEpochMilli(data.getLong("lapEnd"));
-        pitted = data.get("pitted");
+        pitted = data.get("pitted") instanceof Boolean ? data.get("pitted") : data.get("pitted").equals(1);
+
     }
 
     public long getLapTime() {
