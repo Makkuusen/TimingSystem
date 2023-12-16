@@ -124,6 +124,9 @@ public class Event {
 
     public void addSubscriber(TPlayer tPlayer) {
         subscribers.put(tPlayer.getUniqueId(), EventDatabase.subscriberNew(tPlayer, this, Subscriber.Type.SUBSCRIBER));
+        if (!getSpectators().containsKey(tPlayer.getUniqueId())) {
+            addSpectator(tPlayer.getUniqueId());
+        }
     }
 
     public boolean isSubscribing(UUID uuid) {
