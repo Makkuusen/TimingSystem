@@ -265,6 +265,22 @@ public class ApiUtilities {
         return toReturn;
     }
 
+    public static String formatAsSeconds(long time) {
+        String toReturn;
+        long hours = TimeUnit.SECONDS.toHours(time);
+        long minutes = TimeUnit.SECONDS.toMinutes(time) % TimeUnit.HOURS.toMinutes(1);
+        String seconds = String.format("%02d", time % 60);
+
+        if (hours == 0 && minutes == 0) {
+            toReturn = seconds;
+        } else if (hours == 0){
+            toReturn = String.format("%02d:", minutes) + seconds;
+        } else {
+            toReturn = String.format("%d:%02d:", hours, minutes) + seconds;
+        }
+        return toReturn;
+    }
+
     public static String formatAsTimeNoRounding(long time) {
         String toReturn;
         long hours = TimeUnit.MILLISECONDS.toHours(time);

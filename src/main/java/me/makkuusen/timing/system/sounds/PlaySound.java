@@ -22,4 +22,10 @@ public class PlaySound {
             tPlayer.getPlayer().playSound(tPlayer.getPlayer().getLocation(), Sound.BLOCK_BEACON_ACTIVATE, SoundCategory.MASTER, 1, 1);
         }
     }
+
+    public static void countDownPling(TPlayer tPlayer) {
+        if (tPlayer.getSettings().isSound() && tPlayer.getPlayer() != null) {
+            tPlayer.getPlayer().playSound(tPlayer.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, SoundCategory.MASTER, 1F, 1);
+        }
+    }
 }
