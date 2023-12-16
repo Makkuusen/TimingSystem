@@ -2,7 +2,6 @@ package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
-import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.*;
 
 import me.makkuusen.timing.system.api.TimingSystemAPI;
@@ -24,21 +23,13 @@ import me.makkuusen.timing.system.timetrial.TimeTrialSession;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.*;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
-import me.makkuusen.timing.system.track.options.TrackOption;
-import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
-
 import java.util.ArrayList;
 import java.util.List;
 

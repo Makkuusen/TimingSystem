@@ -11,9 +11,7 @@ import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.editor.TrackEditor;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
-import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
-import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
