@@ -1,7 +1,7 @@
 package me.makkuusen.timing.system.gui;
 
-import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,7 +13,7 @@ public class GUIListener implements Listener {
     public void onInventoryClick(InventoryClickEvent e) {
         TPlayer tPlayer;
         if (e.getWhoClicked() instanceof Player player) {
-            tPlayer = Database.getPlayer(player.getUniqueId());
+            tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         } else {
             return;
         }

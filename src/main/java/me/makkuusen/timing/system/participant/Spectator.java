@@ -1,6 +1,6 @@
 package me.makkuusen.timing.system.participant;
 
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 
 public class Spectator extends Participant {
 

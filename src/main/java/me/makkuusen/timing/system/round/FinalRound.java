@@ -2,11 +2,11 @@ package me.makkuusen.timing.system.round;
 
 import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.participant.Driver;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class FinalRound extends Round {
 
     public void createHeat(int heatNumber) {
         int pits = 0;
-        var maybePit = getEvent().getTrack().getRegion(TrackRegion.RegionType.PIT);
+        var maybePit = getEvent().getTrack().getTrackRegions().getRegion(TrackRegion.RegionType.PIT);
         if (maybePit.isPresent() && maybePit.get().isDefined()) {
             pits = TimingSystem.configuration.getPits();
         }

@@ -2,10 +2,9 @@ package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
-import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.gui.SettingsGui;
-import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -21,23 +20,45 @@ public class CommandSettings extends BaseCommand {
     @Default
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onSettings(Player player) {
-        new SettingsGui(Database.getPlayer(player.getUniqueId())).show(player);
+        new SettingsGui(TSDatabase.getPlayer(player.getUniqueId())).show(player);
+    }
+
+    @Subcommand("shortname")
+    @CommandCompletion("<shortname>")
+    @CommandPermission("%permissiontimingsystem_settings_shortname")
+    public static void onShortName(Player player, @Single String shortName) {
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+        int maxLength = 4;
+        int minLength = 3;
+
+        if (shortName.length() < minLength || shortName.length() > maxLength) {
+            Text.send(player, Error.INVALID_NAME);
+            return;
+        }
+
+        if (!shortName.matches("[A-Za-z0-9]+")) {
+            Text.send(player, Error.INVALID_NAME);
+            return;
+        }
+
+        tPlayer.getSettings().setShortName(shortName);
+        Text.send(player, Success.SAVED);
     }
 
     @Subcommand("verbose")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onVerbose(Player player) {
-        var tPlayer = Database.getPlayer(player);
-        tPlayer.toggleVerbose();
-        Text.send(player, tPlayer.isVerbose() ? Success.CHECKPOINTS_ANNOUNCEMENTS_ON : Success.CHECKPOINTS_ANNOUNCEMENTS_OFF);
+        var tPlayer = TSDatabase.getPlayer(player);
+        tPlayer.getSettings().toggleVerbose();
+        Text.send(player, tPlayer.getSettings().isVerbose() ? Success.CHECKPOINTS_ANNOUNCEMENTS_ON : Success.CHECKPOINTS_ANNOUNCEMENTS_OFF);
     }
 
     @Subcommand("boat")
     @CommandCompletion("@boat")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onBoat(Player player, Boat.Type type) {
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.setBoat(type);
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+        tPlayer.getSettings().setBoat(type);
         if (player.getVehicle() instanceof Boat boat) {
             boat.setBoatType(type);
         }
@@ -47,25 +68,25 @@ public class CommandSettings extends BaseCommand {
     @Subcommand("sound")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onTTSound(Player player) {
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.toggleSound();
-        Text.send(player, tPlayer.isSound() ? Success.SOUND_ON : Success.SOUND_OFF);
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+        tPlayer.getSettings().toggleSound();
+        Text.send(player, tPlayer.getSettings().isSound() ? Success.SOUND_ON : Success.SOUND_OFF);
     }
 
     @Subcommand("compactScoreboard")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onCompactScoreboard(Player player) {
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
-        tPlayer.toggleCompactScoreboard();
-        Text.send(player, tPlayer.isCompactScoreboard() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+        tPlayer.getSettings().toggleCompactScoreboard();
+        Text.send(player, tPlayer.getSettings().isCompactScoreboard() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
     }
 
     @Subcommand("override")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onOverride(Player player) {
-        var tPlayer = Database.getPlayer(player);
-        tPlayer.toggleOverride();
-        Text.send(player, tPlayer.isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
+        var tPlayer = TSDatabase.getPlayer(player);
+        tPlayer.getSettings().toggleOverride();
+        Text.send(player, tPlayer.getSettings().isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
     }
 
 
@@ -77,9 +98,9 @@ public class CommandSettings extends BaseCommand {
             hex = "#" + hex;
         }
         if (isValidHexCode(hex)) {
-            var tPlayer = Database.getPlayer(player);
-            tPlayer.setHexColor(hex);
-            player.sendMessage(Text.get(player, Success.COLOR_UPDATED).color(tPlayer.getTextColor()));
+            var tPlayer = TSDatabase.getPlayer(player);
+            tPlayer.getSettings().setHexColor(hex);
+            player.sendMessage(Text.get(player, Success.COLOR_UPDATED).color(tPlayer.getSettings().getTextColor()));
             return;
         }
         Text.send(player, Error.COLOR_FORMAT);

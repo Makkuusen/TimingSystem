@@ -3,11 +3,11 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.database.EventDatabase;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Subscriber;
@@ -59,12 +59,12 @@ public class CommandEvent extends BaseCommand {
     @Subcommand("list")
     @CommandPermission("%permissionevent_list")
     public static void onListEvents(CommandSender commandSender) {
-        var list = EventDatabase.getEvents().stream().filter(Event::isActive).sorted(Comparator.comparingLong(Event::getDate)).toList();
+        var list = EventDatabase.events.stream().filter(Event::isActive).sorted(Comparator.comparingLong(Event::getDate)).toList();
         commandSender.sendMessage(Component.empty());
         Text.send(commandSender, Info.ACTIVE_EVENTS_TITLE);
         Theme theme = Theme.getTheme(commandSender);
         for (Event event : list) {
-            commandSender.sendMessage(theme.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Text.get(commandSender, Hover.CLICK_TO_SELECT))).append(Component.space()).append(theme.getParenthesized(event.getState().name())).append(theme.primary(" - ")).append(theme.primary(ApiUtilities.niceDate(event.getDate()))).append(Component.space()).append(theme.primary(">")).append(Component.space()).append(theme.highlight(Database.getPlayer(event.getUuid()).getNameDisplay())));
+            commandSender.sendMessage(theme.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Text.get(commandSender, Hover.CLICK_TO_SELECT))).append(Component.space()).append(theme.getParenthesized(event.getState().name())).append(theme.primary(" - ")).append(theme.primary(ApiUtilities.niceDate(event.getDate()))).append(Component.space()).append(theme.primary(">")).append(Component.space()).append(theme.highlight(TSDatabase.getPlayer(event.getUuid()).getNameDisplay())));
         }
     }
 
@@ -165,7 +165,7 @@ public class CommandEvent extends BaseCommand {
 
         for (Round round : event.eventSchedule.getRounds()) {
 
-            boolean currentRound = round.getRoundIndex() == event.getEventSchedule().getCurrentRound() && event.getState() != Event.EventState.FINISHED;
+            boolean currentRound = round.getRoundIndex().equals(event.getEventSchedule().getCurrentRound()) && event.getState() != Event.EventState.FINISHED;
             var roundMessage = (currentRound ? theme.arrow() : theme.tab()).append(Component.text(round.getDisplayName() + ":").color(theme.getPrimary()));
 
             if (sender.hasPermission("timingsystem.packs.eventadmin") && round.getState() != Round.RoundState.FINISHED) {
@@ -241,11 +241,11 @@ public class CommandEvent extends BaseCommand {
         if (maybeEvent.isPresent()) {
             event = maybeEvent.get();
         } else {
-            Text.send(player, Error.NO_EVENT_SELECTED);;
+            Text.send(player, Error.NO_EVENT_SELECTED);
             return;
         }
         event.setTrack(track);
-        Text.send(player, Success.TRACK_SELECTED);
+        Text.send(player, Success.TRACK_SELECTED, "%track%", track.getDisplayName());
     }
 
     @Subcommand("set signs")
@@ -257,7 +257,7 @@ public class CommandEvent extends BaseCommand {
         if (maybeEvent.isPresent()) {
             event = maybeEvent.get();
         } else {
-            Text.send(player, Error.NO_EVENT_SELECTED);;
+            Text.send(player, Error.NO_EVENT_SELECTED);
             return;
         }
 
@@ -290,7 +290,7 @@ public class CommandEvent extends BaseCommand {
     @CommandPermission("%permissionevent_sign")
     public static void onSignUp(Player player, Event event, @Optional String name) {
         if (name != null) {
-            TPlayer tPlayer = Database.getPlayer(name);
+            TPlayer tPlayer = TSDatabase.getPlayer(name);
             if (tPlayer == null) {
                 Text.send(player, Error.PLAYER_NOT_FOUND);
                 return;
@@ -315,7 +315,7 @@ public class CommandEvent extends BaseCommand {
             return;
         }
 
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         if (event.isSubscribing(player.getUniqueId())) {
             if (event.getState() != Event.EventState.SETUP) {
                 Text.send(player, Error.EVENT_ALREADY_STARTED);
@@ -350,12 +350,12 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                Text.send(player, Error.NO_EVENT_SELECTED);;
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
 
-        Theme theme = Database.getPlayer(player).getTheme();
+        Theme theme = TSDatabase.getPlayer(player).getTheme();
 
         int count = 1;
         player.sendMessage(Component.empty());
@@ -371,7 +371,7 @@ public class CommandEvent extends BaseCommand {
         if (event.getTrack() != null) {
             var sortedList = CommandRound.getSortedList(event.getSubscribers().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
             for (TPlayer tPlayer : sortedList) {
-                var bestTime = event.getTrack().getBestFinish(tPlayer);
+                var bestTime = event.getTrack().getTimeTrials().getBestFinish(tPlayer);
                 player.sendMessage(theme.primary(count++ + ":").append(Component.space()).append(theme.highlight(tPlayer.getName())).append(theme.hyphen()).append(theme.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime()))));
             }
         } else {
@@ -380,7 +380,7 @@ public class CommandEvent extends BaseCommand {
             }
         }
 
-        if (event.getReserves().values().size() == 0) {
+        if (event.getReserves().values().isEmpty()) {
             return;
         }
 
@@ -396,7 +396,7 @@ public class CommandEvent extends BaseCommand {
         if (event.getTrack() != null) {
             var sortedList = CommandRound.getSortedList(event.getReserves().values().stream().map(Subscriber::getTPlayer).collect(Collectors.toList()), event.getTrack());
             for (TPlayer tPlayer : sortedList) {
-                var bestTime = event.getTrack().getBestFinish(tPlayer);
+                var bestTime = event.getTrack().getTimeTrials().getBestFinish(tPlayer);
                 player.sendMessage(theme.primary(count++ + ":").append(Component.space()).append(theme.highlight(tPlayer.getName())).append(theme.hyphen()).append(theme.highlight(bestTime == null ? "(-)" : ApiUtilities.formatAsTime(bestTime.getTime())))
 
                 );
@@ -418,7 +418,7 @@ public class CommandEvent extends BaseCommand {
                 return;
             }
 
-            TPlayer tPlayer = Database.getPlayer(name);
+            TPlayer tPlayer = TSDatabase.getPlayer(name);
             if (tPlayer == null) {
                 Text.send(player, Error.PLAYER_NOT_FOUND);
                 return;
@@ -443,7 +443,7 @@ public class CommandEvent extends BaseCommand {
             }
             return;
         }
-        var tPlayer = Database.getPlayer(player.getUniqueId());
+        var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         if (event.isReserving(player.getUniqueId())) {
             if (event.getState() != Event.EventState.SETUP) {
                 Text.send(player, Error.EVENT_ALREADY_STARTED);
@@ -463,6 +463,44 @@ public class CommandEvent extends BaseCommand {
         }
     }
 
+    @Subcommand("countdown start")
+    @CommandCompletion("<h/m/s> <label>")
+    public static void onCountdown(Player player, String time, @Optional String label) {
+        Event event;
+        var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+        if (maybeEvent.isPresent()) {
+            event = maybeEvent.get();
+        } else {
+            Text.send(player, Error.NO_EVENT_SELECTED);
+            return;
+        }
+        Integer timeLimit = ApiUtilities.parseDurationToMillis(time);
+        if (timeLimit == null) {
+            Text.send(player, Error.TIME_FORMAT);
+            return;
+        }
+
+
+        event.eventCountdown.startCountdown(timeLimit/1000, label);
+
+    }
+    @Subcommand("countdown stop")
+    @CommandCompletion("@event")
+    public static void onCountdown(Player player, @Optional Event event) {
+        if (event == null) {
+            var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
+            if (maybeEvent.isPresent()) {
+                event = maybeEvent.get();
+            } else {
+                Text.send(player, Error.NO_EVENT_SELECTED);
+                return;
+            }
+        }
+        if (event.eventCountdown.isActive()) {
+            event.eventCountdown.stopCountdown();
+        }
+    }
+
     @Subcommand("broadcast clicktosign")
     @CommandPermission("%permissionevent_broadcast_clicktosign")
     public static void onSendSignUp(Player player, @Optional Event event) {
@@ -471,7 +509,7 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                Text.send(player, Error.NO_EVENT_SELECTED);;
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }
@@ -501,7 +539,7 @@ public class CommandEvent extends BaseCommand {
             if (maybeEvent.isPresent()) {
                 event = maybeEvent.get();
             } else {
-                Text.send(player, Error.NO_EVENT_SELECTED);;
+                Text.send(player, Error.NO_EVENT_SELECTED);
                 return;
             }
         }

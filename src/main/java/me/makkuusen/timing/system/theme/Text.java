@@ -1,14 +1,13 @@
 package me.makkuusen.timing.system.theme;
 
 import com.destroystokyo.paper.ClientOption;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.theme.messages.ActionBar;
 import me.makkuusen.timing.system.theme.messages.Message;
 import me.makkuusen.timing.system.theme.messages.MessageNoColor;
 import me.makkuusen.timing.system.theme.messages.Success;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -41,12 +40,6 @@ public class Text {
         sender.sendMessage(MessageParser.getComponentWithColors(text, key, Theme.getTheme(sender)));
     }
 
-    public static void send(@NotNull CommandSender sender, @NotNull String key, TextColor textColor) {
-        var text = TimingSystem.getLanguageManager().getValue(key, getLocale(sender));
-        if (text != null && !text.isEmpty()) {
-            sender.sendMessage(Component.text(text).color(textColor));
-        }
-    }
 
     public static Component get(CommandSender sender, Message key) {
         var text = TimingSystem.getLanguageManager().getNewValue(key.getKey(), getLocale(sender));

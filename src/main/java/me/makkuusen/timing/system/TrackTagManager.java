@@ -1,13 +1,8 @@
 package me.makkuusen.timing.system;
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
-import co.aikar.idb.DB;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
@@ -31,7 +26,7 @@ public class TrackTagManager {
             return false;
         }
 
-        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`, `color`, `item`) VALUES('" + tag.getValue() + "', '" + color.asHexString() + "', " + Database.sqlString(ApiUtilities.itemToString(item)) + ");");
+        TimingSystem.getTrackDatabase().createTagAsync(tag, color, item);
         trackTags.put(tag.getValue(), tag);
         return true;
     }
@@ -45,21 +40,20 @@ public class TrackTagManager {
 
     public static boolean deleteTag(TrackTag tag) {
         if (trackTags.containsKey(tag)) {
-            for (Track t : TrackDatabase.getTracks()) {
-                if (t.hasTag(tag)) {
-                    t.removeTag(tag);
+            for (Track t : TrackDatabase.tracks) {
+                if (t.getTrackTags().hasTag(tag)) {
+                    t.getTrackTags().remove(tag);
                 }
             }
             trackTags.remove(tag);
-            DB.executeUpdateAsync("DELETE FROM `ts_tags` WHERE `tag` = '" + tag.getValue() + "';");
-            DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = '" + tag.getValue() + "';");
+            TimingSystem.getTrackDatabase().deleteTagAsync(tag);
             return true;
         }
         return false;
     }
 
     public static boolean hasTag(TrackTag tag) {
-        return trackTags.containsKey(tag);
+        return trackTags.containsKey(tag.getValue());
     }
 
     public static Map<String, TrackTag> getTrackTags() {
@@ -68,17 +62,6 @@ public class TrackTagManager {
 
     public static TrackTag getTrackTag(String value) {
         return trackTags.get(value);
-    }
-
-    public static ContextResolver<TrackTag, BukkitCommandExecutionContext> getTrackTagContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return TrackTagManager.getTrackTag(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
     }
 
     public static List<TrackTag> getSortedTrackTags(boolean includeZeroWeight) {

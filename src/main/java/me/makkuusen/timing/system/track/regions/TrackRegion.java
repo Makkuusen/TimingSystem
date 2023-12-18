@@ -1,21 +1,27 @@
-package me.makkuusen.timing.system.track;
+package me.makkuusen.timing.system.track.regions;
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Location;
 
 @Getter
 @Setter
 public abstract class TrackRegion {
 
+
+    @Getter
     private final int id;
+    @Getter
     private final int trackId;
+    @Getter
     private final int regionIndex;
+    @Getter
     private final RegionType regionType;
     private RegionShape shape;
+    @Getter
     private Location spawnLocation;
     private Location minP;
     private Location maxP;
@@ -30,24 +36,14 @@ public abstract class TrackRegion {
         maxP = ApiUtilities.stringToLocation(data.getString("maxP"));
     }
 
-    public Location getSpawnLocation() {
-        return spawnLocation;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getTrackId() {
-        return trackId;
-    }
-
-    public int getRegionIndex() {
-        return regionIndex;
-    }
-
-    public RegionType getRegionType() {
-        return regionType;
+    public TrackRegion(long id, long trackId, int regionIndex, RegionType regionType, Location spawnLocation, Location minP, Location maxP) {
+        this.id = (int) id;
+        this.trackId = (int) trackId;
+        this.regionIndex = regionIndex;
+        this.regionType = regionType;
+        this.spawnLocation = spawnLocation;
+        this.minP = minP;
+        this.maxP = maxP;
     }
 
     public abstract boolean contains(Location loc);
@@ -63,17 +59,17 @@ public abstract class TrackRegion {
 
     public void setMinP(Location minP) {
         this.minP = minP;
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `minP` = '" + ApiUtilities.locationToString(minP) + "' WHERE `id` = " + getId() + ";");
+        TimingSystem.getTrackDatabase().trackRegionSet(id, "minP", ApiUtilities.locationToString(minP));
     }
 
     public void setMaxP(Location maxP) {
         this.maxP = maxP;
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `maxP` = '" + ApiUtilities.locationToString(maxP) + "' WHERE `id` = " + getId() + ";");
+        TimingSystem.getTrackDatabase().trackRegionSet(id, "maxP", ApiUtilities.locationToString(maxP));
     }
 
     public void setSpawn(Location spawn) {
         this.spawnLocation = spawn;
-        DB.executeUpdateAsync("UPDATE `ts_regions` SET `spawn` = '" + ApiUtilities.locationToString(spawn) + "' WHERE `id` = " + getId() + ";");
+        TimingSystem.getTrackDatabase().trackRegionSet(id, "spawn", ApiUtilities.locationToString(spawn));
     }
 
     abstract boolean hasEqualBounds(TrackRegion other);

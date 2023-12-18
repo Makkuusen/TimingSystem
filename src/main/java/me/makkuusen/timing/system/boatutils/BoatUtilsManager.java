@@ -1,15 +1,11 @@
 package me.makkuusen.timing.system.boatutils;
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.MessageKeys;
-import co.aikar.commands.contexts.ContextResolver;
-import com.destroystokyo.paper.ClientOption;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.api.events.BoatUtilsAppliedEvent;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Hover;
 import me.makkuusen.timing.system.theme.messages.Warning;
@@ -25,34 +21,34 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+@SuppressWarnings("UnstableApiUsage")
 public class BoatUtilsManager {
 
     public static Map<UUID, BoatUtilsMode> playerBoatUtilsMode = new HashMap<>();
 
-    public static void pluginMessageListener(@NotNull String channel, @NotNull Player player, @NotNull byte[] message) {
+    public static void pluginMessageListener(@NotNull String channel, @NotNull Player player, byte[] message) {
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         short packetID = in.readShort();
         if (packetID == 0) {
             int version = in.readInt();
-            TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+            TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
             tPlayer.setBoatUtilsVersion(version);
         }
     }
 
     public static void sendBoatUtilsModePluginMessage(Player player, BoatUtilsMode mode, Track track, boolean sameAsLastTrack){
-        TPlayer tPlayer = Database.getPlayer(player.getUniqueId());
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+
+        BoatUtilsAppliedEvent event = new BoatUtilsAppliedEvent(player, mode, track);
+        event.callEvent();
+        if(event.isCancelled()) {
+            return;
+        }
+
         if (mode != BoatUtilsMode.VANILLA) {
             if (!tPlayer.hasBoatUtils()) {
-                if (!(mode == BoatUtilsMode.BROKEN_SLIME_RALLY || mode == BoatUtilsMode.BROKEN_SLIME_BA_NOFD)) {
-                    var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
-                            .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
-                            .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));
-                    player.sendMessage(boatUtilsWarning);
-                    return;
-                }
-
                 if (track != null) {
-                    if (track.isBoatUtils() && !track.hasPlayedTrack(tPlayer) && !sameAsLastTrack) {
+                    if (track.isBoatUtils() && !track.getTimeTrials().hasPlayed(tPlayer) && !sameAsLastTrack) {
                         var boatUtilsWarning = tPlayer.getTheme().warning(">> ").append(Text.get(player, Warning.TRACK_REQUIRES_BOAT_UTILS)).append(tPlayer.getTheme().warning(" <<"))
                                 .hoverEvent(HoverEvent.showText(Text.get(player, Hover.CLICK_TO_OPEN)))
                                 .clickEvent(ClickEvent.openUrl("https://modrinth.com/mod/openboatutils"));
@@ -84,23 +80,12 @@ public class BoatUtilsManager {
             e.printStackTrace();
         }
         player.sendPluginMessage(TimingSystem.getPlugin(), "openboatutils:settings", b.toByteArray());
-        if (tPlayer.isVerbose() && !(playerBoatUtilsMode.get(player.getUniqueId()) != null && playerBoatUtilsMode.get(player.getUniqueId()) == mode)) {
+        if (tPlayer.getSettings().isVerbose() && !(playerBoatUtilsMode.get(player.getUniqueId()) != null && playerBoatUtilsMode.get(player.getUniqueId()) == mode)) {
             player.sendMessage(Component.text("BU Mode: " + mode.name(), tPlayer.getTheme().getPrimary()));
         }
         playerBoatUtilsMode.put(player.getUniqueId(), mode);
     }
 
-    public static ContextResolver<BoatUtilsMode, BukkitCommandExecutionContext> getBoatUtilsModeContextResolver() {
-        return (c) -> {
-            String name = c.popFirstArg();
-            try {
-                return BoatUtilsMode.valueOf(name.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                //no matching boat types
-                throw new InvalidCommandArgument(MessageKeys.INVALID_SYNTAX);
-            }
-        };
-    }
     public static List<BoatUtilsMode> getAvailableModes(int version) {
         return Arrays.stream(BoatUtilsMode.values()).filter(mode -> mode.getRequiredVersion() <= version).toList();
     }

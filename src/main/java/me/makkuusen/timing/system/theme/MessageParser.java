@@ -24,7 +24,7 @@ public class MessageParser {
         boolean first = true;
         for (String string : strings) {
             String message = first ? "" : "&";
-            if (string.length() > 0) {
+            if (!string.isEmpty()) {
                 String option = string.substring(0, 1);
                 message = string.substring(1);
                 switch (option) {
@@ -43,9 +43,7 @@ public class MessageParser {
                         decorations = new ArrayList<>();
                         color = NamedTextColor.WHITE;
                     }
-                    default -> {
-                        message = first ? string : "&" + string;
-                    }
+                    default -> message = first ? string : "&" + string;
                 }
             }
             first = false;

@@ -3,11 +3,11 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.database.EventDatabase;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.event.EventResults;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -58,7 +58,7 @@ public class CommandHeat extends BaseCommand {
             }
         }
         Text.send(player, Info.HEATS_TITLE, "%event%", event.getDisplayName());
-        var messages = event.eventSchedule.getHeatList(Database.getPlayer(player).getTheme());
+        var messages = event.eventSchedule.getHeatList(TSDatabase.getPlayer(player).getTheme());
         messages.forEach(player::sendMessage);
     }
 
@@ -66,7 +66,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     @CommandPermission("%permissionheat_info")
     public static void onHeatInfo(Player player, Heat heat) {
-        Theme theme = Database.getPlayer(player).getTheme();
+        Theme theme = TSDatabase.getPlayer(player).getTheme();
         player.sendMessage(Component.empty());
         player.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/heat info " + heat.getName())).append(Component.space()).append(theme.getTitleLine(Component.text(heat.getName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(heat.getHeatState().name()).append(Component.space()).append(theme.getBrackets(Text.get(player, TextButton.VIEW_EVENT), theme.getButton()).clickEvent(ClickEvent.runCommand("/event info " + heat.getEvent().getDisplayName())).hoverEvent(theme.getClickToViewHoverEvent(player)))))));
 
@@ -302,7 +302,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat @players <[+/-]pos>")
     @CommandPermission("%permissionheat_set_driverposition")
     public static void onHeatSetDriverPosition(Player sender, Heat heat, String playerName, String position) {
-        TPlayer tPlayer = Database.getPlayer(playerName);
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
         if (tPlayer == null) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
             return;
@@ -372,10 +372,10 @@ public class CommandHeat extends BaseCommand {
     }
 
     @Subcommand("add")
-    @CommandCompletion("@heat @players ")
+    @CommandCompletion("@heat @players")
     @CommandPermission("%permissionheat_add_driver")
     public static void onHeatAddDriver(Player sender, Heat heat, String playerName) {
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+        if (!heat.getRound().getRoundIndex().equals(heat.getEvent().getEventSchedule().getCurrentRound()) && heat.getRound().getRoundIndex() != 1) {
             Text.send(sender, Error.ADD_DRIVER_FUTURE_ROUND);
             return;
         }
@@ -384,7 +384,7 @@ public class CommandHeat extends BaseCommand {
             Text.send(sender, Error.HEAT_FULL);
             return;
         }
-        TPlayer tPlayer = Database.getPlayer(playerName);
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
         if (tPlayer == null) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
             return;
@@ -413,7 +413,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat @players")
     @CommandPermission("%permissionheat_removedriver")
     public static void onHeatRemoveDriver(Player sender, Heat heat, String playerName) {
-        TPlayer tPlayer = Database.getPlayer(playerName);
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
         if (tPlayer == null) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
             return;
@@ -504,7 +504,7 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     @CommandPermission("%permissionheat_add_all")
     public static void onHeatAddDrivers(Player sender, Heat heat) {
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+        if (!heat.getRound().getRoundIndex().equals(heat.getEvent().getEventSchedule().getCurrentRound()) && heat.getRound().getRoundIndex() != 1) {
             Text.send(sender, Error.ADD_DRIVER_FUTURE_ROUND);
             return;
         }
@@ -541,10 +541,10 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat @players")
     @CommandPermission("%permissionheat_results")
     public static void onHeatResults(Player sender, Heat heat, @Optional String name) {
-        Theme theme = Database.getPlayer(sender).getTheme();
+        Theme theme = TSDatabase.getPlayer(sender).getTheme();
 
         if (name != null) {
-            TPlayer tPlayer = Database.getPlayer(name);
+            TPlayer tPlayer = TSDatabase.getPlayer(name);
             if (tPlayer == null) {
                 Text.send(sender, Error.PLAYER_NOT_FOUND);
                 return;
@@ -610,16 +610,16 @@ public class CommandHeat extends BaseCommand {
             Text.send(player, Error.HEAT_ALREADY_STARTED);
             return;
         }
-        if (heat.getStartPositions().size() == 0) {
+        if (heat.getStartPositions().isEmpty()) {
             Text.send(player, Error.NOT_NOW);
             return;
         }
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+        if (!Objects.equals(heat.getRound().getRoundIndex(), heat.getEvent().getEventSchedule().getCurrentRound()) && heat.getRound().getRoundIndex() != 1) {
             Text.send(player, Error.SORT_DRIVERS_FUTURE_ROUND);
             return;
         }
 
-        List<TimeTrialFinish> driversWithBestTimes = heat.getEvent().getTrack().getTopList().stream().filter(tt -> heat.getDrivers().containsKey(tt.getPlayer().getUniqueId())).toList();
+        List<TimeTrialFinish> driversWithBestTimes = heat.getEvent().getTrack().getTimeTrials().getTopList().stream().filter(tt -> heat.getDrivers().containsKey(tt.getPlayer().getUniqueId())).toList();
         List<Driver> allDrivers = new ArrayList<>(heat.getStartPositions());
         List<Driver> noTT = new ArrayList<>();
 
@@ -663,11 +663,11 @@ public class CommandHeat extends BaseCommand {
             Text.send(player, Error.HEAT_ALREADY_STARTED);
             return;
         }
-        if (heat.getStartPositions().size() == 0) {
+        if (heat.getStartPositions().isEmpty()) {
             Text.send(player, Error.NOT_NOW);
             return;
         }
-        if (heat.getRound().getRoundIndex() != heat.getEvent().getEventSchedule().getCurrentRound() && heat.getRound().getRoundIndex() != 1) {
+        if (!Objects.equals(heat.getRound().getRoundIndex(), heat.getEvent().getEventSchedule().getCurrentRound()) && heat.getRound().getRoundIndex() != 1) {
             Text.send(player, Error.SORT_DRIVERS_FUTURE_ROUND);
             return;
         }

@@ -1,18 +1,20 @@
 package me.makkuusen.timing.system.event;
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.EventDatabase;
+import me.makkuusen.timing.system.database.SQLiteDatabase;
+import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -20,13 +22,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Getter
-@Setter
 public class Event {
 
     public static TimingSystem plugin;
     public EventSchedule eventSchedule;
+    public EventCountdown eventCountdown;
+    @Getter(AccessLevel.PUBLIC)
     HashMap<UUID, Subscriber> subscribers = new HashMap<>(); // Signed drivers
+    @Getter(AccessLevel.PUBLIC)
     HashMap<UUID, Subscriber> reserves = new HashMap<>();
+    @Getter(AccessLevel.PUBLIC)
     HashMap<UUID, Spectator> spectators = new HashMap<>();
     Track track;
     private int id;
@@ -40,12 +45,13 @@ public class Event {
         id = data.getInt("id");
         displayName = data.getString("name");
         uuid = UUID.fromString(data.getString("uuid"));
-        date = data.getLong("date");
+        date = data.getInt("date");
         Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : TrackDatabase.getTrackById(data.getInt("track"));
         track = maybeTrack.orElse(null);
         state = EventState.valueOf(data.getString("state"));
-        openSign = data.get("open");
+        openSign = data.get("open") instanceof Boolean ? data.get("open") : data.get("open").equals(1);
         eventSchedule = new EventSchedule();
+        eventCountdown = new EventCountdown(this);
     }
 
     public boolean start() {
@@ -91,10 +97,10 @@ public class Event {
     }
 
     public void addSpectator(UUID uuid) {
-        spectators.put(uuid, new Spectator(Database.getPlayer(uuid)));
+        spectators.put(uuid, new Spectator(TSDatabase.getPlayer(uuid)));
         var maybeHeat = getRunningHeat();
-
         maybeHeat.ifPresent(Heat::updateScoreboard);
+        eventCountdown.addSpectator(TSDatabase.getPlayer(uuid));
     }
 
     public boolean isSpectating(UUID uuid) {
@@ -104,18 +110,22 @@ public class Event {
     public void removeSpectator(UUID uuid) {
         if (spectators.containsKey(uuid)) {
             spectators.remove(uuid);
-            if (Database.getPlayer(uuid).getPlayer() != null) {
+            if (TSDatabase.getPlayer(uuid).getPlayer() != null) {
+                TPlayer tPlayer = TSDatabase.getPlayer(uuid);
+                eventCountdown.removeSpectator(tPlayer);
                 var maybeHeat = getRunningHeat();
                 if (maybeHeat.isPresent()) {
-                    Database.getPlayer(uuid).clearScoreboard();
+                    tPlayer.clearScoreboard();
                 }
             }
-
         }
     }
 
     public void addSubscriber(TPlayer tPlayer) {
         subscribers.put(tPlayer.getUniqueId(), EventDatabase.subscriberNew(tPlayer, this, Subscriber.Type.SUBSCRIBER));
+        if (!getSpectators().containsKey(tPlayer.getUniqueId())) {
+            addSpectator(tPlayer.getUniqueId());
+        }
     }
 
     public boolean isSubscribing(UUID uuid) {
@@ -124,7 +134,7 @@ public class Event {
 
     public void removeSubscriber(UUID uuid) {
         if (subscribers.containsKey(uuid)) {
-            DB.executeUpdateAsync("DELETE FROM `ts_events_signs` WHERE `uuid` = '" + uuid.toString() + "' AND `eventId` = " + getId() + " AND `type` = '" + Subscriber.Type.SUBSCRIBER.name() + "';");
+            TimingSystem.getEventDatabase().removeSign(uuid, id, Subscriber.Type.SUBSCRIBER);
             subscribers.remove(uuid);
         }
     }
@@ -139,19 +149,24 @@ public class Event {
 
     public void removeReserve(UUID uuid) {
         if (reserves.containsKey(uuid)) {
-            DB.executeUpdateAsync("DELETE FROM `ts_events_signs` WHERE `uuid` = '" + uuid.toString() + "' AND `eventId` = " + getId() + " AND `type` = '" + Subscriber.Type.RESERVE.name() + "';");
+            TimingSystem.getEventDatabase().removeSign(uuid, id, Subscriber.Type.RESERVE);
             reserves.remove(uuid);
         }
     }
 
     public void setTrack(Track track) {
         this.track = track;
-        DB.executeUpdateAsync("UPDATE `ts_events` SET `track` = " + track.getId() + " WHERE `id` = " + id + ";");
+        TimingSystem.getEventDatabase().eventSet(id, "track", track.getId());
     }
 
     public void setState(EventState state) {
         this.state = state;
-        DB.executeUpdateAsync("UPDATE `ts_events` SET `state` = '" + state.name() + "' WHERE `id` = " + id + ";");
+        TimingSystem.getEventDatabase().eventSet(id, "state", state.name());
+    }
+
+    public void setOpenSign(boolean open) {
+        this.openSign = open;
+        TimingSystem.getEventDatabase().eventSet(id, "open", open);
     }
 
     @Override
@@ -174,6 +189,10 @@ public class Event {
 
     public boolean isActive() {
         return state != EventState.FINISHED;
+    }
+
+    public void setEventSchedule(EventSchedule es) {
+        this.eventSchedule = es;
     }
 
     public enum EventState {

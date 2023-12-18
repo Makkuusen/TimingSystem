@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.heat;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -59,23 +60,20 @@ public class ScoreboardUtils {
     }
 
     public static Component paddName(Driver driver, boolean compact) {
-        return paddName(driver.getTPlayer().getName(), compact);
+        return paddName(driver.getTPlayer(), compact);
     }
 
-    public static Component paddName(String name, boolean compact) {
+    public static Component paddName(TPlayer tPlayer, boolean compact) {
 
         TextComponent.Builder c = Component.text().content("");
         if (compact) {
-            if (name.length() > 3) {
-                c.append(Component.text(name.substring(0, 4)));
-            } else {
-                c.append(Component.text(name));
-                int spaces = 4 - name.length();
-                c.append(Component.text(" ".repeat(Math.max(0, spaces))));
-            }
+            var shortName = tPlayer.getSettings().getShortName();
+            c.append(Component.text(shortName));
+            int spaces = 4 - shortName.length();
+            c.append(Component.text(" ".repeat(Math.max(0, spaces))));
         } else {
-            c.append(Component.text(name));
-            int spaces = 16 - name.length();
+            c.append(Component.text(tPlayer.getName()));
+            int spaces = 16 - tPlayer.getName().length();
             c.append(Component.text(" ".repeat(Math.max(0, spaces))));
         }
         return c.build();
@@ -141,7 +139,7 @@ public class ScoreboardUtils {
     }
 
     private static Component getTeamIcon(Driver driver) {
-        return Component.text("§l§o||§r ").color(driver.getTPlayer().getTextColor());
+        return Component.text("§l§o||§r ").color(driver.getTPlayer().getSettings().getTextColor());
     }
 
     private static Component getPits(boolean compact, Theme theme) {

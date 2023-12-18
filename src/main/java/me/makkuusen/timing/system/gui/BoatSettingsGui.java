@@ -2,7 +2,7 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
@@ -28,10 +28,10 @@ public class BoatSettingsGui extends BaseGui {
     private GuiButton getBoatTypeButton(TPlayer tPlayer, Material boatType) {
         var button = new GuiButton(new ItemBuilder(boatType).build());
         button.setAction(() -> {
-            tPlayer.setBoat(ApiUtilities.getBoatType(boatType));
-            tPlayer.setChestBoat(ApiUtilities.isChestBoat(boatType));
+            tPlayer.getSettings().setBoat(ApiUtilities.getBoatType(boatType));
+            tPlayer.getSettings().setChestBoat(ApiUtilities.isChestBoat(boatType));
             if (tPlayer.getPlayer() instanceof Boat boat) {
-                boat.setBoatType(tPlayer.getBoat());
+                boat.setBoatType(tPlayer.getSettings().getBoat());
             }
             PlaySound.buttonClick(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());

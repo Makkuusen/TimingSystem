@@ -1,7 +1,9 @@
 package me.makkuusen.timing.system;
 
 import com.sk89q.worldedit.math.BlockVector2;
-import me.makkuusen.timing.system.event.EventDatabase;
+import me.makkuusen.timing.system.database.EventDatabase;
+import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
@@ -15,10 +17,10 @@ import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
-import me.makkuusen.timing.system.track.TrackLocation;
-import me.makkuusen.timing.system.track.TrackPolyRegion;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.editor.TrackEditor;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
+import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -36,16 +38,16 @@ public class Tasks {
 
     public void startParticleSpawner(TimingSystem plugin) {
         Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            for (UUID uuid : TimingSystem.playerEditingSession.keySet()) {
+            for (UUID uuid : TrackEditor.playerTrackVisualisation) {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player == null) continue;
-                Track track = TimingSystem.playerEditingSession.get(uuid);
+                Track track = TrackEditor.getPlayerTrackSelection(uuid);
 
-                track.getRegions().forEach(trackRegion -> setParticles(player, trackRegion));
-                track.getTrackLocations(TrackLocation.Type.GRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_OFF));
-                track.getTrackLocations(TrackLocation.Type.QUALYGRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_ON));
-                track.getTrackLocations(TrackLocation.Type.FINISH_TP).forEach(location -> setParticles(player, location.getLocation(), Particle.HEART));
-                track.getTrackLocations(TrackLocation.Type.FINISH_TP_ALL).forEach(location -> setParticles(player, location.getLocation(), Particle.VILLAGER_ANGRY));
+                track.getTrackRegions().getRegions().forEach(trackRegion -> setParticles(player, trackRegion));
+                track.getTrackLocations().getLocations(TrackLocation.Type.GRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_OFF));
+                track.getTrackLocations().getLocations(TrackLocation.Type.QUALYGRID).forEach(location -> setParticles(player, location.getLocation(), Particle.WAX_ON));
+                track.getTrackLocations().getLocations(TrackLocation.Type.FINISH_TP).forEach(location -> setParticles(player, location.getLocation(), Particle.HEART));
+                track.getTrackLocations().getLocations(TrackLocation.Type.FINISH_TP_ALL).forEach(location -> setParticles(player, location.getLocation(), Particle.VILLAGER_ANGRY));
             }
         }, 0, 10);
     }
@@ -73,14 +75,14 @@ public class Tasks {
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
 
-            for (Track track : TrackDatabase.getTracks()) {
+            for (Track track : TrackDatabase.tracks) {
                 long time = 0L;
                 long bestTime = 0L;
-                var topTime = track.getTopList(1);
-                if (topTime.size() != 0) {
+                var topTime = track.getTimeTrials().getTopList(1);
+                if (!topTime.isEmpty()) {
                     bestTime = topTime.get(0).getTime();
 
-                    for (List<TimeTrialFinish> l : track.getTimeTrialFinishes().values()) {
+                    for (List<TimeTrialFinish> l : track.getTimeTrials().getTimeTrialFinishes().values()) {
                         for (TimeTrialFinish ttf : l) {
                             if (ttf.getTime() < (bestTime * 4)) {
                                 time += ttf.getTime();
@@ -89,7 +91,7 @@ public class Tasks {
                     }
                 }
 
-                for (List<TimeTrialAttempt> l : track.getTimeTrialAttempts().values()) {
+                for (List<TimeTrialAttempt> l : track.getTimeTrials().getTimeTrialAttempts().values()) {
                     for (TimeTrialAttempt ttf : l) {
                         if (bestTime != 0) {
                             if (ttf.getTime() < (bestTime * 4)) {
@@ -100,7 +102,7 @@ public class Tasks {
                         }
                     }
                 }
-                track.setTotalTimeSpent(time);
+                track.getTimeTrials().setTotalTimeSpent(time);
             }
         }, 10*20, 900*20);
 
@@ -116,7 +118,7 @@ public class Tasks {
 
                 }
             } else if (driver.getHeat().getRound() instanceof QualificationRound) {
-                if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
+                if (!driver.getLaps().isEmpty() && driver.getCurrentLap() != null && driver.getState() == DriverState.RUNNING) {
                     long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                     long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                     String delta = QualifyHeat.getBestLapCheckpointDelta(driver, driver.getCurrentLap().getLatestCheckpoint());
@@ -144,7 +146,7 @@ public class Tasks {
     }
 
     private static void sendQualificationDriverActionBar(Player player, Driver driver) {
-        if (driver.getLaps().size() > 0 && driver.getState() == DriverState.RUNNING) {
+        if (!driver.getLaps().isEmpty() && driver.getCurrentLap() != null && driver.getState() == DriverState.RUNNING) {
             long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
             long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
             String delta = QualifyHeat.getBestLapCheckpointDelta(driver, driver.getCurrentLap().getLatestCheckpoint());
@@ -162,7 +164,7 @@ public class Tasks {
         TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
         long mapTime = timeTrial.getCurrentTime();
         Component timer = Component.text(ApiUtilities.formatAsTime(mapTime));
-        Theme theme = Database.getPlayer(player).getTheme();
+        Theme theme = TSDatabase.getPlayer(player).getTheme();
 
         int latestCheckpoint = timeTrial.getLatestCheckpoint();
         Component delta = timeTrial.getBestLapDelta(theme, latestCheckpoint);
@@ -179,7 +181,7 @@ public class Tasks {
     private static void elytraProtectionCountdown(Player player) {
         if (TimeTrialController.elytraProtection.get(player.getUniqueId()) != null && TimeTrialController.elytraProtection.get(player.getUniqueId()) >= TimingSystem.currentTime.getEpochSecond()) {
             String elytraCountdown = String.valueOf(TimeTrialController.elytraProtection.get(player.getUniqueId()) - TimingSystem.currentTime.getEpochSecond());
-            player.sendActionBar(Component.text(elytraCountdown).color(Database.getPlayer(player).getTheme().getWarning()));
+            player.sendActionBar(Component.text(elytraCountdown).color(TSDatabase.getPlayer(player).getTheme().getWarning()));
         }
     }
 

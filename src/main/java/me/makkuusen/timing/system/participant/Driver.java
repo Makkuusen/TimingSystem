@@ -1,19 +1,18 @@
 package me.makkuusen.timing.system.participant;
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.driver.*;
+import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.event.EventDatabase;
 import me.makkuusen.timing.system.heat.DriverScoreboard;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.round.QualificationRound;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -155,7 +154,7 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public boolean isInPit(Location playerLoc) {
-        var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
+        var inPitRegions = heat.getEvent().getTrack().getTrackRegions().getRegions(TrackRegion.RegionType.INPIT);
         for (TrackRegion trackRegion : inPitRegions) {
             if (trackRegion.contains(playerLoc)) {
                 return true;
@@ -177,35 +176,27 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public void setPosition(int position) {
         this.position = position;
-        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `position` = " + position + " WHERE `id` = " + id + ";");
+        TimingSystem.getEventDatabase().driverSet(id, "position", position);
     }
 
     public void setStartPosition(int startPosition) {
         this.startPosition = startPosition;
-        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startPosition` = " + startPosition + " WHERE `id` = " + id + ";");
+        TimingSystem.getEventDatabase().driverSet(id, "startPosition", startPosition);
     }
 
     public void setStartTime(Instant startTime) {
         this.startTime = startTime;
-        if (startTime == null) {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startTime` = NULL WHERE `id` = " + id + ";");
-        } else {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `startTime` = " + startTime.toEpochMilli() + " WHERE `id` = " + id + ";");
-        }
+        TimingSystem.getEventDatabase().driverSet(id, "startTime", startTime == null ? null : startTime.toEpochMilli());
     }
 
     public void setEndTime(Instant endTime) {
         this.endTime = endTime;
-        if (endTime == null) {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = NULL WHERE `id` = " + id + ";");
-        } else {
-            DB.executeUpdateAsync("UPDATE `ts_drivers` SET `endTime` = " + endTime.toEpochMilli() + " WHERE `id` = " + id + ";");
-        }
+        TimingSystem.getEventDatabase().driverSet(id, "endTime", endTime == null ? null : endTime.toEpochMilli());
     }
 
     public void setPits(int pits) {
         this.pits = pits;
-        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `pitstops` = " + pits + " WHERE `id` = " + getId() + ";");
+        TimingSystem.getEventDatabase().driverSet(id, "pitstops", pits);
     }
 
     public void setState(DriverState state) {
@@ -217,13 +208,13 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public void removeUnfinishedLap() {
-        if (laps.size() > 0 && getCurrentLap().getLapEnd() == null) {
+        if (!laps.isEmpty() && getCurrentLap().getLapEnd() == null) {
             laps.remove(getCurrentLap());
         }
     }
 
     public Optional<Lap> getBestLap() {
-        if (getLaps().size() == 0) {
+        if (getLaps().isEmpty()) {
             return Optional.empty();
         }
         if (getLaps().get(0).getLapTime() == -1) {
@@ -273,7 +264,7 @@ public class Driver extends Participant implements Comparable<Driver> {
             return getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
         } else {
 
-            if (getLaps().size() < 1) {
+            if (getLaps().isEmpty()) {
                 return 0;
             }
 
@@ -283,7 +274,7 @@ public class Driver extends Participant implements Comparable<Driver> {
                     return Duration.between(getEndTime(), comparingDriver.getEndTime()).toMillis();
                 }
 
-                if (comparingDriver.getLaps().size() > 0 && comparingDriver.getCurrentLap() != null) {
+                if (!comparingDriver.getLaps().isEmpty() && comparingDriver.getCurrentLap() != null) {
                     Instant timeStamp = comparingDriver.getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
                     Instant fasterTimeStamp = getTimeStamp(comparingDriver.getLaps().size(), comparingDriver.getCurrentLap().getLatestCheckpoint());
                     timeDiff = Duration.between(fasterTimeStamp, timeStamp).toMillis();
@@ -356,7 +347,7 @@ public class Driver extends Participant implements Comparable<Driver> {
             return 1;
         }
 
-        if (getLaps().size() == 0) {
+        if (getLaps().isEmpty()) {
             return 0;
         }
 

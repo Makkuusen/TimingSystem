@@ -1,12 +1,12 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
@@ -28,7 +28,7 @@ public class TimeTrialGui extends TrackPageGui {
 
     @Override
     public GuiButton getTrackButton(Player player, Track track) {
-        var button = new GuiButton(track.getGuiItem(player.getUniqueId()));
+        var button = new GuiButton(track.getItem(player.getUniqueId()));
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {
                 Text.send(player, Error.WORLD_NOT_LOADED);

@@ -14,13 +14,16 @@ import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
-import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackCuboidRegion;
-import me.makkuusen.timing.system.track.TrackPolyRegion;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.track.*;
+import me.makkuusen.timing.system.track.regions.TrackCuboidRegion;
+import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -37,8 +40,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.time.Instant;
 import java.util.*;
@@ -62,7 +63,7 @@ public class ApiUtilities {
     }
 
     public static Location stringToLocation(String string) {
-        if (string == null || string.length() == 0) {
+        if (string == null || string.isEmpty()) {
             return null;
         }
 
@@ -174,7 +175,7 @@ public class ApiUtilities {
             if (character.toString().matches("[0-9]")) {
                 tmp += character;
             } else {
-                if (tmp.length() == 0) {
+                if (tmp.isEmpty()) {
                     return null;
                 }
 
@@ -195,7 +196,7 @@ public class ApiUtilities {
         }
 
         // default to milliseconds
-        if (tmp.length() != 0) {
+        if (!tmp.isEmpty()) {
             try {
                 duration += Integer.parseInt(tmp);
             } catch (Exception exception) {
@@ -260,6 +261,22 @@ public class ApiUtilities {
             toReturn = String.format("%02d:%02d", minutes, seconds) + "." + millis;
         } else {
             toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
+        }
+        return toReturn;
+    }
+
+    public static String formatAsSeconds(long time) {
+        String toReturn;
+        long hours = TimeUnit.SECONDS.toHours(time);
+        long minutes = TimeUnit.SECONDS.toMinutes(time) % TimeUnit.HOURS.toMinutes(1);
+        String seconds = String.format("%02d", time % 60);
+
+        if (hours == 0 && minutes == 0) {
+            toReturn = seconds;
+        } else if (hours == 0){
+            toReturn = String.format("%02d:", minutes) + seconds;
+        } else {
+            toReturn = String.format("%d:%02d:", hours, minutes) + seconds;
         }
         return toReturn;
     }
@@ -396,6 +413,30 @@ public class ApiUtilities {
         return new Location(world, v.getBlockX(), v.getBlockY(), v.getBlockZ());
     }
 
+    public static Optional<Track> findClosestTrack(Player player) {
+
+        var playerLocation = player.getLocation();
+        double minDistance = -1;
+        Optional<Track> minDistanceTrack = Optional.empty();
+
+        for (Track track : TrackDatabase.tracks) {
+
+            if (!playerLocation.getWorld().equals(track.getSpawnLocation().getWorld())) {
+                continue;
+            }
+
+            var distance = playerLocation.distance(track.getSpawnLocation());
+            if (minDistanceTrack.isEmpty()) {
+                minDistanceTrack = Optional.of(track);
+                minDistance = distance;
+            } else if (distance < minDistance) {
+                minDistance = distance;
+                minDistanceTrack = Optional.of(track);
+            }
+        }
+        return minDistanceTrack;
+    }
+
     public static long getRoundedToTick(long mapTime) {
         if (mapTime % 50 == 0) {
             return mapTime;
@@ -500,8 +541,8 @@ public class ApiUtilities {
 
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, true);
 
-        var tPlayer = Database.getPlayer(player.getUniqueId());
-        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
+        var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getSettings().getBoat(), tPlayer.getSettings().isChestBoat());
         if (boat != null) {
             boat.addPassenger(player);
         }
@@ -517,24 +558,15 @@ public class ApiUtilities {
         }
 
         var mode = track.getBoatUtilsMode();
-        switch (mode) {
-            case RALLY -> {
-                ApiUtilities.giveBoatUtilsIEffect(player);
-                ApiUtilities.giveBoatUtilsREffect(player);
-            }
-            case BA -> {
-                ApiUtilities.giveBoatUtilsREffect(player);
-            }
-        }
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
 
-        var tPlayer = Database.getPlayer(player.getUniqueId());
+        var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
 
         if (boatSpawnEvent.getBoat() != null) {
             return boatSpawnEvent.getBoat();
         }
 
-        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getBoat(), tPlayer.isChestBoat());
+        Boat boat = ApiUtilities.spawnBoat(location, tPlayer.getSettings().getBoat(), tPlayer.getSettings().isChestBoat());
         if (boat != null) {
             boat.addPassenger(player);
         }
@@ -549,9 +581,7 @@ public class ApiUtilities {
         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
         chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(3);
         if (track.isBoatTrack()) {
-            chain.sync(() -> {
-                ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, sameAsLastTrack);
-            }).execute();
+            chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, sameAsLastTrack)).execute();
         } else if (track.isElytraTrack()) {
             chain.sync(() -> {
                 ItemStack chest = player.getInventory().getChestplate();
@@ -593,62 +623,14 @@ public class ApiUtilities {
     }
 
     public static boolean hasBoatUtilsEffects(Player player) {
-        PotionEffect luckEffect = player.getPotionEffect(PotionEffectType.LUCK);
-        if (luckEffect != null) {
-            if (luckEffect.getAmplifier() == 55) {
-                return true;
-            }
-        }
-        PotionEffect unluckEffect = player.getPotionEffect(PotionEffectType.UNLUCK);
-        if (unluckEffect != null) {
-            return unluckEffect.getAmplifier() == 99;
-        }
         if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
             return !(BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) == BoatUtilsMode.VANILLA);
         }
         return false;
     }
 
-    public static boolean hasBoatUtilsREffect(Player player) {
-        PotionEffect unluckEffect = player.getPotionEffect(PotionEffectType.UNLUCK);
-        if (unluckEffect != null) {
-            return unluckEffect.getAmplifier() == 99;
-        }
-
-        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
-            var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
-            return mode == BoatUtilsMode.BROKEN_SLIME_RALLY || mode == BoatUtilsMode.BROKEN_SLIME_BA_NOFD;
-        }
-        return false;
-    }
-
-    public static boolean hasBoatUtilsIEffect(Player player) {
-        PotionEffect luckEffect = player.getPotionEffect(PotionEffectType.LUCK);
-        if (luckEffect != null) {
-            return luckEffect.getAmplifier() == 55;
-        }
-
-        if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
-            var mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
-            return mode == BoatUtilsMode.BROKEN_SLIME_RALLY;
-        }
-        return false;
-    }
-
     public static void removeBoatUtilsEffects(Player player) {
-        player.removePotionEffect(PotionEffectType.UNLUCK);
-        player.removePotionEffect(PotionEffectType.LUCK);
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, BoatUtilsMode.VANILLA, null, false);
-    }
-
-    public static void giveBoatUtilsREffect(Player player) {
-        var unluckEffect = new PotionEffect(PotionEffectType.UNLUCK, 999999, 99, false, false);
-        player.addPotionEffect(unluckEffect);
-    }
-
-    public static void giveBoatUtilsIEffect(Player player) {
-        var luckEffect = new PotionEffect(PotionEffectType.LUCK, 999999, 55, false, false);
-        player.addPotionEffect(luckEffect);
     }
 
     public static void resetPlayerTimeTrial(Player player) {
@@ -702,10 +684,6 @@ public class ApiUtilities {
         return String.format("#%02X%02X%02X", r, g, b);
     }
 
-    public static void leaveHeat() {
-
-    }
-
     public static List<UUID> extractUUIDsFromString(String s) {
         List<UUID> result = new ArrayList<>();
 
@@ -730,7 +708,7 @@ public class ApiUtilities {
     public static List<TPlayer> tPlayersFromUUIDList(List<UUID> uuids) {
         if(uuids.isEmpty()) return new ArrayList<>();
         List<TPlayer> result = new ArrayList<>();
-        uuids.forEach(uuid -> result.add(Database.getPlayer(uuid)));
+        uuids.forEach(uuid -> result.add(TSDatabase.getPlayer(uuid)));
         return result;
     }
 

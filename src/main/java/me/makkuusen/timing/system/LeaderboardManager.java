@@ -1,12 +1,11 @@
 package me.makkuusen.timing.system;
 
 import co.aikar.taskchain.TaskChain;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
-import me.makkuusen.timing.system.track.TrackLeaderboard;
-import me.makkuusen.timing.system.track.TrackLocation;
+import me.makkuusen.timing.system.track.locations.TrackLeaderboard;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -17,7 +16,7 @@ public class LeaderboardManager {
             return;
         }
 
-        List<TrackLocation> trackLeaderboards = track.getTrackLocations(TrackLocation.Type.LEADERBOARD);
+        List<TrackLocation> trackLeaderboards = track.getTrackLocations().getLocations(TrackLocation.Type.LEADERBOARD);
 
         for (TrackLocation tl : trackLeaderboards) {
             if (tl instanceof TrackLeaderboard trackLeaderboard) {
@@ -33,10 +32,8 @@ public class LeaderboardManager {
         }
 
         TaskChain<?> chain = TimingSystem.newChain();
-        for (Track t : TrackDatabase.getTracks()) {
-            chain.sync(() -> {
-                updateFastestTimeLeaderboard(t);
-            }).delay(1);
+        for (Track t : TrackDatabase.tracks) {
+            chain.sync(() -> updateFastestTimeLeaderboard(t)).delay(1);
         }
         chain.execute();
     }
@@ -45,7 +42,7 @@ public class LeaderboardManager {
         if (!TimingSystem.enableLeaderboards) {
             return;
         }
-        for (Track t : TrackDatabase.getTracks()) {
+        for (Track t : TrackDatabase.tracks) {
             removeLeaderboards(t);
         }
     }
@@ -56,7 +53,7 @@ public class LeaderboardManager {
         }
         Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> {
 
-            List<TrackLocation> trackLeaderboards = track.getTrackLocations(TrackLocation.Type.LEADERBOARD);
+            List<TrackLocation> trackLeaderboards = track.getTrackLocations().getLocations(TrackLocation.Type.LEADERBOARD);
 
             for (TrackLocation tl : trackLeaderboards) {
                 if (tl instanceof TrackLeaderboard trackLeaderboard) {
@@ -67,6 +64,6 @@ public class LeaderboardManager {
     }
 
     public static void startUpdateTask() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(TimingSystem.getPlugin(), (@NotNull Runnable) LeaderboardManager::updateAllFastestTimeLeaderboard, 30 * 20, TimingSystem.configuration.getLeaderboardsUpdateTick());
+        Bukkit.getScheduler().runTaskTimerAsynchronously(TimingSystem.getPlugin(), LeaderboardManager::updateAllFastestTimeLeaderboard, 30 * 20, TimingSystem.configuration.getLeaderboardsUpdateTick());
     }
 }

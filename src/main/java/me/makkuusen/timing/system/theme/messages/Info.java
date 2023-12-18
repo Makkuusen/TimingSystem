@@ -42,7 +42,7 @@ public enum Info implements Message {
     TRACK_CLOSED,
     TRACK_DATE_CREATED,
     TRACK_OPTIONS,
-    TRACK_MODE,
+    TRACK_TIMETRIAL,
     TRACK_BOATUTILS_MODE,
     TRACK_CHECKPOINTS,
     TRACK_GRIDS,

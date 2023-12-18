@@ -1,4 +1,4 @@
-package me.makkuusen.timing.system.track;
+package me.makkuusen.timing.system.track.regions;
 
 import co.aikar.idb.DbRow;
 import lombok.Getter;
@@ -14,8 +14,13 @@ public class TrackCuboidRegion extends TrackRegion {
         setShape(RegionShape.CUBOID);
     }
 
+    public TrackCuboidRegion(long id, long trackId, int regionIndex, RegionType regionType, Location spawnLocation, Location minP, Location maxP) {
+        super(id,trackId,regionIndex,regionType,spawnLocation,minP,maxP);
+        setShape(RegionShape.CUBOID);
+    }
+
     public boolean contains(Location loc) {
-        if (loc == null || getMinP() == null || getMinP() == null) {
+        if (loc == null || getMinP() == null || getMaxP() == null) {
             return false;
         } else {
             return loc.getBlockX() >= getMinP().getBlockX() && loc.getBlockX() <= getMaxP().getBlockX() && loc.getBlockY() >= getMinP().getBlockY() && loc.getBlockY() <= getMaxP().getBlockY() && loc.getBlockZ() >= getMinP().getBlockZ() && loc.getBlockZ() <= getMaxP().getBlockZ();

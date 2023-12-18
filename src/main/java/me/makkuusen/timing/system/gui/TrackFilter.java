@@ -1,33 +1,32 @@
 package me.makkuusen.timing.system.gui;
 
+import lombok.Getter;
 import me.makkuusen.timing.system.ItemBuilder;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Getter
 public class TrackFilter {
 
     private Set<TrackTag> tags;
     private boolean anyMatch = true;
     public TrackFilter() {
         tags = new HashSet<>();
-    }
-
-    public boolean isAnyMatch() {
-        return anyMatch;
     }
 
     public void setAnyMatch(boolean anyMatch) {
@@ -55,14 +54,21 @@ public class TrackFilter {
         return true;
     }
 
-    public Set<TrackTag> getTags() {
-        return tags;
-    }
-
     public ItemStack getItem(TPlayer tPlayer){
         var item = new ItemBuilder(Material.HOPPER).setName(Text.get(tPlayer, Gui.FILTER_BY)).build();
-        List<Component> loreToSet = new ArrayList<>();
+        ItemMeta im = getItemMeta(tPlayer, item);
+        im.addEnchant(Enchantment.LUCK, 1, true);
+        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        im.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
+        im.addItemFlags(ItemFlag.HIDE_DYE);
+        item.setItemMeta(im);
 
+        return item;
+    }
+
+    @NotNull
+    private ItemMeta getItemMeta(TPlayer tPlayer, ItemStack item) {
+        List<Component> loreToSet = new ArrayList<>();
 
         boolean notFirst = false;
         Component tags = Component.empty();
@@ -77,12 +83,6 @@ public class TrackFilter {
 
         ItemMeta im = item.getItemMeta();
         im.lore(loreToSet);
-        im.addEnchant(Enchantment.LUCK, 1, true);
-        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        im.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
-        im.addItemFlags(ItemFlag.HIDE_DYE);
-        item.setItemMeta(im);
-
-        return item;
+        return im;
     }
 }

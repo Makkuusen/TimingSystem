@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.timetrial;
 
-import me.makkuusen.timing.system.TPlayer;
+import lombok.Getter;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 
 import java.util.ArrayList;
@@ -9,8 +10,11 @@ import java.util.List;
 public class TimeTrialSession {
 
     TPlayer tPlayer;
+    @Getter
     Track track;
+    @Getter
     List<TimeTrialFinish> timeTrialFinishes = new ArrayList<>();
+    @Getter
     List<TimeTrialAttempt> timeTrialAttempts = new ArrayList<>();
     TimeTrialScoreboard timeTrialScoreboard;
 
@@ -25,18 +29,6 @@ public class TimeTrialSession {
 
     public void addTimeTrialAttempt(TimeTrialAttempt timeTrialAttempt) {
         timeTrialAttempts.add(timeTrialAttempt);
-    }
-
-    public List<TimeTrialFinish> getTimeTrialFinishes() {
-        return timeTrialFinishes;
-    }
-
-    public List<TimeTrialAttempt> getTimeTrialAttempts() {
-        return timeTrialAttempts;
-    }
-
-    public Track getTrack() {
-        return track;
     }
 
     public void updateScoreboard() {

@@ -1,8 +1,8 @@
 package me.makkuusen.timing.system.gui;
 
-import me.makkuusen.timing.system.Database;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.GuiOpenEvent;
+import me.makkuusen.timing.system.database.TSDatabase;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -57,7 +57,7 @@ public class BaseGui {
     }
 
     public void show(Player player) {
-        var tPlayer = Database.getPlayer(player.getUniqueId());
+        var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         GuiOpenEvent guiOpenEvent = new GuiOpenEvent(player, this);
         Bukkit.getServer().getPluginManager().callEvent(guiOpenEvent);
         if (guiOpenEvent.isCancelled()) {

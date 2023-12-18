@@ -4,13 +4,12 @@ import co.aikar.idb.DbRow;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.Database;
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
-import me.makkuusen.timing.system.track.TrackDatabase;
-import me.makkuusen.timing.system.track.TrackRegion;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -38,12 +37,13 @@ public class Lap implements Comparable<Lap> {
     }
 
     public Lap(DbRow data) {
-        player = Database.getPlayer(data.getString("uuid"));
+        player = TSDatabase.getPlayer(data.getString("uuid"));
         heatId = data.getInt("heatId");
         track = TrackDatabase.getTrackById(data.getInt("trackId")).orElse(null);
         lapStart = Instant.ofEpochMilli(data.getLong("lapStart"));
         lapEnd = data.getLong("lapEnd") == null ? null : Instant.ofEpochMilli(data.getLong("lapEnd"));
-        pitted = data.get("pitted");
+        pitted = data.get("pitted") instanceof Boolean ? data.get("pitted") : data.get("pitted").equals(1);
+
     }
 
     public long getLapTime() {
@@ -74,7 +74,7 @@ public class Lap implements Comparable<Lap> {
     }
 
     public Instant getCheckpointTime(int checkpoint) {
-        if (checkpoints.size() == 0 || checkpoint == 0) {
+        if (checkpoints.isEmpty() || checkpoint == 0) {
             return lapStart;
         }
         return checkpoints.get(checkpoint - 1);

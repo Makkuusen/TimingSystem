@@ -20,7 +20,7 @@ public class EventSchedule {
     }
 
     public boolean start(Event event) {
-        if (rounds.size() > 0) {
+        if (!rounds.isEmpty()) {
             event.setState(Event.EventState.RUNNING);
             currentRound = 1;
             getRound().get().setState(Round.RoundState.RUNNING);
@@ -90,9 +90,7 @@ public class EventSchedule {
 
 
     public List<Component> getHeatList(Theme theme) {
-        List<Component> message = new ArrayList<>();
-        message.addAll(listHeats(theme));
-        return message;
+        return new ArrayList<>(listHeats(theme));
     }
 
     public List<Component> getRoundList(Theme theme) {

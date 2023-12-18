@@ -214,7 +214,7 @@ info:
   track_open: '&1Dibuka: &2Tidak'
   track_closed: '&1Dibuka: &2Tidak'
   track_date_created: '&1Dibuat pada:&2 %date%&1 dimiliki oleh &2%owner%'
-  track_options: '&1Pengaturan: &2+%options%'
+  track_options: '&1Pengaturan: &2%options%'
   track_mode: '&1Mode: &2%mode%'
   track_checkpoints: '&1Checkpoints:&2 %size%'
   track_grids: '&1Grids:&2 %size%'

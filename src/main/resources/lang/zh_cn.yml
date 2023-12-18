@@ -217,7 +217,7 @@ info:
   track_open: "&1开放：&2是"
   track_closed: "&1开放：&2否"
   track_date_created: "&1创建时间：&2%date%&1，属于&2%owner%"
-  track_options: "&1选项：&2+%options%"
+  track_options: "&1选项：&2%options%"
   track_mode: "&1模式：&2%mode%"
   track_boatutils_mode: "&1BoatUtils模式：&2%mode%"
   track_checkpoints: "&1检查点：&2%size%"

@@ -1,19 +1,18 @@
 package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
-import me.makkuusen.timing.system.track.TrackTag;
+import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.command.CommandSender;
@@ -101,6 +100,33 @@ public class CommandTimingSystem extends BaseCommand {
     @CommandPermission("%permissiontimingsystem_scoreboard_set_interval")
     public static void onIntervalScoreboardChange(CommandSender sender, String value) {
         TimingSystem.configuration.setScoreboardInterval(value);
+        Text.send(sender, Success.SAVED);
+    }
+
+    @Subcommand("shortname")
+    @CommandCompletion("<shortname> @players")
+    @CommandPermission("%permissiontimingsystem_shortname_others")
+    public static void onShortNameOthers(CommandSender sender, @Single String shortName, String playerName) {
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
+        if (tPlayer == null) {
+            Text.send(sender, Error.PLAYER_NOT_FOUND);
+            return;
+        }
+
+        int maxLength = 4;
+        int minLength = 3;
+
+        if (shortName.length() < minLength || shortName.length() > maxLength) {
+            Text.send(sender, Error.INVALID_NAME);
+            return;
+        }
+
+        if (!shortName.matches("[A-Za-z0-9]+")) {
+            Text.send(sender, Error.INVALID_NAME);
+            return;
+        }
+
+        tPlayer.getSettings().setShortName(shortName);
         Text.send(sender, Success.SAVED);
     }
 

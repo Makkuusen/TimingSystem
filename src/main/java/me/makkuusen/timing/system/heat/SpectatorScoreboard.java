@@ -1,12 +1,12 @@
 package me.makkuusen.timing.system.heat;
 
-import me.makkuusen.timing.system.TPlayer;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Spectator;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Theme;
-import me.makkuusen.timing.system.track.TrackRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
@@ -40,7 +40,7 @@ public class SpectatorScoreboard {
 
     public void setTitle(TPlayer tPlayer) {
         String eventName;
-        if (tPlayer.getCompactScoreboard() && heat.getEvent().getDisplayName().length() > 8) {
+        if (tPlayer.getSettings().getCompactScoreboard() && heat.getEvent().getDisplayName().length() > 8) {
             eventName = heat.getEvent().getDisplayName().substring(0, 8);
         } else {
             eventName = heat.getEvent().getDisplayName();
@@ -67,14 +67,14 @@ public class SpectatorScoreboard {
                 break;
             }
             if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualification(driver, prevDriver, tPlayer.getCompactScoreboard(), tPlayer.getTheme()));
+                lines.add(getDriverRowQualification(driver, prevDriver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
                 if (compareToFirst) {
                     prevDriver = driver;
                     compareToFirst = false;
                 }
 
             } else {
-                lines.add(getDriverRowFinal(driver, prevDriver, tPlayer.getCompactScoreboard(), tPlayer.getTheme()));
+                lines.add(getDriverRowFinal(driver, prevDriver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
                 prevDriver = driver;
             }
         }
@@ -82,7 +82,7 @@ public class SpectatorScoreboard {
     }
 
     private Component getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
-        if (driver.getLaps().size() < 1) {
+        if (driver.getLaps().isEmpty()) {
             return ScoreboardUtils.getDriverLineRace(driver, driver.getPosition(), compact, theme);
         }
         long timeDiff;
@@ -92,7 +92,7 @@ public class SpectatorScoreboard {
         }
         Location playerLoc = driver.getTPlayer().getPlayer().getLocation();
 
-        var inPitRegions = heat.getEvent().getTrack().getRegions(TrackRegion.RegionType.INPIT);
+        var inPitRegions = heat.getEvent().getTrack().getTrackRegions().getRegions(TrackRegion.RegionType.INPIT);
         for (TrackRegion trackRegion : inPitRegions) {
             if (trackRegion.contains(playerLoc)) {
                 return ScoreboardUtils.getDriverLineRaceInPit(driver, driver.getPits(), driver.getPosition(), compact, theme);

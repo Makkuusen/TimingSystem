@@ -1,6 +1,5 @@
-package me.makkuusen.timing.system.track;
+package me.makkuusen.timing.system.track.regions;
 
-import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector2;
@@ -8,6 +7,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import lombok.Getter;
 import lombok.Setter;
+import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Location;
 
 import java.sql.SQLException;
@@ -24,18 +24,23 @@ public class TrackPolyRegion extends TrackRegion {
         polygonal2DRegion = new Polygonal2DRegion(BukkitAdapter.adapt(getSpawnLocation().getWorld()), points, getMinP().getBlockY(), getMaxP().getBlockY());
     }
 
-    public boolean updateRegion(List<BlockVector2> points) {
+    public TrackPolyRegion(long id, long trackId, int regionIndex, RegionType regionType, Location spawnLocation, Location minP, Location maxP, List<BlockVector2> points) {
+        super (id,trackId,regionIndex,regionType,spawnLocation,minP,maxP);
+        setShape(RegionShape.POLY);
+        polygonal2DRegion = new Polygonal2DRegion(BukkitAdapter.adapt(getSpawnLocation().getWorld()), points, getMinP().getBlockY(), getMaxP().getBlockY());
+    }
+
+    public void updateRegion(List<BlockVector2> points) {
         try {
-            DB.executeUpdate("DELETE FROM `ts_points` WHERE `regionId` = " + getId() + ";");
+            TimingSystem.getTrackDatabase().deletePoint(getId());
             for (BlockVector2 v : points) {
-                DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(" + getId() + ", " + v.getBlockX() + ", " + v.getBlockZ() + ");");
+                TimingSystem.getTrackDatabase().createPoint(getId(), v);
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return false;
+            return;
         }
         polygonal2DRegion = new Polygonal2DRegion(BukkitAdapter.adapt(getSpawnLocation().getWorld()), points, getMinP().getBlockY(), getMaxP().getBlockY());
-        return true;
     }
 
     @Override
