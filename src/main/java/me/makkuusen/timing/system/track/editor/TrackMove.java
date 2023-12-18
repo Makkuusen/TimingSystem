@@ -62,7 +62,7 @@ public class TrackMove {
         }
         Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), LeaderboardManager::updateAllFastestTimeLeaderboard);
         //LogEntryBuilder.start(ApiUtilities.getTimestamp(), "track").setAction("move").setUUID(player.getUniqueId()).setObjectId(track.getId()).setOldValue(ApiUtilities.locationToString(moveFrom)).setNewValue(ApiUtilities.locationToString(moveTo)).build();
-        return Text.get(player, Success.TRACK_MOVED, "to", ApiUtilities.niceLocation(moveTo), "from", ApiUtilities.niceLocation(moveFrom));
+        return Text.get(player, Success.TRACK_MOVED, "%to%", ApiUtilities.niceLocation(moveTo), "%from%", ApiUtilities.niceLocation(moveFrom));
     }
 
     public static Vector getOffset(Location moveFrom, Location moveTo) {
