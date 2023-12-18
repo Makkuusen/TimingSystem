@@ -8,21 +8,23 @@ TimingSystem is a plugin that aims to do a few things.
 * Creating and managing events to host races. (Currently only supports Boats).
 
 ## Installation
-This plugin has made it's first real release. If you want to use it, make sure to follow our installation guide on our [wiki](https://github.com/Makkuusen/TimingSystem/wiki/Installing-the-plugin) 
+First of all you need a Minecraft server running [Paper](https://papermc.io). Then you can get started by follwing these easy steps:
 
-## Dependencies
-1. A Minecraft server running [Paper](https://papermc.io) (using native spigot will not work)
-2. World Edit (I do recommend the use of [FastAsyncWorldEdit](https://www.spigotmc.org/resources/fastasyncworldedit.13932/))
-3. MYSQL Database. It needs a database connection. Configure it in the plugins config.yml.
-4. [optional] [DecentHolograms](https://www.spigotmc.org/resources/decentholograms-1-8-1-20-1-papi-support-no-dependencies.96927/) or [HolographicDisplays 3.0.0](https://dev.bukkit.org/projects/holographic-displays/files/4056176/download)
+1. Download the [latest release](https://github.com/Makkuusen/TimingSystem/releases) of TimingSystem and put the .jar in /plugins folder. 
+1. Add World Edit or [FastAsyncWorldEdit](https://www.spigotmc.org/resources/fastasyncworldedit.13932/) to your /plugins folder.
+1. _[Optional] Add [DecentHolograms](https://www.spigotmc.org/resources/decentholograms-1-8-1-20-1-papi-support-no-dependencies.96927/) to enable the use of hologram leaderboards._
 
-## Add-ons
-* [Unofficial] [TimingSystemRESTApi](https://github.com/JustBru00/TimingSystemRESTApi) - Adds a basic JSON REST API to the TimingSystem plugin.
-* [Unofficial] [TimingSystemBlueMap](https://github.com/JustBru00/TimingSystemBlueMap) - Adds TimingSystem track locations to [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap).
+
+## Plugin Add-ons
+* [TrackExchange](https://github.com/Pigalala/TrackExchange) - Makes it possible to copy and paste tracks on servers.
+* [TimingSystemRESTApi](https://github.com/JustBru00/TimingSystemRESTApi) - Adds a basic JSON REST API to the TimingSystem plugin.
+* [TimingSystemBlueMap](https://github.com/JustBru00/TimingSystemBlueMap) - Adds TimingSystem track locations to [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap).
+
+## Recommended client mods
+* [OpenBoatUtils](https://modrinth.com/mod/openboatutils/versions) - Enables additional boat behaviours supported by TimingSystem.
+* [OinkScoreboard](https://github.com/Pigalala/OinkScoreboard) - Makes it possible to display more than 15 rows for big races.
 
 ## Discord
-If you need support. Look for #support in our discord.
-
-http://discord.boatlabs.net
+If you need help with TimingSystem. Look for the channel #support in our [discord](https://discord.boatlabs.net).
 
 Timing System was originally forked from [EpicIceTrack](https://github.com/JustBru00/NetherCubeParkour).
