@@ -86,7 +86,7 @@ error:
   invalid_track_name: "&eInvalid track name."
   invalid_track_mode: "&eInvalid track mode."
   invalid_name: "&eInvalid name."
-  invalid_shortname: "&eInvalid name. Make sure it is 3-4 and letters only."
+  invalid_shortname: "&eInvalid name. Make sure it is 3-4 characters and alphanumeric only."
   left_boat: "&eYou left your boat and your time trial was cancelled."
   race_in_progress: "&eThere is currently a race in progress at %track%."
   no_hooking_others: "&eYou are not allowed to hook others."
