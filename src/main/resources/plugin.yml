@@ -166,4 +166,5 @@ permissions:
       children:
          timingsystem.packs.eventadmin: true
          timingsystem.packs.trackadmin: true
+         timingsystem.settings.override: true
 
