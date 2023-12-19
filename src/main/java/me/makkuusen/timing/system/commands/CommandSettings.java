@@ -82,7 +82,7 @@ public class CommandSettings extends BaseCommand {
     }
 
     @Subcommand("override")
-    @CommandPermission("%permissiontimingsystem_settings")
+    @CommandPermission("%permissiontimingsystem_settings_override")
     public static void onOverride(Player player) {
         var tPlayer = TSDatabase.getPlayer(player);
         tPlayer.getSettings().toggleOverride();
