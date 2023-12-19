@@ -8,7 +8,7 @@ TimingSystem is a plugin that aims to do a few things.
 * Creating and managing events to host races. (Currently only supports Boats).
 
 ## Installation
-First of all you need a Minecraft server running [Paper](https://papermc.io). Then you can get started by follwing these easy steps:
+First of all you need a Minecraft server running [Paper](https://papermc.io). Then you can get started by following these easy steps:
 
 1. Download the [latest release](https://github.com/Makkuusen/TimingSystem/releases) of TimingSystem and put the .jar in /plugins folder. 
 1. Add World Edit or [FastAsyncWorldEdit](https://www.spigotmc.org/resources/fastasyncworldedit.13932/) to your /plugins folder.
