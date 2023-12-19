@@ -150,7 +150,7 @@ permissions:
          timingsystem.heat.set.reversegrid: true
          timingsystem.heat.sort.tt: true
          timingsystem.heat.sort.random: true
-         timingsystem.timingsystem.shortname.others: true
+         timingsystem.shortname.others: true
 
    timingsystem.packs.eventadmin:
       description: Player has access to all event related commands
