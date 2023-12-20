@@ -146,7 +146,7 @@ permissions:
          timingsystem.heat.set.startdelay: true
          timingsystem.heat.set.timelimit: true
          timingsystem.heat.set.maxdrivers: true
-         timingsystem.heat.set.setdriverposition: true
+         timingsystem.heat.set.driverposition: true
          timingsystem.heat.set.reversegrid: true
          timingsystem.heat.sort.tt: true
          timingsystem.heat.sort.random: true
