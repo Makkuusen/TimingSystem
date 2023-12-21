@@ -391,7 +391,7 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onRegionEnterV2(PlayerMoveEvent e) {
-        if ((int) (e.getFrom().getX() - 0.5) != (int) e.getTo().getX() || (int) e.getFrom().getY() != (int) e.getTo().getY() || (int) (e.getFrom().getZ() - 0.5) != (int) e.getTo().getZ()) {
+        if (e.getFrom().getBlockX() != e.getTo().getBlockX() || e.getFrom().getBlockY() != e.getTo().getBlockY() || e.getFrom().getBlockZ() != e.getTo().getBlockZ()) {
             Player player = e.getPlayer();
 
             if (player.getGameMode() == GameMode.SPECTATOR) {
