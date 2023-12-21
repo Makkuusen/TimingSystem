@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.track.tags;
 
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.gui.TrackFilter;
+import me.makkuusen.timing.system.track.Track;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -22,6 +23,9 @@ public class TrackTags {
         if (tag == null) {
             return true;
         }
+        if (tag.value.equals("EMPTY")) {
+            return tags.isEmpty();
+        }
         return tags.contains(tag);
     }
 
@@ -31,6 +35,9 @@ public class TrackTags {
         }
 
         for (TrackTag tag : filter.getTags()) {
+            if (tag.value.equals("EMPTY") && tags.isEmpty()) {
+                return true;
+            }
             if (tags.contains(tag)){
                 return true;
             }
@@ -40,10 +47,17 @@ public class TrackTags {
 
     public boolean hasAllTags(TrackFilter filter) {
         if (filter.getTags().isEmpty()) {
-            return false;
+            return true;
         }
 
         for (TrackTag tag : filter.getTags()) {
+            if (tag.value.equals("EMPTY")) {
+                if (tags.isEmpty()) {
+                    continue;
+                } else {
+                    return false;
+                }
+            }
             if (!tags.contains(tag)){
                 return false;
             }
