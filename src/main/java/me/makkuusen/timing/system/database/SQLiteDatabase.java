@@ -268,6 +268,20 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `option` INTEGER NOT NULL
                         );""");
 
+            DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_track_logs` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `date` INTEGER NOT NULL,
+                        `body` TEXT NOT NULL
+                        );""");
+
+            DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_event_logs` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `date` INTEGER NOT NULL,
+                        `body` TEXT NOT NULL
+                        );""");
+
             return true;
         } catch (SQLException e) {
             e.printStackTrace();

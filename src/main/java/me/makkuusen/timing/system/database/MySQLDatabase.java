@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
+import me.makkuusen.timing.system.logging.LogEntry;
 import me.makkuusen.timing.system.participant.Subscriber;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
@@ -36,7 +37,7 @@ import java.util.UUID;
 
 import static me.makkuusen.timing.system.TimingSystem.getPlugin;
 
-public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
+public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, LogDatabase {
 
 
     @Override
@@ -331,6 +332,25 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """);
+
+            DB.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS `ts_track_logs` (
+                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `date` bigint(30) NOT NULL,
+                    `body` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                    PRIMARY KEY (`id`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                    """);
+
+            DB.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS `ts_event_logs` (
+                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `date` bigint(30) NOT NULL,
+                    `body` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                    PRIMARY KEY (`id`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                    """);
+
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -778,5 +798,31 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase {
     @Override
     public void trackRegionSet(int trackId, String column, Integer value) {
         DB.executeUpdateAsync("UPDATE `ts_regions` SET `" + column + "` = " + value + " WHERE `id` = " + trackId + ";");
+    }
+
+    // Log Database
+
+    @Override
+    public List<DbRow> selectTrackEntries() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_track_logs`;");
+    }
+
+    @Override
+    public List<DbRow> selectEventEntries() throws SQLException {
+        return DB.getResults("SELECT * FROM `ts_event_logs`");
+    }
+
+    @Override
+    public void insertTrackEntry(LogEntry logEntry) throws SQLException {
+        insertLogEntry("ts_track_logs", logEntry);
+    }
+
+    @Override
+    public void insertEventEntry(LogEntry logEntry) throws SQLException {
+        insertLogEntry("ts_event_logs", logEntry);
+    }
+
+    private void insertLogEntry(String table, LogEntry logEntry) throws SQLException {
+        DB.executeInsert("INSERT INTO `" + table + "` (`date`, `body`) VALUES (" + logEntry.getDate() + ", " + TSDatabase.sqlStringOf(logEntry.getBody().toJSONString()) + ");");
     }
 }

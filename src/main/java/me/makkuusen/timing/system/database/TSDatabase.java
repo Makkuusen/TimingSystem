@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
-// TODO: Convert other database classes to a similar system(?)
 public interface TSDatabase {
 
     boolean initialize();

@@ -7,6 +7,10 @@ import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
+import me.makkuusen.timing.system.logging.track.LogTrackCreated;
+import me.makkuusen.timing.system.logging.track.LogTrackDeleted;
+import me.makkuusen.timing.system.logging.track.LogTrackMassToggle;
+import me.makkuusen.timing.system.logging.track.LogTrackValueUpdated;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -19,8 +23,8 @@ import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -78,8 +82,10 @@ public class TrackEditor {
         if (response != null) {
             return response;
         }
+        String oldName = track.getDisplayName();
         track.setName(name);
         LeaderboardManager.updateFastestTimeLeaderboard(track);
+        LogTrackValueUpdated.create(player.getUniqueId(), track, "name", oldName, name);
         return Text.get(player, Success.SAVED);
     }
 
@@ -91,7 +97,10 @@ public class TrackEditor {
                 return Error.TRACK_NOT_FOUND_FOR_EDIT;
             }
         }
+        boolean oldValue = track.isOpen();
         track.setOpen(open);
+
+        LogTrackValueUpdated.create(player.getUniqueId(), track, "open_state", oldValue, open);
         if (track.isOpen()) {
             return Success.TRACK_NOW_OPEN;
         } else {
@@ -107,36 +116,10 @@ public class TrackEditor {
                 return Error.TRACK_NOT_FOUND_FOR_EDIT;
             }
         }
+        int oldWeight = track.getWeight();
         track.setWeight(weight);
+        LogTrackValueUpdated.create(player.getUniqueId(), track, "weight", oldWeight, weight);
         return Success.SAVED;
-    }
-
-    public static Component removeTag(Player player, TrackTag tag, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Text.get(player,Error.TRACK_NOT_FOUND_FOR_EDIT);
-            }
-        }
-        if (track.getTrackTags().remove(tag)) {
-            return Text.get(player, Success.REMOVED);
-        }
-        return Text.get(player, Error.FAILED_TO_REMOVE_TAG);
-    }
-
-    public static Component addTag(Player player, TrackTag tag, Track track) {
-        if (track == null) {
-            if (hasTrackSelected(player.getUniqueId())) {
-                track = getPlayerTrackSelection(player.getUniqueId());
-            } else {
-                return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
-            }
-        }
-        if (track.getTrackTags().create(tag)) {
-            return Text.get(player, Success.ADDED_TAG, "%tag%", tag.toString());
-        }
-        return Text.get(player, Error.FAILED_TO_ADD_TAG);
     }
 
     public static Component handleTag(Player player, String tags) {
@@ -147,6 +130,8 @@ public class TrackEditor {
             track = getPlayerTrackSelection(player.getUniqueId());
         else
             return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+
+        LogTrackMassToggle<TrackTag> trackLog = new LogTrackMassToggle<>(player.getUniqueId(), track, "update_tags");
 
         String[] separatedTags = tags.split(" ");
         List<TrackTag> trackTags = Arrays.stream(separatedTags).map((tag) -> TrackTagManager.getTrackTag(tag.toUpperCase())).toList();
@@ -163,12 +148,16 @@ public class TrackEditor {
             if(track.getTrackTags().hasTag(tag) || tag.getValue().equals("EMPTY")) {
                 track.getTrackTags().remove(tag);
                 results.add(Component.text(tag.getValue().toLowerCase(), theme.getError()));
+                trackLog.removed(tag);
                 continue;
             }
 
             track.getTrackTags().create(tag);
+            trackLog.added(tag);
             results.add(Component.text(tag.getValue().toLowerCase(), theme.getSuccess()));
         }
+
+        trackLog.create(tag -> tag.getValue().toLowerCase());
 
         Component resultsText = results.get(0);
         for(Component result : results.subList(1, results.size())) {
@@ -186,6 +175,8 @@ public class TrackEditor {
             track = getPlayerTrackSelection(player.getUniqueId());
         else
             return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+
+        LogTrackMassToggle<TrackOption> trackLog = new LogTrackMassToggle<>(player.getUniqueId(), track, "update_options");
 
         String[] separatedOptions = options.split(" ");
         List<TrackOption> trackOptions = Arrays.stream(separatedOptions).map((option) -> {
@@ -207,12 +198,16 @@ public class TrackEditor {
             if(track.getTrackOptions().getTrackOptions().contains(op)) {
                 track.getTrackOptions().remove(op);
                 results.add(Component.text(op.name().toLowerCase(), theme.getError()));
+                trackLog.removed(op);
                 continue;
             }
 
             track.getTrackOptions().add(op);
+            trackLog.added(op);
             results.add(Component.text(op.name().toLowerCase(), theme.getSuccess()));
         }
+
+        trackLog.create(option -> option.name().toLowerCase());
 
         Component resultsText = results.get(0);
         for(Component result : results.subList(1, results.size())) {
@@ -230,7 +225,10 @@ public class TrackEditor {
                 return Error.TRACK_NOT_FOUND_FOR_EDIT;
             }
         }
+
+        Track.TrackType oldValue = track.getType();
         track.setTrackType(type);
+        LogTrackValueUpdated.create(player.getUniqueId(), track, "track_type", oldValue.name().toLowerCase(), type.name().toLowerCase());
         return Success.SAVED;
     }
 
@@ -242,7 +240,10 @@ public class TrackEditor {
                 return Error.TRACK_NOT_FOUND_FOR_EDIT;
             }
         }
+
+        BoatUtilsMode oldValue = track.getBoatUtilsMode();
         track.setBoatUtilsMode(mode);
+        LogTrackValueUpdated.create(player.getUniqueId(), track, "boatutilsmode", oldValue.name().toLowerCase(), mode.name().toLowerCase());
         return Success.SAVED;
     }
 
@@ -254,10 +255,14 @@ public class TrackEditor {
                 return Error.TRACK_NOT_FOUND_FOR_EDIT;
             }
         }
+
+        Location oldValue = track.getSpawnLocation();
         track.setSpawnLocation(player.getLocation());
+        LogTrackValueUpdated.create(player.getUniqueId(), track, "spawn_location", ApiUtilities.locationToString(oldValue), ApiUtilities.locationToString(track.getSpawnLocation()));
         return Success.SAVED;
     }
 
+    // TODO: Log this
     public static Component createOrUpdateLocation(Player player, TrackLocation.Type trackLocationType, String index) {
         Track track = getPlayerTrackSelection(player.getUniqueId());
         if (track == null) {
@@ -267,6 +272,7 @@ public class TrackEditor {
 
     }
 
+    // TODO: Log this
     public static Component createOrUpdateRegion(Player player, TrackRegion.RegionType regionType, String index, boolean overload) {
         Track track = getPlayerTrackSelection(player.getUniqueId());
         if (track == null) {
@@ -300,7 +306,9 @@ public class TrackEditor {
         if (tPlayer == null) {
             return Error.PLAYER_NOT_FOUND;
         }
+        TPlayer oldValue = track.getOwner();
         track.setOwner(tPlayer);
+        LogTrackValueUpdated.create(player.getUniqueId(), track, "owner", oldValue.getUniqueId().toString(), tPlayer.getUniqueId().toString());
         return Success.SAVED;
     }
 
@@ -312,6 +320,8 @@ public class TrackEditor {
             track = getPlayerTrackSelection(player.getUniqueId());
         else
             return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+
+        LogTrackMassToggle<TPlayer> trackLog = new LogTrackMassToggle<>(player.getUniqueId(), track, "update_contributors");
 
         String[] playerNames = names.split(" ");
         List<TPlayer> tPlayers = Arrays.stream(playerNames).map(TSDatabase::getPlayer).toList();
@@ -328,12 +338,16 @@ public class TrackEditor {
             if(track.getContributors().contains(tPlayer)) {
                 track.removeContributor(tPlayer);
                 results.add(Component.text(tPlayer.getName(), theme.getError()));
+                trackLog.removed(tPlayer);
                 continue;
             }
 
             track.addContributor(tPlayer);
+            trackLog.added(tPlayer);
             results.add(Component.text(tPlayer.getName(), theme.getSuccess()));
         }
+
+        trackLog.create(tPlayer -> tPlayer.getUniqueId().toString());
 
         Component resultsText = results.get(0);
         for(Component result : results.subList(1, results.size())) {
@@ -355,7 +369,9 @@ public class TrackEditor {
         if (item.getItemMeta() == null) {
             return Error.ITEM_NOT_FOUND;
         }
+        ItemStack oldValue = track.getItem();
         track.setItem(item);
+        LogTrackValueUpdated.create(player.getUniqueId(), track, "gui_item", ApiUtilities.itemToString(oldValue), ApiUtilities.itemToString(item));
         return Success.SAVED;
     }
 
@@ -368,7 +384,7 @@ public class TrackEditor {
             }
         }
         TrackDatabase.removeTrack(track);
-        //LogEntryBuilder.start(ApiUtilities.getTimestamp(), "track").setAction("remove").setUUID(player.getUniqueId()).setObjectId(track.getId()).build();
+        LogTrackDeleted.create(player.getUniqueId(), track);
         return Text.get(player, Success.REMOVED_TRACK, "%track%", track.getDisplayName());
     }
 
@@ -399,6 +415,8 @@ public class TrackEditor {
             track.getTrackOptions().create(TrackOption.NO_ELYTRA);
             track.getTrackOptions().create(TrackOption.NO_CREATIVE);
         }
+
+        LogTrackCreated.create(player.getUniqueId(), track);
 
         LeaderboardManager.updateFastestTimeLeaderboard(track);
         setPlayerTrackSelection(player.getUniqueId(), track);
@@ -459,7 +477,9 @@ public class TrackEditor {
                 return Error.TRACK_NOT_FOUND_FOR_EDIT;
             }
         }
+        boolean oldValue = track.isTimeTrial();
         track.setTimeTrial(enable);
+        LogTrackValueUpdated.create(player.getUniqueId(), track, "time_trial", oldValue, enable);
         if (track.isTimeTrial()) {
             return Success.TRACK_TIMETRIAL_ENABLED;
         } else {
