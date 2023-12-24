@@ -11,7 +11,7 @@ public class LogTrackCreated {
         JSONObject body = new JSONObject();
         body.put("player", playerUUID.toString());
         body.put("action", "create_track");
-        body.put("track", track.getDisplayName());
+        body.put("track", track.getId());
 
         new TrackLogEntry(body);
     }

@@ -13,7 +13,7 @@ public class LogTrackMoved {
         JSONObject body = new JSONObject();
         body.put("player", playerUUID.toString());
         body.put("action", "move_track");
-        body.put("track", track.getDisplayName());
+        body.put("track", track.getId());
         body.put("from", ApiUtilities.locationToString(from));
         body.put("to", ApiUtilities.locationToString(to));
 

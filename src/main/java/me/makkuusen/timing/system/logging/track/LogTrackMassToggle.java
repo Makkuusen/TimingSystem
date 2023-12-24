@@ -35,7 +35,7 @@ public class LogTrackMassToggle<T> {
     public void create(Function<? super T, ?> mapper) {
         JSONObject body = new JSONObject();
         body.put("player", playerUUID.toString());
-        body.put("track", track.getDisplayName());
+        body.put("track", track.getId());
         body.put("action", action);
 
         // What on earth

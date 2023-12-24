@@ -10,7 +10,7 @@ public class LogTrackValueUpdated {
     public static <T> void create(UUID playerUUID, Track track, String settingChanged, T oldValue, T newValue) {
         JSONObject body = new JSONObject();
         body.put("player", playerUUID.toString());
-        body.put("track", track.getDisplayName());
+        body.put("track", track.getId());
         body.put("action", "update_value");
         body.put("setting_changed", settingChanged);
         body.put("old_value", oldValue);
