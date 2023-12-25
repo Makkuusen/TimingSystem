@@ -15,6 +15,12 @@ commands:
    timetrial:
       description: Command for running tracks.
       aliases: [tt]
+   timetrialrandom:
+      description: Command for running random tracks.
+      aliases: [ttr, ttrandom]
+   timetrialcancel:
+      description: Command for cancelling timetrials.
+      aliases: [ttc, ttcancel, cancel]
    event:
       description: Command for events.
       aliases: []

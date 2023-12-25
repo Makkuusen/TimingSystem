@@ -80,113 +80,21 @@ public class CommandTimeTrial extends BaseCommand {
                 Text.send(player, Error.TRACK_IS_CLOSED);
                 return;
             }
+
+            TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+
+            if (track.getTimeTrials().getCachedPlayerPosition(tPlayer) != -1) {
+                Component message = Text.get(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
+                var leaderboardPosition = track.getTimeTrials().getCachedPlayerPosition(tPlayer);
+                Component positionComponent = tPlayer.getTheme().getParenthesized(String.valueOf(leaderboardPosition));
+                if (message != null) {
+                    player.sendMessage(message.append(Component.space()).append(positionComponent));
+                }
+            } else {
+                Text.send(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
+            }
+
             ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
         }
-    }
-
-    @Subcommand("cancel|c")
-    @CommandPermission("%permissiontimetrial_cancel")
-    public static void onCancel(Player player) {
-        if (!TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
-            Text.send(player, Error.NOT_NOW);
-            return;
-        }
-        TimeTrialController.playerCancelMap(player);
-        Text.send(player, Success.TIME_TRIAL_CANCELLED);
-    }
-
-    public static void onRandom(Player player) {
-        onRandom(player, null);
-    }
-
-    @Subcommand("random|r")
-    @CommandCompletion("@trackTag")
-    @CommandPermission("%permissiontimetrial_random")
-    public static void onRandom(Player player, @Optional TrackTag trackTag) {
-        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
-        if (maybeDriver.isPresent()) {
-            if (maybeDriver.get().isRunning()) {
-                Text.send(player, Error.NOT_NOW);
-                return;
-            }
-        }
-
-        if (TrackDatabase.getOpenTracks().isEmpty()) {
-            Text.send(player, Error.TRACKS_NOT_FOUND);
-            return;
-        }
-
-        List<Track> tracks;
-
-        if (trackTag != null) {
-            tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.getTrackTags().hasTag(trackTag)).collect(Collectors.toList());
-            if (tracks.isEmpty()) {
-                Text.send(player, Error.TRACKS_NOT_FOUND);
-                return;
-            }
-        } else {
-            tracks = TrackDatabase.getOpenTracks();
-        }
-        teleportPlayerToRandomTrack(tracks, player);
-    }
-
-    @Subcommand("randomunfinished")
-    @CommandCompletion("@trackTag")
-    @CommandPermission("%permissiontimetrial_random")
-    public static void onRandomUnfinished(Player player, @Optional TrackTag trackTag) {
-        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
-        if (maybeDriver.isPresent()) {
-            if (maybeDriver.get().isRunning()) {
-                Text.send(player, Error.NOT_NOW);
-                return;
-            }
-        }
-
-        if (TrackDatabase.getOpenTracks().isEmpty()) {
-            Text.send(player, Error.TRACKS_NOT_FOUND);
-            return;
-        }
-
-        List<Track> tracks;
-        if (trackTag != null) {
-            tracks = TrackDatabase.getOpenTracks().stream().filter(track -> track.getTrackTags().hasTag(trackTag)).collect(Collectors.toList());
-            if (tracks.isEmpty()) {
-                Text.send(player, Error.TRACKS_NOT_FOUND);
-                return;
-            }
-        } else {
-            tracks = TrackDatabase.getOpenTracks();
-        }
-
-        tracks = tracks.stream().filter(track -> track.getTimeTrials().getPlayerTotalFinishes(TSDatabase.getPlayer(player.getUniqueId())) < 1).collect(Collectors.toList());
-        if (tracks.isEmpty()) {
-            Text.send(player, Error.TRACKS_NOT_FOUND);
-            return;
-        }
-
-        teleportPlayerToRandomTrack(tracks, player);
-    }
-
-    private static void teleportPlayerToRandomTrack(List<Track> tracks, Player player) {
-        Track track = tracks.get(new Random().nextInt(tracks.size()));
-
-        if (!track.getSpawnLocation().isWorldLoaded()) {
-            Text.send(player, Error.WORLD_NOT_LOADED);
-            return;
-        }
-        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
-
-        if (track.getTimeTrials().getCachedPlayerPosition(tPlayer) != -1) {
-            Component message = Text.get(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
-            var leaderboardPosition = track.getTimeTrials().getCachedPlayerPosition(tPlayer);
-            Component positionComponent = tPlayer.getTheme().getParenthesized(String.valueOf(leaderboardPosition));
-            if (message != null) {
-                player.sendMessage(message.append(Component.space()).append(positionComponent));
-            }
-        } else {
-            Text.send(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
-        }
-
-        ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
     }
 }
