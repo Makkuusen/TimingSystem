@@ -1,18 +1,21 @@
 package me.makkuusen.timing.system.logging.track;
 
+import lombok.Getter;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 import org.json.simple.JSONObject;
 
 import java.util.UUID;
 
-public class LogTrackCreated {
+@Getter
+public class LogTrackCreated extends TrackLogEntry {
 
-    public static void create(UUID playerUUID, Track track) {
-        JSONObject body = new JSONObject();
-        body.put("player", playerUUID.toString());
-        body.put("action", "create_track");
-        body.put("track", track.getId());
+    public LogTrackCreated(TPlayer tPlayer, long date, Track track) {
+        super(tPlayer, date, track, "create");
+    }
 
-        new TrackLogEntry(body);
+    @Override
+    public String generateBody() {
+        return "{}";
     }
 }

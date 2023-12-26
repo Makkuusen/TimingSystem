@@ -271,7 +271,9 @@ public class SQLiteDatabase extends MySQLDatabase {
             DB.executeUpdate("""
                         CREATE TABLE IF NOT EXISTS `ts_track_logs` (
                         `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `player` TEXT NOT NULL,
                         `date` INTEGER NOT NULL,
+                        `action` TEXT NOT NULL,
                         `body` TEXT NOT NULL
                         );""");
 

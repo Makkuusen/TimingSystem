@@ -336,20 +336,22 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
             DB.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `ts_track_logs` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `player` varchar(255) NOT NULL,
                     `date` bigint(30) NOT NULL,
+                    `action` varchar(255) NOT NULL,
                     `body` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                     PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """);
 
-            DB.executeUpdate("""
+            /*DB.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `ts_event_logs` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `date` bigint(30) NOT NULL,
                     `body` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                     PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                    """);
+                    """);*/
 
             return true;
         } catch (SQLException e) {
@@ -823,6 +825,6 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     }
 
     private void insertLogEntry(String table, LogEntry logEntry) throws SQLException {
-        DB.executeInsert("INSERT INTO `" + table + "` (`date`, `body`) VALUES (" + logEntry.getDate() + ", " + TSDatabase.sqlStringOf(logEntry.getBody().toJSONString()) + ");");
+        DB.executeInsert("INSERT INTO `" + table + "` (`player`, `date`, `action`, `body`) VALUES ('" + logEntry.getTPlayer().getUniqueId() + "', " + logEntry.getDate() + ", " + TSDatabase.sqlStringOf(logEntry.getAction()) + ", '" + logEntry.generateBody() + "');");
     }
 }

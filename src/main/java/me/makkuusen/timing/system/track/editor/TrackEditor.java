@@ -9,8 +9,9 @@ import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.logging.track.LogTrackCreated;
 import me.makkuusen.timing.system.logging.track.LogTrackDeleted;
-import me.makkuusen.timing.system.logging.track.LogTrackMassToggle;
+import me.makkuusen.timing.system.logging.track.masstoggle.LogTrackMassToggle;
 import me.makkuusen.timing.system.logging.track.LogTrackValueUpdated;
+import me.makkuusen.timing.system.logging.track.masstoggle.LogTrackMassToggleBuilder;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -85,7 +86,7 @@ public class TrackEditor {
         String oldName = track.getDisplayName();
         track.setName(name);
         LeaderboardManager.updateFastestTimeLeaderboard(track);
-        LogTrackValueUpdated.create(player.getUniqueId(), track, "name", oldName, name);
+        LogTrackValueUpdated.create(TSDatabase.getPlayer(player), track, "name", oldName, name).save();
         return Text.get(player, Success.SAVED);
     }
 
@@ -100,7 +101,7 @@ public class TrackEditor {
         boolean oldValue = track.isOpen();
         track.setOpen(open);
 
-        LogTrackValueUpdated.create(player.getUniqueId(), track, "open_state", oldValue, open);
+        LogTrackValueUpdated.create(TSDatabase.getPlayer(player), track, "open_state", oldValue, open).save();
         if (track.isOpen()) {
             return Success.TRACK_NOW_OPEN;
         } else {
@@ -118,7 +119,7 @@ public class TrackEditor {
         }
         int oldWeight = track.getWeight();
         track.setWeight(weight);
-        LogTrackValueUpdated.create(player.getUniqueId(), track, "weight", oldWeight, weight);
+        LogTrackValueUpdated.create(TSDatabase.getPlayer(player), track, "weight", oldWeight, weight).save();
         return Success.SAVED;
     }
 
@@ -131,7 +132,7 @@ public class TrackEditor {
         else
             return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
 
-        LogTrackMassToggle<TrackTag> trackLog = new LogTrackMassToggle<>(player.getUniqueId(), track, "update_tags");
+        var trackLog = new LogTrackMassToggleBuilder<TrackTag>(TSDatabase.getPlayer(player), track, "tags").setMapper(TrackTag::getValue);
 
         String[] separatedTags = tags.split(" ");
         List<TrackTag> trackTags = Arrays.stream(separatedTags).map((tag) -> TrackTagManager.getTrackTag(tag.toUpperCase())).toList();
@@ -157,7 +158,7 @@ public class TrackEditor {
             results.add(Component.text(tag.getValue().toLowerCase(), theme.getSuccess()));
         }
 
-        trackLog.create(tag -> tag.getValue().toLowerCase());
+        trackLog.build().save();
 
         Component resultsText = results.get(0);
         for(Component result : results.subList(1, results.size())) {
@@ -176,7 +177,7 @@ public class TrackEditor {
         else
             return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
 
-        LogTrackMassToggle<TrackOption> trackLog = new LogTrackMassToggle<>(player.getUniqueId(), track, "update_options");
+        var trackLog = new LogTrackMassToggleBuilder<TrackOption>(TSDatabase.getPlayer(player), track, "options").setMapper(TrackOption::name);
 
         String[] separatedOptions = options.split(" ");
         List<TrackOption> trackOptions = Arrays.stream(separatedOptions).map((option) -> {
@@ -207,7 +208,7 @@ public class TrackEditor {
             results.add(Component.text(op.name().toLowerCase(), theme.getSuccess()));
         }
 
-        trackLog.create(option -> option.name().toLowerCase());
+        trackLog.build().save();
 
         Component resultsText = results.get(0);
         for(Component result : results.subList(1, results.size())) {
@@ -228,7 +229,7 @@ public class TrackEditor {
 
         Track.TrackType oldValue = track.getType();
         track.setTrackType(type);
-        LogTrackValueUpdated.create(player.getUniqueId(), track, "track_type", oldValue.name().toLowerCase(), type.name().toLowerCase());
+        LogTrackValueUpdated.create(TSDatabase.getPlayer(player), track, "track_type", oldValue.name().toLowerCase(), type.name().toLowerCase()).save();
         return Success.SAVED;
     }
 
@@ -243,7 +244,7 @@ public class TrackEditor {
 
         BoatUtilsMode oldValue = track.getBoatUtilsMode();
         track.setBoatUtilsMode(mode);
-        LogTrackValueUpdated.create(player.getUniqueId(), track, "boatutilsmode", oldValue.name().toLowerCase(), mode.name().toLowerCase());
+        LogTrackValueUpdated.create(TSDatabase.getPlayer(player), track, "boatutilsmode", oldValue.name().toLowerCase(), mode.name().toLowerCase()).save();
         return Success.SAVED;
     }
 
@@ -258,7 +259,7 @@ public class TrackEditor {
 
         Location oldValue = track.getSpawnLocation();
         track.setSpawnLocation(player.getLocation());
-        LogTrackValueUpdated.create(player.getUniqueId(), track, "spawn_location", ApiUtilities.locationToString(oldValue), ApiUtilities.locationToString(track.getSpawnLocation()));
+        LogTrackValueUpdated.create(TSDatabase.getPlayer(player), track, "spawn_location", ApiUtilities.locationToString(oldValue), ApiUtilities.locationToString(track.getSpawnLocation())).save();
         return Success.SAVED;
     }
 
@@ -308,7 +309,7 @@ public class TrackEditor {
         }
         TPlayer oldValue = track.getOwner();
         track.setOwner(tPlayer);
-        LogTrackValueUpdated.create(player.getUniqueId(), track, "owner", oldValue.getUniqueId().toString(), tPlayer.getUniqueId().toString());
+        LogTrackValueUpdated.create(TSDatabase.getPlayer(player), track, "owner", oldValue.getUniqueId().toString(), tPlayer.getUniqueId().toString());
         return Success.SAVED;
     }
 
@@ -321,7 +322,7 @@ public class TrackEditor {
         else
             return Text.get(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
 
-        LogTrackMassToggle<TPlayer> trackLog = new LogTrackMassToggle<>(player.getUniqueId(), track, "update_contributors");
+        var trackLog = new LogTrackMassToggleBuilder<TPlayer>(TSDatabase.getPlayer(player.getUniqueId()), track, "contributors").setMapper(TPlayer::getUniqueId);
 
         String[] playerNames = names.split(" ");
         List<TPlayer> tPlayers = Arrays.stream(playerNames).map(TSDatabase::getPlayer).toList();
@@ -347,7 +348,7 @@ public class TrackEditor {
             results.add(Component.text(tPlayer.getName(), theme.getSuccess()));
         }
 
-        trackLog.create(tPlayer -> tPlayer.getUniqueId().toString());
+        trackLog.build().save();
 
         Component resultsText = results.get(0);
         for(Component result : results.subList(1, results.size())) {
@@ -371,7 +372,7 @@ public class TrackEditor {
         }
         ItemStack oldValue = track.getItem();
         track.setItem(item);
-        LogTrackValueUpdated.create(player.getUniqueId(), track, "gui_item", ApiUtilities.itemToString(oldValue), ApiUtilities.itemToString(item));
+        LogTrackValueUpdated.create(TSDatabase.getPlayer(player), track, "gui_item", ApiUtilities.itemToString(oldValue), ApiUtilities.itemToString(item));
         return Success.SAVED;
     }
 
@@ -384,7 +385,7 @@ public class TrackEditor {
             }
         }
         TrackDatabase.removeTrack(track);
-        LogTrackDeleted.create(player.getUniqueId(), track);
+        //LogTrackDeleted.create(TSDatabase.getPlayer(player), track).save();
         return Text.get(player, Success.REMOVED_TRACK, "%track%", track.getDisplayName());
     }
 
@@ -416,7 +417,7 @@ public class TrackEditor {
             track.getTrackOptions().create(TrackOption.NO_CREATIVE);
         }
 
-        LogTrackCreated.create(player.getUniqueId(), track);
+        new LogTrackCreated(TSDatabase.getPlayer(player), ApiUtilities.getTimestamp(), track).save();
 
         LeaderboardManager.updateFastestTimeLeaderboard(track);
         setPlayerTrackSelection(player.getUniqueId(), track);
@@ -479,7 +480,7 @@ public class TrackEditor {
         }
         boolean oldValue = track.isTimeTrial();
         track.setTimeTrial(enable);
-        LogTrackValueUpdated.create(player.getUniqueId(), track, "time_trial", oldValue, enable);
+        LogTrackValueUpdated.create(TSDatabase.getPlayer(player), track, "time_trial", oldValue, enable).save();
         if (track.isTimeTrial()) {
             return Success.TRACK_TIMETRIAL_ENABLED;
         } else {

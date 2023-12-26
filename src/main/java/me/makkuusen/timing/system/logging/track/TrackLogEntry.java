@@ -1,30 +1,28 @@
 package me.makkuusen.timing.system.logging.track;
 
-import co.aikar.idb.DbRow;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.LogDatabase;
 import me.makkuusen.timing.system.logging.LogEntry;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
+import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.track.Track;
 
 import java.sql.SQLException;
 
-public class TrackLogEntry extends LogEntry {
+public abstract class TrackLogEntry extends LogEntry {
 
-    public TrackLogEntry(DbRow data) throws ParseException {
-        super(data);
-    }
+    protected final Track track;
 
-    public TrackLogEntry(JSONObject body) {
-        super(body);
+    public TrackLogEntry(TPlayer tPlayer, long date, Track track, String action) {
+        super(tPlayer, date, action);
+        this.track = track;
     }
 
     @Override
-    protected void register() {
+    public void save() {
         try {
             LogDatabase.registerTrackLogEntry(this);
         } catch (SQLException e) {
-            TimingSystem.getPlugin().getLogger().warning("Unable to register track log entry: " + e.getMessage());
+            TimingSystem.getPlugin().getLogger().warning("Failed to register a track log: " + e.getMessage());
         }
     }
 }

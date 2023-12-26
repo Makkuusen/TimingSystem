@@ -4,6 +4,7 @@ import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.LeaderboardManager;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.logging.track.LogTrackMoved;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -61,7 +62,7 @@ public class TrackMove {
             }
         }
         Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), LeaderboardManager::updateAllFastestTimeLeaderboard);
-        LogTrackMoved.create(player.getUniqueId(), track, moveFrom, moveTo);
+        LogTrackMoved.create(TSDatabase.getPlayer(player), track, moveFrom, moveTo).save();
         return Text.get(player, Success.TRACK_MOVED, "%to%", ApiUtilities.niceLocation(moveTo), "%from%", ApiUtilities.niceLocation(moveFrom));
     }
 

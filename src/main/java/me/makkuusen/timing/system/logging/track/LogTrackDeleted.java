@@ -1,18 +1,20 @@
 package me.makkuusen.timing.system.logging.track;
 
+import lombok.Getter;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
-import org.json.simple.JSONObject;
 
-import java.util.UUID;
+@Getter
+public class LogTrackDeleted extends TrackLogEntry {
 
-public class LogTrackDeleted {
+    // TODO: Track will always be null, because it was deleted.
+    //       We somehow need to a way to store a track here.
+    public LogTrackDeleted(TPlayer tPlayer, long date, Track track) {
+        super(tPlayer, date, track, "delete");
+    }
 
-    public static void create(UUID playerUUID, Track track) {
-        JSONObject body = new JSONObject();
-        body.put("player", playerUUID.toString());
-        body.put("action", "delete_track");
-        body.put("track", track.getId());
-
-        new TrackLogEntry(body);
+    @Override
+    public String generateBody() {
+        return "{}"; // TODO: Make this
     }
 }

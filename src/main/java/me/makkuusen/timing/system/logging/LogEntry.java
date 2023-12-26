@@ -1,31 +1,22 @@
 package me.makkuusen.timing.system.logging;
 
-import co.aikar.idb.DbRow;
 import lombok.Getter;
-import me.makkuusen.timing.system.ApiUtilities;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 
 @Getter
 public abstract class LogEntry {
 
-    private final long date;
-    private final JSONObject body;
+    protected final TPlayer tPlayer;
+    protected final long date;
+    protected final String action;
 
-    public LogEntry(DbRow data) throws ParseException {
-        this.date = data.getInt("date");
-
-        String json = data.getString("body");
-        body = (JSONObject) new JSONParser().parse(json);
+    public LogEntry(TPlayer tPlayer, long date, String action) {
+        this.tPlayer = tPlayer;
+        this.date = date;
+        this.action = action;
     }
 
-    public LogEntry(JSONObject body) {
-        this.date = ApiUtilities.getTimestamp();
-        this.body = body;
+    public abstract String generateBody();
 
-        register();
-    }
-
-    protected abstract void register();
+    public abstract void save();
 }
