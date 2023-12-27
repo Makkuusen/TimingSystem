@@ -711,8 +711,8 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     }
 
     @Override
-    public void deletePoint(long regionId) {
-        DB.executeUpdateAsync("DELETE FROM `ts_points` WHERE `regionId` = " + regionId + ";");
+    public void deletePoint(long regionId) throws SQLException {
+        DB.executeUpdate("DELETE FROM `ts_points` WHERE `regionId` = " + regionId + ";");
     }
 
     @Override
