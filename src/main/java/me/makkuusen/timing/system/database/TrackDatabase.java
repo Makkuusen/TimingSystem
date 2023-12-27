@@ -79,7 +79,7 @@ public interface TrackDatabase {
 
     void deleteTagAsync(TrackTag tag);
 
-    void deletePoint(long regionId);
+    void deletePoint(long regionId) throws SQLException;
 
     void deleteLocation(int trackId, int index, TrackLocation.Type type);
 

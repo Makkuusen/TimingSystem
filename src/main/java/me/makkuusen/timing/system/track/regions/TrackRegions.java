@@ -108,7 +108,11 @@ public class TrackRegions {
             regions.remove(region);
             TimingSystem.getTrackDatabase().trackRegionSet(regionId, "isRemoved", 1);
             if (region instanceof TrackPolyRegion) {
-                TimingSystem.getTrackDatabase().deletePoint(regionId);
+                try {
+                    TimingSystem.getTrackDatabase().deletePoint(regionId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             if (isTrackBoundaryChange(region.getRegionType())) {
                 track.setDateChanged();
