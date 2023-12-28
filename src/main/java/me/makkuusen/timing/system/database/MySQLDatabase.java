@@ -302,18 +302,16 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """);
-            String anvilString = ApiUtilities.itemToString(new ItemBuilder(Material.ANVIL).build());
-            String create_tags = """
+            DB.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `ts_tags` (
                       `id` int(11) NOT NULL AUTO_INCREMENT,
                       `tag` varchar(255) NOT NULL,
                       `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff',
-                      `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '$anvil',
+                      `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                       `weight` int(11) NOT NULL DEFAULT '100',
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                    """;
-            DB.executeUpdate(create_tags.replace("$anvil", anvilString));
+                    """);
 
             DB.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `ts_tracks_tags` (
