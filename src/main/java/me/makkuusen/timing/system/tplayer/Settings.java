@@ -3,8 +3,10 @@ package me.makkuusen.timing.system.tplayer;
 import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.internal.events.PlayerSpecificActionEvent;
 import me.makkuusen.timing.system.database.EventDatabase;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 
@@ -52,6 +54,8 @@ public class Settings {
 
     public void setHexColor(String hexColor) {
         color = hexColor;
+        PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(uuid, "tplayercolor");
+        Bukkit.getServer().getPluginManager().callEvent(event);
         EventDatabase.getDriverFromRunningHeat(uuid).ifPresent(driver -> driver.getHeat().updateScoreboard());
         TimingSystem.getDatabase().playerUpdateValue(uuid, "color", hexColor);
     }

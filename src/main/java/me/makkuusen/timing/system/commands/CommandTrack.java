@@ -8,6 +8,7 @@ import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.gui.TrackGui;
+import me.makkuusen.timing.system.internal.events.PlayerSpecificActionEvent;
 import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
@@ -122,6 +123,13 @@ public class CommandTrack extends BaseCommand {
             sendPlayerStatsInfo(commandSender, tPlayer, track);
             return;
         }
+
+
+        if (commandSender instanceof Player player) {
+            PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(player, "trackinfo");
+            Bukkit.getServer().getPluginManager().callEvent(event);
+        }
+
         sendTrackInfo(commandSender, track);
 
     }
@@ -297,6 +305,9 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
+        PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(player, "tracksessionstarted");
+        Bukkit.getServer().getPluginManager().callEvent(event);
+
         TimeTrialSession ttSession = new TimeTrialSession(TSDatabase.getPlayer(player.getUniqueId()), track);
         ttSession.updateScoreboard();
         TimeTrialController.timeTrialSessions.put(player.getUniqueId(), ttSession);
@@ -333,6 +344,11 @@ public class CommandTrack extends BaseCommand {
 
         int pageEnd = (int) Math.ceil(((double) track.getTimeTrials().getTopList().size()) / ((double) itemsPerPage));
         commandSender.sendMessage(theme.getPageSelector(commandSender, pageStart, pageEnd, "/t times " + track.getCommandName()));
+
+        if (commandSender instanceof Player player) {
+            PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(player, "tracktimes");
+            Bukkit.getServer().getPluginManager().callEvent(event);
+        }
     }
 
     @Subcommand("mytimes")

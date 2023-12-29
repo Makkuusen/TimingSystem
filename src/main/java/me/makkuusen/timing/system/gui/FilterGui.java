@@ -2,10 +2,12 @@ package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TrackTagManager;
+import me.makkuusen.timing.system.internal.events.PlayerSpecificActionEvent;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.tags.TrackTag;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 public class FilterGui extends BaseGui{
@@ -51,6 +53,10 @@ public class FilterGui extends BaseGui{
                 if (filter.getTags().contains(tag)) {
                     filter.removeTag(tag);
                 } else {
+                    if (tag.getValue().equalsIgnoreCase("recommended")) {
+                        PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(oldTrackPage.tPlayer.getUniqueId(), "filterRecommendedOn");
+                        Bukkit.getServer().getPluginManager().callEvent(event);
+                    }
                     filter.addTag(tag);
                 }
                 setItem(filter.getTags().contains(tag) ? GuiCommon.getStatusOnButton(oldTrackPage.tPlayer) : GuiCommon.getStatusOffButton(oldTrackPage.tPlayer), finalCount);
