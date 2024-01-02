@@ -10,10 +10,9 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class BoatUtilsAppliedEvent extends Event implements Cancellable {
+public class BoatUtilsAppliedEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    private boolean isCancelled;
 
     private final Player player;
     private final BoatUtilsMode mode;
@@ -28,16 +27,6 @@ public class BoatUtilsAppliedEvent extends Event implements Cancellable {
     @Override
     public @NotNull HandlerList getHandlers() {
         return handlers;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return isCancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean b) {
-        isCancelled = b;
     }
 
     public static HandlerList getHandlerList() {

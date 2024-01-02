@@ -38,13 +38,6 @@ public class BoatUtilsManager {
 
     public static void sendBoatUtilsModePluginMessage(Player player, BoatUtilsMode mode, Track track, boolean sameAsLastTrack){
         TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
-
-        BoatUtilsAppliedEvent event = new BoatUtilsAppliedEvent(player, mode, track);
-        event.callEvent();
-        if(event.isCancelled()) {
-            return;
-        }
-
         if (mode != BoatUtilsMode.VANILLA) {
             if (!tPlayer.hasBoatUtils()) {
                 if (track != null) {
@@ -84,6 +77,7 @@ public class BoatUtilsManager {
             player.sendMessage(Component.text("BU Mode: " + mode.name(), tPlayer.getTheme().getPrimary()));
         }
         playerBoatUtilsMode.put(player.getUniqueId(), mode);
+        new BoatUtilsAppliedEvent(player, mode, track).callEvent();
     }
 
     public static List<BoatUtilsMode> getAvailableModes(int version) {
