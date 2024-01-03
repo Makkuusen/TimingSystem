@@ -195,7 +195,6 @@ public class TimingSystem extends JavaPlugin {
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::onShutdown);
         logger.info("Version " + getPluginMeta().getVersion() + " disabled.");
         scoreboardLibrary.close();
-        DB.close();
         TSListener.plugin = null;
         Text.plugin = null;
         logger = null;
