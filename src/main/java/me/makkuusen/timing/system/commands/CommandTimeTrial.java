@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.internal.events.PlayerSpecificActionEvent;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.database.TSDatabase;
@@ -92,6 +93,11 @@ public class CommandTimeTrial extends BaseCommand {
                 }
             } else {
                 Text.send(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
+            }
+
+            if (track.getCommandName().equalsIgnoreCase("tutorial")) {
+                PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(player.getUniqueId(), "timetrialtutorial");
+                Bukkit.getServer().getPluginManager().callEvent(event);
             }
 
             ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());

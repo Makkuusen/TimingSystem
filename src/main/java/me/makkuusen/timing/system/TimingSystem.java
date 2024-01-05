@@ -31,6 +31,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -199,6 +200,7 @@ public class TimingSystem extends JavaPlugin {
         Text.plugin = null;
         logger = null;
         plugin = null;
+        DB.close();
     }
 
     public static <T> TaskChain<T> newChain() {

@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.internal.events.PlayerSpecificActionEvent;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.theme.Text;
@@ -8,6 +9,7 @@ import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -33,6 +35,10 @@ public class TimeTrialGui extends TrackPageGui {
             if (!track.getSpawnLocation().isWorldLoaded()) {
                 Text.send(player, Error.WORLD_NOT_LOADED);
                 return;
+            }
+            if (track.getCommandName().equalsIgnoreCase("tutorial")) {
+                PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(player.getUniqueId(), "timetrialtutorial");
+                Bukkit.getServer().getPluginManager().callEvent(event);
             }
             ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
             player.closeInventory();

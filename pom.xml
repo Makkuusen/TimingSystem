@@ -75,34 +75,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
-                <executions>
-                    <execution>
-                        <id>copy-files-on-build</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>C:\Users\Markus\Documents\Kakcraft\boatcraft_1.20\plugins</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/target/</directory>
-                                    <includes>
-                                        <include>TimingSystem-1.9-SNAPSHOT.jar</include>
-                                    </includes>
-                                    <!--<include>*.[MIME-TYPE]</include>-->
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
