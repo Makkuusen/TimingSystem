@@ -175,6 +175,10 @@ public class TimingSystemAPI {
         return EventDatabase.getEvent(name);
     }
 
+    public static Optional<Event> getEvent(int eventId) {
+        return EventDatabase.getEvent(eventId);
+    }
+
     public static List<Round> getRounds(Event event) {
         return event.getEventSchedule().getRounds();
     }

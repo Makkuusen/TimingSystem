@@ -668,10 +668,12 @@ public class TSListener implements Listener {
                 lap.passNextCheckpoint(TimingSystem.currentTime);
                 heat.updatePositions();
             } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
-                var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-                TrackRegion region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
-                ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
+                if (!track.getTrackOptions().hasOption(TrackOption.NO_RESET_ON_FUTURE_CHECKPOINT)) {
+                    var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
+                    TrackRegion region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
+                    ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                    Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
+                }
             }
         }
     }
