@@ -211,7 +211,7 @@ public class TrackEditor {
                 continue;
             }
 
-            track.getTrackOptions().add(op);
+            track.getTrackOptions().create(op);
             results.add(Component.text(op.name().toLowerCase(), theme.getSuccess()));
         }
 
