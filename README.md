@@ -16,6 +16,7 @@ First of all you need a Minecraft server running [Paper](https://papermc.io). Th
 
 
 ## Plugin Add-ons
+* [PigStops](https://github.com/JustBru00/PigStops) - Adds a simple inventory game to pit stops in TimingSystem races.     
 * [TrackExchange](https://github.com/Pigalala/TrackExchange) - Makes it possible to copy and paste tracks on servers.
 * [TimingSystemRESTApi](https://github.com/JustBru00/TimingSystemRESTApi) - Adds a basic JSON REST API to the TimingSystem plugin.
 * [TimingSystemBlueMap](https://github.com/JustBru00/TimingSystemBlueMap) - Adds TimingSystem track locations to [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap).
