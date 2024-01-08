@@ -600,12 +600,14 @@ public class TSListener implements Listener {
         if (track.isStage()) {
             for (var r : track.getTrackRegions().getRegions(TrackRegion.RegionType.END)) {
                 if (r.contains(player.getLocation())) {
-                    if (!(driver.getCurrentLap() != null && driver.getCurrentLap().hasPassedAllCheckpoints())) {
-                        int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
-                        var maybeCheckpoint = track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
-                        maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
-                        Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
-                        return;
+                    if (driver.getCurrentLap() != null) {
+                        if (!(driver.getCurrentLap().hasPassedAllCheckpoints())) {
+                            int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
+                            var maybeCheckpoint = track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
+                            maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
+                            Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
+                            return;
+                        }
                     }
                     heat.passLap(driver);
                     heat.updatePositions();
