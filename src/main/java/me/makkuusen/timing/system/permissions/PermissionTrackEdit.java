@@ -29,7 +29,7 @@ public enum PermissionTrackEdit implements Permissions{
 
     @Override
     public String getNode() {
-        return "timingsystem.track." + this.toString().replace("_", ".").toLowerCase();
+        return "timingsystem.trackedit." + this.toString().replace("_", ".").toLowerCase();
     }
 
     public static void init(CommandReplacements replacements) {
