@@ -23,6 +23,8 @@ public class MessageParser {
 
         boolean first = true;
         for (String string : strings) {
+            //&1Lap:  2 l%laps% 1/ 2%totalLaps% r 1 | 2 l P%pos% r 1 | 2 l %pits% 1/ 2%totalPits% r 1 Pits/
+
             String message = first ? "" : "&";
             if (!string.isEmpty()) {
                 String option = string.substring(0, 1);
@@ -47,11 +49,12 @@ public class MessageParser {
                 }
             }
             first = false;
+            /*
             if (level instanceof ActionBar) {
                 if (!color.asHexString().equalsIgnoreCase("#ffffff")) {
                     color = TextColor.fromHexString(ApiUtilities.darkenHexColor(color.asHexString(), 0.1));
                 }
-            }
+            }*/
             component = component.append(buildComponent(message, color, decorations));
         }
 

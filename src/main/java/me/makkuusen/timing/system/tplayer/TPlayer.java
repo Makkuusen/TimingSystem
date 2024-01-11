@@ -53,6 +53,11 @@ public class TPlayer implements Comparable<TPlayer> {
         theme = TimingSystem.defaultTheme;
     }
 
+    public void setTheme(Theme theme) {
+        this.theme = theme;
+    }
+
+
     @Override
     public int compareTo(TPlayer other) {
         return name.compareTo(other.name);

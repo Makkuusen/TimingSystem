@@ -44,7 +44,7 @@ public class Event {
     public Event(DbRow data) {
         id = data.getInt("id");
         displayName = data.getString("name");
-        uuid = UUID.fromString(data.getString("uuid"));
+        uuid = UUID.fromString(data.getString("uuid")); // Be aware this can be filled with zeros if admin created event.
         date = data.getInt("date");
         Optional<Track> maybeTrack = data.get("track") == null ? Optional.empty() : TrackDatabase.getTrackById(data.getInt("track"));
         track = maybeTrack.orElse(null);

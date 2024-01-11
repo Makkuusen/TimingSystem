@@ -87,7 +87,7 @@ public interface EventDatabase {
                 var dbRows = TimingSystem.getEventDatabase().selectEvents();
 
                 for (DbRow dbRow : dbRows) {
-                    if (dbRow.getString("name").equalsIgnoreCase("QuickRace")) {
+                    if (dbRow.getString("name").equalsIgnoreCase("QuickRace") || dbRow.getString("name").equalsIgnoreCase("LobbyRace") ) {
                         continue;
                     }
                     Event event = new Event(dbRow);
