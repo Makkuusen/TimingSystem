@@ -81,6 +81,7 @@ permissions:
          timingsystem.packs.default: true
          timingsystem.track.view.regions: true
          timingsystem.track.view.locations: true
+         timingsystem.trackedit.select: true
          timingsystem.trackedit.info: true
          timingsystem.trackedit.create: true
          timingsystem.trackedit.view: true

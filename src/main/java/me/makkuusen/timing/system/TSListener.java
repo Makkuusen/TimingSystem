@@ -173,7 +173,6 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onVehicleExit(VehicleExitEvent event) {
-
         if (event.getVehicle() instanceof Boat boat && boat.getPersistentDataContainer().has(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin)))) {
             if (event.getExited() instanceof Player player) {
                 var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
@@ -186,7 +185,7 @@ public class TSListener implements Listener {
             }
 
             if (event.getVehicle().getPassengers().size() < 2) {
-                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> event.getVehicle().remove(), 10);
+                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> event.getVehicle().remove(), 4);
             }
         }
 

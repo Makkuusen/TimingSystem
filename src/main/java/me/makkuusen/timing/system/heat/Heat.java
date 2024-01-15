@@ -182,7 +182,7 @@ public class Heat {
             getDrivers().values().forEach(Driver::removeScoreboard);
             scoreboard.removeScoreboards();
             ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
-        }, 200);
+        }, 60);
 
         getDrivers().values().forEach(driver -> {
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());

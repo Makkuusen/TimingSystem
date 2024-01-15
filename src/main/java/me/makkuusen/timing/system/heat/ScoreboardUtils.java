@@ -43,6 +43,10 @@ public class ScoreboardUtils {
         return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" Offline  ", NamedTextColor.GRAY)).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
+    public static Component getDriverLineRaceDNF(Driver driver, int pits, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" DNF      ", NamedTextColor.GRAY)).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
+    }
+
     public static Component getDriverLineRaceLaps(int laps, Driver driver, int pits, int pos, boolean compact, Theme theme) {
         return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" Lap: ")).append(paddLaps(laps).color(getSecondaryColor(theme))).append(Component.text(" ")).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }

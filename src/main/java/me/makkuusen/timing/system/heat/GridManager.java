@@ -76,7 +76,9 @@ public class GridManager {
                 if (setStartTime) {
                     driver.setStartTime(TimingSystem.currentTime);
                 }
-                driver.setState(DriverState.STARTING);
+                if (!driver.isDisqualified()) {
+                    driver.setState(DriverState.STARTING);
+                }
                 if (driver.getTPlayer().getPlayer() != null) {
                     driver.getTPlayer().getPlayer().playSound(driver.getTPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
                 }

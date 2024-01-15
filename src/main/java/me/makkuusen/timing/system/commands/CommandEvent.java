@@ -66,7 +66,7 @@ public class CommandEvent extends BaseCommand {
         Theme theme = Theme.getTheme(commandSender);
         for (Event event : list) {
             String nameDisplay;
-            if (event.getUuid() == UUID.fromString("00000000-0000-0000-0000-000000000000")) {
+            if (event.getUuid().equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
                 nameDisplay = "Admin";
             } else {
                 nameDisplay = TSDatabase.getPlayer(event.getUuid()).getNameDisplay();
