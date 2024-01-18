@@ -345,6 +345,7 @@ gui:
   toggle_override: "&1Toggle: &2Override"
   toggle_medals: "&1Toggle medals"
   toggle_final_laps: "&1Toggle: &2Send All Final Lap Times"
+  toggle_compact_scoreboard: "&1Toggle: &2Compact Scoreboard"
   color: "Color"
   on: "&1On"
   off: "&1Off"
