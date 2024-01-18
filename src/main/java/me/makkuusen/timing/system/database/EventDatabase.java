@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.database;
 
 import co.aikar.idb.DbRow;
 import co.aikar.taskchain.TaskChain;
+import lombok.Getter;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.Event;
@@ -21,11 +22,11 @@ import java.sql.SQLException;
 import java.util.*;
 
 public interface EventDatabase {
+    @Getter
     Set<Event> events = new HashSet<>();
     Set<Heat> heats = new HashSet<>();
     HashMap<UUID, Event> playerSelectedEvent = new HashMap<>();
     HashMap<UUID, Driver> playerInRunningHeat = new HashMap<>();
-
 
     Event createEvent(UUID uuid, String name);
 
@@ -76,6 +77,11 @@ public interface EventDatabase {
     void driverSet(long driverId, String column, Integer value);
 
     void driverSet(long driverId, String column, Long value);
+
+
+    static Set<Event> getEvents() {
+        return events;
+    }
 
 
     static void initSynchronize() {
