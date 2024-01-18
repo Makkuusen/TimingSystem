@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.round.Round;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class EventResultsAPI {
 
     public static List<EventResult> getEventResults() {
