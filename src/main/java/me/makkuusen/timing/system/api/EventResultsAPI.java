@@ -9,7 +9,9 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.Round;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class EventResultsAPI {
@@ -36,7 +38,7 @@ public class EventResultsAPI {
 
     private static HeatResult getHeatResult(Heat heat) {
         List<DriverResult> driverResults = new ArrayList<>();
-        for (Driver driver : heat.getDrivers().values()) {
+        for (Driver driver : heat.getDrivers().values().stream().sorted(Comparator.comparingInt(Driver::getPosition)).toList()) {
             var driverResult = getDriverResult(driver);
             driverResults.add(driverResult);
         }
