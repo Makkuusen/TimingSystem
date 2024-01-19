@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 public class HeatResult {
     private String name;
-    private int totalLaps;
+    private Integer totalLaps;
     private Instant dateStarted;
     private Instant dateEnded;
     List<DriverResult> driverResultList;

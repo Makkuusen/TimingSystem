@@ -142,6 +142,16 @@ public class Heat {
         return true;
     }
 
+    public boolean startCountdown(int length) {
+        if (getHeatState() != HeatState.LOADED) {
+            return false;
+        }
+        setHeatState(HeatState.STARTING);
+        countdown(length);
+
+        return true;
+    }
+
     public void countdown(int count) {
         TaskChain<?> chain = TimingSystem.newChain();
         for (int i = count; i > 0; i--) {

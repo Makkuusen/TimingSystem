@@ -8,8 +8,8 @@ import java.util.List;
 @AllArgsConstructor
 public class DriverResult {
 
-    int position;
-    int startPosition;
+    Integer position;
+    Integer startPosition;
     String name;
     String uuid;
 

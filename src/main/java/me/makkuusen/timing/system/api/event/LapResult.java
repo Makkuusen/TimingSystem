@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class LapResult {
-    long timeInMs;
+    Long timeInMs;
     boolean pitstop;
     boolean isFastest;
 }

@@ -10,10 +10,10 @@ import java.util.List;
 public class EventResult {
 
     private String name;
-    private long date;
+    private Long date;
     private String trackName;
     private Integer trackId;
-    private int participants;
+    private Integer participants;
 
     private List<RoundResult> rounds;
 }
