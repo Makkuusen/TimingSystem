@@ -12,6 +12,7 @@ public class EventResult {
     private String name;
     private Long date;
     private String trackName;
+    private String state;
     private Integer trackId;
     private Integer participants;
 

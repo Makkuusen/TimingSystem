@@ -8,5 +8,5 @@ import lombok.Getter;
 public class LapResult {
     Long timeInMs;
     boolean pitstop;
-    boolean isFastest;
+    boolean fastest;
 }

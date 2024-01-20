@@ -74,7 +74,7 @@ public class EventResultsAPI {
             trackId = event.getTrack().getId();
         }
 
-        return new EventResult(event.getDisplayName(), event.getDate(), trackName, trackId, event.getSubscribers().size(), roundResults);
+        return new EventResult(event.getDisplayName(), event.getDate(), trackName, event.getState().name(), trackId, event.getSubscribers().size(), roundResults);
     }
 
     private static EventResult getEventResultWithoutData(Event event) {
@@ -84,6 +84,6 @@ public class EventResultsAPI {
             trackName = event.getTrack().getDisplayName();
             trackId = event.getTrack().getId();
         }
-        return new EventResult(event.getDisplayName(), event.getDate(), trackName, trackId, event.getSubscribers().size(), null);
+        return new EventResult(event.getDisplayName(), event.getDate(), trackName, event.getState().name(), trackId, event.getSubscribers().keySet().size(), null);
     }
 }
