@@ -16,13 +16,19 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class EventResultsAPI {
 
+
+    public static EventResult getEventResult(String name) {
+        var event = EventDatabase.getEvent(name);
+        return event.map(EventResultsAPI::getEventResult).orElse(null);
+    }
+
     public static List<EventResult> getEventResults() {
 
         List<EventResult> eventResults = new ArrayList<>();
         var events = EventDatabase.getEvents();
 
         for (Event event : events) {
-            eventResults.add(getEventResult(event));
+            eventResults.add(getEventResultWithoutData(event));
         }
         return eventResults;
     }
@@ -69,5 +75,15 @@ public class EventResultsAPI {
         }
 
         return new EventResult(event.getDisplayName(), event.getDate(), trackName, trackId, event.getSubscribers().size(), roundResults);
+    }
+
+    private static EventResult getEventResultWithoutData(Event event) {
+        String trackName = null;
+        Integer trackId = null;
+        if (event.getTrack() != null) {
+            trackName = event.getTrack().getDisplayName();
+            trackId = event.getTrack().getId();
+        }
+        return new EventResult(event.getDisplayName(), event.getDate(), trackName, trackId, event.getSubscribers().size(), null);
     }
 }
