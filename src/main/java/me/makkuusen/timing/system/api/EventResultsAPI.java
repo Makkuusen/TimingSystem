@@ -57,7 +57,7 @@ public class EventResultsAPI {
             var heatResult = getHeatResult(heat);
             heatResults.add(heatResult);
         }
-        return new RoundResult(round.getName(), round.getType().name(), heatResults);
+        return new RoundResult(round.getName(), round.getType().name(), round.getRoundIndex(), heatResults);
     }
 
     private static EventResult getEventResult(Event event) {

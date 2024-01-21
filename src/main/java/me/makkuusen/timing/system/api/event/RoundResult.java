@@ -11,5 +11,6 @@ public class RoundResult {
 
     private String name;
     private String type; // [FINAL] or [QUALIFICATION]
+    private Integer index;
     private List<HeatResult> heatResults;
 }
