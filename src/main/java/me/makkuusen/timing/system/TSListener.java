@@ -40,14 +40,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
@@ -332,6 +325,15 @@ public class TSListener implements Listener {
                     player.getInventory().setChestplate(null);
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public static void onPlayerSwitchGameModeEvent(PlayerGameModeChangeEvent event) {
+        Player player = event.getPlayer();
+        if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
+            Text.send(player, Error.NO_GAME_MODE_CHANGE);
+            TimeTrialController.playerLeavingMap(player.getUniqueId());
         }
     }
 

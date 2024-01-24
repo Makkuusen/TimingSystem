@@ -170,6 +170,13 @@
             <version>2.11.3</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.Gecolay.GSit</groupId>
+            <artifactId>core</artifactId>
+            <version>1.7.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <repositories>

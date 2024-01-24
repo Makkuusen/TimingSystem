@@ -97,6 +97,7 @@ error:
   no_riptide: "&eYou are not allowed to riptide on this track."
   no_soul_speed: "&eYou are not allowed to have soul speed on your boots."
   no_creative: "&eYou are not allowed to be in creative game mode."
+  no_game_mode_change: "&eYour time trial was cancelled due to switching game mode."
   wrong_boat_utils_mode: "&eYou did not have the correct BoatUtilsMode active."
   lag_detected: "&eTimingSystem detected some lag and unfortunately your time trial has been invalidated."
   missed_checkpoints: "&eTime is invalid, not all checkpoints were passed!"
