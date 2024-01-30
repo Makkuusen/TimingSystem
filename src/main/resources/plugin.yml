@@ -109,6 +109,8 @@ permissions:
          timingsystem.trackedit.delete.track: true
          timingsystem.trackedit.move: true
          timingsystem.trackedit.open: true
+         timingsystem.trackedit.close: true
+         timingsystem.trackedit.spawn: true
          timingsystem.trackedit.timetrial: true
          timingsystem.trackedit.weight: true
          timingsystem.trackedit.tag: true
