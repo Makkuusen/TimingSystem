@@ -43,7 +43,7 @@ public enum Gui implements Message {
     ON,
     OFF,
     RETURN,
-    RESET;
+    RESET, GRIDS;
 
     Gui() {}
 

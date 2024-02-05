@@ -39,13 +39,13 @@ public class TrackTagManager {
     }
 
     public static boolean deleteTag(TrackTag tag) {
-        if (trackTags.containsKey(tag)) {
+        if (trackTags.containsKey(tag.getValue())) {
             for (Track t : TrackDatabase.tracks) {
                 if (t.getTrackTags().hasTag(tag)) {
                     t.getTrackTags().remove(tag);
                 }
             }
-            trackTags.remove(tag);
+            trackTags.remove(tag.getValue());
             TimingSystem.getTrackDatabase().deleteTagAsync(tag);
             return true;
         }

@@ -325,6 +325,7 @@ gui:
   created_at: "&1Created at: &2%time%"
   weight: "&1Weight: &2%weight%"
   tags: "&1Tags: "
+  grids: "&1Grids: &2%grids%"
   sorted_by_default: "&1Sorted by: &2Default"
   sorted_by_position: "&1Sorted by: &2Position"
   sorted_by_popularity: "&1Sorted by: &2Popularity"
