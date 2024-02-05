@@ -1,9 +1,9 @@
 name: TimingSystem
 main: me.makkuusen.timing.system.TimingSystem
-version: '2.0.4'
+version: '2.1'
 authors: [Makkuusen, Pigalala, GitHub Repository Contributors]
 depend: [WorldEdit]
-softdepend: [HolographicDisplays, DecentHolograms, Multiverse-Core, PlaceholderAPI]
+softdepend: [HolographicDisplays, DecentHolograms, Multiverse-Core, GSit, PlaceholderAPI]
 api-version: '1.20'
 commands:
    track:
@@ -15,6 +15,12 @@ commands:
    timetrial:
       description: Command for running tracks.
       aliases: [tt]
+   timetrialrandom:
+      description: Command for running random tracks.
+      aliases: [ttr, ttrandom]
+   timetrialcancel:
+      description: Command for cancelling timetrials.
+      aliases: [ttc, ttcancel, cancel]
    event:
       description: Command for events.
       aliases: []
@@ -75,6 +81,7 @@ permissions:
          timingsystem.packs.default: true
          timingsystem.track.view.regions: true
          timingsystem.track.view.locations: true
+         timingsystem.trackedit.select: true
          timingsystem.trackedit.info: true
          timingsystem.trackedit.create: true
          timingsystem.trackedit.view: true
@@ -102,6 +109,8 @@ permissions:
          timingsystem.trackedit.delete.track: true
          timingsystem.trackedit.move: true
          timingsystem.trackedit.open: true
+         timingsystem.trackedit.close: true
+         timingsystem.trackedit.spawn: true
          timingsystem.trackedit.timetrial: true
          timingsystem.trackedit.weight: true
          timingsystem.trackedit.tag: true

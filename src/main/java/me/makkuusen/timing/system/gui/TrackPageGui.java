@@ -22,6 +22,7 @@ public abstract class TrackPageGui extends BaseGui {
 
     public static final Integer SORT_SLOT = 45;
     public static final Integer FILTER_SLOT = 46;
+    public static final Integer RESET_SLOT = 53;
 
     public Integer page;
     public Integer maxPage = 1;
@@ -184,7 +185,20 @@ public abstract class TrackPageGui extends BaseGui {
             tPlayer.setTrackType(null);
             openNewTrackPage(this, tPlayer, title);
         });
-        setItem(resetButton,53);
+        setItem(resetButton, RESET_SLOT);
+    }
+
+    public void setResetItem(Integer slot) {
+        var resetButton = new GuiButton(new ItemBuilder(Material.BARRIER).setName(Text.get(tPlayer, Gui.RESET)).build());
+        resetButton.setAction(() -> {
+            PlaySound.buttonClick(tPlayer);
+            tPlayer.setTrackPage(null);
+            tPlayer.setFilter(null);
+            tPlayer.setTrackSort(null);
+            tPlayer.setTrackType(null);
+            openNewTrackPage(this, tPlayer, title);
+        });
+        setItem(resetButton, slot);
     }
 
     private void setTrackButtons() {

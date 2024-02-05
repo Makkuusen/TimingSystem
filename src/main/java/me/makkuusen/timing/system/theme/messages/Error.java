@@ -84,10 +84,12 @@ public enum Error implements Message {
     NO_POTION_EFFECTS,
     NO_RIPTIDE,
     NO_SOUL_SPEED,
+    NO_GAME_MODE_CHANGE,
     WRONG_BOAT_UTILS_MODE,
     LAG_DETECTED,
     MISSED_CHECKPOINTS,
-    PERMISSION_DENIED;
+    PERMISSION_DENIED,
+    ;
 
     Error() {}
 

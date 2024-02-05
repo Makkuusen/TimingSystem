@@ -37,6 +37,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -247,6 +248,10 @@ public class ApiUtilities {
         TimingSystem.getPlugin().logger.info(msg);
     }
 
+    public static void warnConsole(String msg) {
+        TimingSystem.getPlugin().logger.warning(msg);
+    }
+
     public static String formatAsTime(long time) {
         String toReturn;
         long timeInMillis = getRoundedToTick(time);
@@ -257,6 +262,23 @@ public class ApiUtilities {
 
         if (hours == 0 && minutes == 0) {
             toReturn = String.format("%02d", seconds) + "." + millis;
+        } else if (hours == 0) {
+            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + millis;
+        } else {
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
+        }
+        return toReturn;
+    }
+
+    public static String formatAsTimeWithoutRounding(long timeInMillis) {
+        String toReturn;
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
+        String millis = String.format("%03d", (timeInMillis % 1000));
+
+        if (hours == 0 && minutes == 0) {
+            toReturn = String.format("%d", seconds) + "." + millis;
         } else if (hours == 0) {
             toReturn = String.format("%02d:%02d", minutes, seconds) + "." + millis;
         } else {
@@ -579,7 +601,14 @@ public class ApiUtilities {
         location.setPitch(player.getLocation().getPitch());
         boolean sameAsLastTrack = TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId()) && TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId()).getId() == track.getId();
         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
-        chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(3);
+        if (player.isInsideVehicle()) {
+            if (player.getVehicle().getPassengers().size() < 2) {
+                player.getVehicle().remove();
+            } else if (player.getVehicle().getPassengers().get(1) instanceof Villager) {
+                player.getVehicle().remove();
+            }
+        }
+        chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(4);
         if (track.isBoatTrack()) {
             chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, sameAsLastTrack)).execute();
         } else if (track.isElytraTrack()) {
@@ -641,6 +670,7 @@ public class ApiUtilities {
                 return;
             }
         }
+
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             var tt = TimeTrialController.timeTrials.get(player.getUniqueId());
             Track track = tt.getTrack();

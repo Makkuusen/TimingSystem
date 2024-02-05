@@ -11,7 +11,6 @@ import java.time.Duration;
 
 public class QualifyHeat {
 
-
     public static boolean passQualyLap(Driver driver) {
         if (driver.getHeat().getHeatState() != HeatState.RACING) {
             return false;

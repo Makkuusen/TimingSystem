@@ -105,6 +105,10 @@ public class DriverScoreboard {
         }
         long timeDiff;
 
+        if (driver.isDisqualified()) {
+            return ScoreboardUtils.getDriverLineRaceDNF(driver, driver.getPits(), driver.getPosition(), compact, theme);
+        }
+
         if (driver.getTPlayer().getPlayer() == null) {
             return ScoreboardUtils.getDriverLineRaceOffline(driver, driver.getPits(), driver.getPosition(), compact, theme);
         }

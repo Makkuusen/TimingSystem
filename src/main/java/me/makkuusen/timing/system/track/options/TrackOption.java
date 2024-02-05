@@ -15,7 +15,8 @@ public enum TrackOption {
     NO_SOUL_SPEED(4),
     FORCE_BOAT(5),
     NO_RIPTIDE(6),
-    RESET_TO_LATEST_CHECKPOINT(7);
+    RESET_TO_LATEST_CHECKPOINT(7),
+    NO_RESET_ON_FUTURE_CHECKPOINT(8);
 
     private final int id;
     TrackOption(int id) {

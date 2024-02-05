@@ -29,8 +29,8 @@ public class Version2 {
                     DB.executeUpdate("INSERT INTO `ts_tracks_options` (`trackId`, `option`) VALUES(" + row.getInt("id") + ", " + option.getId() + ");");
                 }
             }
-            DB.executeUpdateAsync("ALTER TABLE `ts_tracks` DROP COLUMN `options`;");
-            DB.executeUpdateAsync("ALTER TABLE `ts_tracks` DROP COLUMN `leaderboard`;");
         }
+        DB.executeUpdateAsync("ALTER TABLE `ts_tracks` DROP COLUMN `options`;");
+        DB.executeUpdateAsync("ALTER TABLE `ts_tracks` DROP COLUMN `leaderboard`;");
     }
 }

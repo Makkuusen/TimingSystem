@@ -24,7 +24,7 @@ public enum PermissionTimingSystem implements Permissions {
     }
 
     public static void init(CommandReplacements replacements) {
-        for(PermissionTimingSystem perm : values()) {
+        for (PermissionTimingSystem perm : values()) {
             Permissions.register(perm, replacements);
         }
     }

@@ -53,6 +53,11 @@ public class TPlayer implements Comparable<TPlayer> {
         theme = TimingSystem.defaultTheme;
     }
 
+    public void setTheme(Theme theme) {
+        this.theme = theme;
+    }
+
+
     @Override
     public int compareTo(TPlayer other) {
         return name.compareTo(other.name);
@@ -95,6 +100,7 @@ public class TPlayer implements Comparable<TPlayer> {
             initScoreboard();
         }
 
+        scoreboard.clearLines();
         for (int i = 0; i < Math.min(lines.size(), scoreboard.maxLines()); i++) {
             scoreboard.line(i, lines.get(i));
         }

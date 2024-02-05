@@ -35,6 +35,7 @@ public class TimeTrial {
     @Getter
     private final Track track;
     private Instant startTime;
+    private long startDelta;
     private ArrayList<Instant> checkpoints;
     @Getter
     private boolean lagStart = false;
@@ -209,6 +210,16 @@ public class TimeTrial {
     public void playerRestartMap() {
         Instant endTime = TimingSystem.currentTime;
         Player player = tPlayer.getPlayer();
+
+        this.startDelta = Instant.now().toEpochMilli() - TimingSystem.currentTime.toEpochMilli();
+        if (tPlayer.getSettings().isVerbose()) {
+            tPlayer.getPlayer().sendMessage(Component.text("Start > ").color(tPlayer.getTheme().getPrimary()).append(Component.text("+" + ApiUtilities.formatAsTimeWithoutRounding(startDelta)).color(tPlayer.getTheme().getSecondary())));
+        }
+        if (startDelta > 100) {
+            ApiUtilities.warnConsole("Tick while starting elapsed for a total of " + startDelta + "ms and player lost time.");
+        } else {
+            ApiUtilities.msgConsole("Tick while starting has elapsed for a total of " + startDelta + "ms and was ok.");
+        }
 
         if (validateFinish(player)){
             long timeTrialTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));

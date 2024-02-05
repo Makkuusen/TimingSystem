@@ -14,10 +14,7 @@ import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -45,6 +42,15 @@ public class TimingSystemAPI {
 
     public static List<Track> getOpenTracks() {
         return TrackDatabase.getOpenTracks();
+    }
+
+    public static Optional<Track> getRandomTrack() {
+        var list = TrackDatabase.getOpenTracks();
+        if (list.isEmpty()) {
+            return Optional.empty();
+        }
+        Random rand = new Random();
+        return Optional.of(list.get(rand.nextInt(list.size())));
     }
 
     public static Optional<TimeTrialFinish> getBestTime(UUID uuid, int trackId) {
@@ -167,6 +173,10 @@ public class TimingSystemAPI {
 
     public static Optional<Event> getEvent(String name) {
         return EventDatabase.getEvent(name);
+    }
+
+    public static Optional<Event> getEvent(int eventId) {
+        return EventDatabase.getEvent(eventId);
     }
 
     public static List<Round> getRounds(Event event) {

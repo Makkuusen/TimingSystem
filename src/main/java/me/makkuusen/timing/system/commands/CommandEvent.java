@@ -34,6 +34,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @CommandAlias("event")
@@ -64,7 +65,13 @@ public class CommandEvent extends BaseCommand {
         Text.send(commandSender, Info.ACTIVE_EVENTS_TITLE);
         Theme theme = Theme.getTheme(commandSender);
         for (Event event : list) {
-            commandSender.sendMessage(theme.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Text.get(commandSender, Hover.CLICK_TO_SELECT))).append(Component.space()).append(theme.getParenthesized(event.getState().name())).append(theme.primary(" - ")).append(theme.primary(ApiUtilities.niceDate(event.getDate()))).append(Component.space()).append(theme.primary(">")).append(Component.space()).append(theme.highlight(TSDatabase.getPlayer(event.getUuid()).getNameDisplay())));
+            String nameDisplay;
+            if (event.getUuid().equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
+                nameDisplay = "Admin";
+            } else {
+                nameDisplay = TSDatabase.getPlayer(event.getUuid()).getNameDisplay();
+            }
+            commandSender.sendMessage(theme.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Text.get(commandSender, Hover.CLICK_TO_SELECT))).append(Component.space()).append(theme.getParenthesized(event.getState().name())).append(theme.primary(" - ")).append(theme.primary(ApiUtilities.niceDate(event.getDate()))).append(Component.space()).append(theme.primary(">")).append(Component.space()).append(theme.highlight(nameDisplay)));
         }
     }
 
@@ -198,7 +205,7 @@ public class CommandEvent extends BaseCommand {
     @CommandCompletion("<name> @track")
     @CommandPermission("%permissionevent_create")
     public static void onCreate(Player player, @Single String name, @Optional Track track) {
-        if (name.equalsIgnoreCase("QuickRace")) {
+        if (name.equalsIgnoreCase("QuickRace") || name.equalsIgnoreCase("RaceLobby")) {
             Text.send(player, Error.INVALID_NAME);
             return;
         }

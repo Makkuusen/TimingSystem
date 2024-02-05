@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system;
 
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
+import me.makkuusen.timing.system.api.events.driver.DriverPassCheckpointEvent;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.commands.CommandRace;
@@ -40,14 +41,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
@@ -173,7 +167,6 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onVehicleExit(VehicleExitEvent event) {
-
         if (event.getVehicle() instanceof Boat boat && boat.getPersistentDataContainer().has(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin)))) {
             if (event.getExited() instanceof Player player) {
                 var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
@@ -186,7 +179,7 @@ public class TSListener implements Listener {
             }
 
             if (event.getVehicle().getPassengers().size() < 2) {
-                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> event.getVehicle().remove(), 10);
+                Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> event.getVehicle().remove(), 4);
             }
         }
 
@@ -333,6 +326,15 @@ public class TSListener implements Listener {
                     player.getInventory().setChestplate(null);
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public static void onPlayerSwitchGameModeEvent(PlayerGameModeChangeEvent event) {
+        Player player = event.getPlayer();
+        if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
+            Text.send(player, Error.NO_GAME_MODE_CHANGE);
+            TimeTrialController.playerLeavingMap(player.getUniqueId());
         }
     }
 
@@ -600,12 +602,14 @@ public class TSListener implements Listener {
         if (track.isStage()) {
             for (var r : track.getTrackRegions().getRegions(TrackRegion.RegionType.END)) {
                 if (r.contains(player.getLocation())) {
-                    if (!(driver.getCurrentLap() != null && driver.getCurrentLap().hasPassedAllCheckpoints())) {
-                        int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
-                        var maybeCheckpoint = track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
-                        maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
-                        Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
-                        return;
+                    if (driver.getCurrentLap() != null) {
+                        if (!(driver.getCurrentLap().hasPassedAllCheckpoints())) {
+                            int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
+                            var maybeCheckpoint = track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
+                            maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
+                            Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
+                            return;
+                        }
                     }
                     heat.passLap(driver);
                     heat.updatePositions();
@@ -667,11 +671,14 @@ public class TSListener implements Listener {
             if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() == lap.getNextCheckpoint()) {
                 lap.passNextCheckpoint(TimingSystem.currentTime);
                 heat.updatePositions();
+                new DriverPassCheckpointEvent(driver, lap, maybeCheckpoint.get(), TimingSystem.currentTime).callEvent();
             } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
-                var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-                TrackRegion region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
-                ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
-                Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
+                if (!track.getTrackOptions().hasOption(TrackOption.NO_RESET_ON_FUTURE_CHECKPOINT)) {
+                    var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
+                    TrackRegion region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
+                    ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                    Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
+                }
             }
         }
     }

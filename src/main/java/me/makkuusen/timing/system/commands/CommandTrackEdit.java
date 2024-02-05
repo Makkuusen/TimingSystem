@@ -83,10 +83,10 @@ public class CommandTrackEdit extends BaseCommand {
     }
 
     @Subcommand("name")
-    @CommandCompletion("name @track")
+    @CommandCompletion("name")
     @CommandPermission("%permissiontrackedit_name")
-    public static void onName(Player player, String name, @Optional Track track) {
-        var response = TrackEditor.setName(player, name, track);
+    public static void onName(Player player, String name) {
+        var response = TrackEditor.setName(player, name, null);
         player.sendMessage(response);
     }
 

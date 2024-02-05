@@ -26,15 +26,22 @@ public class SpectatorScoreboard {
 
     public void updateScoreboard() {
         for (Spectator spec : heat.getEvent().getSpectators().values()) {
-            if (!heat.getDrivers().containsKey(spec.getTPlayer().getUniqueId())) {
-                if (spec.getTPlayer().getPlayer() != null) {
-                    spec.getTPlayer().initScoreboard();
-                    List<Component> lines;
-                    lines = normalScoreboard(spec.getTPlayer());
-                    setTitle(spec.getTPlayer());
-                    spec.getTPlayer().setScoreBoardLines(lines);
-                }
+            Driver driver = heat.getDrivers().get(spec.getTPlayer().getUniqueId());
+            if (driver == null) {
+                updateScoreBoard(spec);
+            } else if (driver.isDisqualified()) {
+                updateScoreBoard(spec);
             }
+        }
+    }
+
+    private void updateScoreBoard(Spectator spec) {
+        if (spec.getTPlayer().getPlayer() != null) {
+            spec.getTPlayer().initScoreboard();
+            List<Component> lines;
+            lines = normalScoreboard(spec.getTPlayer());
+            setTitle(spec.getTPlayer());
+            spec.getTPlayer().setScoreBoardLines(lines);
         }
     }
 
@@ -82,14 +89,21 @@ public class SpectatorScoreboard {
     }
 
     private Component getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
+
+
+        if (driver.isDisqualified()) {
+            return ScoreboardUtils.getDriverLineRaceDNF(driver, driver.getPits(), driver.getPosition(), compact, theme);
+        }
+
+        if (driver.getTPlayer().getPlayer() == null) {
+            return ScoreboardUtils.getDriverLineRaceOffline(driver, driver.getPits(), driver.getPosition(), compact, theme);
+        }
+
         if (driver.getLaps().isEmpty()) {
             return ScoreboardUtils.getDriverLineRace(driver, driver.getPosition(), compact, theme);
         }
         long timeDiff;
 
-        if (driver.getTPlayer().getPlayer() == null) {
-            return ScoreboardUtils.getDriverLineRaceOffline(driver, driver.getPits(), driver.getPosition(), compact, theme);
-        }
         Location playerLoc = driver.getTPlayer().getPlayer().getLocation();
 
         var inPitRegions = heat.getEvent().getTrack().getTrackRegions().getRegions(TrackRegion.RegionType.INPIT);

@@ -36,6 +36,7 @@ public class Driver extends Participant implements Comparable<Driver> {
     private Instant endTime;
     private DriverState state;
     private DriverScoreboard scoreboard;
+    private boolean disqualified = false;
     private List<Lap> laps = new ArrayList<>();
 
     public Driver(DbRow data) {
@@ -58,6 +59,9 @@ public class Driver extends Participant implements Comparable<Driver> {
             }
             return;
         }
+        if (disqualified) {
+            return;
+        }
         if (scoreboard == null) {
             scoreboard = new DriverScoreboard(getTPlayer(), this);
         }
@@ -75,6 +79,7 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public void disqualify() {
         state = DriverState.FINISHED;
+        disqualified = true;
 
         DriverDisqualifyEvent e = new DriverDisqualifyEvent(this);
         e.callEvent();
@@ -150,6 +155,9 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public boolean isRunning() {
+        if (disqualified) {
+            return false;
+        }
         return state == DriverState.RUNNING || state == DriverState.LOADED || state == DriverState.STARTING;
     }
 

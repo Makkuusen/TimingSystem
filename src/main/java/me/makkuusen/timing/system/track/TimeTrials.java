@@ -76,9 +76,8 @@ public class TimeTrials {
         if (timeTrialFinishes.get(player) == null) {
             return null;
         }
-        List<TimeTrialFinish> ttTimes = new ArrayList<>();
         var times = timeTrialFinishes.get(player);
-        ttTimes.addAll(times);
+        List<TimeTrialFinish> ttTimes = new ArrayList<>(times);
         if (ttTimes.isEmpty()) {
             return null;
         }
@@ -86,6 +85,22 @@ public class TimeTrials {
         ttTimes.sort(new TimeTrialFinishComparator());
         return ttTimes.get(0);
     }
+
+    //Used in ranked
+    public TimeTrialFinish getBestFinish(TPlayer player, long untilDate) {
+        if (timeTrialFinishes.get(player) == null) {
+            return null;
+        }
+        var times = timeTrialFinishes.get(player).stream().filter(timeTrialFinish -> timeTrialFinish.getDate() <= untilDate).toList();
+        List<TimeTrialFinish> ttTimes = new ArrayList<>(times);
+        if (ttTimes.isEmpty()) {
+            return null;
+        }
+
+        ttTimes.sort(new TimeTrialFinishComparator());
+        return ttTimes.get(0);
+    }
+
 
     public boolean hasPlayed(TPlayer tPlayer) {
         return timeTrialFinishes.containsKey(tPlayer) || timeTrialAttempts.containsKey(tPlayer);

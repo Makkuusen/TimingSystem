@@ -430,6 +430,8 @@ public interface TrackDatabase {
 
     static List<String> getTracksAsStrings(Player player) {
         List<String> tracks = new ArrayList<>();
+        tracks.add("random");
+        tracks.add("r");
         if (player.hasPermission(PermissionTrack.MENU.getNode()) || player.hasPermission("timingsystem.packs.trackadmin") || player.isOp()) {
             TrackDatabase.tracks.forEach(track -> tracks.add(track.getCommandName()));
         } else {

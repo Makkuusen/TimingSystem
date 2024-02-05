@@ -5,6 +5,7 @@ import lombok.Getter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.EventDatabase;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 

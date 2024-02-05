@@ -7,6 +7,7 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
 import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -51,6 +52,7 @@ public class TrackGui extends TrackPageGui {
         loreToSet.add(Text.get(player, Gui.TOTAL_FINISHES, "%total%", String.valueOf(track.getTimeTrials().getTotalFinishes())));
         loreToSet.add(Text.get(player, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(track.getTimeTrials().getTotalFinishes() + track.getTimeTrials().getTotalAttempts())));
         loreToSet.add(Text.get(player, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(track.getTotalTimeSpent())));
+        loreToSet.add(Text.get(player, Gui.GRIDS, "%grids%", String.valueOf(track.getTrackLocations().getLocations(TrackLocation.Type.GRID).size())));
         loreToSet.add(Text.get(player, Gui.CREATED_BY, "%player%", track.getOwner().getName()));
         if(!track.getContributorsAsString().isBlank()) loreToSet.add(Text.get(player, Gui.CONTRIBUTORS, "%contributors%", track.getContributorsAsString()));
         loreToSet.add(Text.get(player, Gui.CREATED_AT, "%time%", ApiUtilities.niceDate(track.getDateCreated())));

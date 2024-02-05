@@ -142,6 +142,16 @@ public class Heat {
         return true;
     }
 
+    public boolean startCountdown(int length) {
+        if (getHeatState() != HeatState.LOADED) {
+            return false;
+        }
+        setHeatState(HeatState.STARTING);
+        countdown(length);
+
+        return true;
+    }
+
     public void countdown(int count) {
         TaskChain<?> chain = TimingSystem.newChain();
         for (int i = count; i > 0; i--) {
@@ -182,7 +192,7 @@ public class Heat {
             getDrivers().values().forEach(Driver::removeScoreboard);
             scoreboard.removeScoreboards();
             ApiUtilities.msgConsole("CLEARED SCOREBOARDS");
-        }, 200);
+        }, 60);
 
         getDrivers().values().forEach(driver -> {
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());

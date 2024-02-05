@@ -38,11 +38,12 @@ public enum Gui implements Message {
     TOGGLE_OVERRIDE,
     TOGGLE_MEDALS,
     TOGGLE_FINAL_LAPS,
+    TOGGLE_COMPACT_SCOREBOARD,
     COLOR,
     ON,
     OFF,
     RETURN,
-    RESET;
+    RESET, GRIDS;
 
     Gui() {}
 

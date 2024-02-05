@@ -122,6 +122,7 @@ public class CommandTrack extends BaseCommand {
             sendPlayerStatsInfo(commandSender, tPlayer, track);
             return;
         }
+
         sendTrackInfo(commandSender, track);
 
     }
@@ -333,6 +334,7 @@ public class CommandTrack extends BaseCommand {
 
         int pageEnd = (int) Math.ceil(((double) track.getTimeTrials().getTopList().size()) / ((double) itemsPerPage));
         commandSender.sendMessage(theme.getPageSelector(commandSender, pageStart, pageEnd, "/t times " + track.getCommandName()));
+
     }
 
     @Subcommand("mytimes")

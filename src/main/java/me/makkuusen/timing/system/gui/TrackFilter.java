@@ -24,7 +24,7 @@ import java.util.Set;
 public class TrackFilter {
 
     private Set<TrackTag> tags;
-    private boolean anyMatch = true;
+    private boolean anyMatch = false;
     public TrackFilter() {
         tags = new HashSet<>();
     }

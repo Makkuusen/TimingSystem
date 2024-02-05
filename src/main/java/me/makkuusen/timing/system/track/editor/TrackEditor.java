@@ -161,7 +161,7 @@ public class TrackEditor {
                 continue;
             }
 
-            if(track.getTrackTags().hasTag(tag)) {
+            if(track.getTrackTags().hasTag(tag) || tag.getValue().equals("EMPTY")) {
                 track.getTrackTags().remove(tag);
                 results.add(Component.text(tag.getValue().toLowerCase(), theme.getError()));
                 continue;

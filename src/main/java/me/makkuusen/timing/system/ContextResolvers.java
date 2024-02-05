@@ -5,6 +5,7 @@ import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.PaperCommandManager;
 import co.aikar.commands.contexts.ContextResolver;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.EventDatabase;
@@ -28,6 +29,7 @@ import org.bukkit.entity.Boat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class ContextResolvers {
 
@@ -194,7 +196,12 @@ public class ContextResolvers {
     public static ContextResolver<Track, BukkitCommandExecutionContext> getTrackContextResolver() {
         return (c) -> {
             String name = c.popFirstArg();
-            var maybeTrack = TrackDatabase.getTrack(name);
+            Optional<Track> maybeTrack;
+            if (name.equalsIgnoreCase("random") || name.equalsIgnoreCase("r")) {
+                maybeTrack = TimingSystemAPI.getRandomTrack();
+            } else {
+                maybeTrack = TrackDatabase.getTrack(name);
+            }
             if (maybeTrack.isPresent()) {
                 return maybeTrack.get();
             } else {

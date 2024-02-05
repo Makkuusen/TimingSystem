@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.database.*;
 import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.gui.GuiCommon;
 import me.makkuusen.timing.system.heat.Heat;
+import me.makkuusen.timing.system.listeners.GSitListener;
 import me.makkuusen.timing.system.papi.TimingSystemPlaceholder;
 import me.makkuusen.timing.system.permissions.*;
 import me.makkuusen.timing.system.theme.TSColor;
@@ -31,6 +32,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -81,6 +83,11 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new GUIListener(), plugin);
         pm.registerEvents(new TSListener(), plugin);
         pm.registerEvents(new TimeTrialListener(), plugin);
+
+        if (pm.isPluginEnabled("GSit")) {
+            pm.registerEvents(new GSitListener(), plugin);
+        }
+
         Bukkit.getMessenger().registerIncomingPluginChannel(plugin, "openboatutils:settings", new PluginMessageReceiver());
         Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, "openboatutils:settings");
 
@@ -114,6 +121,8 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandBoat());
         manager.registerCommand(new CommandRace());
         manager.registerCommand(new CommandReset());
+        manager.registerCommand(new CommandTimeTrialRandom());
+        manager.registerCommand(new CommandTimeTrialCancel());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
         database = configuration.getDatabaseType();
@@ -193,11 +202,11 @@ public class TimingSystem extends JavaPlugin {
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::onShutdown);
         logger.info("Version " + getPluginMeta().getVersion() + " disabled.");
         scoreboardLibrary.close();
-        DB.close();
         TSListener.plugin = null;
         Text.plugin = null;
         logger = null;
         plugin = null;
+        DB.close();
     }
 
     public static <T> TaskChain<T> newChain() {

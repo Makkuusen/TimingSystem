@@ -1,9 +1,6 @@
 package me.makkuusen.timing.system.database;
 
-import co.aikar.idb.BukkitDB;
-import co.aikar.idb.DB;
-import co.aikar.idb.DbRow;
-import co.aikar.idb.PooledDatabaseOptions;
+import co.aikar.idb.*;
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
@@ -32,6 +29,7 @@ import org.bukkit.entity.Boat;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,8 +44,13 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         String hostAndPort = config.getSqlHost() + ":" + config.getSqlPort();
 
         PooledDatabaseOptions options = BukkitDB.getRecommendedOptions(TimingSystem.getPlugin(), config.getSqlUsername(), config.getSqlPassword(), config.getSqlDatabase(), hostAndPort);
-
-        BukkitDB.createHikariDatabase(TimingSystem.getPlugin(), options);
+        options.setDataSourceProperties(new HashMap<>() {{
+            put("useSSL", false);
+        }});
+        options.setMinIdleConnections(5);
+        options.setMaxConnections(5);
+        co.aikar.idb.Database db = new HikariPooledDatabase(options);
+        DB.setGlobalDatabase(db);
         return createTables();
     }
 

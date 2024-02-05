@@ -97,6 +97,7 @@ error:
   no_riptide: "&eYou are not allowed to riptide on this track."
   no_soul_speed: "&eYou are not allowed to have soul speed on your boots."
   no_creative: "&eYou are not allowed to be in creative game mode."
+  no_game_mode_change: "&eYour time trial was cancelled due to switching game mode."
   wrong_boat_utils_mode: "&eYou did not have the correct BoatUtilsMode active."
   lag_detected: "&eTimingSystem detected some lag and unfortunately your time trial has been invalidated."
   missed_checkpoints: "&eTime is invalid, not all checkpoints were passed!"
@@ -305,8 +306,8 @@ broadcast:
   heat_finish_title: "&aYou finished"
 
 actionbar:
-  race: "&1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits"
-  race_spectator: "&2%name% > &1Lap: &2&l%laps%&1/&2%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2%totalPits%&r&1 Pits"
+  race: "&1Lap: &2&l%laps%&1/&2&l%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2&l%totalPits%&r&1 Pits"
+  race_spectator: "&2&l%name% > &1Lap: &2&l%laps%&1/&2&l%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2&l%totalPits%&r&1 Pits"
 
 gui:
   settings_title: "&tSettings"
@@ -324,6 +325,7 @@ gui:
   created_at: "&1Created at: &2%time%"
   weight: "&1Weight: &2%weight%"
   tags: "&1Tags: "
+  grids: "&1Grids: &2%grids%"
   sorted_by_default: "&1Sorted by: &2Default"
   sorted_by_position: "&1Sorted by: &2Position"
   sorted_by_popularity: "&1Sorted by: &2Popularity"
@@ -345,6 +347,7 @@ gui:
   toggle_override: "&1Toggle: &2Override"
   toggle_medals: "&1Toggle medals"
   toggle_final_laps: "&1Toggle: &2Send All Final Lap Times"
+  toggle_compact_scoreboard: "&1Toggle: &2Compact Scoreboard"
   color: "Color"
   on: "&1On"
   off: "&1Off"
