@@ -12,7 +12,6 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
-import me.makkuusen.timing.system.internal.events.PlayerSpecificActionEvent;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
@@ -671,9 +670,6 @@ public class ApiUtilities {
                 return;
             }
         }
-
-        PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(player, "reset");
-        Bukkit.getServer().getPluginManager().callEvent(event);
 
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             var tt = TimeTrialController.timeTrials.get(player.getUniqueId());

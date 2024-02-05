@@ -3,7 +3,6 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.internal.events.PlayerSpecificActionEvent;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
@@ -31,9 +30,6 @@ public class CommandBoat extends BaseCommand {
             Text.send(player, Error.NOT_NOW);
             return;
         }
-
-        PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(player, "boat");
-        Bukkit.getServer().getPluginManager().callEvent(event);
 
         if (TimeTrialController.lastTimeTrialTrack.containsKey(player.getUniqueId())) {
             Track track = TimeTrialController.lastTimeTrialTrack.get(player.getUniqueId());

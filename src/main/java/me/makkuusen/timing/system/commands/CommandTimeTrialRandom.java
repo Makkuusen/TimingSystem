@@ -6,7 +6,6 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
-import me.makkuusen.timing.system.internal.events.PlayerSpecificActionEvent;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -110,9 +109,6 @@ public class CommandTimeTrialRandom extends BaseCommand {
         } else {
             Text.send(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
         }
-
-        PlayerSpecificActionEvent event = new PlayerSpecificActionEvent(player, "timetrialrandom");
-        Bukkit.getServer().getPluginManager().callEvent(event);
 
         ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
     }
