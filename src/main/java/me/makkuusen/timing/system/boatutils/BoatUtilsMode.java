@@ -19,7 +19,12 @@ public enum BoatUtilsMode {
     BA_BLUE_NOFD(12, 5),
     PARKOUR_BLUE(13, 5),
     BA(14, 5),
-    BA_BLUE(15, 5);
+    BA_BLUE(15, 5),
+    JUMP_BLOCKS(16, 6),
+    BOOSTER_BLOCKS(17,6),
+    DEFAULT_ICE(18,6),
+    DEFAULT_BLUE_ICE(19,6),
+    ;
 
     private final short id;
     private final short version;
