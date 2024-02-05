@@ -193,35 +193,11 @@ public class TimeTrial {
 
         TimeTrialController.timeTrials.put(tPlayer.getUniqueId(), this);
         ApiUtilities.msgConsole(tPlayer.getName() + " started on " + track.getDisplayName());
-
-        startDelta = Instant.now().toEpochMilli() - startTime.toEpochMilli();
-        if (tPlayer.getSettings().isVerbose()) {
-            player.sendMessage(Component.text("Start > ").color(tPlayer.getTheme().getPrimary()).append(Component.text("+" + ApiUtilities.formatAsTimeWithoutRounding(startDelta)).color(tPlayer.getTheme().getSecondary())));
-        }
-        if (startDelta > 100) {
-            ApiUtilities.warnConsole("Tick while starting elapsed for a total of " + startDelta + "ms and player lost time.");
-        } else {
-            ApiUtilities.msgConsole("Tick while starting has elapsed for a total of " + startDelta + "ms and was ok.");
-        }
     }
 
     public void playerEndedMap() {
         Instant endTime = TimingSystem.currentTime;
         Player player = tPlayer.getPlayer();
-
-        long timeSinceStartOfTick = Instant.now().toEpochMilli() - endTime.toEpochMilli();
-        if (tPlayer.getSettings().isVerbose()) {
-            tPlayer.getPlayer().sendMessage(Component.text("End > ").color(tPlayer.getTheme().getPrimary()).append(Component.text("-" + ApiUtilities.formatAsTimeWithoutRounding(timeSinceStartOfTick)).color(tPlayer.getTheme().getSecondary())));
-            long delta = startDelta - timeSinceStartOfTick;
-            tPlayer.getPlayer().sendMessage(Component.text("Start/End Diff > ").color(tPlayer.getTheme().getPrimary()).append(Component.text(delta).color(timeSinceStartOfTick < startDelta ? tPlayer.getTheme().getError() : tPlayer.getTheme().getSuccess())));
-        }
-
-        if (timeSinceStartOfTick > 100) {
-            ApiUtilities.warnConsole("Tick while finishing elapsed for a total of " + timeSinceStartOfTick + "ms and end time was updated.");
-            endTime = Instant.now();
-        } else {
-            ApiUtilities.msgConsole("Tick while finishing has elapsed for a total of " + timeSinceStartOfTick + "ms and was ok.");
-        }
 
         if (validateFinish(player)) {
             long timeTrialTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
@@ -233,20 +209,6 @@ public class TimeTrial {
 
     public void playerRestartMap() {
         Instant endTime = TimingSystem.currentTime;
-        long timeSinceStartOfTick = Instant.now().toEpochMilli() - endTime.toEpochMilli();
-
-        if (tPlayer.getSettings().isVerbose()) {
-            tPlayer.getPlayer().sendMessage(Component.text("End > ").color(tPlayer.getTheme().getPrimary()).append(Component.text("-" + ApiUtilities.formatAsTimeWithoutRounding(timeSinceStartOfTick)).color(tPlayer.getTheme().getSecondary())));
-            long delta = startDelta - timeSinceStartOfTick;
-            tPlayer.getPlayer().sendMessage(Component.text("Start/End Diff > ").color(tPlayer.getTheme().getPrimary()).append(Component.text(delta).color(timeSinceStartOfTick < startDelta ? tPlayer.getTheme().getError() : tPlayer.getTheme().getSuccess())));
-        }
-
-        if (timeSinceStartOfTick > 100) {
-            ApiUtilities.warnConsole("Tick while finishing elapsed for a total of " + timeSinceStartOfTick + "ms and end time was updated.");
-            endTime = Instant.now();
-        } else {
-            ApiUtilities.msgConsole("Tick while finishing has elapsed for a total of " + timeSinceStartOfTick + "ms and was ok.");
-        }
         Player player = tPlayer.getPlayer();
 
         this.startDelta = Instant.now().toEpochMilli() - TimingSystem.currentTime.toEpochMilli();
