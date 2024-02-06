@@ -699,7 +699,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     }
 
     public void deleteTrackOptionAsync(int trackId, TrackOption trackOption) {
-        DB.executeUpdateAsync("DELETE FROM `ts_tracks_options` WHERE `option` = "+ trackOption.getId() + ";");
+        DB.executeUpdateAsync("DELETE FROM `ts_tracks_options` WHERE `option` = "+ trackOption.getId() + " AND `trackId` = " + trackId + ";");
     }
 
     @Override
