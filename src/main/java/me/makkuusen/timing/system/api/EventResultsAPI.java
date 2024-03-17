@@ -39,7 +39,7 @@ public class EventResultsAPI {
             LapResult lapResult = new LapResult(lap.getLapTime(), lap.isPitted(), driver.getBestLap().get().getLapTime() == lap.getLapTime());
             lapResults.add(lapResult);
         }
-        return new DriverResult(driver.getPosition(), driver.getStartPosition(), driver.getTPlayer().getName(), driver.getTPlayer().getUniqueId().toString(), lapResults);
+        return new DriverResult(driver.getPosition(), driver.getStartPosition(), driver.getTPlayer().getName(), driver.getTPlayer().getUniqueId().toString(), driver.getFinishTime(), lapResults);
     }
 
     private static HeatResult getHeatResult(Heat heat) {
