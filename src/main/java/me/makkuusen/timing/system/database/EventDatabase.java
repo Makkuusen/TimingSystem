@@ -86,7 +86,7 @@ public interface EventDatabase {
 
     static void initSynchronize() {
         TaskChain<?> chain = TimingSystem.newChain();
-        TimingSystem.getPlugin().getLogger().warning("Async events started'");
+        TimingSystem.getPlugin().getLogger().warning("Async events started");
 
         chain.async(() -> {
             try {
