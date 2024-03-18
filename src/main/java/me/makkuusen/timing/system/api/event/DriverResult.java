@@ -12,6 +12,7 @@ public class DriverResult {
     Integer startPosition;
     String name;
     String uuid;
+    Long finishTimeInMs;
 
     List<LapResult> laps;
 

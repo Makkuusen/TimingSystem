@@ -133,7 +133,7 @@ public interface TrackDatabase {
 
     static void loadTrackFinishesAsync() {
         TaskChain<?> chain = TimingSystem.newChain();
-        TimingSystem.getPlugin().getLogger().warning("Async loading started'");
+        TimingSystem.getPlugin().getLogger().warning("Async loading started");
 
         chain.async(TrackDatabase::loadFinishes)
                 .async(TrackDatabase::loadAttempts)
